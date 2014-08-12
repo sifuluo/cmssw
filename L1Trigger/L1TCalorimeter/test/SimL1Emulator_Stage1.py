@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 MaxEvents=-1
 OutputFileName='file:SimL1Emulator_Stage1_PP.root'
-InputFiles=["file:/eos/uscms/store/user/lpctrig/HATS/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25_POSTLS162_V2-v1/05a81b8d696d27a5c3c2ca036967addd/skim_150_1_6UN.root","file:/eos/uscms/store/user/lpctrig/HATS/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25_POSTLS162_V2-v1/05a81b8d696d27a5c3c2ca036967addd/skim_49_1_tOR.root"]
+InputFiles=["file:/eos/uscms/store/user/lpctrig/HATS/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25_POSTLS162_V2-v1/skim_150_1_6UN.root","file:/eos/uscms/store/user/lpctrig/HATS/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25_POSTLS162_V2-v1/skim_49_1_tOR.root"]
 
 ##################################################################
 process = cms.Process('L1TEMULATION')
@@ -44,7 +44,7 @@ process.output = cms.OutputModule(
                                            'keep *_gtDigis__*',
                                            'keep *_l1extraParticles_*_*',
                                            'keep *_*_*_L1TEMULATION'),
-    fileName = cms.untracked.string(OuputFileName),
+    fileName = cms.untracked.string(OutputFileName),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
