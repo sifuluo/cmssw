@@ -1,5 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+##################################################################
 
+MaxEvents=-1
+OutputFileName='file:SimL1Emulator_Stage1_PP.root'
+InputFiles=["file:/eos/uscms/store/user/lpctrig/HATS/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25_POSTLS162_V2-v1/05a81b8d696d27a5c3c2ca036967addd/skim_150_1_6UN.root","file:/eos/uscms/store/user/lpctrig/HATS/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25_POSTLS162_V2-v1/05a81b8d696d27a5c3c2ca036967addd/skim_49_1_tOR.root"]
+
+##################################################################
 process = cms.Process('L1TEMULATION')
 
 process.load('Configuration.StandardSequences.Services_cff')
@@ -10,15 +16,16 @@ process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 # Select the Message Logger output you would like to see:
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(MaxEvents)
     )
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/mc/Fall13dr/Neutrino_Pt-2to20_gun/GEN-SIM-RAW/tsg_PU40bx25_POSTLS162_V2-v1/00005/02B79593-F47F-E311-8FF6-003048FFD796.root")
+    fileNames= cms.untracked.vstring(InputFiles)
     )
 
 
@@ -30,8 +37,14 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_ak5PFJets*__*',
+                                           'keep *_pfMet*__*',
+                                           'keep *_muons__*',
+                                           'keep *_gsfElectrons__*',
+                                           'keep *_gtDigis__*',
+                                           'keep *_l1extraParticles_*_*',
                                            'keep *_*_*_L1TEMULATION'),
-    fileName = cms.untracked.string('SimL1Emulator_Stage1_PP.root'),
+    fileName = cms.untracked.string(OuputFileName),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -45,6 +58,7 @@ process.GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLO
 process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
+
 
 process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
