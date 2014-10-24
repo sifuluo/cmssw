@@ -34,10 +34,13 @@ namespace l1t {
 
             UnpackerMap res;
             if (fed == 1) {
-               res[1] = egamma_unp;
-               res[3] = etsum_unp;
-               res[5] = jet_unp;
-               res[7] = tau_unp;
+              res[1] = jet_unp;
+              res[3] = jet_unp;
+              //               res[1] = egamma_unp;
+              // res[133] = etsum_unp; // Link 66*2+1
+              // res[25] = jet_unp; // Link 12*2+1 
+              // res[37] = jet_unp; // Link 18*2+1
+              // res[7] = tau_unp;
             } else if (fed == 2) {
                res[1] = mp_unp;
                res[3] = mp_unp;

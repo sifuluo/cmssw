@@ -10,16 +10,24 @@ const l1t::CaloCluster l1t::CaloTools::nullCluster_;
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
 {
+  //Old thing
+  /*
   size_t towerIndex = CaloTools::caloTowerHash(iEta, iPhi);
+  //std::cout << "towerIndex: " << towerIndex << "  towerSize " << towers.size() << std::endl;
   if(towerIndex<towers.size()){
     if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead 
-      // std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
+       //std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
       for(size_t towerNr=0;towerNr<towers.size();towerNr++){
 	if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
       }     
     }else return towers[towerIndex];
   
   }
+  return nullTower_;
+  */
+  for(size_t towerNr=0;towerNr<towers.size();towerNr++){
+    if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
+  }   
   return nullTower_;
 }
 
@@ -73,27 +81,27 @@ bool l1t::CaloTools::isValidIEtaIPhi(int iEta,int iPhi)
 }
 
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
-			       int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
-			       SubDet etMode)
+    int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
+    SubDet etMode)
 {
 
   return calHwEtSum(iEta,iPhi,towers,localEtaMin,localEtaMax,localPhiMin,localPhiMax,kHFEnd,etMode);
 }
 
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
-			       int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
-			       int iEtaAbsMax,SubDet etMode)
+    int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
+    int iEtaAbsMax,SubDet etMode)
 {
   int hwEtSum=0;
   for(int etaNr=localEtaMin;etaNr<=localEtaMax;etaNr++){
     for(int phiNr=localPhiMin;phiNr<=localPhiMax;phiNr++){
-      
+
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
       if(abs(towerIEta)<=iEtaAbsMax){
-	const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
-	if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
-	if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
+        const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
+        if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
+        if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
       }	
     }
   }

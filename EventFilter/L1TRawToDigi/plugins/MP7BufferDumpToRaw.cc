@@ -77,6 +77,7 @@ private:
 
   // input file parameters
   int nTextHeaderLines_;
+  int nEventsToSkip_;
   bool packetisedData_;
   int nFramesPerEvent_;
   int txLatency_;
@@ -101,6 +102,8 @@ private:
   std::vector<int> rxBlockLength_;
   std::vector<int> txBlockLength_;  
 
+  int nEvts_;
+
 };
 
 //
@@ -123,9 +126,12 @@ MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
   rxFilename_ = iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt");
   txFilename_ = iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt");
 
+  nEvts_ = 0;
   rxLine_ = 0;
   txLine_ = 0;
 
+  nEventsToSkip_ = iConfig.getUntrackedParameter<int>("nEventsToSkip", 0);
+  packetisedData_ = iConfig.getUntrackedParameter<bool>("packetisedData", true);
   nTextHeaderLines_ = iConfig.getUntrackedParameter<int>("nTextHeaderLines", 3);
   packetisedData_ = iConfig.getUntrackedParameter<bool>("packetisedData", true);
   nFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 41);
@@ -243,6 +249,8 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   edm::LogInfo("mp7") << "Finished reading event at Rx line " << rxLine_ << ", Tx line " << txLine_ << std::endl;
+
+  nEvts_++;
 
   // check size of vectors
   int maxRxFrames=0;
@@ -362,7 +370,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iWord += lenAMCHeader_;
   std::ostringstream payloadInfo;
 
-  for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
+  for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize && nEvts_ > nEventsToSkip_; ++iBlock) {
 
     int blockId     = 2*iBlock;
     int blockLength = rxBlockLength_.at(iBlock);
@@ -408,7 +416,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   payloadInfo.str("");
 
-  for (int iBlock=0; iBlock<nTxLinks_ && iWord<fedSize; ++iBlock) {
+  for (int iBlock=0; iBlock<nTxLinks_ && iWord<fedSize && nEvts_ > nEventsToSkip_; ++iBlock) {
 
     int blockId     = (2*iBlock)+1;
     int blockLength = txBlockLength_.at(iBlock);

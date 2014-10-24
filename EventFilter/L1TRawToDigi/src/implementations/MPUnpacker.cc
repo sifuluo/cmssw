@@ -22,8 +22,10 @@ namespace l1t {
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
-     res1_->setBXRange(0,1);
-     res2_->setBXRange(0,1);
+
+     // Only one BX readout makes sense from each MP
+     res1_->setBXRange(0,0);
+     res2_->setBXRange(0,0);
 
      // Initialise index
      int unsigned i = 0;
@@ -35,14 +37,41 @@ namespace l1t {
      l1t::EtSum et = l1t::EtSum();
     
      et.setHwPt(raw_data & 0xFFFFF);
-     et.setType(l1t::EtSum::kTotalEt);       
+
+     switch (block_id){
+
+     case 1:
+       et.setType(l1t::EtSum::kTotalEt);              
+       break;
+
+     case 7:
+       et.setType(l1t::EtSum::kTotalEt);
+       break;
+
+     case 3:
+       et.setType(l1t::EtSum::kTotalEtx);
+       break;
+
+     case 9:
+       et.setType(l1t::EtSum::kTotalEtx);
+       break;
+
+     case 5:
+       et.setType(l1t::EtSum::kTotalEty);
+       break;
+
+     case 11:
+       et.setType(l1t::EtSum::kTotalEty);
+       break;
+
+     }
 
      LogDebug("L1T") << "ET/METx/METy: pT " << et.hwPt();
 
      res2_->push_back(0,et);
 
-     // Skip 9 empty frames
-     for (int j=0; j<9; j++) raw_data=pop(data,i); 
+     // Skip 10 empty frames
+     for (int j=0; j<10; j++) raw_data=pop(data,i); 
 
      // HT / MHT(x)/ MHT (y)
 
@@ -51,14 +80,41 @@ namespace l1t {
      l1t::EtSum ht = l1t::EtSum();
     
      ht.setHwPt(raw_data & 0xFFFFF);
-     ht.setType(l1t::EtSum::kTotalHt);       
+
+     switch (block_id){
+
+     case 1:
+       ht.setType(l1t::EtSum::kTotalHt);
+       break;
+
+     case 7:
+       ht.setType(l1t::EtSum::kTotalHt);
+       break;
+
+     case 3:
+       ht.setType(l1t::EtSum::kTotalHtx);
+       break;
+
+     case 9:
+       ht.setType(l1t::EtSum::kTotalHtx);
+       break;
+
+     case 5:
+       ht.setType(l1t::EtSum::kTotalHty);
+       break;
+
+     case 11:
+       ht.setType(l1t::EtSum::kTotalHty);
+       break;
+
+     }
 
      LogDebug("L1T") << "HT/MHTx/MHTy: pT " << ht.hwPt();
 
      res2_->push_back(0,ht);
 
-     // Skip 26 empty frames                                                                                                                                             
-     for (int j=0; j<26; j++) raw_data=pop(data,i);
+     // Skip 25 empty frames                                                                                                                                             
+     for (int j=0; j<25; j++) raw_data=pop(data,i);
 
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
@@ -78,7 +134,8 @@ namespace l1t {
 
        LogDebug("L1") << "block ID=" << block_id << " etasign=" << etasign;
 
-       jet.setHwEta(etasign*(raw_data & 0x3F));
+       //       jet.setHwEta(etasign*(raw_data & 0x3F));
+       jet.setHwEta(raw_data & 0x3F);
        jet.setHwPhi((raw_data >> 6) & 0x7F);
        jet.setHwPt((raw_data >> 13) & 0xFFFF);
          
