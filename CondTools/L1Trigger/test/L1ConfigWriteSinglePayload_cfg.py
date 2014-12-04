@@ -92,6 +92,7 @@ options.register('rpcHsb1Mask',
                  "Replacement value of l1RPCHsbConfig.hsb1Mask; no replacement by default")
 options.register('gmtVersionSortRankEtaQLUT',
                  -999, #default value
+
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Replacement value of L1MuGMTParameters.VersionSortRankEtaQLUT; no replacement by default")

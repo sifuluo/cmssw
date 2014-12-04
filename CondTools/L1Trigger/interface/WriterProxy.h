@@ -10,10 +10,12 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 //#include "CondCore/DBCommon/interface/DbSession.h"
 //#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
-
+#include "CondCore/CondDB/interface/Utils.h"
 #include "CondTools/L1Trigger/interface/Exception.h"
 
 #include <string>
+#include <typeinfo>
+#include <iostream>
 
 namespace l1t
 {
@@ -53,6 +55,9 @@ class WriterProxyT : public WriterProxy
         /* This method requires that Record and Type supports copy constructor */
         virtual std::string save (const edm::EventSetup & setup) const
         {
+
+	  std::cout << cond::demangledName(typeid(Record)) << "\n";
+
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;
 
@@ -66,21 +71,28 @@ class WriterProxyT : public WriterProxy
 	      }
 
 	    // If handle is invalid, then data is already in DB
-       
 	    edm::Service<cond::service::PoolDBOutputService> poolDb;
 	    if (!poolDb.isAvailable())
 	      {
 		throw cond::Exception( "DataWriter: PoolDBOutputService not available."
-				       ) ;
+			       ) ;
 	      }
+
+	    // A hack to ensure that the poolDB session is started if not already...
+	    std::string record_str = cond::demangledName(typeid(Record));
+	    record_str = "L1TriggerKeyListRcd"; // It's complicated...
+	    poolDb->isNewTagRequest(record_str);
+
+
 	    cond::persistency::Session session = poolDb->session();
-	    cond::persistency::TransactionScope tr(session.transaction());
+	    //cond::persistency::TransactionScope tr(session.transaction());
 	    // if throw transaction will unroll
-	    tr.start(false);
+	    //tr.start(false);
 
 	    boost::shared_ptr<Type> pointer(new Type (*(handle.product ())));
 	    std::string payloadToken =  session.storePayload( *pointer );
-	    tr.commit();
+	    //tr.commit();
+	    //tr.close();
 	    return payloadToken ;
         }
 };
