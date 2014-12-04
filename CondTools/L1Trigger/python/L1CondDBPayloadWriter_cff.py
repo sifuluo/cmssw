@@ -16,6 +16,7 @@ def initPayloadWriter( process,
     initPayloadWriter.outputDB = cms.Service("PoolDBOutputService",
                                              CondDBSetup,
                                              connect = cms.string(outputDBConnect),
+#                                             dbFormat = cms.untracked.int32(2),
                                              toPut = cms.VPSet(cms.PSet(
         record = cms.string("L1TriggerKeyListRcd"),
         tag = cms.string("L1TriggerKeyList_" + tagBaseVec[ L1CondEnum.L1TriggerKeyList ]))

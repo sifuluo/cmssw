@@ -9,6 +9,8 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 
 #include <utility>
+#include <iostream>
+using namespace std;
 
 namespace l1t
 {
@@ -21,6 +23,8 @@ std::string
 DataWriter::writePayload( const edm::EventSetup& setup,
 			  const std::string& recordType )
 {
+  cout << "calling writePayload" << "\n";
+
   WriterFactory* factory = WriterFactory::get();
   std::auto_ptr<WriterProxy> writer(factory->create( recordType + "@Writer" )) ;
   if( writer.get() == 0 )
@@ -40,18 +44,24 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   // started while WriterProxy::save() is called (e.g. in a ESProducer like L1ConfigOnlineProdBase), the
   // transaction here will become read-only.
 //   cond::DbSession session = poolDb->session();
-//   cond::DbScopedTransaction tr(session);
+  
+  cond::persistency::TransactionScope tr(poolDb->session().transaction());
 //   // if throw transaction will unroll
 //   tr.start(false);
+
+  cout << "calling save...\n";
 
   // update key to have new payload registered for record-type pair.
   //  std::string payloadToken = writer->save( setup, session ) ;
   std::string payloadToken = writer->save( setup ) ;
 
-  edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
+  cout << recordType << " PAYLOAD TOKEN "
 			       << payloadToken ;
 
 //   tr.commit ();
+
+  cout << "exiting writePayload" << "\n";
+  tr.close();
 
   return payloadToken ;
 }
@@ -68,23 +78,34 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			     ) ;
     }
 
+  cout << "about to call 1.\n";
+
   cond::persistency::Session session = poolDb->session();
   cond::persistency::TransactionScope tr(session.transaction());
-  tr.start( false );
+  //tr.start( false );
 
+
+  cout << "about to call 2.\n";
+  
   // Write L1TriggerKeyList payload and save payload token before committing
   boost::shared_ptr<L1TriggerKeyList> pointer(keyList);
   std::string payloadToken = session.storePayload(*pointer );
+
 			
   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
   // confused.
-  tr.commit ();
+  //tr.commit ();
+  tr.close ();
+
+  cout << "about to call 3 \n";
   
   // Set L1TriggerKeyList IOV
   updateIOV( "L1TriggerKeyListRcd",
 	     payloadToken,
 	     sinceRun,
 	     logTransactions ) ;
+
+  cout << "about to call 3 \n";
 }
 
 bool
@@ -93,7 +114,7 @@ DataWriter::updateIOV( const std::string& esRecordName,
 		       edm::RunNumber_t sinceRun,
 		       bool logTransactions )
 {
-  edm::LogVerbatim( "L1-O2O" ) << esRecordName
+  cout << esRecordName
 			       << " PAYLOAD TOKEN " << payloadToken ;
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
@@ -135,13 +156,13 @@ DataWriter::updateIOV( const std::string& esRecordName,
       else
 	{
 	  iovUpdated = false ;
-	  edm::LogVerbatim( "L1-O2O" ) << "IOV already up to date." ;
+	  cout << "IOV already up to date." ;
 	}
     }
 
   if( iovUpdated )
     {
-      edm::LogVerbatim( "L1-O2O" ) << esRecordName << " "
+      cout << esRecordName << " "
 				   << poolDb->tag( esRecordName )
 				   << " SINCE " << sinceRun ;
     }
