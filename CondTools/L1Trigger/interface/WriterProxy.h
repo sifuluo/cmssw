@@ -79,15 +79,17 @@ class WriterProxyT : public WriterProxy
 	      }
 
 	    // A hack to ensure that the poolDB session is started if not already...
-	    std::string record_str = cond::demangledName(typeid(Record));
-	    record_str = "L1TriggerKeyListRcd"; // It's complicated...
-	    poolDb->isNewTagRequest(record_str);
+	    //std::string record_str = cond::demangledName(typeid(Record));
+	    //record_str = "L1TriggerKeyListRcd"; // It's complicated...
+	    //poolDb->isNewTagRequest(record_str);
 
 
 	    cond::persistency::Session session = poolDb->session();
 	    //cond::persistency::TransactionScope tr(session.transaction());
 	    // if throw transaction will unroll
 	    //tr.start(false);
+
+	    poolDb->forceInit();
 
 	    boost::shared_ptr<Type> pointer(new Type (*(handle.product ())));
 	    std::string payloadToken =  session.storePayload( *pointer );
