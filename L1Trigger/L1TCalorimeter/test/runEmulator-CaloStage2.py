@@ -14,36 +14,21 @@ options.register('skipEvents',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of events to skip")
-options.register('framesPerEvent',
-                 6,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "N frames per event")
-options.register('offset',
-                 0,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Jet board offset (frames)")
-options.register('egLatency',
-                 0,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "EG board latency (frames)")
-options.register('jetLatency',
-                 0,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Jet board latency (frames)")
-options.register('egDelay',
-                 54,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "EG input delay wrt regions (frames)")
 options.register('dump',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+options.register('doLayer1',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Run layer 1 module")
+options.register('doLayer2',
+                 True,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Run layer 2 module")
 
                  
 options.parseArguments()
@@ -52,7 +37,7 @@ if (options.maxEvents == -1):
     options.maxEvents = 1
 
 
-process = cms.Process('Raw2Digi')
+process = cms.Process('L1Emulator')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -69,7 +54,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-process.source = cms.Source("EmptySource")
+inFile = 'file:l1tCalo_2016_EDM.root'
+process.source = cms.Source("PoolSource",
+    fileNames=cms.untracked.vstring(inFile),
+    skipEvents=cms.untracked.uint32(options.skipEvents)
+)
 
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
@@ -80,13 +69,13 @@ process.options = cms.untracked.PSet(
 process.output = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *"),
-    fileName = cms.untracked.string('l1tCalo_2015_EDM.root')
+    fileName = cms.untracked.string('l1tCalo_2016_simEDM.root')
 )
 
 # Additional output definition
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1tCalo_2015_histos.root')
+process.TFileService.fileName = cms.string('l1tCalo_2016_simHistos.root')
 
 
 # enable debug message logging for our modules
@@ -107,49 +96,51 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 
-# buffer dump to RAW
-process.load('EventFilter.L1TRawToDigi.stage1MP7BufferRaw_cfi')
+# emulator
+from L1Trigger.L1TCalorimeter.caloStage2Layer1Digis_cfi import caloStage2Layer1Digis
+process.simCaloStage2Layer1Digis = caloStage2Layer1Digis.clone()
 
-# skip events
-jetOffset = options.offset + (options.skipEvents * options.framesPerEvent)
-egOffset  = jetOffset + options.egDelay
+from L1Trigger.L1TCalorimeter.caloStage2Digis_cfi import caloStage2Digis
+process.simCaloStage2Digis = caloStage2Digis.clone()
+process.simCaloStage2Digis.towerToken = cms.InputTag("simCaloStage2Layer1Digis")
 
+# emulator ES
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
 
-# print some debug info
-print "egOffset      = ", egOffset
-print "jetOffset     = ", jetOffset
-print " "
+# histograms
+process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
+process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpJetToken = cms.InputTag("simCaloStage2Digis", "MP")
+process.l1tStage2CaloAnalyzer.mpEtSumToken = cms.InputTag("simCaloStage2Digis", "MP")
+process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("simCaloStage2Digis")
+process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("simCaloStage2Digis")
 
-
-# pack into arrays
-latencies = [ options.jetLatency, options.egLatency ]
-offsets   = [ jetOffset,  egOffset ]
-
-process.stage1Raw.nFramesPerEvent    = cms.untracked.int32(options.framesPerEvent)
-process.stage1Raw.nFramesOffset    = cms.untracked.vuint32(offsets)
-process.stage1Raw.nFramesLatency   = cms.untracked.vuint32(latencies)
-process.stage1Raw.rxFile = cms.untracked.string("rx_summary.txt")
-process.stage1Raw.txFile = cms.untracked.string("tx_summary.txt")
-
-# dump raw data
-process.dumpRaw = cms.EDAnalyzer( 
-    "DumpFEDRawDataProduct",
-    label = cms.untracked.string("stage1Raw"),
-    feds = cms.untracked.vint32 ( 1352 ),
-    dumpPayload = cms.untracked.bool ( options.dump )
-)
-
-# raw to digi
-process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
-process.caloStage1Digis.InputLabel = cms.InputTag('stage1Raw')
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.stage1Raw
-    +process.dumpRaw
-    +process.caloStage1Digis
-
+    process.simCaloStage2Layer1Digis
+    +process.simCaloStage2Digis
+    +process.l1tStage2CaloAnalyzer
 )
+
+if (not options.doLayer1):
+    process.path.remove(process.simCaloStage2Layer1Digis)
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis")
+
+if (not options.doLayer2):
+    process.path.remove(process.simCaloStage2Digis)
+
+
+#if (not options.doMP):
+#    process.path.remove(process.stage2MPRaw)
+
+#if (not options.-doDemux):
+#    process.path.remove(process.stage2DemuxRaw)
 
 process.out = cms.EndPath(
     process.output
