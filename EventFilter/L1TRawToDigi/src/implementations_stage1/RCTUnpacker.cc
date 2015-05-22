@@ -126,7 +126,7 @@ namespace l1t {
 	
 	//first decode linkID 
 	uint32_t linkID     = block.payload()[iDAQBuffer++];
-	uint32_t tmp        = block.payload()[iDAQBuffer++];
+	// uint32_t tmp        = block.payload()[iDAQBuffer++];
 	//uint32_t CRCErrCnt  =  tmp & 0x0000FFFF;
 	//uint32_t linkStatus = (tmp & 0xFFFF0000) >> 16;
 	
@@ -225,7 +225,7 @@ namespace l1t {
 			     (int) em.regionId().iphi(),
 			     0);
 
-	   resRCTEmCands_->push_back( em );
+	   resRCTEmCands_->push_back( bx, EmCand );
 	   
 	 }
 
@@ -248,7 +248,7 @@ namespace l1t {
 			     (int) em.regionId().iphi(),
 			     0);
 
-	   resRCTEmCands_->push_back( em );
+	   resRCTEmCands_->push_back( bx, EmCand );
 	 }
 
 	 for(int j = 0; j < 7; j++) {
@@ -276,7 +276,7 @@ namespace l1t {
 			       0);
 	     //region->setBx(bx);
 	     // add to ouput
-	     resRCTRegions_->push_back( rgn );
+	     resRCTRegions_->push_back( bx, region );
 	   }
 	 }
 
@@ -301,7 +301,7 @@ namespace l1t {
 			       0.,
 			       0.);
 
-	     resRCTRegions_->push_back( rgn );
+	     resRCTRegions_->push_back( bx, region );
 	   }
 	 }
        }
