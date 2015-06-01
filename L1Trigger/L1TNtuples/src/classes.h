@@ -17,6 +17,7 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoTrackDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1MenuDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 
 namespace{
   namespace{
@@ -38,6 +39,7 @@ namespace{
     L1Analysis::L1AnalysisRecoClusterDataFormat    pL1cluster;
     L1Analysis::L1AnalysisRecoVertexDataFormat     pL1vertex;   
     L1Analysis::L1AnalysisRecoTrackDataFormat      pL1track; 
-    L1Analysis::L1AnalysisL1MenuDataFormat        pL1menu; 
+    L1Analysis::L1AnalysisL1MenuDataFormat         pL1menu; 
+    L1Analysis::L1AnalysisL1UpgradeDataFormat      pL1upgrade; 
    }
 }
