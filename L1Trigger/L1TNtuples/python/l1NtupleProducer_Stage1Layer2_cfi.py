@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import L1TriggerDPG.L1Ntuples.l1NtupleProducer_cfi
-l1NtupleProducer = L1TriggerDPG.L1Ntuples.l1NtupleProducer_cfi.l1NtupleProducer.clone()
+from L1TriggerDPG.L1Ntuples.l1NtupleProducer_cfi import *
 
 l1NtupleProducer.gctCentralJetsSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
 l1NtupleProducer.gctNonIsoEmSource    = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm")
