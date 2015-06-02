@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1RecoJetTreeProducer = cms.EDAnalyzer("L1RecoJetTreeProducer",
+l1JetRecoTreeProducer = cms.EDAnalyzer("L1JetRecoTreeProducer",
   caloJetTag              = cms.untracked.InputTag("ak4CaloJets"),
   pfJetTag                = cms.untracked.InputTag("ak4CaloJets"),
   jetIdTag                = cms.untracked.InputTag(""),

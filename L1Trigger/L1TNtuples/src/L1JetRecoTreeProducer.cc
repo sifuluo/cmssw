@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    L1Trigger/L1TNtuples
-// Class:      L1RecoJetTreeProducer
+// Class:      L1JetRecoTreeProducer
 //
-/**\class L1RecoJetTreeProducer L1RecoJetTreeProducer.cc L1Trigger/L1TNtuples/src/L1RecoJetTreeProducer.cc
+/**\class L1JetRecoTreeProducer L1JetRecoTreeProducer.cc L1Trigger/L1TNtuples/src/L1JetRecoTreeProducer.cc
 
  Description: Produces tree containing reco quantities
 
@@ -48,10 +48,10 @@
 // class declaration
 //
 
-class L1RecoJetTreeProducer : public edm::EDAnalyzer {
+class L1JetRecoTreeProducer : public edm::EDAnalyzer {
 public:
-  explicit L1RecoJetTreeProducer(const edm::ParameterSet&);
-  ~L1RecoJetTreeProducer();
+  explicit L1JetRecoTreeProducer(const edm::ParameterSet&);
+  ~L1JetRecoTreeProducer();
 
 
 private:
@@ -88,7 +88,7 @@ private:
 
 
 
-L1RecoJetTreeProducer::L1RecoJetTreeProducer(const edm::ParameterSet& iConfig):
+L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig):
   caloJetTag_(iConfig.getUntrackedParameter("caloJetTag",edm::InputTag("ak4CaloJets"))),
   caloJetIdTag_(iConfig.getUntrackedParameter("jetIdTag",edm::InputTag("ak4JetID"))),
   caloJetsMissing_(false)
@@ -103,13 +103,13 @@ L1RecoJetTreeProducer::L1RecoJetTreeProducer(const edm::ParameterSet& iConfig):
   jet_data           = jet->getData();
 
   // set up output
-  tree_=fs_->make<TTree>("RecoJetTree", "RecoJetTree");
+  tree_=fs_->make<TTree>("JetRecoTree", "JetRecoTree");
   tree_->Branch("Jet",           "L1Analysis::L1AnalysisRecoJetDataFormat",         &jet_data,                32000, 3);
 
 }
 
 
-L1RecoJetTreeProducer::~L1RecoJetTreeProducer()
+L1JetRecoTreeProducer::~L1JetRecoTreeProducer()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -123,7 +123,7 @@ L1RecoJetTreeProducer::~L1RecoJetTreeProducer()
 //
 
 // ------------ method called to for each event  ------------
-void L1RecoJetTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   jet->Reset();
@@ -151,14 +151,14 @@ void L1RecoJetTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1RecoJetTreeProducer::beginJob(void)
+L1JetRecoTreeProducer::beginJob(void)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-L1RecoJetTreeProducer::endJob() {
+L1JetRecoTreeProducer::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1RecoJetTreeProducer);
+DEFINE_FWK_MODULE(L1JetRecoTreeProducer);
