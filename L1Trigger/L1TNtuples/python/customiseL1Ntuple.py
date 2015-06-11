@@ -25,3 +25,18 @@ def L1NtupleAOD(process):
     process.schedule.append(process.l1ntupleaod)
 
     return process
+
+def L1NtupleRAW(process):
+
+    process.TFileService = cms.Service("TFileService",
+                                       fileName = cms.string('L1NtupleRAW.root')
+    )
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
+    process.l1ntupleraw = cms.Path(
+        process.L1NtupleRAW
+    )
+
+    process.schedule.append(process.l1ntupleraw)
+
+    return process
