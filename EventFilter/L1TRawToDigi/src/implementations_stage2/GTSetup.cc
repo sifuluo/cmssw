@@ -18,7 +18,7 @@ namespace l1t {
 
             virtual void fillDescription(edm::ParameterSetDescription& desc) override {};
 
-            virtual PackerMap getPackers(int fed, int fw) override {
+            virtual PackerMap getPackers(int fed, unsigned int fw) override {
                PackerMap res;
 
                if (fed == 1404) { 
@@ -52,7 +52,7 @@ namespace l1t {
                return std::unique_ptr<UnpackerCollections>(new GTCollections(e));
             };
 
-            virtual UnpackerMap getUnpackers(int fed, int board, int amc, int fw) override {
+            virtual UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override {
 
   	       auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
 	       auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");

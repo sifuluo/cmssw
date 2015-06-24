@@ -6,7 +6,8 @@ caloStage1Digis = cms.EDProducer(
     #InputLabel = cms.InputTag("l1tDigiToRaw"),
     InputLabel = cms.InputTag("rawDataCollector"),
     FedIds = cms.vint32(1352),
-    FWId = cms.untracked.int32(2),
+    # Uncomment the following for 74x legacy MC
+    # FWId = cms.uint32(0xff000000),
     lenSlinkHeader = cms.untracked.int32(8),
     lenSlinkTrailer = cms.untracked.int32(8),
     lenAMCHeader = cms.untracked.int32(8),

@@ -33,10 +33,10 @@ namespace l1t {
          virtual void registerProducts(edm::stream::EDProducerBase&) = 0;
 
          // Get a map of (amc #, board id) ↔ list of packing functions for a specific FED, FW combination
-         virtual PackerMap getPackers(int fed, int fw) = 0;
+         virtual PackerMap getPackers(int fed, unsigned int fw) = 0;
 
          // Get a map of Block IDs ↔ unpacker for a specific FED, board, AMC, FW combination
-         virtual UnpackerMap getUnpackers(int fed, int board , int amc, int fw) = 0;
+         virtual UnpackerMap getUnpackers(int fed, int board , int amc, unsigned int fw) = 0;
          virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event&) = 0;
 
          // Fill description with needed parameters for the setup, i.e.,
