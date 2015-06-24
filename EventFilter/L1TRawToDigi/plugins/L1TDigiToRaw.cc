@@ -130,9 +130,10 @@ namespace l1t {
          LogDebug("L1T") << "Concatenating blocks";
 
          std::vector<uint32_t> load32;
-         // TODO this is an empty word to be replaced with a proper MP7
-         // header containing at least the firmware version
+         // TODO Infrastructure firmware version.  Currently not used.
+         // Would change the way the payload has to be unpacked.
          load32.push_back(0);
+         load32.push_back(fwId_);
          for (const auto& block: block_load) {
             LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
             auto load = block.payload();

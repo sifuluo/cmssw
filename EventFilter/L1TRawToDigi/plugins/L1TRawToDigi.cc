@@ -59,7 +59,7 @@ namespace l1t {
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          std::vector<int> fedIds_;
-         int fwId_;
+         unsigned int fwId_;
          bool fwOverride_;
 
          std::auto_ptr<PackingSetup> prov_;
@@ -92,7 +92,7 @@ namespace l1t {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
       if (config.exists("FWId")) {
-         fwId_ = config.getParameter<int>("FWId");
+         fwId_ = config.getParameter<unsigned int>("FWId");
          fwOverride_ = true;
       }
 
@@ -172,6 +172,11 @@ namespace l1t {
             LogWarning("L1T") << "Did not find a SLink trailer!";
          }
 
+         // FIXME Hard-coded firmware version for first 74x MC campaigns.
+         // Will account for differences in the AMC payload, MP7 payload,
+         // and unpacker setup.
+         bool legacy_mc = fwOverride_ && (fwId_ & 0xff000000);
+
          amc13::Packet packet;
          if (!packet.parse(
                   (const uint64_t*) data,
@@ -179,7 +184,7 @@ namespace l1t {
                   (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8,
                   header.lvl1ID(),
                   header.bxID(),
-                  fwOverride_ && fwId_ < 0)) {
+                  legacy_mc)) {
             LogError("L1T")
                << "Could not extract AMC13 Packet.";
             return;
@@ -198,9 +203,9 @@ namespace l1t {
                payload.reset(new CTP7Payload(start, end));
             } else {
                LogDebug("L1T") << "Using MP7 mode";
-               payload.reset(new MP7Payload(start, end));
+               payload.reset(new MP7Payload(start, end, legacy_mc));
             }
-            unsigned fw = payload->getFirmwareId();
+            unsigned fw = payload->getAlgorithmFWVersion();
 
             // Let parameterset value override FW version
             if (fwOverride_)
@@ -251,7 +256,7 @@ namespace l1t {
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
      edm::ParameterSetDescription desc;
-     desc.addOptional<int>("FWId")->setComment("if negative, will be able to read 74x MC");
+     desc.addOptional<unsigned int>("FWId")->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format");
      desc.addUntracked<bool>("CTP7", false);
      desc.add<edm::InputTag>("InputLabel");
      desc.add<std::vector<int>>("FedIds", {});
