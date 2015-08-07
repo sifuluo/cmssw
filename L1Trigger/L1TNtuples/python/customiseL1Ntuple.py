@@ -47,3 +47,19 @@ def L1NtupleRAW(process):
         process.l1extraParticles.centralBxOnly = cms.bool(False)
 
     return process
+
+def L1NtupleAODRAW(process):
+
+    process.TFileService = cms.Service("TFileService",
+                                       fileName = cms.string('L1NtupleAODRAW.root')
+    )
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleAODRAW_cff')
+    process.l1ntupleaod = cms.Path(
+        process.L1NtupleAODRAW
+    )
+
+    process.schedule.append(process.l1ntupleaodraw)
+
+    return process
+
