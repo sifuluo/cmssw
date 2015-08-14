@@ -256,7 +256,7 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
 process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_CaloSliceTest_2015_v3.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_CaloSliceTest_2015_v4.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
@@ -268,7 +268,7 @@ process.emL1uGtFromGtInput = cms.EDProducer("l1t::GtProducer",
     L1DataBxInEvent = cms.int32(1),
     AlgorithmTriggersUnprescaled = cms.bool(False),
     ProduceL1GtDaqRecord = cms.bool(True),
-    GmtInputTag = cms.InputTag(""),
+    GmtInputTag = cms.InputTag("gtStage2Digis","GT"),
     caloInputTag = cms.InputTag("gtStage2Digis","GT"),
     AlternativeNrBxBoardDaq = cms.uint32(0),
     BstLengthBytes = cms.int32(-1),
@@ -320,7 +320,7 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 # dump records
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtStage2Digis","GT"),
-		muInputTag    = cms.InputTag(""),
+		muInputTag    = cms.InputTag("gtStage2Digis","GT"),
 		tauInputTag   = cms.InputTag(""),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),

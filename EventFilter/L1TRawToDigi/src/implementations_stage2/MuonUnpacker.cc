@@ -45,29 +45,36 @@ namespace stage2 {
 
      // Loop over multiple BX and then number of EG cands filling collection
      for (int bx=firstBX; bx<=lastBX; bx++){
+       
+       for (unsigned nMu=0; nMu < block.header().getSize(); nMu=nMu+2){ //need to check the 12*2...this is not really num muons it is max words in block.
 
-       for (unsigned nMu=0; nMu < 8 && nMu < block.header().getSize(); nMu++){
+         //muons are spread over 64 bits grab the two 32 bit pieces
+         uint32_t raw_data_00_31 = block.payload()[i++];
+	 uint32_t raw_data_32_63 = block.payload()[i++];
 
-         uint32_t raw_data = block.payload()[i++];
-
-         // skip padding to bring EG candidates up to 12 pre BX
-         if (raw_data == 0)
+         std::cout << "nMu = " << nMu << "Word 1 " << hex << raw_data_00_31 << " Word 2 " << raw_data_32_63 << dec << std::endl; 
+	 
+         // skip padding 
+         if (raw_data_00_31 == 0)
             continue;
 
          l1t::Muon mu = l1t::Muon();
-    
-         mu.setHwPt(raw_data & 0x1FF);
 
-	 int abs_eta = (raw_data >> 9) & 0x7F;
-         if ((raw_data >> 16) & 0x1) {
+             
+         mu.setHwPt( (raw_data_00_31 >> 10) & 0x1FF);
+         mu.setHwQual( (raw_data_00_31 >> 19) & 0xF); 
+
+	 int abs_eta = (raw_data_00_31 >> 23) & 0xFF;
+         if ((raw_data_00_31 >> 31) & 0x1) {
            mu.setHwEta(-1*abs_eta);
          } else {
            mu.setHwEta(abs_eta);
          }
 
-         mu.setHwPhi((raw_data >> 17) & 0xFF);
-	 mu.setHwIso((raw_data >> 25) & 0x1); // Assume one bit for now?
-	 mu.setHwQual((raw_data >> 26) & 0x7); // Assume 3 bits for now? leaves 3 spare bits
+         mu.setHwPhi((raw_data_00_31 >> 0) & 0x1FF);
+	 mu.setHwIso((raw_data_32_63 >> 0) & 0x3); 
+         mu.setHwCharge( (raw_data_32_63 >> 2) & 0x1);
+	 mu.setHwChargeValid( (raw_data_32_63 >> 3) & 0x1);
        
          LogDebug("L1T") << "Mu: eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual();
 
