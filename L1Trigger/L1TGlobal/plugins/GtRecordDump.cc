@@ -365,6 +365,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 // Dump 8 Muons (16 digits + space)
    int nDumped = 0;
    if(muons.isValid()){
+    if(bx>=muons->getFirstBX() && bx<=muons->getLastBX()) {
      for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
 	cms_uint64_t packedWd = formatMuon(mu);
 	if(nDumped<8) {
@@ -372,6 +373,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
            nDumped++;
 	}	 
      }
+    } 
    }   
    for(int i=nDumped; i<8; i++) {
       myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << empty;
