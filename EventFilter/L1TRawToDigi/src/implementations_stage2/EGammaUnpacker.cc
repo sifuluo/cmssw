@@ -65,8 +65,8 @@ namespace stage2 {
          }
 
          eg.setHwPhi((raw_data >> 17) & 0xFF);
-	 eg.setHwIso((raw_data >> 25) & 0x1); // Assume one bit for now?
-	 eg.setHwQual((raw_data >> 26) & 0x7); // Assume 3 bits for now? leaves 3 spare bits
+	 eg.setHwIso((raw_data >> 25) & 0x3); 
+	 eg.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? leaves 2 spare bits
        
          LogDebug("L1T") << "EG: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " iso " << eg.hwIso() << " qual " << eg.hwQual();
 
