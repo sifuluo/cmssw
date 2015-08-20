@@ -32,7 +32,7 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
                                            'keep *_*_*_L1TEMULATION'),
-    fileName = cms.untracked.string('SimL1Emulator_Stage1_PP_ESF.root'),
+    fileName = cms.untracked.string('SimL1Emulator_Stage1_PP.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -76,7 +76,13 @@ process.rctSFDB = cms.ESSource("PoolDBESSource",
 ## process.prefer("caloParmsDB")
 process.es_prefer_rctSFDB = cms.ESPrefer( "PoolDBESSource", "rctSFDB" )
 
-
+## load the CaloStage1 params
+## process.GlobalTag.toGet = cms.VPSet(
+##   cms.PSet(record = cms.string("L1TCaloParamsRcd"),
+##            tag = cms.string("L1TCaloParams_CRAFT09_hlt"),
+##            connect = cms.string("sqlite:l1config.db")
+##           )
+## )
 
 process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
