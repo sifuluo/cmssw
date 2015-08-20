@@ -12,7 +12,7 @@ caloStage1Params.regionPUSType    = cms.string("PUM0")       #"None" for no PU s
 caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 
 # EG
-caloStage1Params.egLsb                = cms.double(0.)
+caloStage1Params.egLsb                = cms.double(1.)
 caloStage1Params.egSeedThreshold      = cms.double(0.)
 
 caloStage1Params.egMinPtJetIsolation = cms.int32(25)
@@ -38,8 +38,8 @@ caloStage1Params.tauMinPtJetIsolationB = cms.double(192.)
 caloStage1Params.tauMaxJetIsolationB  = cms.double(100.)
 caloStage1Params.tauMaxJetIsolationA = cms.double(0.1)
 caloStage1Params.tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT_stage1_isolA0.10_isolB100.00_ch_switchToIsoBPt192.00_j8t8.txt")
-caloStage1Params.tauCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT_stage1.txt")
-## caloStage1Params.tauCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauL1Calib_LUT.txt")
+## caloStage1Params.tauCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT_stage1.txt")
+caloStage1Params.tauCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauL1Calib_LUT.txt")
 caloStage1Params.tauEtToHFRingEtLUTFile= cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauHwEtToHFRingScale_LUT.txt")
 caloStage1Params.isoTauEtaMin          = cms.int32(5)
 caloStage1Params.isoTauEtaMax          = cms.int32(16)
