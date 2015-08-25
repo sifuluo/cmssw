@@ -27,13 +27,20 @@ namespace stage2 {
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
+     auto res3_ = static_cast<CaloCollections*>(coll)->getMPEGammas();
+     
      res1_->setBXRange(0,0);
      res2_->setBXRange(0,0);
+     res3_->setBXRange(0,0);
 
      // Initialise frame indices for each data type
      int unsigned fet = 0;
      int unsigned fht = 1;
      int unsigned fjet = 2;
+     int unsigned feg = 3;
+
+     
+     //      ===== Jets and Sums =====
 
      // ET / MET(x) / MET (y)
 
@@ -140,6 +147,36 @@ namespace stage2 {
          }
        }
        */
+     }
+
+     //      ===== EGammas =====
+     
+     // Two EGammas
+
+
+     for (unsigned nEG=0; nEG < 2; nEG++){
+       
+       raw_data = block.payload()[feg+nEG];
+       
+       if (raw_data == 0)
+	 continue;
+       
+       l1t::EGamma eg = l1t::EGamma();
+
+       int etasign = 1;
+       if ((block.header().getID() == 123)) etasign = -1;
+
+       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
+       
+       eg.setHwEta(etasign*((raw_data >> 4) & 0x3F));
+       eg.setHwPhi((raw_data >> 10) & 0x7F);
+       eg.setHwPt((raw_data >> 21) & 0x1FF);
+       eg.setHwQual(((raw_data >> 3) & 0x1) + (((raw_data >> 1) & 0x1) << 2)); //ECalFG + EGammaLikeShape
+       eg.setHwIso(raw_data & 0x1); 
+	   
+       LogDebug("L1T") << "Egamma: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " qual " << eg.hwQual();
+       
+       res3_->push_back(0,eg);
      }
 
      return true;

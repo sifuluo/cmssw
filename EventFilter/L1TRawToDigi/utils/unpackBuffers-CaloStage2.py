@@ -263,7 +263,7 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 
 # Path and EndPath definitions

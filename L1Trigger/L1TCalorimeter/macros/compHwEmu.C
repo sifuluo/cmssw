@@ -1,8 +1,14 @@
-void compHwEmu(){
+ void compHwEmu(){
 
-  TFile* inFileHw = new TFile("l1tCalo_2016_histosHw.root");
-  TFile* inFileEm = new TFile("l1tCalo_2016_histosEm.root");
+   bool doEgamma=true;
+   bool doJets=false;
+   bool doSums=false;
+   bool doSorts=false;
 
+
+   TFile* inFileHw = new TFile("l1tCalo_2016_histosHw.root");
+   TFile* inFileEm = new TFile("l1tCalo_2016_histosEm.root");
+  
 
   //TH2D* towEtaPhi = (TH2D*)inFile->Get("rawPlots/tower/etaphi");
 
@@ -79,25 +85,36 @@ void compHwEmu(){
 
   // EG Et
 
+  TH1D* hwMPEgEt = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/mpeg/et");
+  TH1D* emMPEgEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpeg/et");
   TH1D* hwEgEt = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/eg/et");
   TH1D* emEgEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/eg/et");
 
 
   // EG eta
-
+  TH1D* hwMPEgEta = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/mpeg/eta");
+  TH1D* emMPEgEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpeg/eta");
   TH1D* hwEgEta = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/eg/eta");
   TH1D* emEgEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/eg/eta");
 
   // EG phi
-
+  TH1D* hwMPEgPhi = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/mpeg/phi");
+  TH1D* emMPEgPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mpeg/phi");
   TH1D* hwEgPhi = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/eg/phi");
   TH1D* emEgPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/eg/phi");
+
+ 
 
 
   ////////////////////////////////////////////////////////////////////////////////////
 
   TLine* unity = new TLine(0.1,0.525,0.9,0.525);
   unity->SetLineColor(kBlue);
+
+  TLegend* leg = new TLegend(0.6,0.65,0.85,0.85);
+  leg->SetFillColor(0);
+  leg->AddEntry(hwEgEt,"Hardware Demux", "p");
+  leg->AddEntry(emEgEt,"Emulator Demux", "l");
 
   /*
     TLegend* leg = new TLegend(0.6,0.7,0.8,0.9);
@@ -115,7 +132,372 @@ void compHwEmu(){
   */
 
 
-  //--- jet et ---//
+
+
+// //================ egamma ====================
+
+if(doEgamma){
+
+   TCanvas* cEgEt = new TCanvas("cEgEt","EgEt");
+
+  TPad* pEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+  TPad* pEgEtRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
+  
+  TPad* pInvEgEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+  pInvEgEtRatio->SetFillStyle(0);
+
+  leg = new TLegend(0.6,0.65,0.85,0.85);
+  leg->SetFillColor(0);
+  leg->AddEntry(hwMPEgEt,"Hardware MP", "p");//"l");
+  //leg->AddEntry(hwEgEt,"Hardware Demux", "p");
+  leg->AddEntry(emMPEgEt,"Emulator MP", "l");
+  //leg->AddEntry(emEgEt,"Emulator Demux", "p");
+  
+  hwMPEgEt->Rebin(10);
+  emMPEgEt->Rebin(10);
+
+  hwMPEgEt->SetStats(0);
+  //hwMPEgEt->SetLineColor(kBlue);
+  hwMPEgEt->SetMarkerStyle(21);
+  hwMPEgEt->SetMarkerColor(1);
+  hwMPEgEt->SetMarkerSize(0.4);
+  emMPEgEt->SetLineColor(kRed);
+  hwMPEgEt->GetXaxis()->SetTitle("EGamma iET");
+  hwMPEgEt->GetYaxis()->SetTitle("# EGammas");
+  hwMPEgEt->GetYaxis()->SetTitleSize(0.05);
+  hwMPEgEt->GetYaxis()->SetTitleOffset(0.66);
+  hwMPEgEt->GetXaxis()->SetTitleSize(0.04);
+  hwMPEgEt->GetXaxis()->SetTitleOffset(0.9);
+  pEgEt->SetBottomMargin(0.08);
+  pEgEt->Draw();
+  pEgEt->cd();
+
+  TH1D* EgEtRatio = (TH1D*)hwMPEgEt->DrawCopy("p");
+  EgEtRatio->SetMinimum(0);
+  emMPEgEt->Draw("same");//"");
+  leg->Draw();
+  cEgEt->cd();
+  pEgEtRatio->SetTopMargin(0.05);
+  pEgEtRatio->Draw();
+  pEgEtRatio->cd();
+  hwMPEgEt->Divide(emMPEgEt);
+  hwMPEgEt->GetYaxis()->SetTitle("Ratio HW/EM");
+  hwMPEgEt->GetYaxis()->SetTitleSize(0.09);
+  hwMPEgEt->GetYaxis()->SetLabelSize(0.05);
+  hwMPEgEt->GetXaxis()->SetLabelSize(0.07);
+  hwMPEgEt->GetXaxis()->SetTitleSize(0.0);
+  hwMPEgEt->GetYaxis()->SetTitleOffset(0.35);
+  hwMPEgEt->SetMinimum(0.8);
+  hwMPEgEt->SetMaximum(1.2);
+  hwMPEgEt->Draw("p");
+  cEgEt->cd();
+  pInvEgEtRatio->Draw();
+  pInvEgEtRatio->cd();
+  unity->Draw();
+  cEgEt->SaveAs("compHwEmu/Egs/EgEt.png");
+
+
+
+
+
+ TCanvas* cDEgEt = new TCanvas("cDEgEt","DEgEt");
+
+ TPad* pDEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ TPad* pDEgEtRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
+ 
+ TPad* pInvDEgEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvDEgEtRatio->SetFillStyle(0);
+  
+
+ hwEgEt->Rebin(10);
+ emEgEt->Rebin(10);
+
+ hwEgEt->SetStats(0);
+ hwEgEt->SetMarkerStyle(21);
+ hwEgEt->SetMarkerColor(1);
+ hwEgEt->SetMarkerSize(0.4);
+ emEgEt->SetLineColor(kRed);
+ hwEgEt->GetXaxis()->SetTitle("EGamma iET");
+ hwEgEt->GetYaxis()->SetTitle("# EGamma");
+ hwEgEt->GetYaxis()->SetTitleSize(0.05);
+ hwEgEt->GetYaxis()->SetTitleOffset(0.66);
+ hwEgEt->GetXaxis()->SetTitleSize(0.04);
+ hwEgEt->GetXaxis()->SetTitleOffset(0.9);
+ pDEgEt->SetBottomMargin(0.08);
+ pDEgEt->Draw();
+ pDEgEt->cd();
+ 
+ TH1D* DEgEtRatio = (TH1D*)hwEgEt->DrawCopy("p");
+ DEgEtRatio->SetMinimum(0);
+ emEgEt->Draw("same");
+ leg->Draw();
+ cDEgEt->cd();
+ pDEgEtRatio->SetTopMargin(0.05);
+ pDEgEtRatio->Draw();
+ pDEgEtRatio->cd();
+ hwEgEt->Divide(emEgEt);
+ hwEgEt->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwEgEt->GetYaxis()->SetTitleSize(0.09);
+ hwEgEt->GetYaxis()->SetLabelSize(0.05);
+ hwEgEt->GetXaxis()->SetLabelSize(0.07);
+ hwEgEt->GetXaxis()->SetTitleSize(0.0);
+ hwEgEt->GetYaxis()->SetTitleOffset(0.35);
+ hwEgEt->SetMinimum(0.8);
+ hwEgEt->SetMaximum(1.2);
+ hwEgEt->Draw("p");
+ cDEgEt->cd();
+ pInvDEgEtRatio->Draw();
+ pInvDEgEtRatio->cd();
+ unity->Draw();
+ pDEgEtRatio->Update();
+ cDEgEt->SaveAs("compHwEmu/DemuxEgamma/EgEt.png");
+
+
+ TCanvas* cEgEta = new TCanvas("cEgEta","EgEta");
+
+ TPad* pEgEta = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ TPad* pEgEtaRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
+  
+ TPad* pInvEgEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvEgEtaRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwMPEgEta,"Hardware MP", "p");//"l");
+ //leg->AddEntry(hwEgEta,"Hardware Demux", "p");
+ leg->AddEntry(emMPEgEta,"Emulator MP", "l");
+ //leg->AddEntry(emEgEta,"Emulator Demux", "p");
+
+
+ hwMPEgEta->SetStats(0);
+ //hwMPEgEta->SetLineColor(kBlue);
+ hwMPEgEta->SetMarkerStyle(21);
+ hwMPEgEta->SetMarkerColor(1);
+ hwMPEgEta->SetMarkerSize(0.4);
+ emMPEgEta->SetLineColor(kRed);
+ emMPEgEta->SetMarkerStyle(20);
+ emMPEgEta->SetMarkerColor(kRed);
+ emMPEgEta->SetMarkerSize(0.4);
+ hwMPEgEta->GetXaxis()->SetRange(10,74);
+ hwMPEgEta->GetXaxis()->SetTitle("EGamma i#eta");
+ hwMPEgEta->GetYaxis()->SetTitle("# EGammas");
+ hwMPEgEta->GetYaxis()->SetTitleSize(0.05);
+ hwMPEgEta->GetYaxis()->SetTitleOffset(0.66);
+ hwMPEgEta->GetXaxis()->SetTitleSize(0.04);
+ hwMPEgEta->GetXaxis()->SetTitleOffset(0.9);
+ pEgEta->SetBottomMargin(0.08);
+ pEgEta->Draw();
+ pEgEta->cd();
+
+ TH1D* EgEtaRatio = (TH1D*)hwMPEgEta->DrawCopy("p");
+ EgEtaRatio->SetMinimum(0);
+ emMPEgEta->Draw("same");//"");
+ leg->Draw();
+ cEgEta->cd();
+ pEgEtaRatio->SetTopMargin(0.05);
+ pEgEtaRatio->Draw();
+ pEgEtaRatio->cd();
+ hwMPEgEta->Divide(emMPEgEta);
+ hwMPEgEta->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwMPEgEta->GetYaxis()->SetTitleSize(0.09);
+ hwMPEgEta->GetYaxis()->SetLabelSize(0.05);
+ hwMPEgEta->GetXaxis()->SetLabelSize(0.07);
+ hwMPEgEta->GetXaxis()->SetTitleSize(0.0);
+ hwMPEgEta->GetYaxis()->SetTitleOffset(0.35);
+ hwMPEgEta->SetMinimum(0.8);
+ hwMPEgEta->SetMaximum(1.2);
+ hwMPEgEta->Draw("p");
+ cEgEta->cd();
+ pInvEgEtaRatio->Draw();
+ pInvEgEtaRatio->cd();
+ unity->Draw();
+ cEgEta->SaveAs("compHwEmu/Egs/EgEta.png");
+ //c1->Print("compHwEmu.pdf","pdf");
+
+
+
+
+ 
+ TCanvas* cDEgEta = new TCanvas("cDEgEta","DEgEta");
+ TPad* pDEgEta = new TPad("pEgEta","pEgEta",0,0.3,1,1); 
+ TPad* pDEgEtaRatio = new TPad("pEgEtaratio","pEgEtaratio",0,0,1,0.3);
+ 
+ TPad* pInvDEgEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvDEgEtaRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwEgEta,"Hardware Demux", "p");
+ leg->AddEntry(emEgEta,"Emulator Demux", "l");
+
+ hwEgEta->SetStats(0);
+ hwEgEta->SetMarkerStyle(21);
+ hwEgEta->SetMarkerColor(1);
+ hwEgEta->SetMarkerSize(0.4);
+ emEgEta->SetLineColor(kRed);
+ hwEgEta->GetXaxis()->SetTitle("EGamma i#eta");
+ hwEgEta->GetXaxis()->SetRange(82,146);
+ hwEgEta->GetYaxis()->SetTitle("# EGamma");
+ hwEgEta->GetYaxis()->SetTitleSize(0.05);
+ hwEgEta->GetYaxis()->SetTitleOffset(0.66);
+ hwEgEta->GetXaxis()->SetTitleSize(0.04);
+ hwEgEta->GetXaxis()->SetTitleOffset(0.9);
+ pDEgEta->SetBottomMargin(0.08);
+ pDEgEta->Draw();
+ pDEgEta->cd();
+ 
+ TH1D* DEgEtaRatio = (TH1D*)hwEgEta->DrawCopy("p");
+ DEgEtaRatio->SetMinimum(0);
+ emEgEta->Draw("same");
+ leg->Draw();
+ cDEgEta->cd();
+ pDEgEtaRatio->SetTopMargin(0.05);
+ pDEgEtaRatio->Draw();
+ pDEgEtaRatio->cd();
+ hwEgEta->Divide(emEgEta);
+ hwEgEta->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwEgEta->GetYaxis()->SetTitleSize(0.09);
+ hwEgEta->GetYaxis()->SetLabelSize(0.05);
+ hwEgEta->GetXaxis()->SetLabelSize(0.07);
+ hwEgEta->GetXaxis()->SetTitleSize(0.0);
+ hwEgEta->GetYaxis()->SetTitleOffset(0.35);
+ hwEgEta->SetMinimum(0.8);
+ hwEgEta->SetMaximum(1.2);
+ hwEgEta->Draw("p");
+ cDEgEta->cd();
+ pInvDEgEtaRatio->Draw();
+ pInvDEgEtaRatio->cd();
+ unity->Draw();
+ pDEgEtaRatio->Update();
+ cDEgEta->SaveAs("compHwEmu/DemuxEgamma/EgEta.png");
+
+
+
+
+ TCanvas* cEgPhi = new TCanvas("cEgPhi","EgPhi");
+
+ TPad* pEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
+ TPad* pEgPhiRatio = new TPad("pEgPhiratio","pEgPhiratio",0,0,1,0.3);
+ 
+ TPad* pInvEgPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvEgPhiRatio->SetFillStyle(0);
+
+
+ leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwMPEgPhi,"Hardware MP", "p");//"l");
+ //leg->AddEntry(hwEgPhi,"Hardware Demux", "p");
+ leg->AddEntry(emMPEgPhi,"Emulator MP", "l");
+ //leg->AddEntry(emEgPhi,"Emulator Demux", "p");
+
+ hwMPEgPhi->SetStats(0);
+ //hwMPEgPhi->SetLineColor(kBlue);
+ hwMPEgPhi->SetMarkerStyle(21);
+ hwMPEgPhi->SetMarkerColor(1);
+ hwMPEgPhi->SetMarkerSize(0.4);
+ emMPEgPhi->SetLineColor(kRed);
+ emMPEgPhi->SetMarkerStyle(20);
+ emMPEgPhi->SetMarkerColor(kRed);
+ emMPEgPhi->SetMarkerSize(0.4);
+ emMPEgPhi->GetXaxis()->SetRange(0,100);
+ hwMPEgPhi->GetXaxis()->SetTitle("EGamma i#phi");
+ hwMPEgPhi->GetYaxis()->SetTitle("# Egammas");
+ hwMPEgPhi->GetYaxis()->SetTitleSize(0.05);
+ hwMPEgPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwMPEgPhi->GetXaxis()->SetTitleSize(0.04);
+ hwMPEgPhi->GetXaxis()->SetTitleOffset(0.9);
+ pEgPhi->SetBottomMargin(0.08);
+ pEgPhi->Draw();
+ pEgPhi->cd();
+
+ TH1D* EgPhiRatio = (TH1D*)hwMPEgPhi->DrawCopy("p");
+ EgPhiRatio->SetMinimum(0);
+ emMPEgPhi->Draw("same");//"");
+ leg->Draw();
+ cEgPhi->cd();
+ pEgPhiRatio->SetTopMargin(0.05);
+ pEgPhiRatio->Draw();
+ pEgPhiRatio->cd();
+ hwMPEgPhi->Divide(emMPEgPhi);
+ hwMPEgPhi->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwMPEgPhi->GetYaxis()->SetTitleSize(0.09);
+ hwMPEgPhi->GetYaxis()->SetLabelSize(0.05);
+ hwMPEgPhi->GetXaxis()->SetLabelSize(0.07);
+ hwMPEgPhi->GetXaxis()->SetTitleSize(0.0);
+ hwMPEgPhi->GetYaxis()->SetTitleOffset(0.35);
+ hwMPEgPhi->SetMinimum(0.8);
+ hwMPEgPhi->SetMaximum(1.2);
+ hwMPEgPhi->Draw("p");
+ cEgPhi->cd();
+ pInvEgPhiRatio->Draw();
+ pInvEgPhiRatio->cd();
+ unity->Draw();
+ cEgPhi->SaveAs("compHwEmu/Egs/EgPhi.png");
+ //c1->Print("compHwEmu.pdf","pdf");
+
+
+
+
+
+ TCanvas* cDEgPhi = new TCanvas("cDEgPhi","DEgPhi");
+
+ TPad* pDEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
+ TPad* pDEgPhiRatio = new TPad("pEgPhiratio","pEgPhiratio",0,0,1,0.3);
+  
+ TPad* pInvDEgPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvDEgPhiRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwEgPhi,"Hardware Demux", "p");
+ leg->AddEntry(emEgPhi,"Emulator Demux", "l");
+
+ hwEgPhi->SetStats(0);
+ hwEgPhi->SetMarkerStyle(21);
+ hwEgPhi->SetMarkerColor(1);
+ hwEgPhi->SetMarkerSize(0.4);
+ emEgPhi->SetLineColor(kRed);
+ hwEgPhi->GetXaxis()->SetTitle("EGamma i#phi");
+ hwEgPhi->GetXaxis()->SetRange(0,73);
+ hwEgPhi->GetYaxis()->SetTitle("# EGammas");
+ hwEgPhi->GetYaxis()->SetTitleSize(0.05);
+ hwEgPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwEgPhi->GetXaxis()->SetTitleSize(0.04);
+ hwEgPhi->GetXaxis()->SetTitleOffset(0.9);
+ pDEgPhi->SetBottomMargin(0.08);
+ pDEgPhi->Draw();
+ pDEgPhi->cd();
+
+ TH1D* DEgPhiRatio = (TH1D*)hwEgPhi->DrawCopy("p");
+ DEgPhiRatio->SetMinimum(0);
+ emEgPhi->Draw("same");//"");
+ leg->Draw();
+ cDEgPhi->cd();
+ pDEgPhiRatio->SetTopMargin(0.05);
+ pDEgPhiRatio->Draw();
+ pDEgPhiRatio->cd();
+ hwEgPhi->Divide(emEgPhi);
+ hwEgPhi->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwEgPhi->GetYaxis()->SetTitleSize(0.09);
+ hwEgPhi->GetYaxis()->SetLabelSize(0.05);
+ hwEgPhi->GetXaxis()->SetLabelSize(0.07);
+ hwEgPhi->GetXaxis()->SetTitleSize(0.0);
+ hwEgPhi->GetYaxis()->SetTitleOffset(0.35);
+ hwEgPhi->SetMinimum(0.8);
+ hwEgPhi->SetMaximum(1.2);
+ hwEgPhi->Draw("p");
+ cDEgPhi->cd();
+ pInvDEgPhiRatio->Draw();
+ pInvDEgPhiRatio->cd();
+ unity->Draw();
+ cDEgPhi->SaveAs("compHwEmu/DemuxEgamma/DEgPhi.png");
+
+ }
+
+
+//   //--- jet et ---//
+
+if(doJets){
 
   TCanvas* cJetEt = new TCanvas("cJetEt","JetEt");
 
@@ -125,7 +507,7 @@ void compHwEmu(){
   TPad* pInvJetEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
   pInvJetEtRatio->SetFillStyle(0);
 
-  TLegend* leg = new TLegend(0.6,0.65,0.85,0.85);
+  leg = new TLegend(0.6,0.65,0.85,0.85);
   leg->SetFillColor(0);
   leg->AddEntry(hwMPJetEt,"Hardware MP", "p");//"l");
   //leg->AddEntry(hwJetEt,"Hardware Demux", "p");
@@ -143,8 +525,8 @@ void compHwEmu(){
   emMPJetEt->SetLineColor(kRed);
   hwMPJetEt->GetXaxis()->SetTitle("Jet iET");
   hwMPJetEt->GetYaxis()->SetTitle("# Jets");
-  hwMPJetEt->GetYaxis()->SetTitleSize(0.07);
-  hwMPJetEt->GetYaxis()->SetTitleOffset(0.48);
+  hwMPJetEt->GetYaxis()->SetTitleSize(0.05);
+  hwMPJetEt->GetYaxis()->SetTitleOffset(0.66);
   hwMPJetEt->GetXaxis()->SetTitleSize(0.04);
   hwMPJetEt->GetXaxis()->SetTitleOffset(0.9);
   pJetEt->SetBottomMargin(0.08);
@@ -162,7 +544,7 @@ void compHwEmu(){
   hwMPJetEt->Divide(emMPJetEt);
   hwMPJetEt->GetYaxis()->SetTitle("Ratio HW/EM");
   hwMPJetEt->GetYaxis()->SetTitleSize(0.09);
-  hwMPJetEt->GetYaxis()->SetLabelSize(0.07);
+  hwMPJetEt->GetYaxis()->SetLabelSize(0.05);
   hwMPJetEt->GetXaxis()->SetLabelSize(0.07);
   hwMPJetEt->GetXaxis()->SetTitleSize(0.0);
   hwMPJetEt->GetYaxis()->SetTitleOffset(0.35);
@@ -201,8 +583,8 @@ void compHwEmu(){
  emJetEt->SetLineColor(kRed);
  hwJetEt->GetXaxis()->SetTitle("Jet iET");
  hwJetEt->GetYaxis()->SetTitle("# Jets");
- hwJetEt->GetYaxis()->SetTitleSize(0.07);
- hwJetEt->GetYaxis()->SetTitleOffset(0.48);
+ hwJetEt->GetYaxis()->SetTitleSize(0.05);
+ hwJetEt->GetYaxis()->SetTitleOffset(0.66);
  hwJetEt->GetXaxis()->SetTitleSize(0.04);
  hwJetEt->GetXaxis()->SetTitleOffset(0.9);
  pDJetEt->SetBottomMargin(0.08);
@@ -220,7 +602,7 @@ void compHwEmu(){
  hwJetEt->Divide(emJetEt);
  hwJetEt->GetYaxis()->SetTitle("Ratio HW/EM");
  hwJetEt->GetYaxis()->SetTitleSize(0.09);
- hwJetEt->GetYaxis()->SetLabelSize(0.07);
+ hwJetEt->GetYaxis()->SetLabelSize(0.05);
  hwJetEt->GetXaxis()->SetLabelSize(0.07);
  hwJetEt->GetXaxis()->SetTitleSize(0.0);
  hwJetEt->GetYaxis()->SetTitleOffset(0.35);
@@ -266,8 +648,8 @@ void compHwEmu(){
  hwMPJetEta->GetXaxis()->SetRange(10,74);
  hwMPJetEta->GetXaxis()->SetTitle("Jet i#eta");
  hwMPJetEta->GetYaxis()->SetTitle("# Jets");
- hwMPJetEta->GetYaxis()->SetTitleSize(0.07);
- hwMPJetEta->GetYaxis()->SetTitleOffset(0.48);
+ hwMPJetEta->GetYaxis()->SetTitleSize(0.05);
+ hwMPJetEta->GetYaxis()->SetTitleOffset(0.66);
  hwMPJetEta->GetXaxis()->SetTitleSize(0.04);
  hwMPJetEta->GetXaxis()->SetTitleOffset(0.9);
  pJetEta->SetBottomMargin(0.08);
@@ -285,7 +667,7 @@ void compHwEmu(){
  hwMPJetEta->Divide(emMPJetEta);
  hwMPJetEta->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPJetEta->GetYaxis()->SetTitleSize(0.09);
- hwMPJetEta->GetYaxis()->SetLabelSize(0.07);
+ hwMPJetEta->GetYaxis()->SetLabelSize(0.05);
  hwMPJetEta->GetXaxis()->SetLabelSize(0.07);
  hwMPJetEta->GetXaxis()->SetTitleSize(0.0);
  hwMPJetEta->GetYaxis()->SetTitleOffset(0.35);
@@ -320,8 +702,8 @@ void compHwEmu(){
  hwJetEta->GetXaxis()->SetTitle("Jet i#eta");
  hwJetEta->GetXaxis()->SetRange(82,146);
  hwJetEta->GetYaxis()->SetTitle("# Jets");
- hwJetEta->GetYaxis()->SetTitleSize(0.07);
- hwJetEta->GetYaxis()->SetTitleOffset(0.48);
+ hwJetEta->GetYaxis()->SetTitleSize(0.05);
+ hwJetEta->GetYaxis()->SetTitleOffset(0.66);
  hwJetEta->GetXaxis()->SetTitleSize(0.04);
  hwJetEta->GetXaxis()->SetTitleOffset(0.9);
  pDJetEta->SetBottomMargin(0.08);
@@ -339,7 +721,7 @@ void compHwEmu(){
  hwJetEta->Divide(emJetEta);
  hwJetEta->GetYaxis()->SetTitle("Ratio HW/EM");
  hwJetEta->GetYaxis()->SetTitleSize(0.09);
- hwJetEta->GetYaxis()->SetLabelSize(0.07);
+ hwJetEta->GetYaxis()->SetLabelSize(0.05);
  hwJetEta->GetXaxis()->SetLabelSize(0.07);
  hwJetEta->GetXaxis()->SetTitleSize(0.0);
  hwJetEta->GetYaxis()->SetTitleOffset(0.35);
@@ -384,8 +766,8 @@ void compHwEmu(){
  emMPJetPhi->GetXaxis()->SetRange(0,100);
  hwMPJetPhi->GetXaxis()->SetTitle("Jet i#phi");
  hwMPJetPhi->GetYaxis()->SetTitle("# Jets");
- hwMPJetPhi->GetYaxis()->SetTitleSize(0.07);
- hwMPJetPhi->GetYaxis()->SetTitleOffset(0.48);
+ hwMPJetPhi->GetYaxis()->SetTitleSize(0.05);
+ hwMPJetPhi->GetYaxis()->SetTitleOffset(0.66);
  hwMPJetPhi->GetXaxis()->SetTitleSize(0.04);
  hwMPJetPhi->GetXaxis()->SetTitleOffset(0.9);
  pJetPhi->SetBottomMargin(0.08);
@@ -403,7 +785,7 @@ void compHwEmu(){
  hwMPJetPhi->Divide(emMPJetPhi);
  hwMPJetPhi->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPJetPhi->GetYaxis()->SetTitleSize(0.09);
- hwMPJetPhi->GetYaxis()->SetLabelSize(0.07);
+ hwMPJetPhi->GetYaxis()->SetLabelSize(0.05);
  hwMPJetPhi->GetXaxis()->SetLabelSize(0.07);
  hwMPJetPhi->GetXaxis()->SetTitleSize(0.0);
  hwMPJetPhi->GetYaxis()->SetTitleOffset(0.35);
@@ -439,8 +821,8 @@ void compHwEmu(){
  hwJetPhi->GetXaxis()->SetTitle("Jet i#phi");
  hwJetPhi->GetXaxis()->SetRange(0,73);
  hwJetPhi->GetYaxis()->SetTitle("# Jets");
- hwJetPhi->GetYaxis()->SetTitleSize(0.07);
- hwJetPhi->GetYaxis()->SetTitleOffset(0.48);
+ hwJetPhi->GetYaxis()->SetTitleSize(0.05);
+ hwJetPhi->GetYaxis()->SetTitleOffset(0.66);
  hwJetPhi->GetXaxis()->SetTitleSize(0.04);
  hwJetPhi->GetXaxis()->SetTitleOffset(0.9);
  pDJetPhi->SetBottomMargin(0.08);
@@ -458,7 +840,7 @@ void compHwEmu(){
  hwJetPhi->Divide(emJetPhi);
  hwJetPhi->GetYaxis()->SetTitle("Ratio HW/EM");
  hwJetPhi->GetYaxis()->SetTitleSize(0.09);
- hwJetPhi->GetYaxis()->SetLabelSize(0.07);
+ hwJetPhi->GetYaxis()->SetLabelSize(0.05);
  hwJetPhi->GetXaxis()->SetLabelSize(0.07);
  hwJetPhi->GetXaxis()->SetTitleSize(0.0);
  hwJetPhi->GetYaxis()->SetTitleOffset(0.35);
@@ -471,8 +853,11 @@ void compHwEmu(){
  unity->Draw();
  cDJetPhi->SaveAs("compHwEmu/DemuxJets/JetPhi.png");
 
+}
 
 //--- MP sum et ---//
+
+if(doSums){
 
  TCanvas* cMPSumEt = new TCanvas("cMPSumEt","MPSumEt");
 
@@ -497,8 +882,8 @@ void compHwEmu(){
  emMPSumEt->SetLineColor(kRed);
  hwMPSumEt->GetXaxis()->SetTitle("iET");
  hwMPSumEt->GetYaxis()->SetTitle("# Events");
- hwMPSumEt->GetYaxis()->SetTitleSize(0.07);
- hwMPSumEt->GetYaxis()->SetTitleOffset(0.48);
+ hwMPSumEt->GetYaxis()->SetTitleSize(0.05);
+ hwMPSumEt->GetYaxis()->SetTitleOffset(0.66);
  hwMPSumEt->GetXaxis()->SetTitleSize(0.04);
  hwMPSumEt->GetXaxis()->SetTitleOffset(0.9);
  pSumEt->SetBottomMargin(0.08);
@@ -516,7 +901,7 @@ void compHwEmu(){
  hwMPSumEt->Divide(emMPSumEt);
  hwMPSumEt->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPSumEt->GetYaxis()->SetTitleSize(0.09);
- hwMPSumEt->GetYaxis()->SetLabelSize(0.07);
+ hwMPSumEt->GetYaxis()->SetLabelSize(0.05);
  hwMPSumEt->GetXaxis()->SetLabelSize(0.07);
  hwMPSumEt->GetXaxis()->SetTitleSize(0.0);
  hwMPSumEt->GetYaxis()->SetTitleOffset(0.35);
@@ -555,8 +940,8 @@ void compHwEmu(){
  emMPSumEtx->SetLineColor(kRed);
  hwMPSumEtx->GetXaxis()->SetTitle("iETx");
  hwMPSumEtx->GetYaxis()->SetTitle("# Events");
- hwMPSumEtx->GetYaxis()->SetTitleSize(0.07);
- hwMPSumEtx->GetYaxis()->SetTitleOffset(0.48);
+ hwMPSumEtx->GetYaxis()->SetTitleSize(0.05);
+ hwMPSumEtx->GetYaxis()->SetTitleOffset(0.66);
  hwMPSumEtx->GetXaxis()->SetTitleSize(0.04);
  hwMPSumEtx->GetXaxis()->SetTitleOffset(0.9);
  pSumEtx->SetBottomMargin(0.08);
@@ -574,7 +959,7 @@ void compHwEmu(){
  hwMPSumEtx->Divide(emMPSumEtx);
  hwMPSumEtx->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPSumEtx->GetYaxis()->SetTitleSize(0.09);
- hwMPSumEtx->GetYaxis()->SetLabelSize(0.07);
+ hwMPSumEtx->GetYaxis()->SetLabelSize(0.05);
  hwMPSumEtx->GetXaxis()->SetLabelSize(0.07);
  hwMPSumEtx->GetXaxis()->SetTitleSize(0.0);
  hwMPSumEtx->GetYaxis()->SetTitleOffset(0.35);
@@ -615,8 +1000,8 @@ void compHwEmu(){
  emMPSumEty->SetLineColor(kRed);
  hwMPSumEty->GetXaxis()->SetTitle("iETy");
  hwMPSumEty->GetYaxis()->SetTitle("# Events");
- hwMPSumEty->GetYaxis()->SetTitleSize(0.07);
- hwMPSumEty->GetYaxis()->SetTitleOffset(0.48);
+ hwMPSumEty->GetYaxis()->SetTitleSize(0.05);
+ hwMPSumEty->GetYaxis()->SetTitleOffset(0.66);
  hwMPSumEty->GetXaxis()->SetTitleSize(0.04);
  hwMPSumEty->GetXaxis()->SetTitleOffset(0.9);
  pSumEty->SetBottomMargin(0.08);
@@ -634,7 +1019,7 @@ void compHwEmu(){
  hwMPSumEty->Divide(emMPSumEty);
  hwMPSumEty->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPSumEty->GetYaxis()->SetTitleSize(0.09);
- hwMPSumEty->GetYaxis()->SetLabelSize(0.07);
+ hwMPSumEty->GetYaxis()->SetLabelSize(0.05);
  hwMPSumEty->GetXaxis()->SetLabelSize(0.07);
  hwMPSumEty->GetXaxis()->SetTitleSize(0.0);
  hwMPSumEty->GetYaxis()->SetTitleOffset(0.35);
@@ -673,8 +1058,8 @@ void compHwEmu(){
  emMPSumHt->SetLineColor(kRed);
  hwMPSumHt->GetXaxis()->SetTitle("iHT");
  hwMPSumHt->GetYaxis()->SetTitle("# Events");
- hwMPSumHt->GetYaxis()->SetTitleSize(0.07);
- hwMPSumHt->GetYaxis()->SetTitleOffset(0.48);
+ hwMPSumHt->GetYaxis()->SetTitleSize(0.05);
+ hwMPSumHt->GetYaxis()->SetTitleOffset(0.66);
  hwMPSumHt->GetXaxis()->SetTitleSize(0.04);
  hwMPSumHt->GetXaxis()->SetTitleOffset(0.9);
  pSumHt->SetBottomMargin(0.08);
@@ -692,7 +1077,7 @@ void compHwEmu(){
  hwMPSumHt->Divide(emMPSumHt);
  hwMPSumHt->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPSumHt->GetYaxis()->SetTitleSize(0.09);
- hwMPSumHt->GetYaxis()->SetLabelSize(0.07);
+ hwMPSumHt->GetYaxis()->SetLabelSize(0.05);
  hwMPSumHt->GetXaxis()->SetLabelSize(0.07);
  hwMPSumHt->GetXaxis()->SetTitleSize(0.0);
  hwMPSumHt->GetYaxis()->SetTitleOffset(0.35);
@@ -732,8 +1117,8 @@ void compHwEmu(){
  emMPSumHtx->SetLineColor(kRed);
  hwMPSumHtx->GetXaxis()->SetTitle("iHTx");
  hwMPSumHtx->GetYaxis()->SetTitle("# Events");
- hwMPSumHtx->GetYaxis()->SetTitleSize(0.07);
- hwMPSumHtx->GetYaxis()->SetTitleOffset(0.48);
+ hwMPSumHtx->GetYaxis()->SetTitleSize(0.05);
+ hwMPSumHtx->GetYaxis()->SetTitleOffset(0.66);
  hwMPSumHtx->GetXaxis()->SetTitleSize(0.04);
  hwMPSumHtx->GetXaxis()->SetTitleOffset(0.9);
  pSumHtx->SetBottomMargin(0.08);
@@ -751,7 +1136,7 @@ void compHwEmu(){
  hwMPSumHtx->Divide(emMPSumHtx);
  hwMPSumHtx->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPSumHtx->GetYaxis()->SetTitleSize(0.09);
- hwMPSumHtx->GetYaxis()->SetLabelSize(0.07);
+ hwMPSumHtx->GetYaxis()->SetLabelSize(0.05);
  hwMPSumHtx->GetXaxis()->SetLabelSize(0.07);
  hwMPSumHtx->GetXaxis()->SetTitleSize(0.0);
  hwMPSumHtx->GetYaxis()->SetTitleOffset(0.35);
@@ -790,8 +1175,8 @@ void compHwEmu(){
  emMPSumHty->SetLineColor(kRed);
  hwMPSumHty->GetXaxis()->SetTitle("iHTy");
  hwMPSumHty->GetYaxis()->SetTitle("# Events");
- hwMPSumHty->GetYaxis()->SetTitleSize(0.07);
- hwMPSumHty->GetYaxis()->SetTitleOffset(0.48);
+ hwMPSumHty->GetYaxis()->SetTitleSize(0.05);
+ hwMPSumHty->GetYaxis()->SetTitleOffset(0.66);
  hwMPSumHty->GetXaxis()->SetTitleSize(0.04);
  hwMPSumHty->GetXaxis()->SetTitleOffset(0.9);
  pSumHty->SetBottomMargin(0.08);
@@ -809,7 +1194,7 @@ void compHwEmu(){
  hwMPSumHty->Divide(emMPSumHty);
  hwMPSumHty->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMPSumHty->GetYaxis()->SetTitleSize(0.09);
- hwMPSumHty->GetYaxis()->SetLabelSize(0.07);
+ hwMPSumHty->GetYaxis()->SetLabelSize(0.05);
  hwMPSumHty->GetXaxis()->SetLabelSize(0.07);
  hwMPSumHty->GetXaxis()->SetTitleSize(0.0);
  hwMPSumHty->GetYaxis()->SetTitleOffset(0.35);
@@ -849,8 +1234,8 @@ void compHwEmu(){
  emSumEt->SetLineColor(kRed);
  hwSumEt->GetXaxis()->SetTitle("iET");
  hwSumEt->GetYaxis()->SetTitle("# Jets");
- hwSumEt->GetYaxis()->SetTitleSize(0.07);
- hwSumEt->GetYaxis()->SetTitleOffset(0.48);
+ hwSumEt->GetYaxis()->SetTitleSize(0.05);
+ hwSumEt->GetYaxis()->SetTitleOffset(0.66);
  hwSumEt->GetXaxis()->SetTitleSize(0.04);
  hwSumEt->GetXaxis()->SetTitleOffset(0.9);
  pDSumEt->SetBottomMargin(0.08);
@@ -868,7 +1253,7 @@ void compHwEmu(){
  hwSumEt->Divide(emSumEt);
  hwSumEt->GetYaxis()->SetTitle("Ratio HW/EM");
  hwSumEt->GetYaxis()->SetTitleSize(0.09);
- hwSumEt->GetYaxis()->SetLabelSize(0.07);
+ hwSumEt->GetYaxis()->SetLabelSize(0.05);
  hwSumEt->GetXaxis()->SetLabelSize(0.07);
  hwSumEt->GetXaxis()->SetTitleSize(0.0);
  hwSumEt->GetYaxis()->SetTitleOffset(0.35);
@@ -908,8 +1293,8 @@ void compHwEmu(){
  emSumMet->SetLineColor(kRed);
  hwSumMet->GetXaxis()->SetTitle("iMET");
  hwSumMet->GetYaxis()->SetTitle("# Events");
- hwSumMet->GetYaxis()->SetTitleSize(0.07);
- hwSumMet->GetYaxis()->SetTitleOffset(0.48);
+ hwSumMet->GetYaxis()->SetTitleSize(0.05);
+ hwSumMet->GetYaxis()->SetTitleOffset(0.66);
  hwSumMet->GetXaxis()->SetTitleSize(0.04);
  hwSumMet->GetXaxis()->SetTitleOffset(0.9);
  pDSumMet->SetBottomMargin(0.08);
@@ -927,7 +1312,7 @@ void compHwEmu(){
  hwSumMet->Divide(emSumMet);
  hwSumMet->GetYaxis()->SetTitle("Ratio HW/EM");
  hwSumMet->GetYaxis()->SetTitleSize(0.09);
- hwSumMet->GetYaxis()->SetLabelSize(0.07);
+ hwSumMet->GetYaxis()->SetLabelSize(0.05);
  hwSumMet->GetXaxis()->SetLabelSize(0.07);
  hwSumMet->GetXaxis()->SetTitleSize(0.0);
  hwSumMet->GetYaxis()->SetTitleOffset(0.35);
@@ -967,8 +1352,8 @@ void compHwEmu(){
  emSumHt->SetLineColor(kRed);
  hwSumHt->GetXaxis()->SetTitle("iHT");
  hwSumHt->GetYaxis()->SetTitle("# Events");
- hwSumHt->GetYaxis()->SetTitleSize(0.07);
- hwSumHt->GetYaxis()->SetTitleOffset(0.48);
+ hwSumHt->GetYaxis()->SetTitleSize(0.05);
+ hwSumHt->GetYaxis()->SetTitleOffset(0.66);
  hwSumHt->GetXaxis()->SetTitleSize(0.04);
  hwSumHt->GetXaxis()->SetTitleOffset(0.9);
  pDSumHt->SetBottomMargin(0.08);
@@ -986,7 +1371,7 @@ void compHwEmu(){
  hwSumHt->Divide(emSumHt);
  hwSumHt->GetYaxis()->SetTitle("Ratio HW/EM");
  hwSumHt->GetYaxis()->SetTitleSize(0.09);
- hwSumHt->GetYaxis()->SetLabelSize(0.07);
+ hwSumHt->GetYaxis()->SetLabelSize(0.05);
  hwSumHt->GetXaxis()->SetLabelSize(0.07);
  hwSumHt->GetXaxis()->SetTitleSize(0.0);
  hwSumHt->GetYaxis()->SetTitleOffset(0.35);
@@ -1026,8 +1411,8 @@ void compHwEmu(){
  emSumMht->SetLineColor(kRed);
  hwSumMht->GetXaxis()->SetTitle("iMHT");
  hwSumMht->GetYaxis()->SetTitle("# Events");
- hwSumMht->GetYaxis()->SetTitleSize(0.07);
- hwSumMht->GetYaxis()->SetTitleOffset(0.48);
+ hwSumMht->GetYaxis()->SetTitleSize(0.05);
+ hwSumMht->GetYaxis()->SetTitleOffset(0.66);
  hwSumMht->GetXaxis()->SetTitleSize(0.04);
  hwSumMht->GetXaxis()->SetTitleOffset(0.9);
  pDSumMht->SetBottomMargin(0.08);
@@ -1045,7 +1430,7 @@ void compHwEmu(){
  hwSumMht->Divide(emSumMht);
  hwSumMht->GetYaxis()->SetTitle("Ratio HW/EM");
  hwSumMht->GetYaxis()->SetTitleSize(0.09);
- hwSumMht->GetYaxis()->SetLabelSize(0.07);
+ hwSumMht->GetYaxis()->SetLabelSize(0.05);
  hwSumMht->GetXaxis()->SetLabelSize(0.07);
  hwSumMht->GetXaxis()->SetTitleSize(0.0);
  hwSumMht->GetYaxis()->SetTitleOffset(0.35);
@@ -1085,8 +1470,8 @@ void compHwEmu(){
  hwMetPhi->GetXaxis()->SetRange(0,40);
  hwMetPhi->GetXaxis()->SetTitle("MET i#phi");
  hwMetPhi->GetYaxis()->SetTitle("# Jets");
- hwMetPhi->GetYaxis()->SetTitleSize(0.07);
- hwMetPhi->GetYaxis()->SetTitleOffset(0.48);
+ hwMetPhi->GetYaxis()->SetTitleSize(0.05);
+ hwMetPhi->GetYaxis()->SetTitleOffset(0.66);
  hwMetPhi->GetXaxis()->SetTitleSize(0.04);
  hwMetPhi->GetXaxis()->SetTitleOffset(0.9);
  pDMetPhi->SetBottomMargin(0.08);
@@ -1104,7 +1489,7 @@ void compHwEmu(){
  hwMetPhi->Divide(emMetPhi);
  hwMetPhi->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMetPhi->GetYaxis()->SetTitleSize(0.09);
- hwMetPhi->GetYaxis()->SetLabelSize(0.07);
+ hwMetPhi->GetYaxis()->SetLabelSize(0.05);
  hwMetPhi->GetXaxis()->SetLabelSize(0.07);
  hwMetPhi->GetXaxis()->SetTitleSize(0.0);
  hwMetPhi->GetYaxis()->SetTitleOffset(0.35);
@@ -1144,8 +1529,8 @@ void compHwEmu(){
  hwMhtPhi->GetXaxis()->SetRange(0,40);
  hwMhtPhi->GetXaxis()->SetTitle("MHT i#phi");
  hwMhtPhi->GetYaxis()->SetTitle("# Events");
- hwMhtPhi->GetYaxis()->SetTitleSize(0.07);
- hwMhtPhi->GetYaxis()->SetTitleOffset(0.48);
+ hwMhtPhi->GetYaxis()->SetTitleSize(0.05);
+ hwMhtPhi->GetYaxis()->SetTitleOffset(0.66);
  hwMhtPhi->GetXaxis()->SetTitleSize(0.04);
  hwMhtPhi->GetXaxis()->SetTitleOffset(0.9);
  pDMhtPhi->SetBottomMargin(0.08);
@@ -1163,7 +1548,7 @@ void compHwEmu(){
  hwMhtPhi->Divide(emMhtPhi);
  hwMhtPhi->GetYaxis()->SetTitle("Ratio HW/EM");
  hwMhtPhi->GetYaxis()->SetTitleSize(0.09);
- hwMhtPhi->GetYaxis()->SetLabelSize(0.07);
+ hwMhtPhi->GetYaxis()->SetLabelSize(0.05);
  hwMhtPhi->GetXaxis()->SetLabelSize(0.07);
  hwMhtPhi->GetXaxis()->SetTitleSize(0.0);
  hwMhtPhi->GetYaxis()->SetTitleOffset(0.35);
@@ -1177,9 +1562,11 @@ void compHwEmu(){
  pDMhtPhiRatio->Update();
  cMhtPhi->SaveAs("compHwEmu/DemuxSums/DemMhtPhi.png");
 
-
+}
 
  //--- sorts ---//
+
+if(doSorts){
 
  TCanvas* cSortMP = new TCanvas("cSortMP","SortMP");
 
@@ -1201,8 +1588,8 @@ void compHwEmu(){
  emSortMP->SetLineColor(kRed);
  hwSortMP->GetXaxis()->SetTitle("iHT");
  hwSortMP->GetYaxis()->SetTitle("# Events");
- hwSortMP->GetYaxis()->SetTitleSize(0.07);
- hwSortMP->GetYaxis()->SetTitleOffset(0.48);
+ hwSortMP->GetYaxis()->SetTitleSize(0.05);
+ hwSortMP->GetYaxis()->SetTitleOffset(0.66);
  hwSortMP->GetXaxis()->SetTitleSize(0.04);
  hwSortMP->GetXaxis()->SetTitleOffset(0.9);
  pSortMP->SetBottomMargin(0.08);
@@ -1221,7 +1608,7 @@ void compHwEmu(){
  hwSortMP->Divide(emSortMP);
  hwSortMP->GetYaxis()->SetTitle("Ratio HW/EM");
  hwSortMP->GetYaxis()->SetTitleSize(0.09);
- hwSortMP->GetYaxis()->SetLabelSize(0.07);
+ hwSortMP->GetYaxis()->SetLabelSize(0.05);
  hwSortMP->GetXaxis()->SetLabelSize(0.07);
  hwSortMP->GetXaxis()->SetTitleSize(0.0);
  hwSortMP->GetYaxis()->SetTitleOffset(0.35);
@@ -1260,8 +1647,8 @@ void compHwEmu(){
  emSort->SetLineColor(kRed);
  hwSort->GetXaxis()->SetTitle("iHT");
  hwSort->GetYaxis()->SetTitle("# Events");
- hwSort->GetYaxis()->SetTitleSize(0.07);
- hwSort->GetYaxis()->SetTitleOffset(0.48);
+ hwSort->GetYaxis()->SetTitleSize(0.05);
+ hwSort->GetYaxis()->SetTitleOffset(0.66);
  hwSort->GetXaxis()->SetTitleSize(0.04);
  hwSort->GetXaxis()->SetTitleOffset(0.9);
  pDSort->SetBottomMargin(0.08);
@@ -1279,8 +1666,8 @@ void compHwEmu(){
  hwSort->Divide(emSort);
  hwSort->GetYaxis()->SetTitle("Ratio HW/EM");
  hwSort->GetYaxis()->SetTitleSize(0.09);
- hwSort->GetYaxis()->SetLabelSize(0.07);
- hwSort->GetXaxis()->SetLabelSize(0.07);
+ hwSort->GetYaxis()->SetLabelSize(0.05);
+ hwSort->GetXaxis()->SetLabelSize(0.07);  
  hwSort->GetXaxis()->SetTitleSize(0.0);
  hwSort->GetYaxis()->SetTitleOffset(0.35);
  hwSort->SetMinimum(0.8);
@@ -1293,173 +1680,7 @@ void compHwEmu(){
  pDSortRatio->Update();
  cSort->SaveAs("compHwEmu/Sorts/DemuxSort.png");
 
+ }
 
- //================ egamma ====================
-
-
- TCanvas* cDEgEt = new TCanvas("cDEgEt","DEgEt");
-
- TPad* pDEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
- TPad* pDEgEtRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
+ }
  
- TPad* pInvDEgEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
- pInvDEgEtRatio->SetFillStyle(0);
-
- leg = new TLegend(0.6,0.65,0.85,0.85);
- leg->SetFillColor(0);
- leg->AddEntry(hwEgEt,"Hardware Demux", "p");
- leg->AddEntry(emEgEt,"Emulator Demux", "l");
-
- hwEgEt->Rebin(10);
- emEgEt->Rebin(10);
-
- hwEgEt->SetStats(0);
- hwEgEt->SetMarkerStyle(21);
- hwEgEt->SetMarkerColor(1);
- hwEgEt->SetMarkerSize(0.4);
- emEgEt->SetLineColor(kRed);
- hwEgEt->GetXaxis()->SetTitle("Egamma iET");
- hwEgEt->GetYaxis()->SetTitle("# Egamma");
- hwEgEt->GetYaxis()->SetTitleSize(0.07);
- hwEgEt->GetYaxis()->SetTitleOffset(0.48);
- hwEgEt->GetXaxis()->SetTitleSize(0.04);
- hwEgEt->GetXaxis()->SetTitleOffset(0.9);
- pDEgEt->SetBottomMargin(0.08);
- pDEgEt->Draw();
- pDEgEt->cd();
- 
- TH1D* DEgEtRatio = (TH1D*)hwEgEt->DrawCopy("p");
- DEgEtRatio->SetMinimum(0);
- emEgEt->Draw("same");
- leg->Draw();
- cDEgEt->cd();
- pDEgEtRatio->SetTopMargin(0.05);
- pDEgEtRatio->Draw();
- pDEgEtRatio->cd();
- hwEgEt->Divide(emEgEt);
- hwEgEt->GetYaxis()->SetTitle("Ratio HW/EM");
- hwEgEt->GetYaxis()->SetTitleSize(0.09);
- hwEgEt->GetYaxis()->SetLabelSize(0.07);
- hwEgEt->GetXaxis()->SetLabelSize(0.07);
- hwEgEt->GetXaxis()->SetTitleSize(0.0);
- hwEgEt->GetYaxis()->SetTitleOffset(0.35);
- hwEgEt->SetMinimum(0.8);
- hwEgEt->SetMaximum(1.2);
- hwEgEt->Draw("p");
- cDEgEt->cd();
- pInvDEgEtRatio->Draw();
- pInvDEgEtRatio->cd();
- unity->Draw();
- pDEgEtRatio->Update();
- cDEgEt->SaveAs("compHwEmu/DemuxJets/EgEt.png");
-
-
- 
- TCanvas* cDEgEta = new TCanvas("cDEgEta","DEgEta");
- TPad* pDEgEta = new TPad("pEgEta","pEgEta",0,0.3,1,1); 
- TPad* pDEgEtaRatio = new TPad("pEgEtaratio","pEgEtaratio",0,0,1,0.3);
- 
- TPad* pInvDEgEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
- pInvDEgEtaRatio->SetFillStyle(0);
-
- leg = new TLegend(0.4,0.65,0.65,0.85);
- leg->SetFillColor(0);
- leg->AddEntry(hwEgEta,"Hardware Demux", "p");
- leg->AddEntry(emEgEta,"Emulator Demux", "l");
-
- hwEgEta->SetStats(0);
- hwEgEta->SetMarkerStyle(21);
- hwEgEta->SetMarkerColor(1);
- hwEgEta->SetMarkerSize(0.4);
- emEgEta->SetLineColor(kRed);
- hwEgEta->GetXaxis()->SetTitle("Jet i#eta");
- hwEgEta->GetXaxis()->SetRange(82,146);
- hwEgEta->GetYaxis()->SetTitle("# Jets");
- hwEgEta->GetYaxis()->SetTitleSize(0.07);
- hwEgEta->GetYaxis()->SetTitleOffset(0.48);
- hwEgEta->GetXaxis()->SetTitleSize(0.04);
- hwEgEta->GetXaxis()->SetTitleOffset(0.9);
- pDEgEta->SetBottomMargin(0.08);
- pDEgEta->Draw();
- pDEgEta->cd();
- 
- TH1D* DEgEtaRatio = (TH1D*)hwEgEta->DrawCopy("p");
- DEgEtaRatio->SetMinimum(0);
- emEgEta->Draw("same");
- leg->Draw();
- cDEgEta->cd();
- pDEgEtaRatio->SetTopMargin(0.05);
- pDEgEtaRatio->Draw();
- pDEgEtaRatio->cd();
- hwEgEta->Divide(emEgEta);
- hwEgEta->GetYaxis()->SetTitle("Ratio HW/EM");
- hwEgEta->GetYaxis()->SetTitleSize(0.09);
- hwEgEta->GetYaxis()->SetLabelSize(0.07);
- hwEgEta->GetXaxis()->SetLabelSize(0.07);
- hwEgEta->GetXaxis()->SetTitleSize(0.0);
- hwEgEta->GetYaxis()->SetTitleOffset(0.35);
- hwEgEta->SetMinimum(0.8);
- hwEgEta->SetMaximum(1.2);
- hwEgEta->Draw("p");
- cDEgEta->cd();
- pInvDEgEtaRatio->Draw();
- pInvDEgEtaRatio->cd();
- unity->Draw();
- pDEgEtaRatio->Update();
- cDEgEta->SaveAs("compHwEmu/DemuxJets/EgEta.png");
-
-
- TCanvas* cDEgPhi = new TCanvas("cDEgPhi","DEgPhi");
-
- TPad* pDEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
- TPad* pDEgPhiRatio = new TPad("pEgPhiratio","pEgPhiratio",0,0,1,0.3);
-  
- TPad* pInvDEgPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
- pInvDEgPhiRatio->SetFillStyle(0);
-
- leg = new TLegend(0.75,0.75,0.9,0.9);
- leg->SetFillColor(0);
- leg->AddEntry(hwEgPhi,"Hardware Demux", "p");
- leg->AddEntry(emEgPhi,"Emulator Demux", "l");
-
- hwEgPhi->SetStats(0);
- hwEgPhi->SetMarkerStyle(21);
- hwEgPhi->SetMarkerColor(1);
- hwEgPhi->SetMarkerSize(0.4);
- emEgPhi->SetLineColor(kRed);
- hwEgPhi->GetXaxis()->SetTitle("Jet i#phi");
- hwEgPhi->GetXaxis()->SetRange(0,73);
- hwEgPhi->GetYaxis()->SetTitle("# Jets");
- hwEgPhi->GetYaxis()->SetTitleSize(0.07);
- hwEgPhi->GetYaxis()->SetTitleOffset(0.48);
- hwEgPhi->GetXaxis()->SetTitleSize(0.04);
- hwEgPhi->GetXaxis()->SetTitleOffset(0.9);
- pDEgPhi->SetBottomMargin(0.08);
- pDEgPhi->Draw();
- pDEgPhi->cd();
-
- TH1D* DEgPhiRatio = (TH1D*)hwEgPhi->DrawCopy("p");
- DEgPhiRatio->SetMinimum(0);
- emEgPhi->Draw("same");//"");
- leg->Draw();
- cDEgPhi->cd();
- pDEgPhiRatio->SetTopMargin(0.05);
- pDEgPhiRatio->Draw();
- pDEgPhiRatio->cd();
- hwEgPhi->Divide(emEgPhi);
- hwEgPhi->GetYaxis()->SetTitle("Ratio HW/EM");
- hwEgPhi->GetYaxis()->SetTitleSize(0.09);
- hwEgPhi->GetYaxis()->SetLabelSize(0.07);
- hwEgPhi->GetXaxis()->SetLabelSize(0.07);
- hwEgPhi->GetXaxis()->SetTitleSize(0.0);
- hwEgPhi->GetYaxis()->SetTitleOffset(0.35);
- hwEgPhi->SetMinimum(0.8);
- hwEgPhi->SetMaximum(1.2);
- hwEgPhi->Draw("p");
- cDEgPhi->cd();
- pInvDEgPhiRatio->Draw();
- pInvDEgPhiRatio->cd();
- unity->Draw();
- cDEgPhi->SaveAs("compHwEmu/DemuxJets/EgPhi.png");
-
-}

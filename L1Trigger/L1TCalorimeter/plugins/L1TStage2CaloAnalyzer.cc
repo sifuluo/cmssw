@@ -193,6 +193,8 @@ private:
   m_sumToken         = consumes<l1t::EtSumBxCollection>(sumTag);
   m_doSums           = !(sumTag==nullTag);
 
+
+
   types_.push_back( Tower );
   types_.push_back( Cluster );
   types_.push_back( MPEG );

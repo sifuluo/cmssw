@@ -44,6 +44,7 @@ namespace l1t {
 
                prod.produces<EtSumBxCollection>("MP");
                prod.produces<JetBxCollection>("MP");
+	       prod.produces<EGammaBxCollection>("MP");
             };
 
             virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override {
