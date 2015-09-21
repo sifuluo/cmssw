@@ -12,11 +12,13 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 
 
+
 l1t::Stage2Layer2TauAlgorithmFirmwareImp1::Stage2Layer2TauAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
 
   loadCalibrationLuts();
+  GetisoLutCompression();
 }
 
 
@@ -145,8 +147,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
       int iEtaP = caloNav.offsetIEta(iEta, 1);
       int iEtaM = caloNav.offsetIEta(iEta, -1);
-      int iPhiP = caloNav.offsetIPhi(iPhi, 1);
-      int iPhiM = caloNav.offsetIPhi(iPhi, -1);      
+      //int iPhiP = caloNav.offsetIPhi(iPhi, 1);
+      //int iPhiM = caloNav.offsetIPhi(iPhi, -1);      
       int iPhiP2 = caloNav.offsetIPhi(iPhi, 2);
       int iPhiP3 = caloNav.offsetIPhi(iPhi, 3);
       int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
@@ -178,7 +180,9 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         // this is the most energetic cluster
         // merge with the secondary cluster if it is not merged to an other one
         if(mainCluster>secondaryCluster) {
-          bool canBeMerged = true;
+          bool canBeMerged = true; // optimization: always merge (following part is difficult for hardware to do)
+          
+          /*
           bool mergeUp = (secondaryCluster.hwPhi()==iPhiM2 || secondaryCluster.hwPhi()==iPhiM3);
           bool mergeLeft = (secondaryCluster.hwEta()==iEtaM);
           bool mergeRight = (secondaryCluster.hwEta()==iEtaP);
@@ -187,167 +191,56 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
           if(!mergeUp && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)) canBeMerged = false;
           if(mergeLeft && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeMerged = false;
           if(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeMerged = false;
+          */
+          
           if(canBeMerged) {
             double calibPt = calibratedPt(mainCluster.hwPtEm()+secondaryCluster.hwPtEm(), mainCluster.hwPtHad()+secondaryCluster.hwPtHad(), mainCluster.hwEta());
             math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
             l1t::Tau tau( p4, mainCluster.hwPt()+secondaryCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
             taus.push_back(tau);
-            
             //std::cout << "===================== IS MERGED ========================" << std::endl;
 
 
 			int hwFootPrint=0;
             int hwEtSum=0;
-            
-			//std::cout << "taus.back().pt(): " << taus.back().pt() << std::endl;
+
+            //Evaluation of the tau footprint as the energy of the merged cluster 
+			//hwFootPrint = ((mainCluster.hwPtEm()+secondaryCluster.hwPtEm()) + (mainCluster.hwPtHad()+secondaryCluster.hwPtHad())); 
+			hwFootPrint = mainCluster.hwPt()+secondaryCluster.hwPt();
+
+            /*
 			if(mainCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN) && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)){    
-
-            	if(mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT) && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)){
-					// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta+1, cluster.Phi+1
-					hwEtSum = CaloTools::calHwEtSum(iEtaP,iPhiP,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-													-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
-
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-            			
-                	    //Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,0,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are from ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are from ieta=cluster.Eta to ieta=cluster.Eta+2 
-						hwFootPrint = CaloTools::calHwEtSum(iEtaP,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are from ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-						hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                	}
-                }
-				if(!mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT) && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)){
-					// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta-1, cluster.Phi+1
-					hwEtSum = CaloTools::calHwEtSum(iEtaM,iPhiP,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-              										-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are from ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta-1 && ieta=cluster.Eta 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,0,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-2 to ieta=cluster.Eta 
-                        hwFootPrint = CaloTools::calHwEtSum(iEtaM,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-                }
-				if(!mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT) && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)){
-					// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta, cluster.Phi+1
-                    hwEtSum = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-													-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
-					
-                    if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta && ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,0,+1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta-1 && ieta=cluster.Eta 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1,0,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-                }
-            }
+				// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta, cluster.Phi+1
+				hwEtSum = CaloTools::calHwEtSum(iEta,iPhiP,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+              									-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
+   			}
 			if(!mainCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN) && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)){   
-
-            	if(mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT) && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)){
-			    	// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta+1, cluster.Phi-1
-			    	hwEtSum = CaloTools::calHwEtSum(iEtaM,iPhiP,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+			    // SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta, cluster.Phi-1
+			    hwEtSum = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
                 								-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
-
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta && ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,0,+1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                     }
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta to ieta=cluster.Eta+2 
-                        hwFootPrint = CaloTools::calHwEtSum(iEtaP,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                     }
-                }
-				if(!mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT) && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)){
-			    	// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta-1, cluster.Phi-1
-			    	hwEtSum = CaloTools::calHwEtSum(iEtaM,iPhiM,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-                								-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
-
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta-1 && ieta=cluster.Eta 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,0,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-2 to ieta=cluster.Eta 
-                        hwFootPrint = CaloTools::calHwEtSum(iEtaM,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-                }
-				if(!mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT) && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)){
-					// SumEt in (ieta,iphi) = 5x9 centered in the cluster.Eta, cluster.Phi-1 or Phi-2
-                    hwEtSum = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-              											-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
-
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 3x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta to ieta=cluster.Eta+1 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,0,+1,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-					if(!mainCluster.checkClusterFlag(CaloCluster::TRIM_LEFT) && !secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
-						//Evaluation of the tau footprint of a size 2x5, the slices in ieta are ieta=cluster.Eta-1 to ieta=cluster.Eta 
-                        hwFootPrint = CaloTools::calHwEtSum(iEta,iPhiM,towers,-1,0,-1*params_->tauIsoVetoNrTowersPhi(),params_->tauIsoVetoNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                    }
-            	}
             }
+            */
+
+		    // SumEt in (ieta,iphi) = 5x9 centered always around the main cluster.Eta,  and Phi
+		    hwEtSum = CaloTools::calHwEtSum(iEta,iPhi,towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+               								-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO); 
+
+
             int isolBit = 0;
         	
 			int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
-        	unsigned int lutAddress = isoLutIndex(calibPt, nrTowers);
+        	unsigned int lutAddress = isoLutIndex(hwFootPrint, mainCluster.hwEta(), nrTowers);
+        	
+        	//cout << hwFootPrint << " " << mainCluster.hwEta() << " " << nrTowers << " --> " << lutAddress << " --> " << (params_->tauIsolationLUT()->data(lutAddress)) << endl;
         	
         	isolBit = hwEtSum-hwFootPrint <= (params_->tauIsolationLUT()->data(lutAddress));
+			//isolBit+=1;
         	taus.back().setHwIso(isolBit);
-
-          }
+			//taus.back().setHwIso(hwEtSum-hwFootPrint);
+			//taus.back().setHwQual(nrTowers);
+            taus.back().setHwQual(BitwiseClusterFlags(&mainCluster, 0, &secondaryCluster));
+		  }
+          /*
           else {
             double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), mainCluster.hwEta());
             math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
@@ -357,18 +250,26 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             
             // Isolation part
             int hwEtSum = CaloTools::calHwEtSum(mainCluster.hwEta(),mainCluster.hwPhi(),towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-              									-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                                                
-            int hwFootPrint = isoCalTauHwFootPrint(mainCluster,towers);
-            
-            int isolBit = 0;
+                                    -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
+                                    
+            //int hwFootPrint = (mainCluster.hwPtEm()+ mainCluster.hwPtHad()); 
+			int hwFootPrint = 0;
+			hwFootPrint = mainCluster.hwPt();
+			
+			int isolBit = 0;
 			int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
         	unsigned int lutAddress = isoLutIndex(calibPt, nrTowers);
         	
         	isolBit = hwEtSum-hwFootPrint <= params_->tauIsolationLUT()->data(lutAddress);
-			taus.back().setHwIso(isolBit);
-          }
+			isolBit+=1;
+			//taus.back().setHwIso(isolBit);
+			taus.back().setHwIso(hwEtSum-hwFootPrint);
+			//taus.back().setHwQual(nrTowers);
+            taus.back().setHwQual(BitwiseClusterFlags(&mainCluster, 1, 0));
+		  }
+		  */
         }
+        /*
         else {
           bool canBeKept = false;
           bool mergeUp = (secondaryCluster.hwPhi()==iPhiM2 || secondaryCluster.hwPhi()==iPhiM3);
@@ -387,20 +288,26 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             //std::cout<<"   Make tau, No merging\n";
             
             // Isolation part
-      		int hwEtSum = CaloTools::calHwEtSum(mainCluster.hwEta(),mainCluster.hwPhi(),towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-												-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                                            
-      		int hwFootPrint = isoCalTauHwFootPrint(mainCluster,towers);
-            
+            int hwEtSum = CaloTools::calHwEtSum(mainCluster.hwEta(),mainCluster.hwPhi(),towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                                    -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
+                                    
+            //int hwFootPrint = (mainCluster.hwPtEm()+ mainCluster.hwPtHad()); 
+            int hwFootPrint = 0;
+            hwFootPrint = mainCluster.hwPt();
+			
             int isolBit = 0;
 			int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
         	unsigned int lutAddress = isoLutIndex(calibPt, nrTowers);
         	
         	isolBit = hwEtSum-hwFootPrint <= params_->tauIsolationLUT()->data(lutAddress);
-            taus.back().setHwIso(isolBit);
-
+			isolBit+=1;
+            //taus.back().setHwIso(isolBit);
+			taus.back().setHwIso(hwEtSum-hwFootPrint);
+			//taus.back().setHwQual(nrTowers);
+			taus.back().setHwQual(BitwiseClusterFlags(&mainCluster, 2, 0));
           }
         }
+        */
       }
       else {
         double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), mainCluster.hwEta());
@@ -410,18 +317,23 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         //std::cout<<"   Make tau, No merging\n";
         
         // Isolation part
-		int hwEtSum = CaloTools::calHwEtSum(mainCluster.hwEta(),mainCluster.hwPhi(),towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
-        									-1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
-                                        
-      	int hwFootPrint = isoCalTauHwFootPrint(mainCluster,towers);
-
+        int hwEtSum = CaloTools::calHwEtSum(mainCluster.hwEta(),mainCluster.hwPhi(),towers,-1*params_->tauIsoAreaNrTowersEta(),params_->tauIsoAreaNrTowersEta(),
+                                -1*params_->tauIsoAreaNrTowersPhi(),params_->tauIsoAreaNrTowersPhi(),params_->tauPUSParam(2),CaloTools::CALO);
+                                
+        //int hwFootPrint = (mainCluster.hwPtEm()+ mainCluster.hwPtHad()); 
+        int hwFootPrint = 0;
+        hwFootPrint = mainCluster.hwPt();
+   
         int isolBit = 0;
 		int nrTowers = CaloTools::calNrTowers(-1*params_->tauPUSParam(1),params_->tauPUSParam(1),1,72,towers,1,999,CaloTools::CALO);
-        unsigned int lutAddress = isoLutIndex(calibPt, nrTowers);
+        unsigned int lutAddress = isoLutIndex(mainCluster.hwEta(), hwFootPrint, nrTowers);
         
         isolBit = hwEtSum-hwFootPrint <= params_->tauIsolationLUT()->data(lutAddress);
+		//isolBit+=1;
       	taus.back().setHwIso(isolBit);
-
+		//taus.back().setHwIso(hwEtSum-hwFootPrint);
+		//taus.back().setHwQual(nrTowers);
+		taus.back().setHwQual(BitwiseClusterFlags(&mainCluster, 3, 0));
       }
     }
   }
@@ -488,7 +400,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::loadCalibrationLuts()
 double l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(int hwPtEm, int hwPtHad, int ieta)
 {
   // ET calibration
-  bool barrel = (ieta<=17);
+  bool barrel = (abs(ieta)<=17);
   unsigned int nBins = coefficients_[0].size();
   double e = (double)hwPtEm*params_->tauLsb();
   double h = (double)hwPtHad*params_->tauLsb();
@@ -511,20 +423,185 @@ double l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(int hwPtEm, int h
   ibin = (ieta>0 ? ieta+27 : ieta+28);
   calibPt *= coefficients_.back()[ibin];
 
+  //std::cout << "  ieta: " << ieta << " | calibPt: " << calibPt << " | hwPtEm: " << hwPtEm << " | hwPtHad: " << hwPtHad << std::endl;
+
   return calibPt;
+}
+
+// retrieve compressed num bits for each variable
+// as the first part of the LUT is the compression block (indexing),
+// read the last entry of each variable block and round to the closest
+// larger power of two to get the number of bits used for that variable
+// an analytic formula allows this rounding
+void  l1t::Stage2Layer2TauAlgorithmFirmwareImp1::GetisoLutCompression()
+{
+    // non compressed bits used - it is a firmware property
+    const int bit_eta = 5;
+    const int bit_Et = 9;
+    const int bit_nTT = 10;
+    int index = 0;
+    
+    // LUT first entry is indexed with 0
+    index = pow(2,bit_eta)-1;
+    iso_etaBit_ = floor(log2(1.*params_->tauIsolationLUT()->data( index )) ) + 1;
+
+    index = pow(2,bit_Et)-1 + pow (2, bit_eta);
+    iso_EtBit_ = floor(log2(1.*params_->tauIsolationLUT()->data( index )) ) + 1;
+
+    index = pow(2,bit_nTT)-1 + pow (2, bit_eta) + pow (2, bit_Et);
+    iso_nTTBit_ = floor(log2(1.*params_->tauIsolationLUT()->data( index )) ) + 1;
+
+    // other number useful in getting LUT address - compute just once
+    iso_offset_ = pow(2, bit_eta) + pow(2, bit_Et) + pow (2, bit_nTT);
+    iso_Etblocksize_ = pow (2, iso_nTTBit_);
+    iso_etablocksize_ = pow (2, iso_nTTBit_+iso_EtBit_);
+
+    return;
 }
 
 // LUT FORMAT: N=1024 (10 bit) blocks for each value of nrTowers
 // Each one of this blocks has a substructure of N=256 (8 bit) for the energy value
-unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int Et, unsigned int nrTowers)
+unsigned int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::isoLutIndex(int ieta, int Et, unsigned int nTT)
 {
-   const unsigned int kTowerGranularity=params_->tauPUSParam(0);
-   unsigned int nrTowersNormed = nrTowers/kTowerGranularity;
-      
-   if (nrTowersNormed > 1023) nrTowersNormed  = 1023; // 10 bits for towers
-   int kTowerOffs = 256*nrTowersNormed;
+   //const unsigned int kTowerGranularity=params_->tauPUSParam(0);
+   //unsigned int nrTowersNormed = nrTowers/kTowerGranularity;
    
-   if (Et > 255)  Et = 255; // 8 bit for E
+   int abseta = abs(ieta);
    
-   return (kTowerOffs + Et);
+   // set to available bit precision
+   if (abseta >= 32) abseta = 31; // 5 bits for eta 
+   if (Et >= 512) Et = 511; // 9 bit for Et 
+   if (nTT >= 1024) nTT  = 1023; // 10 bits for towers
+   
+   int etaInd  = params_->tauIsolationLUT()->data(abseta);
+   int EtInd   = params_->tauIsolationLUT()->data(Et + 32); // offset on 5 eta bits (32 rows)
+   int nTTInd  = params_->tauIsolationLUT()->data(nTT + 544); // offset on 5 eta bits and 9 Et bits (32+ 512 rows)
+  
+   int addr = iso_offset_ + etaInd*iso_etablocksize_ + EtInd*iso_Etblocksize_ + nTTInd;   
+   return addr;
 }
+
+
+
+
+// this has been added for PU-sub debug purposes only on 14 Jan 2015.
+// is used to produce an int value that contains all the flags of the cluster(s) corrsponding to that particular tau
+// to be removed in official emulator
+//
+// int is composed by 4 bytes (checked with std::cout << "Size of int: " << sizeof(int) << std::endl; )
+//
+// bit 0 is the least significant bit; bit numbering convention:
+/*
+        // related to main cluster
+
+        INCLUDE_SEED        = 0,
+        INCLUDE_NW          = 1,
+        INCLUDE_N           = 2,
+        INCLUDE_NE          = 3,
+        INCLUDE_E           = 4,
+        INCLUDE_SE          = 5,
+        INCLUDE_S           = 6,
+        INCLUDE_SW          = 7,
+        INCLUDE_W           = 8,
+        INCLUDE_NN          = 9,
+        INCLUDE_SS          = 10,
+        TRIM_LEFT           = 11,
+        IS_SECONDARY        = 12,
+        MERGE_UPDOWN        = 13, // 0=up, 1=down
+        MERGE_LEFTRIGHT     = 14 // 0=left, 1=right
+
+        // related to secondary cluster (if not existing, set all to 0)
+
+        INCLUDE_SEED        = 15,
+        INCLUDE_NW          = 16,
+        INCLUDE_N           = 17,
+        INCLUDE_NE          = 18,
+        INCLUDE_E           = 19,
+        INCLUDE_SE          = 20,
+        INCLUDE_S           = 21,
+        INCLUDE_SW          = 22,
+        INCLUDE_W           = 23,
+        INCLUDE_NN          = 24,
+        INCLUDE_SS          = 25,
+        TRIM_LEFT           = 26,
+        IS_SECONDARY        = 27,
+        MERGE_UPDOWN        = 28, // 0=up, 1=down
+        MERGE_LEFTRIGHT     = 29 // 0=left, 1=right
+
+		// related to the way tau was computed (i.e., in which part of the code was filled; this means that you can find if it was merged, kept alone, etc...)
+		// this information is passed to the function as a number (second parameter) with this convention:
+		0:	if (satellite.size() > 0)     AND     mainCluster > secondaryCluster    AND canBeMerged == true
+		1:	if (satellite.size() > 0)     AND     mainCluster > secondaryCluster    AND canBeMerged == false
+		2:	if (satellite.size() > 0)     AND     mainCluster < secondaryCluster    AND canBeKept   == true    // NOTE: if canBeKept == false, the tau is not saved, so there is no flag defined for this case
+		3:  if (satellite.size() == 0)
+		// these two numbers are converted to a binary and then saved to bits 30 and 31, i.e. the bin sequence (31, 30)  will be: 0=(0,0), 1=(0,1), 2=(1,0), 3=(1,1)
+*/
+
+int l1t::Stage2Layer2TauAlgorithmFirmwareImp1::BitwiseClusterFlags (const l1t::CaloCluster* mainCluster, int HowComputed, const l1t::CaloCluster* secondaryCluster)
+{
+   // first of all, be sure that the machine supports int with 32 bits, otherwise abort the execution
+   assert ( sizeof(int) == sizeof(int32_t) );
+   
+   // check HowComputed range
+   if (HowComputed < 0 || HowComputed > 3)
+   {
+      std::cout << "WARNING: value of HowComputed not in range -  returning 0" << std::endl;
+	  return 0;
+   }
+   
+   int flags = 0; // initialize all flags to 0
+   
+   // set flags according to numbering scheme
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_SEED))      flags |= (1 << 0);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_NW))        flags |= (1 << 1);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_N))         flags |= (1 << 2);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_NE))        flags |= (1 << 3);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_E))         flags |= (1 << 4);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_SE))        flags |= (1 << 5);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_S))         flags |= (1 << 6);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_SW))        flags |= (1 << 7);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_W))         flags |= (1 << 8);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_NN))        flags |= (1 << 9);
+   if (mainCluster->checkClusterFlag(CaloCluster::INCLUDE_SS))        flags |= (1 << 10);
+   if (mainCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))         flags |= (1 << 11);
+   if (mainCluster->checkClusterFlag(CaloCluster::IS_SECONDARY))      flags |= (1 << 12);
+   if (mainCluster->checkClusterFlag(CaloCluster::MERGE_UPDOWN))      flags |= (1 << 13);
+   if (mainCluster->checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT))   flags |= (1 << 14);
+   
+   if (secondaryCluster != 0)
+   {
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SEED))      flags |= (1 << 15);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW))        flags |= (1 << 16);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))         flags |= (1 << 17);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE))        flags |= (1 << 18);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))         flags |= (1 << 19);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE))        flags |= (1 << 20);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))         flags |= (1 << 21);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW))        flags |= (1 << 22);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))         flags |= (1 << 23);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN))        flags |= (1 << 24);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS))        flags |= (1 << 25);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))         flags |= (1 << 26);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::IS_SECONDARY))      flags |= (1 << 27);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::MERGE_UPDOWN))      flags |= (1 << 28);
+      if (secondaryCluster->checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT))   flags |= (1 << 29);
+   }
+
+   switch (HowComputed)
+   {
+   	  // for 0, nothing to be done, already set properly by initialization
+      case (1):
+         flags |= (1 << 30);
+         break;
+      case (2):
+	     flags |= (1 << 31);
+         break;
+	  case (3):
+         flags |= (1 << 30);
+         flags |= (1 << 31);
+         break; 
+   }
+   
+   return flags;   
+}
+

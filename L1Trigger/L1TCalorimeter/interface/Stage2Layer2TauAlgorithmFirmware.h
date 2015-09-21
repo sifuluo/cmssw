@@ -35,8 +35,11 @@ namespace l1t {
 
 	//calibration
     void loadCalibrationLuts();
-
     double calibratedPt(int hwPtEm, int hwPtHad, int ieta);
+    
+    // isolation
+    void GetisoLutCompression();
+	unsigned int isoLutIndex(int eta, int Et, unsigned int nTT);
     
     // parameters
     CaloParams* params_;
@@ -46,8 +49,17 @@ namespace l1t {
     float offsetBarrelH_;
     float offsetEndcapsEH_;
     float offsetEndcapsH_;
-	
-	unsigned int isoLutIndex(int Et, unsigned int nrTowers);
+    
+    int iso_etaBit_; // compression of iso LUT, retrieved directly from LUT
+    int iso_EtBit_;
+    int iso_nTTBit_;
+    int iso_offset_;
+    int iso_etablocksize_;
+    int iso_Etblocksize_;
+    
+    // for debug only, to remove
+    int BitwiseClusterFlags(const l1t::CaloCluster* mainCluster, int HowComputed, const l1t::CaloCluster* secondaryCluster);
+
   };
   
 }

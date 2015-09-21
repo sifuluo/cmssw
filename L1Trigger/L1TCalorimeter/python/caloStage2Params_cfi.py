@@ -50,7 +50,7 @@ caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
 caloStage2Params.tauIsoAreaNrTowersPhi         = cms.uint32(4)
 caloStage2Params.tauIsoVetoNrTowersPhi         = cms.uint32(2)
 caloStage2Params.tauPUSType                 = cms.string("None")
-caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUTetPU.txt")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tau_isolation_LUT_WP70.txt")
 caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT.txt")
 caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,27)
 
