@@ -2,8 +2,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
-//#include "L1TObjectCollections.h"
-#include "GTCollections.h"
+#include "L1TObjectCollections.h"
+//#include "GTCollections.h"
 
 namespace l1t {
    namespace stage2 {
@@ -35,7 +35,7 @@ namespace stage2 {
        lastBX = ceil((double)nBX/2.)-1;
      }
 
-     auto res_ = static_cast<GTCollections*>(coll)->getMuons();
+     auto res_ = static_cast<L1TObjectCollections*>(coll)->getMuons();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;

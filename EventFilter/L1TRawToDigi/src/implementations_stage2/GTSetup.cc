@@ -81,10 +81,22 @@ namespace l1t {
 		  res[16] = tau_unp;
 		  res[18] = tau_unp;
                   res[20] = etsum_unp;
+		  res[24] = ext_unp;
+		  //res[22] = empty link no data
+		  res[26] = ext_unp;
+		  res[28] = ext_unp;
+		  
                   //From the tx buffers
-                  res[1] = alg_unp;
-                  res[3] = alg_unp;
-                  res[5] = alg_unp;
+                  res[1]  = alg_unp;
+                  res[3]  = alg_unp;
+                  res[5]  = alg_unp;
+                  res[7]  = alg_unp;
+                  res[9]  = alg_unp;
+                  res[11] = alg_unp;
+                  res[13] = alg_unp;
+                  res[15] = alg_unp;
+                  res[17] = alg_unp;		  
+
                   
                }
 	       
