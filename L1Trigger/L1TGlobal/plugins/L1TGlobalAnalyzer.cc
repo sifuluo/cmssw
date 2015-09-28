@@ -477,7 +477,7 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = algs->begin(ibx); itr != algs->end(ibx); ++itr ) {
            
 	for(int algBit=0; algBit<128; algBit++) {  //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-	  if(itr->getAlgoDecisionFinal(algBit)) {
+	  if(itr->getAlgoDecisionInitial(algBit)) {
 	    hAlgoBits_->Fill(algBit);
 	    text << "HW Fired Alg Bit : " << algBit  << std::endl;
 	  }  
@@ -498,7 +498,7 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = emulGtAlgs->begin(ibx); itr != emulGtAlgs->end(ibx); ++itr ) {
            
 	for(int algBit=0; algBit<128; algBit++) { //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-	  if(itr->getAlgoDecisionFinal(algBit)) {
+	  if(itr->getAlgoDecisionInitial(algBit)) {
 	     hEmulGtAlgoBits_->Fill(algBit);
 	     text << "Emul w/ GTInput Fired Alg Bit : " << algBit  << std::endl;
 	  }  
@@ -519,7 +519,7 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = emulDxAlgs->begin(ibx); itr != emulDxAlgs->end(ibx); ++itr ) {
            
 	for(int algBit=0; algBit<128; algBit++) { //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-	  if(itr->getAlgoDecisionFinal(algBit)) {
+	  if(itr->getAlgoDecisionInitial(algBit)) {
 	      hEmulDxAlgoBits_->Fill(algBit);
 	      text << "Emul w/ Demux output Fired Alg Bit : " << algBit  << std::endl;
           }
@@ -793,8 +793,8 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         auto itr_emul = emulAlgs->begin(ibx);        
    
 	for(int algBit=0; algBit<128; algBit++) { //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-          bool hw = itr->getAlgoDecisionFinal(algBit);
-          bool em = itr_emul->getAlgoDecisionFinal(algBit);
+          bool hw = itr->getAlgoDecisionInitial(algBit);
+          bool em = itr_emul->getAlgoDecisionInitial(algBit);
 	  if(hw & em) {
 	    hAlgoBitsEmulGtVsHw_->Fill(algBit,algBit);
 	  }else if(hw & !em) {
@@ -826,8 +826,8 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         auto itr_emul = emulAlgs->begin(ibx);        
    
 	for(int algBit=0; algBit<128; algBit++) { //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-          bool hw = itr->getAlgoDecisionFinal(algBit);
-          bool em = itr_emul->getAlgoDecisionFinal(algBit);
+          bool hw = itr->getAlgoDecisionInitial(algBit);
+          bool em = itr_emul->getAlgoDecisionInitial(algBit);
 	  if(hw & em) {
 	    hAlgoBitsEmulDxVsHw_->Fill(algBit,algBit);
 	  }else if(hw & !em) {
