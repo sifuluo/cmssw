@@ -55,7 +55,7 @@ options.register('dmLatency',
                  VarParsing.VarParsing.varType.int,
                  "Demux latency (frames)")
 options.register('dmOffset',
-                 28,
+                 29,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux offset (frames)")

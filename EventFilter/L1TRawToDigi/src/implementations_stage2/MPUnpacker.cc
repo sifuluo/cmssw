@@ -37,7 +37,7 @@ namespace stage2 {
      int unsigned fet = 0;
      int unsigned fht = 1;
      int unsigned fjet = 2;
-     int unsigned feg = 3;
+     int unsigned feg = 4;
 
      
      //      ===== Jets and Sums =====
@@ -164,8 +164,12 @@ namespace stage2 {
        l1t::EGamma eg = l1t::EGamma();
 
        int etasign = 1;
-       if ((block.header().getID() == 123)) etasign = -1;
-
+       if ((block.header().getID() == 125) ||
+           (block.header().getID() == 131) ||
+           (block.header().getID() == 129)) {
+         etasign = -1;
+       }
+       
        LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
        
        eg.setHwEta(etasign*((raw_data >> 4) & 0x3F));
