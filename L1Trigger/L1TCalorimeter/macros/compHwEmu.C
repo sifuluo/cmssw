@@ -4,8 +4,8 @@
 
    bool doEgamma=false;
    bool doTau=true;
-   bool doJets=false;
-   bool doSums=false;
+   bool doJets=true;
+   bool doSums=true;
    bool doSorts=false;
 
    TLatex n1;

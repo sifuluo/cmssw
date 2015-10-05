@@ -38,9 +38,9 @@ namespace stage2 {
      // Initialise frame indices for each data type
      int unsigned fet = 0;
      int unsigned fht = 1;
-     int unsigned fjet = 2;//6;
-     int unsigned feg = 4;//2;
-     int unsigned ftau = 6;
+     int unsigned fjet = 6;
+     int unsigned feg = 2;
+     int unsigned ftau = 4;
 
      
      //      ===== Jets and Sums =====
