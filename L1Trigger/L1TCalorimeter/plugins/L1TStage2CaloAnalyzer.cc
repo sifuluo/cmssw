@@ -344,30 +344,32 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     
   }
-
+  std::cout << "m_doMPEGs = " << m_doMPEGs <<  std::endl;
   // get EG
   if (m_doMPEGs) {
     Handle< BXVector<l1t::EGamma> > mpegs;
     iEvent.getByToken(m_mpEGToken,mpegs);
-    
+    std::cout << "m_doMPEGs 1 " << m_doMPEGs << std::endl;
     for ( int ibx=mpegs->getFirstBX(); ibx<=mpegs->getLastBX(); ++ibx) {
-
+      std::cout << "m_doMPEGs 2 " << m_doMPEGs << std::endl;
       for ( auto itr = mpegs->begin(ibx); itr != mpegs->end(ibx); ++itr ) {
+	std::cout << "m_doMPEGs 3 " << m_doMPEGs << std::endl;
         hbx_.at(MPEG)->Fill( ibx );
 	het_.at(MPEG)->Fill( itr->hwPt() );
 	heta_.at(MPEG)->Fill( itr->hwEta() );
 	hphi_.at(MPEG)->Fill( itr->hwPhi() );
         hetaphi_.at(MPEG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
-
+	std::cout << "m_doMPEGs 4 " << m_doMPEGs << std::endl;
 	text << "MP EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
-
+	std::cout << "m_doMPEGs 5 " << m_doMPEGs << std::endl;
 	if (doEvtDisp_) hEvtMPEG->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
-
+	std::cout << "m_doMPEGs 6 " << m_doMPEGs << std::endl;
       }
       
     }
 
   }
+  std::cout << "m_doTaus = " << m_doTaus << std::endl;
 
   // get tau
   if (m_doMPTaus) {

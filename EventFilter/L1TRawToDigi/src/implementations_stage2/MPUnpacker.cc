@@ -28,16 +28,19 @@ namespace stage2 {
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
      auto res3_ = static_cast<CaloCollections*>(coll)->getMPEGammas();
+     auto res4_ = static_cast<CaloCollections*>(coll)->getMPTaus();
      
      res1_->setBXRange(0,0);
      res2_->setBXRange(0,0);
      res3_->setBXRange(0,0);
+     res4_->setBXRange(0,0);
 
      // Initialise frame indices for each data type
      int unsigned fet = 0;
      int unsigned fht = 1;
-     int unsigned fjet = 2;
-     int unsigned feg = 4;
+     int unsigned fjet = 2;//6;
+     int unsigned feg = 4;//2;
+     int unsigned ftau = 6;
 
      
      //      ===== Jets and Sums =====
@@ -89,7 +92,7 @@ namespace stage2 {
 
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
-
+       std::cout << "fjet = " << fjet << ", njet = " << nJet << ", block = " << block.payload()[fjet+nJet] << std::endl;
        raw_data = block.payload()[fjet+nJet];
 
        if (raw_data == 0)
@@ -182,6 +185,49 @@ namespace stage2 {
        
        res3_->push_back(0,eg);
      }
+
+     
+     //      ===== Taus =====
+     
+     // Two taus
+
+     for (unsigned nTau=0; nTau < 2; nTau++){
+       
+       raw_data = block.payload()[ftau+nTau];
+       
+       if (raw_data == 0)
+	 continue;
+       
+       l1t::Tau tau = l1t::Tau();
+
+       int etasign = 1;
+       if ((block.header().getID() == 125) ||
+           (block.header().getID() == 131) ||
+           (block.header().getID() == 129)) {
+         etasign = -1;
+       }
+       
+       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << etasign;
+       
+       tau.setHwEta(etasign*((raw_data >> 4) & 0x3F));
+       tau.setHwPhi((raw_data >> 10) & 0x7F);
+       tau.setHwPt((raw_data >> 21) & 0x1FF);
+       tau.setHwQual(((raw_data >> 3) & 0x1) + (((raw_data >> 1) & 0x1) << 2));
+       tau.setHwIso(raw_data & 0x1);  
+       
+
+       // tau.setHwEta(etasign*((raw_data >> 9) & 0x7F));
+       // tau.setHwPhi((raw_data >> 17) & 0xFF);
+       // tau.setHwPt(raw_data & 0x1FF);
+       // tau.setHwQual(((raw_data >> 26) & 0x1)); //ECalFG + TauLikeShape
+       // tau.setHwIso(((raw_data >> 25) & 0x1) + ((raw_data >> 26) & 0x1) + ((raw_data >> 27) & 0x1)); 
+	   
+       LogDebug("L1T") << "Tau: eta " << tau.hwEta() << " phi " << tau.hwPhi() << " pT " << tau.hwPt() << " qual " << tau.hwQual();
+       
+       res4_->push_back(0,tau);
+     }
+
+
 
      return true;
    }

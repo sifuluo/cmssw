@@ -1,10 +1,35 @@
  void compHwEmu(){
 
-   bool doEgamma=true;
+   bool doRatio=false;
+
+   bool doEgamma=false;
+   bool doTau=true;
    bool doJets=false;
    bool doSums=false;
    bool doSorts=false;
 
+   TLatex n1;
+   n1.SetNDC();
+   n1.SetTextFont(42);
+   n1.SetTextSize(0.04);
+   
+   TLatex n2;
+   n2.SetNDC();
+   n2.SetLineWidth(2);
+   n2.SetTextFont(61);
+   n2.SetTextSize(0.05);
+   
+   TLatex n3;
+   n3.SetNDC();
+   n3.SetTextFont(52);
+   n3.SetTextSize(0.04);
+
+   TLatex n4;
+   n4.SetNDC();
+   n4.SetTextFont(52);
+   n4.SetTextSize(0.04);
+ 
+ 
 
    TFile* inFileHw = new TFile("l1tCalo_2016_histosHw.root");
    TFile* inFileEm = new TFile("l1tCalo_2016_histosEm.root");
@@ -111,10 +136,10 @@
   TLine* unity = new TLine(0.1,0.525,0.9,0.525);
   unity->SetLineColor(kBlue);
 
-  TLegend* leg = new TLegend(0.6,0.65,0.85,0.85);
+  TLegend* leg = new TLegend(0.6,0.75,0.85,0.85);
   leg->SetFillColor(0);
-  leg->AddEntry(hwEgEt,"Hardware Demux", "p");
-  leg->AddEntry(emEgEt,"Emulator Demux", "l");
+  leg->AddEntry(hwEgEt,"Upgrade hardware", "p");
+  leg->AddEntry(emEgEt,"Upgrade simulation", "l");
 
   /*
     TLegend* leg = new TLegend(0.6,0.7,0.8,0.9);
@@ -138,20 +163,24 @@
 
 if(doEgamma){
 
-   TCanvas* cEgEt = new TCanvas("cEgEt","EgEt");
+  TCanvas* cEgEt = new TCanvas("cEgEt","EgEt");
+  TPad* pEgEt = new TPad("pEgEt","pEgEt",0,0.0,1,1); 
 
-  TPad* pEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+  if(doRatio) pEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ 
   TPad* pEgEtRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
   
   TPad* pInvEgEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
   pInvEgEtRatio->SetFillStyle(0);
 
-  leg = new TLegend(0.6,0.65,0.85,0.85);
+  leg = new TLegend(0.6,0.75,0.85,0.85);
   leg->SetFillColor(0);
-  leg->AddEntry(hwMPEgEt,"Hardware MP", "p");//"l");
-  //leg->AddEntry(hwEgEt,"Hardware Demux", "p");
-  leg->AddEntry(emMPEgEt,"Emulator MP", "l");
-  //leg->AddEntry(emEgEt,"Emulator Demux", "p");
+  leg->AddEntry(hwMPEgEt,"Upgrade hardware", "p");//"l");
+  //leg->AddEntry(hwEgEt,"Upgrade hardware", "p");
+  leg->AddEntry(emMPEgEt,"Upgrade simulation", "l");
+  //leg->AddEntry(emEgEt,"Upgrade simulation", "p");
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
   
   hwMPEgEt->Rebin(10);
   emMPEgEt->Rebin(10);
@@ -162,13 +191,13 @@ if(doEgamma){
   hwMPEgEt->SetMarkerColor(1);
   hwMPEgEt->SetMarkerSize(0.4);
   emMPEgEt->SetLineColor(kRed);
-  hwMPEgEt->GetXaxis()->SetTitle("EGamma iET");
+  hwMPEgEt->GetXaxis()->SetTitle("Level-1 Trigger EGamma iE_{T}");
   hwMPEgEt->GetYaxis()->SetTitle("# EGammas");
   hwMPEgEt->GetYaxis()->SetTitleSize(0.05);
   hwMPEgEt->GetYaxis()->SetTitleOffset(0.66);
   hwMPEgEt->GetXaxis()->SetTitleSize(0.04);
-  hwMPEgEt->GetXaxis()->SetTitleOffset(0.9);
-  pEgEt->SetBottomMargin(0.08);
+  hwMPEgEt->GetXaxis()->SetTitleOffset(1.0);
+  pEgEt->SetBottomMargin(0.12);
   pEgEt->Draw();
   pEgEt->cd();
 
@@ -176,6 +205,15 @@ if(doEgamma){
   EgEtRatio->SetMinimum(0);
   emMPEgEt->Draw("same");//"");
   leg->Draw();
+  n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+  n2.DrawLatex(0.7, 0.65, "CMS");
+  n3.DrawLatex(0.7, 0.6, "Simulation");
+  n3.DrawLatex(0.7, 0.55, "Preliminary");
+  n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+    
+
+  if(doRatio){
+
   cEgEt->cd();
   pEgEtRatio->SetTopMargin(0.05);
   pEgEtRatio->Draw();
@@ -194,15 +232,19 @@ if(doEgamma){
   pInvEgEtRatio->Draw();
   pInvEgEtRatio->cd();
   unity->Draw();
-  cEgEt->SaveAs("compHwEmu/Egs/EgEt.png");
 
+  }
+  
+  
+  //cEgEt->SaveAs("compHwEmu/Egs/EgEt.png");
+  //cEgEt->Close();
 
 
 
 
  TCanvas* cDEgEt = new TCanvas("cDEgEt","DEgEt");
-
- TPad* pDEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ pDEgEt = new TPad("pEgEt","pEgEt",0,0.0,1,1); 
+ if(doRatio) pDEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
  TPad* pDEgEtRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
  
  TPad* pInvDEgEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
@@ -217,13 +259,13 @@ if(doEgamma){
  hwEgEt->SetMarkerColor(1);
  hwEgEt->SetMarkerSize(0.4);
  emEgEt->SetLineColor(kRed);
- hwEgEt->GetXaxis()->SetTitle("EGamma iET");
+ hwEgEt->GetXaxis()->SetTitle("Level-1 Trigger EGamma iE_{T}");
  hwEgEt->GetYaxis()->SetTitle("# EGamma");
  hwEgEt->GetYaxis()->SetTitleSize(0.05);
- hwEgEt->GetYaxis()->SetTitleOffset(0.66);
+ hwEgEt->GetYaxis()->SetTitleOffset(0.77);
  hwEgEt->GetXaxis()->SetTitleSize(0.04);
- hwEgEt->GetXaxis()->SetTitleOffset(0.9);
- pDEgEt->SetBottomMargin(0.08);
+ hwEgEt->GetXaxis()->SetTitleOffset(1.0);
+ pDEgEt->SetBottomMargin(0.12);
  pDEgEt->Draw();
  pDEgEt->cd();
  
@@ -231,6 +273,15 @@ if(doEgamma){
  DEgEtRatio->SetMinimum(0);
  emEgEt->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+
+ if(doRatio){
+
  cDEgEt->cd();
  pDEgEtRatio->SetTopMargin(0.05);
  pDEgEtRatio->Draw();
@@ -250,24 +301,30 @@ if(doEgamma){
  pInvDEgEtRatio->cd();
  unity->Draw();
  pDEgEtRatio->Update();
- cDEgEt->SaveAs("compHwEmu/DemuxEgamma/EgEt.png");
 
+ }
+
+ //cDEgEt->SaveAs("compHwEmu/DemuxEgamma/EgEt.png");
+ //cDEgEt->Close();
 
  TCanvas* cEgEta = new TCanvas("cEgEta","EgEta");
 
- TPad* pEgEta = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ TPad* pEgEta = new TPad("pEgEt","pEgEt",0,0.0,1,1); 
+ if(doRatio) pEgEta = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ 
  TPad* pEgEtaRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
   
  TPad* pInvEgEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvEgEtaRatio->SetFillStyle(0);
 
- leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPEgEta,"Hardware MP", "p");//"l");
- //leg->AddEntry(hwEgEta,"Hardware Demux", "p");
- leg->AddEntry(emMPEgEta,"Emulator MP", "l");
- //leg->AddEntry(emEgEta,"Emulator Demux", "p");
-
+ leg->AddEntry(hwMPEgEta,"Upgrade hardware", "p");//"l");
+ //leg->AddEntry(hwEgEta,"Upgrade hardware", "p");
+ leg->AddEntry(emMPEgEta,"Upgrade simulation", "l");
+ //leg->AddEntry(emEgEta,"Upgrade simulation", "p");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
 
  hwMPEgEta->SetStats(0);
  //hwMPEgEta->SetLineColor(kBlue);
@@ -282,10 +339,10 @@ if(doEgamma){
  hwMPEgEta->GetXaxis()->SetTitle("EGamma i#eta");
  hwMPEgEta->GetYaxis()->SetTitle("# EGammas");
  hwMPEgEta->GetYaxis()->SetTitleSize(0.05);
- hwMPEgEta->GetYaxis()->SetTitleOffset(0.66);
+ hwMPEgEta->GetYaxis()->SetTitleOffset(0.77);
  hwMPEgEta->GetXaxis()->SetTitleSize(0.04);
- hwMPEgEta->GetXaxis()->SetTitleOffset(0.9);
- pEgEta->SetBottomMargin(0.08);
+ hwMPEgEta->GetXaxis()->SetTitleOffset(1.0);
+ pEgEta->SetBottomMargin(0.12);
  pEgEta->Draw();
  pEgEta->cd();
 
@@ -293,6 +350,14 @@ if(doEgamma){
  EgEtaRatio->SetMinimum(0);
  emMPEgEta->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cEgEta->cd();
  pEgEtaRatio->SetTopMargin(0.05);
  pEgEtaRatio->Draw();
@@ -311,25 +376,29 @@ if(doEgamma){
  pInvEgEtaRatio->Draw();
  pInvEgEtaRatio->cd();
  unity->Draw();
- cEgEta->SaveAs("compHwEmu/Egs/EgEta.png");
  //c1->Print("compHwEmu.pdf","pdf");
 
+ }
 
-
-
+ //cEgEta->SaveAs("compHwEmu/Egs/EgEta.png");
+ //cEgEta->Close();
  
  TCanvas* cDEgEta = new TCanvas("cDEgEta","DEgEta");
- TPad* pDEgEta = new TPad("pEgEta","pEgEta",0,0.3,1,1); 
+ 
+ TPad* pDEgEta = new TPad("pEgEta","pEgEta",0,0.0,1,1); 
+ if(doRatio) pDEgEta = new TPad("pEgEta","pEgEta",0,0.3,1,1); 
+
  TPad* pDEgEtaRatio = new TPad("pEgEtaratio","pEgEtaratio",0,0,1,0.3);
  
  TPad* pInvDEgEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDEgEtaRatio->SetFillStyle(0);
 
- leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwEgEta,"Hardware Demux", "p");
- leg->AddEntry(emEgEta,"Emulator Demux", "l");
-
+ leg->AddEntry(hwEgEta,"Upgrade hardware", "p");
+ leg->AddEntry(emEgEta,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwEgEta->SetStats(0);
  hwEgEta->SetMarkerStyle(21);
  hwEgEta->SetMarkerColor(1);
@@ -339,10 +408,10 @@ if(doEgamma){
  hwEgEta->GetXaxis()->SetRange(82,146);
  hwEgEta->GetYaxis()->SetTitle("# EGamma");
  hwEgEta->GetYaxis()->SetTitleSize(0.05);
- hwEgEta->GetYaxis()->SetTitleOffset(0.66);
+ hwEgEta->GetYaxis()->SetTitleOffset(0.77);
  hwEgEta->GetXaxis()->SetTitleSize(0.04);
- hwEgEta->GetXaxis()->SetTitleOffset(0.9);
- pDEgEta->SetBottomMargin(0.08);
+ hwEgEta->GetXaxis()->SetTitleOffset(1.0);
+ pDEgEta->SetBottomMargin(0.12);
  pDEgEta->Draw();
  pDEgEta->cd();
  
@@ -350,6 +419,14 @@ if(doEgamma){
  DEgEtaRatio->SetMinimum(0);
  emEgEta->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.2, 0.65, "CMS");
+ n3.DrawLatex(0.2, 0.6, "Simulation");
+ n3.DrawLatex(0.2, 0.55, "Preliminary");
+ n4.DrawLatex(0.2, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cDEgEta->cd();
  pDEgEtaRatio->SetTopMargin(0.05);
  pDEgEtaRatio->Draw();
@@ -369,27 +446,32 @@ if(doEgamma){
  pInvDEgEtaRatio->cd();
  unity->Draw();
  pDEgEtaRatio->Update();
- cDEgEta->SaveAs("compHwEmu/DemuxEgamma/EgEta.png");
 
+ }
+
+ //cDEgEta->SaveAs("compHwEmu/DemuxEgamma/EgEta.png");
+ //cDEgEta->Close();
 
 
 
  TCanvas* cEgPhi = new TCanvas("cEgPhi","EgPhi");
 
- TPad* pEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
+ TPad* pEgPhi = new TPad("pEgPhi","pEgPhi",0,0.0,1,1); 
+ if(doRatio)  pEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
  TPad* pEgPhiRatio = new TPad("pEgPhiratio","pEgPhiratio",0,0,1,0.3);
  
  TPad* pInvEgPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvEgPhiRatio->SetFillStyle(0);
 
 
- leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg = new TLegend(0.4,0.75,0.65,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPEgPhi,"Hardware MP", "p");//"l");
- //leg->AddEntry(hwEgPhi,"Hardware Demux", "p");
- leg->AddEntry(emMPEgPhi,"Emulator MP", "l");
- //leg->AddEntry(emEgPhi,"Emulator Demux", "p");
-
+ leg->AddEntry(hwMPEgPhi,"Upgrade hardware", "p");//"l");
+ //leg->AddEntry(hwEgPhi,"Upgrade hardware", "p");
+ leg->AddEntry(emMPEgPhi,"Upgrade simulation", "l");
+ //leg->AddEntry(emEgPhi,"Upgrade simulation", "p");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPEgPhi->SetStats(0);
  //hwMPEgPhi->SetLineColor(kBlue);
  hwMPEgPhi->SetMarkerStyle(21);
@@ -400,13 +482,15 @@ if(doEgamma){
  emMPEgPhi->SetMarkerColor(kRed);
  emMPEgPhi->SetMarkerSize(0.4);
  emMPEgPhi->GetXaxis()->SetRange(0,100);
+ emMPEgPhi->GetYaxis()->SetRange(0,70);
+ hwMPEgPhi->GetYaxis()->SetRange(0,70);
  hwMPEgPhi->GetXaxis()->SetTitle("EGamma i#phi");
  hwMPEgPhi->GetYaxis()->SetTitle("# Egammas");
  hwMPEgPhi->GetYaxis()->SetTitleSize(0.05);
- hwMPEgPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwMPEgPhi->GetYaxis()->SetTitleOffset(0.77);
  hwMPEgPhi->GetXaxis()->SetTitleSize(0.04);
- hwMPEgPhi->GetXaxis()->SetTitleOffset(0.9);
- pEgPhi->SetBottomMargin(0.08);
+ hwMPEgPhi->GetXaxis()->SetTitleOffset(1.0);
+ pEgPhi->SetBottomMargin(0.12);
  pEgPhi->Draw();
  pEgPhi->cd();
 
@@ -414,6 +498,14 @@ if(doEgamma){
  EgPhiRatio->SetMinimum(0);
  emMPEgPhi->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.8, "CMS");
+ n3.DrawLatex(0.7, 0.75, "Simulation");
+ n3.DrawLatex(0.7, 0.65, "Preliminary");
+ n4.DrawLatex(0.7, 0.55, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cEgPhi->cd();
  pEgPhiRatio->SetTopMargin(0.05);
  pEgPhiRatio->Draw();
@@ -432,7 +524,12 @@ if(doEgamma){
  pInvEgPhiRatio->Draw();
  pInvEgPhiRatio->cd();
  unity->Draw();
- cEgPhi->SaveAs("compHwEmu/Egs/EgPhi.png");
+
+ }
+
+ //cEgPhi->SaveAs("compHwEmu/Egs/EgPhi.png");
+ //cEgPhi->Close();
+
  //c1->Print("compHwEmu.pdf","pdf");
 
 
@@ -440,31 +537,36 @@ if(doEgamma){
 
 
  TCanvas* cDEgPhi = new TCanvas("cDEgPhi","DEgPhi");
-
- TPad* pDEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
+ 
+ TPad* pDEgPhi = new TPad("pEgPhi","pEgPhi",0,0.0,1,1); 
+ if(doRatio) pDEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
+   
  TPad* pDEgPhiRatio = new TPad("pEgPhiratio","pEgPhiratio",0,0,1,0.3);
   
  TPad* pInvDEgPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDEgPhiRatio->SetFillStyle(0);
 
- leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwEgPhi,"Hardware Demux", "p");
- leg->AddEntry(emEgPhi,"Emulator Demux", "l");
-
+ leg->AddEntry(hwEgPhi,"Upgrade hardware", "p");
+ leg->AddEntry(emEgPhi,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwEgPhi->SetStats(0);
  hwEgPhi->SetMarkerStyle(21);
  hwEgPhi->SetMarkerColor(1);
  hwEgPhi->SetMarkerSize(0.4);
  emEgPhi->SetLineColor(kRed);
+ emEgPhi->GetYaxis()->SetRange(0,70);
  hwEgPhi->GetXaxis()->SetTitle("EGamma i#phi");
  hwEgPhi->GetXaxis()->SetRange(0,73);
+ hwEgPhi->GetYaxis()->SetRange(0,70);
  hwEgPhi->GetYaxis()->SetTitle("# EGammas");
  hwEgPhi->GetYaxis()->SetTitleSize(0.05);
- hwEgPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwEgPhi->GetYaxis()->SetTitleOffset(0.77);
  hwEgPhi->GetXaxis()->SetTitleSize(0.04);
- hwEgPhi->GetXaxis()->SetTitleOffset(0.9);
- pDEgPhi->SetBottomMargin(0.08);
+ hwEgPhi->GetXaxis()->SetTitleOffset(1.0);
+ pDEgPhi->SetBottomMargin(0.12);
  pDEgPhi->Draw();
  pDEgPhi->cd();
 
@@ -472,6 +574,15 @@ if(doEgamma){
  DEgPhiRatio->SetMinimum(0);
  emEgPhi->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+
+ if(doRatio){
+
  cDEgPhi->cd();
  pDEgPhiRatio->SetTopMargin(0.05);
  pDEgPhiRatio->Draw();
@@ -490,9 +601,398 @@ if(doEgamma){
  pInvDEgPhiRatio->Draw();
  pInvDEgPhiRatio->cd();
  unity->Draw();
- cDEgPhi->SaveAs("compHwEmu/DemuxEgamma/DEgPhi.png");
 
  }
+
+ //cDEgPhi->SaveAs("compHwEmu/DemuxEgamma/DEgPhi.png");
+ //cDEgPhi->Close();
+ }
+
+
+
+ // Tau Et
+
+  TH1D* hwMPTauEt = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/mptau/et");
+  // TH1D* emMPTauEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mptau/et");
+  TH1D* hwTauEt = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/tau/et");
+  // TH1D* emTauEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/tau/et");
+
+
+  // Tau eta
+  TH1D* hwMPTauEta = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/mptau/eta");
+  // TH1D* emMPTauEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mptau/eta");
+  TH1D* hwTauEta = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/tau/eta");
+  // TH1D* emTauEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/tau/eta");
+
+  // Tau phi
+  TH1D* hwMPTauPhi = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/mptau/phi");
+  // TH1D* emMPTauPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/mptau/phi");
+  TH1D* hwTauPhi = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/tau/phi");
+  // TH1D* emTauPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/tau/phi");
+
+
+
+if(doTau){
+
+   TCanvas* cTauEt = new TCanvas("cTauEt","TauEt");
+
+  TPad* pTauEt = new TPad("pTauEt","pTauEt",0,0.3,1,1); 
+  TPad* pTauEtRatio = new TPad("pTauEtratio","pTauEtratio",0,0,1,0.3);
+  
+  TPad* pInvTauEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+  pInvTauEtRatio->SetFillStyle(0);
+
+  leg = new TLegend(0.6,0.65,0.85,0.85);
+  leg->SetFillColor(0);
+  leg->AddEntry(hwMPTauEt,"Hardware MP", "p");//"l");
+  //leg->AddEntry(hwTauEt,"Hardware Demux", "p");
+  //leg->AddEntry(emMPTauEt,"Emulator MP", "l");
+  //leg->AddEntry(emTauEt,"Emulator Demux", "p");
+  
+  hwMPTauEt->Rebin(10);
+  //emMPTauEt->Rebin(10);
+
+  hwMPTauEt->SetStats(0);
+  //hwMPTauEt->SetLineColor(kBlue);
+  hwMPTauEt->SetMarkerStyle(21);
+  hwMPTauEt->SetMarkerColor(1);
+  hwMPTauEt->SetMarkerSize(0.4);
+  //emMPTauEt->SetLineColor(kRed);
+  hwMPTauEt->GetXaxis()->SetTitle("Tau iET");
+  hwMPTauEt->GetYaxis()->SetTitle("# Taus");
+  hwMPTauEt->GetYaxis()->SetTitleSize(0.05);
+  hwMPTauEt->GetYaxis()->SetTitleOffset(0.66);
+  hwMPTauEt->GetXaxis()->SetTitleSize(0.04);
+  hwMPTauEt->GetXaxis()->SetTitleOffset(0.9);
+  pTauEt->SetBottomMargin(0.08);
+  pTauEt->Draw();
+  pTauEt->cd();
+
+  TH1D* TauEtRatio = (TH1D*)hwMPTauEt->DrawCopy("p");
+  TauEtRatio->SetMinimum(0);
+  //emMPTauEt->Draw("same");//"");
+  leg->Draw();
+  cTauEt->cd();
+  pTauEtRatio->SetTopMargin(0.05);
+  pTauEtRatio->Draw();
+  pTauEtRatio->cd();
+  //hwMPTauEt->Divide(emMPTauEt);
+  hwMPTauEt->GetYaxis()->SetTitle("Ratio HW/EM");
+  hwMPTauEt->GetYaxis()->SetTitleSize(0.09);
+  hwMPTauEt->GetYaxis()->SetLabelSize(0.05);
+  hwMPTauEt->GetXaxis()->SetLabelSize(0.07);
+  hwMPTauEt->GetXaxis()->SetTitleSize(0.0);
+  hwMPTauEt->GetYaxis()->SetTitleOffset(0.35);
+  hwMPTauEt->SetMinimum(0.8);
+  hwMPTauEt->SetMaximum(1.2);
+  hwMPTauEt->Draw("p");
+  cTauEt->cd();
+  pInvTauEtRatio->Draw();
+  pInvTauEtRatio->cd();
+  unity->Draw();
+  cTauEt->SaveAs("compHwEmu/Taus/TauEt.png");
+
+
+
+
+
+ // TCanvas* cDTauEt = new TCanvas("cDTauEt","DTauEt");
+
+ // TPad* pDTauEt = new TPad("pTauEt","pTauEt",0,0.3,1,1); 
+ // TPad* pDTauEtRatio = new TPad("pTauEtratio","pTauEtratio",0,0,1,0.3);
+ 
+ // TPad* pInvDTauEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ // pInvDTauEtRatio->SetFillStyle(0);
+  
+
+ // hwTauEt->Rebin(10);
+ // //emTauEt->Rebin(10);
+
+ // hwTauEt->SetStats(0);
+ // hwTauEt->SetMarkerStyle(21);
+ // hwTauEt->SetMarkerColor(1);
+ // hwTauEt->SetMarkerSize(0.4);
+ // //emTauEt->SetLineColor(kRed);
+ // hwTauEt->GetXaxis()->SetTitle("Tau iET");
+ // hwTauEt->GetYaxis()->SetTitle("# Tau");
+ // hwTauEt->GetYaxis()->SetTitleSize(0.05);
+ // hwTauEt->GetYaxis()->SetTitleOffset(0.66);
+ // hwTauEt->GetXaxis()->SetTitleSize(0.04);
+ // hwTauEt->GetXaxis()->SetTitleOffset(0.9);
+ // pDTauEt->SetBottomMargin(0.08);
+ // pDTauEt->Draw();
+ // pDTauEt->cd();
+ 
+ // TH1D* DTauEtRatio = (TH1D*)hwTauEt->DrawCopy("p");
+ // DTauEtRatio->SetMinimum(0);
+ // //emTauEt->Draw("same");
+ // leg->Draw();
+ // cDTauEt->cd();
+ // pDTauEtRatio->SetTopMargin(0.05);
+ // pDTauEtRatio->Draw();
+ // pDTauEtRatio->cd();
+ // //hwTauEt->Divide(emTauEt);
+ // hwTauEt->GetYaxis()->SetTitle("Ratio HW/EM");
+ // hwTauEt->GetYaxis()->SetTitleSize(0.09);
+ // hwTauEt->GetYaxis()->SetLabelSize(0.05);
+ // hwTauEt->GetXaxis()->SetLabelSize(0.07);
+ // hwTauEt->GetXaxis()->SetTitleSize(0.0);
+ // hwTauEt->GetYaxis()->SetTitleOffset(0.35);
+ // hwTauEt->SetMinimum(0.8);
+ // hwTauEt->SetMaximum(1.2);
+ // hwTauEt->Draw("p");
+ // cDTauEt->cd();
+ // pInvDTauEtRatio->Draw();
+ // pInvDTauEtRatio->cd();
+ // unity->Draw();
+ // pDTauEtRatio->Update();
+ // cDTauEt->SaveAs("compHwEmu/DemuxTau/TauEt.png");
+
+
+ TCanvas* cTauEta = new TCanvas("cTauEta","TauEta");
+
+ TPad* pTauEta = new TPad("pTauEt","pTauEt",0,0.3,1,1); 
+ TPad* pTauEtaRatio = new TPad("pTauEtratio","pTauEtratio",0,0,1,0.3);
+  
+ TPad* pInvTauEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvTauEtaRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwMPTauEta,"Hardware MP", "p");//"l");
+ //leg->AddEntry(hwTauEta,"Hardware Demux", "p");
+ // leg->AddEntry(emMPTauEta,"Emulator MP", "l");
+ //leg->AddEntry(emTauEta,"Emulator Demux", "p");
+
+
+ hwMPTauEta->SetStats(0);
+ //hwMPTauEta->SetLineColor(kBlue);
+ hwMPTauEta->SetMarkerStyle(21);
+ hwMPTauEta->SetMarkerColor(1);
+ hwMPTauEta->SetMarkerSize(0.4);
+ //emMPTauEta->SetLineColor(kRed);
+ //emMPTauEta->SetMarkerStyle(20);
+ //emMPTauEta->SetMarkerColor(kRed);
+ //emMPTauEta->SetMarkerSize(0.4);
+ hwMPTauEta->GetXaxis()->SetRange(10,74);
+ hwMPTauEta->GetXaxis()->SetTitle("Tau i#eta");
+ hwMPTauEta->GetYaxis()->SetTitle("# Taus");
+ hwMPTauEta->GetYaxis()->SetTitleSize(0.05);
+ hwMPTauEta->GetYaxis()->SetTitleOffset(0.66);
+ hwMPTauEta->GetXaxis()->SetTitleSize(0.04);
+ hwMPTauEta->GetXaxis()->SetTitleOffset(0.9);
+ pTauEta->SetBottomMargin(0.08);
+ pTauEta->Draw();
+ pTauEta->cd();
+
+ TH1D* TauEtaRatio = (TH1D*)hwMPTauEta->DrawCopy("p");
+ TauEtaRatio->SetMinimum(0);
+ //emMPTauEta->Draw("same");//"");
+ leg->Draw();
+ cTauEta->cd();
+ pTauEtaRatio->SetTopMargin(0.05);
+ pTauEtaRatio->Draw();
+ pTauEtaRatio->cd();
+ //hwMPTauEta->Divide(emMPTauEta);
+ hwMPTauEta->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwMPTauEta->GetYaxis()->SetTitleSize(0.09);
+ hwMPTauEta->GetYaxis()->SetLabelSize(0.05);
+ hwMPTauEta->GetXaxis()->SetLabelSize(0.07);
+ hwMPTauEta->GetXaxis()->SetTitleSize(0.0);
+ hwMPTauEta->GetYaxis()->SetTitleOffset(0.35);
+ hwMPTauEta->SetMinimum(0.8);
+ hwMPTauEta->SetMaximum(1.2);
+ hwMPTauEta->Draw("p");
+ cTauEta->cd();
+ pInvTauEtaRatio->Draw();
+ pInvTauEtaRatio->cd();
+ unity->Draw();
+ cTauEta->SaveAs("compHwEmu/Taus/TauEta.png");
+ //c1->Print("compHwEmu.pdf","pdf");
+
+
+
+
+ 
+ // TCanvas* cDTauEta = new TCanvas("cDTauEta","DTauEta");
+ // TPad* pDTauEta = new TPad("pTauEta","pTauEta",0,0.3,1,1); 
+ // TPad* pDTauEtaRatio = new TPad("pTauEtaratio","pTauEtaratio",0,0,1,0.3);
+ 
+ // TPad* pInvDTauEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ // pInvDTauEtaRatio->SetFillStyle(0);
+
+ // leg = new TLegend(0.4,0.65,0.65,0.85);
+ // leg->SetFillColor(0);
+ // leg->AddEntry(hwTauEta,"Hardware Demux", "p");
+ // leg->AddEntry(emTauEta,"Emulator Demux", "l");
+
+ // hwTauEta->SetStats(0);
+ // hwTauEta->SetMarkerStyle(21);
+ // hwTauEta->SetMarkerColor(1);
+ // hwTauEta->SetMarkerSize(0.4);
+ // //emTauEta->SetLineColor(kRed);
+ // hwTauEta->GetXaxis()->SetTitle("Tau i#eta");
+ // hwTauEta->GetXaxis()->SetRange(82,146);
+ // hwTauEta->GetYaxis()->SetTitle("# Tau");
+ // hwTauEta->GetYaxis()->SetTitleSize(0.05);
+ // hwTauEta->GetYaxis()->SetTitleOffset(0.66);
+ // hwTauEta->GetXaxis()->SetTitleSize(0.04);
+ // hwTauEta->GetXaxis()->SetTitleOffset(0.9);
+ // pDTauEta->SetBottomMargin(0.08);
+ // pDTauEta->Draw();
+ // pDTauEta->cd();
+ 
+ // TH1D* DTauEtaRatio = (TH1D*)hwTauEta->DrawCopy("p");
+ // DTauEtaRatio->SetMinimum(0);
+ // //emTauEta->Draw("same");
+ // leg->Draw();
+ // cDTauEta->cd();
+ // pDTauEtaRatio->SetTopMargin(0.05);
+ // pDTauEtaRatio->Draw();
+ // pDTauEtaRatio->cd();
+ // //hwTauEta->Divide(emTauEta);
+ // hwTauEta->GetYaxis()->SetTitle("Ratio HW/EM");
+ // hwTauEta->GetYaxis()->SetTitleSize(0.09);
+ // hwTauEta->GetYaxis()->SetLabelSize(0.05);
+ // hwTauEta->GetXaxis()->SetLabelSize(0.07);
+ // hwTauEta->GetXaxis()->SetTitleSize(0.0);
+ // hwTauEta->GetYaxis()->SetTitleOffset(0.35);
+ // hwTauEta->SetMinimum(0.8);
+ // hwTauEta->SetMaximum(1.2);
+ // hwTauEta->Draw("p");
+ // cDTauEta->cd();
+ // pInvDTauEtaRatio->Draw();
+ // pInvDTauEtaRatio->cd();
+ // unity->Draw();
+ // pDTauEtaRatio->Update();
+ // cDTauEta->SaveAs("compHwEmu/DemuxTau/TauEta.png");
+
+
+
+
+ TCanvas* cTauPhi = new TCanvas("cTauPhi","TauPhi");
+
+ TPad* pTauPhi = new TPad("pTauPhi","pTauPhi",0,0.3,1,1); 
+ TPad* pTauPhiRatio = new TPad("pTauPhiratio","pTauPhiratio",0,0,1,0.3);
+ 
+ TPad* pInvTauPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvTauPhiRatio->SetFillStyle(0);
+
+
+ leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwMPTauPhi,"Hardware MP", "p");//"l");
+ //leg->AddEntry(hwTauPhi,"Hardware Demux", "p");
+ //leg->AddEntry(emMPTauPhi,"Emulator MP", "l");
+ //leg->AddEntry(emTauPhi,"Emulator Demux", "p");
+
+ hwMPTauPhi->SetStats(0);
+ //hwMPTauPhi->SetLineColor(kBlue);
+ hwMPTauPhi->SetMarkerStyle(21);
+ hwMPTauPhi->SetMarkerColor(1);
+ hwMPTauPhi->SetMarkerSize(0.4);
+ //emMPTauPhi->SetLineColor(kRed);
+ //emMPTauPhi->SetMarkerStyle(20);
+ //emMPTauPhi->SetMarkerColor(kRed);
+ //emMPTauPhi->SetMarkerSize(0.4);
+ //emMPTauPhi->GetXaxis()->SetRange(0,100);
+ hwMPTauPhi->GetXaxis()->SetTitle("Tau i#phi");
+ hwMPTauPhi->GetYaxis()->SetTitle("# Taus");
+ hwMPTauPhi->GetYaxis()->SetTitleSize(0.05);
+ hwMPTauPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwMPTauPhi->GetXaxis()->SetTitleSize(0.04);
+ hwMPTauPhi->GetXaxis()->SetTitleOffset(0.9);
+ pTauPhi->SetBottomMargin(0.08);
+ pTauPhi->Draw();
+ pTauPhi->cd();
+
+ TH1D* TauPhiRatio = (TH1D*)hwMPTauPhi->DrawCopy("p");
+ TauPhiRatio->SetMinimum(0);
+ //emMPTauPhi->Draw("same");//"");
+ leg->Draw();
+ cTauPhi->cd();
+ pTauPhiRatio->SetTopMargin(0.05);
+ pTauPhiRatio->Draw();
+ pTauPhiRatio->cd();
+ //hwMPTauPhi->Divide(emMPTauPhi);
+ hwMPTauPhi->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwMPTauPhi->GetYaxis()->SetTitleSize(0.09);
+ hwMPTauPhi->GetYaxis()->SetLabelSize(0.05);
+ hwMPTauPhi->GetXaxis()->SetLabelSize(0.07);
+ hwMPTauPhi->GetXaxis()->SetTitleSize(0.0);
+ hwMPTauPhi->GetYaxis()->SetTitleOffset(0.35);
+ hwMPTauPhi->SetMinimum(0.8);
+ hwMPTauPhi->SetMaximum(1.2);
+ hwMPTauPhi->Draw("p");
+ cTauPhi->cd();
+ pInvTauPhiRatio->Draw();
+ pInvTauPhiRatio->cd();
+ unity->Draw();
+ cTauPhi->SaveAs("compHwEmu/Taus/TauPhi.png");
+ //c1->Print("compHwEmu.pdf","pdf");
+
+
+
+
+
+ // TCanvas* cDTauPhi = new TCanvas("cDTauPhi","DTauPhi");
+
+ // TPad* pDTauPhi = new TPad("pTauPhi","pTauPhi",0,0.3,1,1); 
+ // TPad* pDTauPhiRatio = new TPad("pTauPhiratio","pTauPhiratio",0,0,1,0.3);
+  
+ // TPad* pInvDTauPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ // pInvDTauPhiRatio->SetFillStyle(0);
+
+ // leg = new TLegend(0.75,0.75,0.9,0.9);
+ // leg->SetFillColor(0);
+ // leg->AddEntry(hwTauPhi,"Hardware Demux", "p");
+ // //leg->AddEntry(emTauPhi,"Emulator Demux", "l");
+
+ // hwTauPhi->SetStats(0);
+ // hwTauPhi->SetMarkerStyle(21);
+ // hwTauPhi->SetMarkerColor(1);
+ // hwTauPhi->SetMarkerSize(0.4);
+ // //emTauPhi->SetLineColor(kRed);
+ // hwTauPhi->GetXaxis()->SetTitle("Tau i#phi");
+ // hwTauPhi->GetXaxis()->SetRange(0,73);
+ // hwTauPhi->GetYaxis()->SetTitle("# Taus");
+ // hwTauPhi->GetYaxis()->SetTitleSize(0.05);
+ // hwTauPhi->GetYaxis()->SetTitleOffset(0.66);
+ // hwTauPhi->GetXaxis()->SetTitleSize(0.04);
+ // hwTauPhi->GetXaxis()->SetTitleOffset(0.9);
+ // pDTauPhi->SetBottomMargin(0.08);
+ // pDTauPhi->Draw();
+ // pDTauPhi->cd();
+
+ // TH1D* DTauPhiRatio = (TH1D*)hwTauPhi->DrawCopy("p");
+ // DTauPhiRatio->SetMinimum(0);
+ // //emTauPhi->Draw("same");//"");
+ // leg->Draw();
+ // cDTauPhi->cd();
+ // pDTauPhiRatio->SetTopMargin(0.05);
+ // pDTauPhiRatio->Draw();
+ // pDTauPhiRatio->cd();
+ // //hwTauPhi->Divide(emTauPhi);
+ // hwTauPhi->GetYaxis()->SetTitle("Ratio HW/EM");
+ // hwTauPhi->GetYaxis()->SetTitleSize(0.09);
+ // hwTauPhi->GetYaxis()->SetLabelSize(0.05);
+ // hwTauPhi->GetXaxis()->SetLabelSize(0.07);
+ // hwTauPhi->GetXaxis()->SetTitleSize(0.0);
+ // hwTauPhi->GetYaxis()->SetTitleOffset(0.35);
+ // hwTauPhi->SetMinimum(0.8);
+ // hwTauPhi->SetMaximum(1.2);
+ // hwTauPhi->Draw("p");
+ // cDTauPhi->cd();
+ // pInvDTauPhiRatio->Draw();
+ // pInvDTauPhiRatio->cd();
+ // unity->Draw();
+ // cDTauPhi->SaveAs("compHwEmu/DemuxTau/DTauPhi.png");
+
+ }
+
+
+
+
 
 
 //   //--- jet et ---//
@@ -501,19 +1001,22 @@ if(doJets){
 
   TCanvas* cJetEt = new TCanvas("cJetEt","JetEt");
 
-  TPad* pJetEt = new TPad("pJetEt","pJetEt",0,0.3,1,1); 
+  TPad* pJetEt = new TPad("pJetEt","pJetEt",0,0.0,1,1); 
+  if(doRatio) pJetEt = new TPad("pJetEt","pJetEt",0,0.3,1,1); 
+
   TPad* pJetEtRatio = new TPad("pJetEtratio","pJetEtratio",0,0,1,0.3);
   
   TPad* pInvJetEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
   pInvJetEtRatio->SetFillStyle(0);
 
-  leg = new TLegend(0.6,0.65,0.85,0.85);
+  leg = new TLegend(0.6,0.75,0.85,0.85);
   leg->SetFillColor(0);
-  leg->AddEntry(hwMPJetEt,"Hardware MP", "p");//"l");
-  //leg->AddEntry(hwJetEt,"Hardware Demux", "p");
-  leg->AddEntry(emMPJetEt,"Emulator MP", "l");
-  //leg->AddEntry(emJetEt,"Emulator Demux", "p");
-  
+  leg->AddEntry(hwMPJetEt,"Upgrade hardware", "p");//"l");
+  //leg->AddEntry(hwJetEt,"Upgrade hardware", "p");
+  leg->AddEntry(emMPJetEt,"Upgrade simulation", "l");
+  //leg->AddEntry(emJetEt,"Upgrade simulation", "p");
+  leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
   hwMPJetEt->Rebin(10);
   emMPJetEt->Rebin(10);
 
@@ -523,13 +1026,13 @@ if(doJets){
   hwMPJetEt->SetMarkerColor(1);
   hwMPJetEt->SetMarkerSize(0.4);
   emMPJetEt->SetLineColor(kRed);
-  hwMPJetEt->GetXaxis()->SetTitle("Jet iET");
-  hwMPJetEt->GetYaxis()->SetTitle("# Jets");
+  hwMPJetEt->GetXaxis()->SetTitle("Level-1 Trigger Jet iE_{T}");
+  hwMPJetEt->GetYaxis()->SetTitle("Number of candidates");
   hwMPJetEt->GetYaxis()->SetTitleSize(0.05);
-  hwMPJetEt->GetYaxis()->SetTitleOffset(0.66);
+  hwMPJetEt->GetYaxis()->SetTitleOffset(0.77);
   hwMPJetEt->GetXaxis()->SetTitleSize(0.04);
-  hwMPJetEt->GetXaxis()->SetTitleOffset(0.9);
-  pJetEt->SetBottomMargin(0.08);
+  hwMPJetEt->GetXaxis()->SetTitleOffset(1.0);
+  pJetEt->SetBottomMargin(0.12);
   pJetEt->Draw();
   pJetEt->cd();
 
@@ -537,6 +1040,15 @@ if(doJets){
   JetEtRatio->SetMinimum(0);
   emMPJetEt->Draw("same");//"");
   leg->Draw();
+  n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+  n2.DrawLatex(0.65, 0.65, "CMS");
+  n3.DrawLatex(0.65, 0.6, "Simulation");
+  n3.DrawLatex(0.65, 0.55, "Preliminary");
+  n4.DrawLatex(0.65, 0.45, "pp #rightarrow t#bar{t}");
+
+
+  if(doRatio){
+
   cJetEt->cd();
   pJetEtRatio->SetTopMargin(0.05);
   pJetEtRatio->Draw();
@@ -555,23 +1067,30 @@ if(doJets){
   pInvJetEtRatio->Draw();
   pInvJetEtRatio->cd();
   unity->Draw();
-  cJetEt->SaveAs("compHwEmu/Jets/JetEt.png");
 
+  }
+
+  cJetEt->SaveAs("compHwEmu/Jets/JetEt.pdf");
+  //cJetEt->Close();
   
 
 
  TCanvas* cDJetEt = new TCanvas("cDJetEt","DJetEt");
 
- TPad* pDJetEt = new TPad("pJetEt","pJetEt",0,0.3,1,1); 
+ TPad* pDJetEt = new TPad("pJetEt","pJetEt",0,0.0,1,1); 
+ if(doRatio) pDJetEt = new TPad("pJetEt","pJetEt",0,0.3,1,1); 
+
  TPad* pDJetEtRatio = new TPad("pJetEtratio","pJetEtratio",0,0,1,0.3);
  
  TPad* pInvDJetEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDJetEtRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwJetEt,"Hardware Demux", "p");
- leg->AddEntry(emJetEt,"Emulator Demux", "l");
+ leg->AddEntry(hwJetEt,"Upgrade hardware", "p");
+ leg->AddEntry(emJetEt,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
 
  hwJetEt->Rebin(10);
  emJetEt->Rebin(10);
@@ -581,13 +1100,13 @@ if(doJets){
  hwJetEt->SetMarkerColor(1);
  hwJetEt->SetMarkerSize(0.4);
  emJetEt->SetLineColor(kRed);
- hwJetEt->GetXaxis()->SetTitle("Jet iET");
- hwJetEt->GetYaxis()->SetTitle("# Jets");
+ hwJetEt->GetXaxis()->SetTitle("Level-1 Trigger Jet iE_{T}");
+ hwJetEt->GetYaxis()->SetTitle("Number of candidates");
  hwJetEt->GetYaxis()->SetTitleSize(0.05);
- hwJetEt->GetYaxis()->SetTitleOffset(0.66);
+ hwJetEt->GetYaxis()->SetTitleOffset(0.77);
  hwJetEt->GetXaxis()->SetTitleSize(0.04);
- hwJetEt->GetXaxis()->SetTitleOffset(0.9);
- pDJetEt->SetBottomMargin(0.08);
+ hwJetEt->GetXaxis()->SetTitleOffset(1.0);
+ pDJetEt->SetBottomMargin(0.12);
  pDJetEt->Draw();
  pDJetEt->cd();
  
@@ -595,6 +1114,15 @@ if(doJets){
  DJetEtRatio->SetMinimum(0);
  emJetEt->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.65, 0.65, "CMS");
+ n3.DrawLatex(0.65, 0.6, "Simulation");
+ n3.DrawLatex(0.65, 0.55, "Preliminary");
+ n4.DrawLatex(0.65, 0.45, "pp #rightarrow t#bar{t}");
+
+
+ if(doRatio){
+
  cDJetEt->cd();
  pDJetEtRatio->SetTopMargin(0.05);
  pDJetEtRatio->Draw();
@@ -614,28 +1142,33 @@ if(doJets){
  pInvDJetEtRatio->cd();
  unity->Draw();
  pDJetEtRatio->Update();
- cDJetEt->SaveAs("compHwEmu/DemuxJets/JetEt.png");
 
+ }
+
+ cDJetEt->SaveAs("compHwEmu/DemuxJets/JetEt.pdf");
+ //cDJetEt->Close();
 
 
  // //--- jet eta ---//
 
  TCanvas* cJetEta = new TCanvas("cJetEta","JetEta");
 
- TPad* pJetEta = new TPad("pJetEt","pJetEt",0,0.3,1,1); 
+ TPad* pJetEta = new TPad("pJetEt","pJetEt",0,0.0,1,1); 
+ if(doRatio) pJetEta = new TPad("pJetEt","pJetEt",0,0.3,1,1); 
+ 
  TPad* pJetEtaRatio = new TPad("pJetEtratio","pJetEtratio",0,0,1,0.3);
   
  TPad* pInvJetEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvJetEtaRatio->SetFillStyle(0);
 
- leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg = new TLegend(0.5,0.77,0.75,0.87);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPJetEta,"Hardware MP", "p");//"l");
- //leg->AddEntry(hwJetEta,"Hardware Demux", "p");
- leg->AddEntry(emMPJetEta,"Emulator MP", "l");
- //leg->AddEntry(emJetEta,"Emulator Demux", "p");
-
-
+ leg->AddEntry(hwMPJetEta,"Upgrade hardware", "p");//"l");
+ //leg->AddEntry(hwJetEta,"Upgrade hardware", "p");
+ leg->AddEntry(emMPJetEta,"Upgrade simulation", "l");
+ //leg->AddEntry(emJetEta,"Upgrade simulation", "p");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPJetEta->SetStats(0);
  //hwMPJetEta->SetLineColor(kBlue);
  hwMPJetEta->SetMarkerStyle(21);
@@ -646,13 +1179,13 @@ if(doJets){
  emMPJetEta->SetMarkerColor(kRed);
  emMPJetEta->SetMarkerSize(0.4);
  hwMPJetEta->GetXaxis()->SetRange(10,74);
- hwMPJetEta->GetXaxis()->SetTitle("Jet i#eta");
- hwMPJetEta->GetYaxis()->SetTitle("# Jets");
+ hwMPJetEta->GetXaxis()->SetTitle("Level-1 Trigger Jet i#eta");
+ hwMPJetEta->GetYaxis()->SetTitle("Number of candidates");
  hwMPJetEta->GetYaxis()->SetTitleSize(0.05);
- hwMPJetEta->GetYaxis()->SetTitleOffset(0.66);
+ hwMPJetEta->GetYaxis()->SetTitleOffset(0.77);
  hwMPJetEta->GetXaxis()->SetTitleSize(0.04);
- hwMPJetEta->GetXaxis()->SetTitleOffset(0.9);
- pJetEta->SetBottomMargin(0.08);
+ hwMPJetEta->GetXaxis()->SetTitleOffset(1.0);
+ pJetEta->SetBottomMargin(0.12);
  pJetEta->Draw();
  pJetEta->cd();
 
@@ -660,6 +1193,14 @@ if(doJets){
  JetEtaRatio->SetMinimum(0);
  emMPJetEta->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.55, 0.65, "CMS");
+ n3.DrawLatex(0.55, 0.6, "Simulation");
+ n3.DrawLatex(0.55, 0.55, "Preliminary");
+ n4.DrawLatex(0.55, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cJetEta->cd();
  pJetEtaRatio->SetTopMargin(0.05);
  pJetEtaRatio->Draw();
@@ -678,35 +1219,44 @@ if(doJets){
  pInvJetEtaRatio->Draw();
  pInvJetEtaRatio->cd();
  unity->Draw();
- cJetEta->SaveAs("compHwEmu/Jets/JetEta.png");
+
+ }
+
+ cJetEta->SaveAs("compHwEmu/Jets/JetEta.pdf");
+ //cJetEta->Close();
  //c1->Print("compHwEmu.pdf","pdf");
 
 
  TCanvas* cDJetEta = new TCanvas("cDJetEta","DJetEta");
- TPad* pDJetEta = new TPad("pJetEta","pJetEta",0,0.3,1,1); 
+
+ TPad* pDJetEta = new TPad("pJetEta","pJetEta",0,0.0,1,1); 
+ if(doRatio) pDJetEta = new TPad("pJetEta","pJetEta",0,0.3,1,1); 
+
  TPad* pDJetEtaRatio = new TPad("pJetEtaratio","pJetEtaratio",0,0,1,0.3);
  
  TPad* pInvDJetEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDJetEtaRatio->SetFillStyle(0);
 
- leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg = new TLegend(0.5,0.77,0.75,0.87);
  leg->SetFillColor(0);
- leg->AddEntry(hwJetEta,"Hardware Demux", "p");
- leg->AddEntry(emJetEta,"Emulator Demux", "l");
+ leg->AddEntry(hwJetEta,"Upgrade hardware", "p");
+ leg->AddEntry(emJetEta,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
 
  hwJetEta->SetStats(0);
  hwJetEta->SetMarkerStyle(21);
  hwJetEta->SetMarkerColor(1);
  hwJetEta->SetMarkerSize(0.4);
  emJetEta->SetLineColor(kRed);
- hwJetEta->GetXaxis()->SetTitle("Jet i#eta");
+ hwJetEta->GetXaxis()->SetTitle("Level-1 Trigger Jet i#eta");
  hwJetEta->GetXaxis()->SetRange(82,146);
- hwJetEta->GetYaxis()->SetTitle("# Jets");
+ hwJetEta->GetYaxis()->SetTitle("Number of candidates");
  hwJetEta->GetYaxis()->SetTitleSize(0.05);
- hwJetEta->GetYaxis()->SetTitleOffset(0.66);
+ hwJetEta->GetYaxis()->SetTitleOffset(0.77);
  hwJetEta->GetXaxis()->SetTitleSize(0.04);
- hwJetEta->GetXaxis()->SetTitleOffset(0.9);
- pDJetEta->SetBottomMargin(0.08);
+ hwJetEta->GetXaxis()->SetTitleOffset(1.0);
+ pDJetEta->SetBottomMargin(0.12);
  pDJetEta->Draw();
  pDJetEta->cd();
  
@@ -714,6 +1264,14 @@ if(doJets){
  DJetEtaRatio->SetMinimum(0);
  emJetEta->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.55, 0.65, "CMS");
+ n3.DrawLatex(0.55, 0.6, "Simulation");
+ n3.DrawLatex(0.55, 0.55, "Preliminary");
+ n4.DrawLatex(0.55, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cDJetEta->cd();
  pDJetEtaRatio->SetTopMargin(0.05);
  pDJetEtaRatio->Draw();
@@ -733,26 +1291,36 @@ if(doJets){
  pInvDJetEtaRatio->cd();
  unity->Draw();
  pDJetEtaRatio->Update();
- cDJetEta->SaveAs("compHwEmu/DemuxJets/JetEta.png");
 
+ }
+
+ cDJetEta->SaveAs("compHwEmu/DemuxJets/JetEta.pdf","pdf");
+ //cDJetEta->Close();
 
 //--- jet phi ---//
 
  TCanvas* cJetPhi = new TCanvas("cJetPhi","JetPhi");
 
- TPad* pJetPhi = new TPad("pJetPhi","pJetPhi",0,0.3,1,1); 
+ TPad* pJetPhi = new TPad("pJetPhi","pJetPhi",0,0.0,1,1); 
+ if(doRatio) pJetPhi = new TPad("pJetPhi","pJetPhi",0,0.3,1,1); 
+
  TPad* pJetPhiRatio = new TPad("pJetPhiratio","pJetPhiratio",0,0,1,0.3);
  
  TPad* pInvJetPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvJetPhiRatio->SetFillStyle(0);
 
 
- leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg = new TLegend(0.6,0.78,0.85,0.88);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPJetPhi,"Hardware MP", "p");//"l");
- //leg->AddEntry(hwJetPhi,"Hardware Demux", "p");
- leg->AddEntry(emMPJetPhi,"Emulator MP", "l");
- //leg->AddEntry(emJetPhi,"Emulator Demux", "p");
+ leg->AddEntry(hwMPJetPhi,"Upgrade hardware", "p");//"l");
+ //leg->AddEntry(hwJetPhi,"Upgrade hardware", "p");
+ leg->AddEntry(emMPJetPhi,"Upgrade simulation", "l");
+ //leg->AddEntry(emJetPhi,"Upgrade simulation", "p");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
+     hwMPJetPhi->Rebin(4);
+     emMPJetPhi->Rebin(4);
+     
 
  hwMPJetPhi->SetStats(0);
  //hwMPJetPhi->SetLineColor(kBlue);
@@ -764,13 +1332,15 @@ if(doJets){
  emMPJetPhi->SetMarkerColor(kRed);
  emMPJetPhi->SetMarkerSize(0.4);
  emMPJetPhi->GetXaxis()->SetRange(0,100);
- hwMPJetPhi->GetXaxis()->SetTitle("Jet i#phi");
- hwMPJetPhi->GetYaxis()->SetTitle("# Jets");
+ emMPJetPhi->SetMaximum(220);
+ hwMPJetPhi->GetXaxis()->SetTitle("Level-1 Trigger Jet i#phi");
+ hwMPJetPhi->GetYaxis()->SetTitle("Number of candidates");
  hwMPJetPhi->GetYaxis()->SetTitleSize(0.05);
- hwMPJetPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwMPJetPhi->GetYaxis()->SetTitleOffset(0.77);
  hwMPJetPhi->GetXaxis()->SetTitleSize(0.04);
- hwMPJetPhi->GetXaxis()->SetTitleOffset(0.9);
- pJetPhi->SetBottomMargin(0.08);
+ hwMPJetPhi->GetXaxis()->SetTitleOffset(1.0);
+ hwMPJetPhi->SetMaximum(220);
+ pJetPhi->SetBottomMargin(0.12);
  pJetPhi->Draw();
  pJetPhi->cd();
 
@@ -778,6 +1348,15 @@ if(doJets){
  JetPhiRatio->SetMinimum(0);
  emMPJetPhi->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.4, 0.85, "CMS");
+ n3.DrawLatex(0.4, 0.8, "Simulation");
+ n3.DrawLatex(0.4, 0.75, "Preliminary");
+ n4.DrawLatex(0.6, 0.7, "pp #rightarrow t#bar{t}");
+
+
+ if(doRatio){
+
  cJetPhi->cd();
  pJetPhiRatio->SetTopMargin(0.05);
  pJetPhiRatio->Draw();
@@ -796,36 +1375,58 @@ if(doJets){
  pInvJetPhiRatio->Draw();
  pInvJetPhiRatio->cd();
  unity->Draw();
- cJetPhi->SaveAs("compHwEmu/Jets/JetPhi.png");
+
+ }
+
+ cJetPhi->SaveAs("compHwEmu/Jets/JetPhi.pdf","pdf");
+ //cJetPhi->Close();
  //c1->Print("compHwEmu.pdf","pdf");
+
+
+
+ //cDJetPhi->SaveAs("compHwEmu/Jets/DJetPhi.pdf","pdf");
+ //cDJetPhi->Close();
+ //c1->Print("compHwEmu.pdf","pdf");
+
+
 
 
  TCanvas* cDJetPhi = new TCanvas("cDJetPhi","DJetPhi");
 
- TPad* pDJetPhi = new TPad("pJetPhi","pJetPhi",0,0.3,1,1); 
+ TPad* pDJetPhi = new TPad("pJetPhi","pJetPhi",0,0.0,1,1); 
+ if(doRatio) pDJetPhi = new TPad("pJetPhi","pJetPhi",0,0.3,1,1); 
+
  TPad* pDJetPhiRatio = new TPad("pJetPhiratio","pJetPhiratio",0,0,1,0.3);
-  
+
  TPad* pInvDJetPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDJetPhiRatio->SetFillStyle(0);
 
- leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg = new TLegend(0.6,0.78,0.85,0.88);
  leg->SetFillColor(0);
- leg->AddEntry(hwJetPhi,"Hardware Demux", "p");
- leg->AddEntry(emJetPhi,"Emulator Demux", "l");
+ leg->AddEntry(hwJetPhi,"Upgrade hardware", "p");
+ leg->AddEntry(emJetPhi,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
+ hwJetPhi->Rebin(4);
+ emJetPhi->Rebin(4);
+
 
  hwJetPhi->SetStats(0);
  hwJetPhi->SetMarkerStyle(21);
  hwJetPhi->SetMarkerColor(1);
  hwJetPhi->SetMarkerSize(0.4);
+ emJetPhi->SetMarkerStyle(20);
  emJetPhi->SetLineColor(kRed);
- hwJetPhi->GetXaxis()->SetTitle("Jet i#phi");
- hwJetPhi->GetXaxis()->SetRange(0,73);
- hwJetPhi->GetYaxis()->SetTitle("# Jets");
+ emJetPhi->GetXaxis()->SetRange(0,100);
+ emJetPhi->SetMaximum(220);
+ hwJetPhi->GetXaxis()->SetTitle("Level-1 Trigger Jet i#phi");
+ hwJetPhi->GetYaxis()->SetTitle("Number of candidates");
  hwJetPhi->GetYaxis()->SetTitleSize(0.05);
- hwJetPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwJetPhi->GetYaxis()->SetTitleOffset(0.77);
  hwJetPhi->GetXaxis()->SetTitleSize(0.04);
- hwJetPhi->GetXaxis()->SetTitleOffset(0.9);
- pDJetPhi->SetBottomMargin(0.08);
+ hwJetPhi->GetXaxis()->SetTitleOffset(1.0);
+ hwJetPhi->SetMaximum(220);
+ pDJetPhi->SetBottomMargin(0.12);
  pDJetPhi->Draw();
  pDJetPhi->cd();
 
@@ -833,6 +1434,15 @@ if(doJets){
  DJetPhiRatio->SetMinimum(0);
  emJetPhi->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.4, 0.85, "CMS");
+ n3.DrawLatex(0.4, 0.8, "Simulation");
+ n3.DrawLatex(0.4, 0.75, "Preliminary");
+ n4.DrawLatex(0.6, 0.7, "pp #rightarrow t#bar{t}");
+
+
+ if(doRatio){
+
  cDJetPhi->cd();
  pDJetPhiRatio->SetTopMargin(0.05);
  pDJetPhiRatio->Draw();
@@ -851,7 +1461,11 @@ if(doJets){
  pInvDJetPhiRatio->Draw();
  pInvDJetPhiRatio->cd();
  unity->Draw();
- cDJetPhi->SaveAs("compHwEmu/DemuxJets/JetPhi.png");
+
+ }
+
+ cDJetPhi->SaveAs("compHwEmu/DemuxJets/JetPhi.pdf","pdf");
+ //cDJetPhi->Close();
 
 }
 
@@ -861,17 +1475,20 @@ if(doSums){
 
  TCanvas* cMPSumEt = new TCanvas("cMPSumEt","MPSumEt");
 
- TPad* pSumEt = new TPad("pSumEt","pSumEt",0,0.3,1,1); 
+ TPad* pSumEt = new TPad("pSumEt","pSumEt",0,0.0,1,1); 
+ if(doRatio) pSumEt = new TPad("pSumEt","pSumEt",0,0.3,1,1); 
+
  TPad* pSumEtRatio = new TPad("pSumEtratio","pSumEtratio",0,0,1,0.3);
 
  TPad* pInvSumEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSumEtRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPSumEt,"Hardware MP", "p");
- leg->AddEntry(emMPSumEt,"Emulator MP", "l");
-
+ leg->AddEntry(hwMPSumEt,"Upgrade hardware", "p");
+ leg->AddEntry(emMPSumEt,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPSumEt->Rebin(50);
  emMPSumEt->Rebin(50);
 
@@ -880,13 +1497,13 @@ if(doSums){
  hwMPSumEt->SetMarkerColor(1);
  hwMPSumEt->SetMarkerSize(0.4);
  emMPSumEt->SetLineColor(kRed);
- hwMPSumEt->GetXaxis()->SetTitle("iET");
- hwMPSumEt->GetYaxis()->SetTitle("# Events");
+ hwMPSumEt->GetXaxis()->SetTitle("Level-1 Trigger Jet iE_{T}");
+ hwMPSumEt->GetYaxis()->SetTitle("Number of events");
  hwMPSumEt->GetYaxis()->SetTitleSize(0.05);
- hwMPSumEt->GetYaxis()->SetTitleOffset(0.66);
+ hwMPSumEt->GetYaxis()->SetTitleOffset(0.77);
  hwMPSumEt->GetXaxis()->SetTitleSize(0.04);
- hwMPSumEt->GetXaxis()->SetTitleOffset(0.9);
- pSumEt->SetBottomMargin(0.08);
+ hwMPSumEt->GetXaxis()->SetTitleOffset(1.0);
+ pSumEt->SetBottomMargin(0.12);
  pSumEt->Draw();
  pSumEt->cd();
  
@@ -894,6 +1511,14 @@ if(doSums){
  SumEtRatio->SetMinimum(0);
  emMPSumEt->Draw("same");//""); 
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMPSumEt->cd();
  pSumEtRatio->SetTopMargin(0.05);
  pSumEtRatio->Draw();
@@ -912,24 +1537,30 @@ if(doSums){
  pInvSumEtRatio->Draw();
  pInvSumEtRatio->cd();
  unity->Draw();
- cMPSumEt->SaveAs("compHwEmu/MPSums/MPSumEt.png");
 
+ }
+
+ cMPSumEt->SaveAs("compHwEmu/MPSums/MPSumEt.pdf","pdf");
+ //cMPSumEt->Close();
 
  // //--- MP sum etx ---//
 
  TCanvas* cMPSumEtx = new TCanvas("cMPSumEtx","MPSumEtx");
 
- TPad* pSumEtx = new TPad("pSumEtx","pSumEtx",0,0.3,1,1); 
+ TPad* pSumEtx = new TPad("pSumEtx","pSumEtx",0,0.0,1,1); 
+ if(doRatio) pSumEtx = new TPad("pSumEtx","pSumEtx",0,0.3,1,1); 
+
  TPad* pSumEtxRatio = new TPad("pSumEtxratio","pSumEtxratio",0,0,1,0.3);
  
  TPad* pInvSumEtxRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSumEtxRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPSumEtx,"Hardware MP", "p");
- leg->AddEntry(emMPSumEtx,"Emulator MP", "l");
-
+ leg->AddEntry(hwMPSumEtx,"Upgrade hardware", "p");
+ leg->AddEntry(emMPSumEtx,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPSumEtx->Rebin(20);
  emMPSumEtx->Rebin(20);
 
@@ -938,13 +1569,13 @@ if(doSums){
  hwMPSumEtx->SetMarkerColor(1);
  hwMPSumEtx->SetMarkerSize(0.4);
  emMPSumEtx->SetLineColor(kRed);
- hwMPSumEtx->GetXaxis()->SetTitle("iETx");
- hwMPSumEtx->GetYaxis()->SetTitle("# Events");
+ hwMPSumEtx->GetXaxis()->SetTitle("Level-1 Trigger iE_{T,x}");
+ hwMPSumEtx->GetYaxis()->SetTitle("Number of events");
  hwMPSumEtx->GetYaxis()->SetTitleSize(0.05);
- hwMPSumEtx->GetYaxis()->SetTitleOffset(0.66);
+ hwMPSumEtx->GetYaxis()->SetTitleOffset(0.77);
  hwMPSumEtx->GetXaxis()->SetTitleSize(0.04);
- hwMPSumEtx->GetXaxis()->SetTitleOffset(0.9);
- pSumEtx->SetBottomMargin(0.08);
+ hwMPSumEtx->GetXaxis()->SetTitleOffset(1.0);
+ pSumEtx->SetBottomMargin(0.12);
  pSumEtx->Draw();
  pSumEtx->cd();
  
@@ -952,6 +1583,14 @@ if(doSums){
  SumEtxRatio->SetMinimum(0);
  emMPSumEtx->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMPSumEtx->cd();
  pSumEtxRatio->SetTopMargin(0.05);
  pSumEtxRatio->Draw();
@@ -971,25 +1610,30 @@ if(doSums){
  pInvSumEtxRatio->cd();
  unity->Draw();
  
- cMPSumEtx->SaveAs("compHwEmu/MPSums/MPSumEtx.png");
+ }
 
+ cMPSumEtx->SaveAs("compHwEmu/MPSums/MPSumEtx.pdf","pdf");
+ //cMPSumEtx->Close();
 
  // //--- MP sum ety ---//
 
  TCanvas* cMPSumEty = new TCanvas("cMPSumEty","MPSumEty");
 
- TPad* pSumEty = new TPad("pSumEty","pSumEty",0,0.3,1,1); 
+  TPad* pSumEty = new TPad("pSumEty","pSumEty",0,0.0,1,1); 
+ if(doRatio) pSumEty = new TPad("pSumEty","pSumEty",0,0.3,1,1); 
+
  TPad* pSumEtyRatio = new TPad("pSumEtyratio","pSumEtyratio",0,0,1,0.3);
   
  TPad* pInvSumEtyRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSumEtyRatio->SetFillStyle(0);
 
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPSumEty,"Hardware MP", "p");
- leg->AddEntry(emMPSumEty,"Emulator MP", "l");
-
+ leg->AddEntry(hwMPSumEty,"Upgrade hardware", "p");
+ leg->AddEntry(emMPSumEty,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPSumEty->Rebin(20);
  emMPSumEty->Rebin(20);
 
@@ -998,13 +1642,13 @@ if(doSums){
  hwMPSumEty->SetMarkerColor(1);
  hwMPSumEty->SetMarkerSize(0.4);
  emMPSumEty->SetLineColor(kRed);
- hwMPSumEty->GetXaxis()->SetTitle("iETy");
- hwMPSumEty->GetYaxis()->SetTitle("# Events");
+ hwMPSumEty->GetXaxis()->SetTitle("Level-1 Trigger iE_{T,y}");
+ hwMPSumEty->GetYaxis()->SetTitle("Number of events");
  hwMPSumEty->GetYaxis()->SetTitleSize(0.05);
- hwMPSumEty->GetYaxis()->SetTitleOffset(0.66);
+ hwMPSumEty->GetYaxis()->SetTitleOffset(0.77);
  hwMPSumEty->GetXaxis()->SetTitleSize(0.04);
- hwMPSumEty->GetXaxis()->SetTitleOffset(0.9);
- pSumEty->SetBottomMargin(0.08);
+ hwMPSumEty->GetXaxis()->SetTitleOffset(1.0);
+ pSumEty->SetBottomMargin(0.12);
  pSumEty->Draw();
  pSumEty->cd();
  
@@ -1012,6 +1656,14 @@ if(doSums){
  SumEtyRatio->SetMinimum(0);
  emMPSumEty->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMPSumEty->cd();
  pSumEtyRatio->SetTopMargin(0.05);
  pSumEtyRatio->Draw();
@@ -1030,24 +1682,30 @@ if(doSums){
  pInvSumEtyRatio->Draw();
  pInvSumEtyRatio->cd();
  unity->Draw();
- cMPSumEty->SaveAs("compHwEmu/MPSums/MPSumEty.png");
 
+ }
+
+ cMPSumEty->SaveAs("compHwEmu/MPSums/MPSumEty.pdf","pdf");
+ //cMPSumEty->Close();
 
  //--- MP sum ht ---//
 
  TCanvas* cMPSumHt = new TCanvas("cMPSumHt","MPSumHt");
 
- TPad* pSumHt = new TPad("pSumHt","pSumHt",0,0.3,1,1); 
+ TPad* pSumHt = new TPad("pSumHt","pSumHt",0,0.0,1,1); 
+ if(doRatio) pSumHt = new TPad("pSumHt","pSumHt",0,0.3,1,1); 
+
  TPad* pSumHtRatio = new TPad("pSumHtratio","pSumHtratio",0,0,1,0.3);
  
  TPad* pInvSumHtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSumHtRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPSumHt,"Hardware MP", "p");
- leg->AddEntry(emMPSumHt,"Emulator MP", "l");
-
+ leg->AddEntry(hwMPSumHt,"Upgrade hardware", "p");
+ leg->AddEntry(emMPSumHt,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPSumHt->Rebin(50);
  emMPSumHt->Rebin(50);
 
@@ -1056,13 +1714,13 @@ if(doSums){
  hwMPSumHt->SetMarkerColor(1);
  hwMPSumHt->SetMarkerSize(0.4);
  emMPSumHt->SetLineColor(kRed);
- hwMPSumHt->GetXaxis()->SetTitle("iHT");
- hwMPSumHt->GetYaxis()->SetTitle("# Events");
+ hwMPSumHt->GetXaxis()->SetTitle("Level-1 Trigger iH_{T}");
+ hwMPSumHt->GetYaxis()->SetTitle("Number of events");
  hwMPSumHt->GetYaxis()->SetTitleSize(0.05);
- hwMPSumHt->GetYaxis()->SetTitleOffset(0.66);
+ hwMPSumHt->GetYaxis()->SetTitleOffset(0.77);
  hwMPSumHt->GetXaxis()->SetTitleSize(0.04);
- hwMPSumHt->GetXaxis()->SetTitleOffset(0.9);
- pSumHt->SetBottomMargin(0.08);
+ hwMPSumHt->GetXaxis()->SetTitleOffset(1.0);
+ pSumHt->SetBottomMargin(0.12);
  pSumHt->Draw();
  pSumHt->cd();
 
@@ -1070,6 +1728,14 @@ if(doSums){
  SumHtRatio->SetMinimum(0);
  emMPSumHt->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMPSumHt->cd();
  pSumHtRatio->SetTopMargin(0.05);
  pSumHtRatio->Draw();
@@ -1089,24 +1755,29 @@ if(doSums){
  pInvSumHtRatio->cd();
  unity->Draw();
 
- cMPSumHt->SaveAs("compHwEmu/MPSums/MPSumHt.png");
+ }
 
+ cMPSumHt->SaveAs("compHwEmu/MPSums/MPSumHt.pdf","pdf");
+ //cMPSumHt->Close();
 
  // //--- MP sum htx ---//
 
  TCanvas* cMPSumHtx = new TCanvas("cMPSumHtx","MPSumHtx");
 
- TPad* pSumHtx = new TPad("pSumHtx","pSumHtx",0,0.3,1,1); 
+ TPad* pSumHtx = new TPad("pSumHtx","pSumHtx",0,0.0,1,1); 
+ if(doRatio) pSumHtx = new TPad("pSumHtx","pSumHtx",0,0.3,1,1); 
+
  TPad* pSumHtxRatio = new TPad("pSumHtxratio","pSumHtxratio",0,0,1,0.3);
  
  TPad* pInvSumHtxRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSumHtxRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPSumHtx,"Hardware MP", "p");
- leg->AddEntry(emMPSumHtx,"Emulator MP", "l");
- 
+ leg->AddEntry(hwMPSumHtx,"Upgrade hardware", "p");
+ leg->AddEntry(emMPSumHtx,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
  hwMPSumHtx->Rebin(20);
  emMPSumHtx->Rebin(20);
 
@@ -1115,13 +1786,13 @@ if(doSums){
  hwMPSumHtx->SetMarkerColor(1);
  hwMPSumHtx->SetMarkerSize(0.4);
  emMPSumHtx->SetLineColor(kRed);
- hwMPSumHtx->GetXaxis()->SetTitle("iHTx");
- hwMPSumHtx->GetYaxis()->SetTitle("# Events");
+ hwMPSumHtx->GetXaxis()->SetTitle("Level-1 Trigger iH_{T,x}");
+ hwMPSumHtx->GetYaxis()->SetTitle("Number of events");
  hwMPSumHtx->GetYaxis()->SetTitleSize(0.05);
- hwMPSumHtx->GetYaxis()->SetTitleOffset(0.66);
+ hwMPSumHtx->GetYaxis()->SetTitleOffset(0.77);
  hwMPSumHtx->GetXaxis()->SetTitleSize(0.04);
- hwMPSumHtx->GetXaxis()->SetTitleOffset(0.9);
- pSumHtx->SetBottomMargin(0.08);
+ hwMPSumHtx->GetXaxis()->SetTitleOffset(1.0);
+ pSumHtx->SetBottomMargin(0.12);
  pSumHtx->Draw();
  pSumHtx->cd();
  
@@ -1129,6 +1800,14 @@ if(doSums){
  SumHtxRatio->SetMinimum(0);
  emMPSumHtx->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMPSumHtx->cd();
  pSumHtxRatio->SetTopMargin(0.05);
  pSumHtxRatio->Draw();
@@ -1147,24 +1826,30 @@ if(doSums){
  pInvSumHtxRatio->Draw();
  pInvSumHtxRatio->cd();
  unity->Draw();
- cMPSumHtx->SaveAs("compHwEmu/MPSums/MPSumHtx.png");
 
+ }
+
+ cMPSumHtx->SaveAs("compHwEmu/MPSums/MPSumHtx.pdf","pdf");
+ //cMPSumHtx->Close();
 
  // //--- MP sum hty ---//
 
  TCanvas* cMPSumHty = new TCanvas("cMPSumHty","MPSumHty");
 
- TPad* pSumHty = new TPad("pSumHty","pSumHty",0,0.3,1,1); 
+ TPad* pSumHty = new TPad("pSumHty","pSumHty",0,0.0,1,1); 
+ if(doRatio) pSumHty = new TPad("pSumHty","pSumHty",0,0.3,1,1); 
+
  TPad* pSumHtyRatio = new TPad("pSumHtyratio","pSumHtyratio",0,0,1,0.3);
  
  TPad* pInvSumHtyRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSumHtyRatio->SetFillStyle(0);
   
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMPSumHty,"Hardware MP", "p");
- leg->AddEntry(emMPSumHty,"Emulator MP", "l");
-
+ leg->AddEntry(hwMPSumHty,"Upgrade hardware", "p");
+ leg->AddEntry(emMPSumHty,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwMPSumHty->Rebin(20);
  emMPSumHty->Rebin(20);
 
@@ -1173,13 +1858,13 @@ if(doSums){
  hwMPSumHty->SetMarkerColor(1);
  hwMPSumHty->SetMarkerSize(0.4);
  emMPSumHty->SetLineColor(kRed);
- hwMPSumHty->GetXaxis()->SetTitle("iHTy");
- hwMPSumHty->GetYaxis()->SetTitle("# Events");
+ hwMPSumHty->GetXaxis()->SetTitle("Level-1 Trigger iH_{T,y}");
+ hwMPSumHty->GetYaxis()->SetTitle("Number of events");
  hwMPSumHty->GetYaxis()->SetTitleSize(0.05);
- hwMPSumHty->GetYaxis()->SetTitleOffset(0.66);
+ hwMPSumHty->GetYaxis()->SetTitleOffset(0.77);
  hwMPSumHty->GetXaxis()->SetTitleSize(0.04);
- hwMPSumHty->GetXaxis()->SetTitleOffset(0.9);
- pSumHty->SetBottomMargin(0.08);
+ hwMPSumHty->GetXaxis()->SetTitleOffset(1.0);
+ pSumHty->SetBottomMargin(0.12);
  pSumHty->Draw();
  pSumHty->cd();
 
@@ -1187,6 +1872,14 @@ if(doSums){
  SumHtyRatio->SetMinimum(0);
  emMPSumHty->Draw("same");//"");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMPSumHty->cd();
  pSumHtyRatio->SetTopMargin(0.05);
  pSumHtyRatio->Draw();
@@ -1206,24 +1899,29 @@ if(doSums){
  pInvSumHtyRatio->cd();
  unity->Draw();
 
- cMPSumHty->SaveAs("compHwEmu/MPSums/MPSumHty.png");
+ }
 
+ cMPSumHty->SaveAs("compHwEmu/MPSums/MPSumHty.pdf","pdf");
+ //cMPSumHty->Close();
 
  // //--- demux sum et ---//
 
  TCanvas* cSumEt = new TCanvas("cSumEt","SumEt");
 
- TPad* pDSumEt = new TPad("pSumEt","pSumEt",0,0.3,1,1); 
+ TPad* pDSumEt = new TPad("pSumEt","pSumEt",0,0.0,1,1); 
+ if(doRatio) pDSumEt = new TPad("pSumEt","pSumEt",0,0.3,1,1); 
+
  TPad* pDSumEtRatio = new TPad("pSumEtratio","pSumEtratio",0,0,1,0.3);
  
  TPad* pInvDSumEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDSumEtRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwSumEt,"Hardware Demux", "p");
- leg->AddEntry(emSumEt,"Emulator Demux", "l");
-
+ leg->AddEntry(hwSumEt,"Upgrade hardware", "p");
+ leg->AddEntry(emSumEt,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwSumEt->Rebin(50);
  emSumEt->Rebin(50);
 
@@ -1232,13 +1930,13 @@ if(doSums){
  hwSumEt->SetMarkerColor(1);
  hwSumEt->SetMarkerSize(0.4);
  emSumEt->SetLineColor(kRed);
- hwSumEt->GetXaxis()->SetTitle("iET");
- hwSumEt->GetYaxis()->SetTitle("# Jets");
+ hwSumEt->GetXaxis()->SetTitle("Level-1 Trigger iE_{T}");
+ hwSumEt->GetYaxis()->SetTitle("Number of events");
  hwSumEt->GetYaxis()->SetTitleSize(0.05);
- hwSumEt->GetYaxis()->SetTitleOffset(0.66);
+ hwSumEt->GetYaxis()->SetTitleOffset(0.77);
  hwSumEt->GetXaxis()->SetTitleSize(0.04);
- hwSumEt->GetXaxis()->SetTitleOffset(0.9);
- pDSumEt->SetBottomMargin(0.08);
+ hwSumEt->GetXaxis()->SetTitleOffset(1.0);
+ pDSumEt->SetBottomMargin(0.12);
  pDSumEt->Draw();
  pDSumEt->cd();
  
@@ -1246,6 +1944,14 @@ if(doSums){
  DSumEtRatio->SetMinimum(0);
  emSumEt->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cSumEt->cd();
  pDSumEtRatio->SetTopMargin(0.05);
  pDSumEtRatio->Draw();
@@ -1265,24 +1971,30 @@ if(doSums){
  pInvDSumEtRatio->cd();
  unity->Draw();
  pDSumEtRatio->Update();
- cSumEt->SaveAs("compHwEmu/DemuxSums/DemSumEt.png");
 
+ }
+
+ cSumEt->SaveAs("compHwEmu/DemuxSums/DemSumEt.pdf","pdf");
+ //cSumEt->Close();
 
  //--- demux sum met ---//
 
  TCanvas* cSumMet = new TCanvas("cSumMet","SumMet");
 
- TPad* pDSumMet = new TPad("pSumMet","pSumMet",0,0.3,1,1); 
+ TPad* pDSumMet = new TPad("pSumMet","pSumMet",0,0.0,1,1); 
+ if(doRatio) pDSumMet = new TPad("pSumMet","pSumMet",0,0.3,1,1); 
+
  TPad* pDSumMetRatio = new TPad("pSumMetratio","pSumMetratio",0,0,1,0.3);
  
  TPad* pInvDSumMetRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDSumMetRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwSumMet,"Hardware Demux", "p");
- leg->AddEntry(emSumMet,"Emulator Demux", "l");
-
+ leg->AddEntry(hwSumMet,"Upgrade hardware", "p");
+ leg->AddEntry(emSumMet,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwSumMet->Rebin(20);
  emSumMet->Rebin(20);
 
@@ -1291,13 +2003,13 @@ if(doSums){
  hwSumMet->SetMarkerColor(1);
  hwSumMet->SetMarkerSize(0.4);
  emSumMet->SetLineColor(kRed);
- hwSumMet->GetXaxis()->SetTitle("iMET");
- hwSumMet->GetYaxis()->SetTitle("# Events");
+ hwSumMet->GetXaxis()->SetTitle("Level-1 Trigger iMET");
+ hwSumMet->GetYaxis()->SetTitle("Number of events");
  hwSumMet->GetYaxis()->SetTitleSize(0.05);
- hwSumMet->GetYaxis()->SetTitleOffset(0.66);
+ hwSumMet->GetYaxis()->SetTitleOffset(0.77);
  hwSumMet->GetXaxis()->SetTitleSize(0.04);
- hwSumMet->GetXaxis()->SetTitleOffset(0.9);
- pDSumMet->SetBottomMargin(0.08);
+ hwSumMet->GetXaxis()->SetTitleOffset(1.0);
+ pDSumMet->SetBottomMargin(0.12);
  pDSumMet->Draw();
  pDSumMet->cd();
 
@@ -1305,6 +2017,14 @@ if(doSums){
  DSumMetRatio->SetMinimum(0);
  emSumMet->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cSumMet->cd();
  pDSumMetRatio->SetTopMargin(0.05);
  pDSumMetRatio->Draw();
@@ -1324,24 +2044,30 @@ if(doSums){
  pInvDSumMetRatio->cd();
  unity->Draw();
  pDSumMetRatio->Update();
- cSumMet->SaveAs("compHwEmu/DemuxSums/DemSumMet.png");
 
+ }
+
+ cSumMet->SaveAs("compHwEmu/DemuxSums/DemSumMet.pdf","pdf");
+ //cSumMet->Close();
 
  //--- demux sum ht ---//
 
  TCanvas* cSumHt = new TCanvas("cSumHt","SumHt");
 
- TPad* pDSumHt = new TPad("pSumHt","pSumHt",0,0.3,1,1); 
+ TPad* pDSumHt = new TPad("pSumHt","pSumHt",0,0.0,1,1); 
+ if(doRatio) pDSumHt = new TPad("pSumHt","pSumHt",0,0.3,1,1); 
+
  TPad* pDSumHtRatio = new TPad("pSumHtratio","pSumHtratio",0,0,1,0.3);
  
  TPad* pInvDSumHtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDSumHtRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwSumHt,"Hardware Demux", "p");
- leg->AddEntry(emSumHt,"Emulator Demux", "l");
-
+ leg->AddEntry(hwSumHt,"Upgrade hardware", "p");
+ leg->AddEntry(emSumHt,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwSumHt->Rebin(50);
  emSumHt->Rebin(50);
 
@@ -1350,13 +2076,13 @@ if(doSums){
  hwSumHt->SetMarkerColor(1);
  hwSumHt->SetMarkerSize(0.4);
  emSumHt->SetLineColor(kRed);
- hwSumHt->GetXaxis()->SetTitle("iHT");
- hwSumHt->GetYaxis()->SetTitle("# Events");
+ hwSumHt->GetXaxis()->SetTitle("Level-1 Trigger iH_{T}");
+ hwSumHt->GetYaxis()->SetTitle("Number of events");
  hwSumHt->GetYaxis()->SetTitleSize(0.05);
- hwSumHt->GetYaxis()->SetTitleOffset(0.66);
+ hwSumHt->GetYaxis()->SetTitleOffset(0.77);
  hwSumHt->GetXaxis()->SetTitleSize(0.04);
- hwSumHt->GetXaxis()->SetTitleOffset(0.9);
- pDSumHt->SetBottomMargin(0.08);
+ hwSumHt->GetXaxis()->SetTitleOffset(1.0);
+ pDSumHt->SetBottomMargin(0.12);
  pDSumHt->Draw();
  pDSumHt->cd();
 
@@ -1364,6 +2090,14 @@ if(doSums){
  DSumHtRatio->SetMinimum(0);
  emSumHt->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cSumHt->cd();
  pDSumHtRatio->SetTopMargin(0.05);
  pDSumHtRatio->Draw();
@@ -1383,24 +2117,30 @@ if(doSums){
  pInvDSumHtRatio->cd();
  unity->Draw();
  pDSumHtRatio->Update();
- cSumHt->SaveAs("compHwEmu/DemuxSums/DemSumHt.png");
 
+ }
+
+ cSumHt->SaveAs("compHwEmu/DemuxSums/DemSumHt.pdf","pdf");
+ //cSumHt->Close();
 
  //--- demux sum mht ---//
 
  TCanvas* cSumMht = new TCanvas("cSumMht","SumMht");
 
- TPad* pDSumMht = new TPad("pSumMht","pSumMht",0,0.3,1,1); 
+ TPad* pDSumMht = new TPad("pSumMht","pSumMht",0,0.0,1,1); 
+ if(doRatio) pDSumMht = new TPad("pSumMht","pSumMht",0,0.3,1,1); 
+
  TPad* pDSumMhtRatio = new TPad("pSumMhtratio","pSumMhtratio",0,0,1,0.3);
  
  TPad* pInvDSumMhtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDSumMhtRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwSumMht,"Hardware Demux", "p");
- leg->AddEntry(emSumMht,"Emulator Demux", "l");
-
+ leg->AddEntry(hwSumMht,"Upgrade hardware", "p");
+ leg->AddEntry(emSumMht,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwSumMht->Rebin(20);
  emSumMht->Rebin(20);
 
@@ -1409,13 +2149,13 @@ if(doSums){
  hwSumMht->SetMarkerColor(1);
  hwSumMht->SetMarkerSize(0.4);
  emSumMht->SetLineColor(kRed);
- hwSumMht->GetXaxis()->SetTitle("iMHT");
- hwSumMht->GetYaxis()->SetTitle("# Events");
+ hwSumMht->GetXaxis()->SetTitle("Level-1 Trigger iH_{T}^{miss}");
+ hwSumMht->GetYaxis()->SetTitle("Number of events");
  hwSumMht->GetYaxis()->SetTitleSize(0.05);
- hwSumMht->GetYaxis()->SetTitleOffset(0.66);
+ hwSumMht->GetYaxis()->SetTitleOffset(0.77);
  hwSumMht->GetXaxis()->SetTitleSize(0.04);
- hwSumMht->GetXaxis()->SetTitleOffset(0.9);
- pDSumMht->SetBottomMargin(0.08);
+ hwSumMht->GetXaxis()->SetTitleOffset(1.0);
+ pDSumMht->SetBottomMargin(0.12);
  pDSumMht->Draw();
  pDSumMht->cd();
 
@@ -1423,6 +2163,14 @@ if(doSums){
  DSumMhtRatio->SetMinimum(0);
  emSumMht->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cSumMht->cd();
  pDSumMhtRatio->SetTopMargin(0.05);
  pDSumMhtRatio->Draw();
@@ -1442,25 +2190,31 @@ if(doSums){
  pInvDSumMhtRatio->cd();
  unity->Draw();
  pDSumMhtRatio->Update();
- cSumMht->SaveAs("compHwEmu/DemuxSums/DemSumMht.png");
 
+ }
+
+ cSumMht->SaveAs("compHwEmu/DemuxSums/DemSumMht.pdf","pdf");
+ //cSumMht->Close();
  //--- met phi ---//
 
  TCanvas* cMetPhi = new TCanvas("cMetPhi","MetPhi");
 
- TPad* pDMetPhi = new TPad("pMetPhi","pMetPhi",0,0.3,1,1); 
+ TPad* pDMetPhi = new TPad("pMetPhi","pMetPhi",0,0.0,1,1); 
+ if(doRatio)  pDMetPhi = new TPad("pMetPhi","pMetPhi",0,0.3,1,1); 
+
  TPad* pDMetPhiRatio = new TPad("pMetPhiratio","pMetPhiratio",0,0,1,0.3);
  
  TPad* pInvDMetPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDMetPhiRatio->SetFillStyle(0);
 
- leg = new TLegend(0.7,0.65,0.9,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMetPhi,"Hardware Demux", "p");
- leg->AddEntry(emMetPhi,"Emulator Demux", "l");
-
- hwMetPhi->Rebin(6);
- emMetPhi->Rebin(6);
+ leg->AddEntry(hwMetPhi,"Upgrade hardware", "p");
+ leg->AddEntry(emMetPhi,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
+ hwMetPhi->Rebin(8);
+ emMetPhi->Rebin(8);
 
  hwMetPhi->SetStats(0);
  hwMetPhi->SetMarkerStyle(21);
@@ -1468,13 +2222,13 @@ if(doSums){
  hwMetPhi->SetMarkerSize(0.4);
  emMetPhi->SetLineColor(kRed);
  hwMetPhi->GetXaxis()->SetRange(0,40);
- hwMetPhi->GetXaxis()->SetTitle("MET i#phi");
- hwMetPhi->GetYaxis()->SetTitle("# Jets");
+ hwMetPhi->GetXaxis()->SetTitle("Level-1 Trigger MET i#phi");
+ hwMetPhi->GetYaxis()->SetTitle("Number of events");
  hwMetPhi->GetYaxis()->SetTitleSize(0.05);
- hwMetPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwMetPhi->GetYaxis()->SetTitleOffset(0.77);
  hwMetPhi->GetXaxis()->SetTitleSize(0.04);
- hwMetPhi->GetXaxis()->SetTitleOffset(0.9);
- pDMetPhi->SetBottomMargin(0.08);
+ hwMetPhi->GetXaxis()->SetTitleOffset(1.0);
+ pDMetPhi->SetBottomMargin(0.12);
  pDMetPhi->Draw();
  pDMetPhi->cd();
 
@@ -1482,6 +2236,14 @@ if(doSums){
  DMetPhiRatio->SetMinimum(0);
  emMetPhi->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMetPhi->cd();
  pDMetPhiRatio->SetTopMargin(0.05);
  pDMetPhiRatio->Draw();
@@ -1501,25 +2263,31 @@ if(doSums){
  pInvDMetPhiRatio->cd();
  unity->Draw();
  pDMetPhiRatio->Update();
- cMetPhi->SaveAs("compHwEmu/DemuxSums/DemMetPhi.png");
 
+ }
+
+ cMetPhi->SaveAs("compHwEmu/DemuxSums/DemMetPhi.pdf","pdf");
+ //cMetPhi->Close();
  //--- mht phi ---//
 
  TCanvas* cMhtPhi = new TCanvas("cMhtPhi","MhtPhi");
 
- TPad* pDMhtPhi = new TPad("pMhtPhi","pMhtPhi",0,0.3,1,1); 
+ TPad* pDMhtPhi = new TPad("pMhtPhi","pMhtPhi",0,0.0,1,1); 
+ if(doRatio) pDMhtPhi = new TPad("pMhtPhi","pMhtPhi",0,0.3,1,1); 
+
  TPad* pDMhtPhiRatio = new TPad("pMhtPhiratio","pMhtPhiratio",0,0,1,0.3);
  
  TPad* pInvDMhtPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDMhtPhiRatio->SetFillStyle(0);
 
- leg = new TLegend(0.7,0.65,0.9,0.85);
+ leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwMhtPhi,"Hardware Demux", "p");
- leg->AddEntry(emMhtPhi,"Emulator Demux", "l");
-
- hwMhtPhi->Rebin(6);
- emMhtPhi->Rebin(6);
+ leg->AddEntry(hwMhtPhi,"Upgrade hardware", "p");
+ leg->AddEntry(emMhtPhi,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
+ hwMhtPhi->Rebin(8);
+ emMhtPhi->Rebin(8);
 
  hwMhtPhi->SetStats(0);
  hwMhtPhi->SetMarkerStyle(21);
@@ -1527,13 +2295,13 @@ if(doSums){
  hwMhtPhi->SetMarkerSize(0.4);
  emMhtPhi->SetLineColor(kRed);
  hwMhtPhi->GetXaxis()->SetRange(0,40);
- hwMhtPhi->GetXaxis()->SetTitle("MHT i#phi");
- hwMhtPhi->GetYaxis()->SetTitle("# Events");
+ hwMhtPhi->GetXaxis()->SetTitle("Level-1 Trigger iH_{T}^{miss} i#phi");
+ hwMhtPhi->GetYaxis()->SetTitle("Number of events");
  hwMhtPhi->GetYaxis()->SetTitleSize(0.05);
- hwMhtPhi->GetYaxis()->SetTitleOffset(0.66);
+ hwMhtPhi->GetYaxis()->SetTitleOffset(0.77);
  hwMhtPhi->GetXaxis()->SetTitleSize(0.04);
- hwMhtPhi->GetXaxis()->SetTitleOffset(0.9);
- pDMhtPhi->SetBottomMargin(0.08);
+ hwMhtPhi->GetXaxis()->SetTitleOffset(1.0);
+ pDMhtPhi->SetBottomMargin(0.12);
  pDMhtPhi->Draw();
  pDMhtPhi->cd();
 
@@ -1541,6 +2309,14 @@ if(doSums){
  DMhtPhiRatio->SetMinimum(0);
  emMhtPhi->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cMhtPhi->cd();
  pDMhtPhiRatio->SetTopMargin(0.05);
  pDMhtPhiRatio->Draw();
@@ -1560,8 +2336,11 @@ if(doSums){
  pInvDMhtPhiRatio->cd();
  unity->Draw();
  pDMhtPhiRatio->Update();
- cMhtPhi->SaveAs("compHwEmu/DemuxSums/DemMhtPhi.png");
 
+ }
+
+ cMhtPhi->SaveAs("compHwEmu/DemuxSums/DemMhtPhi.pdf","pdf");
+ //cMhtPhi->Close();
 }
 
  //--- sorts ---//
@@ -1570,29 +2349,32 @@ if(doSorts){
 
  TCanvas* cSortMP = new TCanvas("cSortMP","SortMP");
 
- TPad* pSortMP = new TPad("pSortMP","pSortMP",0,0.3,1,1); 
+ TPad* pSortMP = new TPad("pSortMP","pSortMP",0,0.0,1,1); 
+ if(doRatio) pSortMP = new TPad("pSortMP","pSortMP",0,0.3,1,1); 
+
  TPad* pSortMPRatio = new TPad("pSortMPratio","pSortMPratio",0,0,1,0.3);
  
  TPad* pInvSortMPRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvSortMPRatio->SetFillStyle(0);
   
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwSortMP,"Hardware MP", "p");
- leg->AddEntry(emSortMP,"Emulator MP", "l");
-
+ leg->AddEntry(hwSortMP,"Upgrade hardware", "p");
+ leg->AddEntry(emSortMP,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwSortMP->SetStats(0);
  hwSortMP->SetMarkerStyle(21);
  hwSortMP->SetMarkerColor(1);
  hwSortMP->SetMarkerSize(0.4);
  emSortMP->SetLineColor(kRed);
- hwSortMP->GetXaxis()->SetTitle("iHT");
- hwSortMP->GetYaxis()->SetTitle("# Events");
+ hwSortMP->GetXaxis()->SetTitle("Level-1 Trigger iH{T}");
+ hwSortMP->GetYaxis()->SetTitle("Number of events");
  hwSortMP->GetYaxis()->SetTitleSize(0.05);
- hwSortMP->GetYaxis()->SetTitleOffset(0.66);
+ hwSortMP->GetYaxis()->SetTitleOffset(0.77);
  hwSortMP->GetXaxis()->SetTitleSize(0.04);
- hwSortMP->GetXaxis()->SetTitleOffset(0.9);
- pSortMP->SetBottomMargin(0.08);
+ hwSortMP->GetXaxis()->SetTitleOffset(1.0);
+ pSortMP->SetBottomMargin(0.12);
  pSortMP->Draw();
  pSortMP->cd();
 
@@ -1601,6 +2383,14 @@ if(doSorts){
  SortMPRatio->SetMinimum(0);
  emSortMP->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.2, 0.65, "CMS");
+ n3.DrawLatex(0.2, 0.6, "Simulation");
+ n3.DrawLatex(0.2, 0.55, "Preliminary");
+ n4.DrawLatex(0.2, 0.45, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cSortMP->cd();
  pSortMPRatio->SetTopMargin(0.05);
  pSortMPRatio->Draw();
@@ -1621,22 +2411,27 @@ if(doSorts){
  unity->Draw();
  pSortMPRatio->Update();
 
- cSortMP->SaveAs("compHwEmu/Sorts/MPSort.png");
+ }
 
+ cSortMP->SaveAs("compHwEmu/Sorts/MPSort.pdf","pdf");
+ //cSortMP->Close();
 
  TCanvas* cSort = new TCanvas("cSort","Sort");
 
- TPad* pDSort = new TPad("pSort","pSort",0,0.3,1,1); 
+ TPad* pDSort = new TPad("pSort","pSort",0,0.0,1,1); 
+ if(doRatio) pDSort = new TPad("pSort","pSort",0,0.3,1,1); 
+
  TPad* pDSortRatio = new TPad("pSortratio","pSortratio",0,0,1,0.3);
  
  TPad* pInvDSortRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvDSortRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
- leg->AddEntry(hwSort,"Hardware Demux", "p");
- leg->AddEntry(emSort,"Emulator Demux", "l");
-
+ leg->AddEntry(hwSort,"Upgrade hardware", "p");
+ leg->AddEntry(emSort,"Upgrade simulation", "l");
+ leg->SetBorderSize(0);
+ leg->SetFillStyle(0);
  hwSort->Rebin(3);
  emSort->Rebin(3);
 
@@ -1645,13 +2440,13 @@ if(doSorts){
  hwSort->SetMarkerColor(1);
  hwSort->SetMarkerSize(0.4);
  emSort->SetLineColor(kRed);
- hwSort->GetXaxis()->SetTitle("iHT");
- hwSort->GetYaxis()->SetTitle("# Events");
+ hwSort->GetXaxis()->SetTitle("Level-1 Trigger iH_{T}");
+ hwSort->GetYaxis()->SetTitle("Number of events");
  hwSort->GetYaxis()->SetTitleSize(0.05);
- hwSort->GetYaxis()->SetTitleOffset(0.66);
+ hwSort->GetYaxis()->SetTitleOffset(0.77);
  hwSort->GetXaxis()->SetTitleSize(0.04);
- hwSort->GetXaxis()->SetTitleOffset(0.9);
- pDSort->SetBottomMargin(0.08);
+ hwSort->GetXaxis()->SetTitleOffset(1.0);
+ pDSort->SetBottomMargin(0.12);
  pDSort->Draw();
  pDSort->cd();
 
@@ -1659,6 +2454,14 @@ if(doSorts){
  DSortRatio->SetMinimum(0);
  emSort->Draw("same");
  leg->Draw();
+ n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
+ n2.DrawLatex(0.2, 0.65, "CMS");
+ n3.DrawLatex(0.2, 0.6, "Simulation");
+ n3.DrawLatex(0.2, 0.625, "Preliminary");
+ n4.DrawLatex(0.2, 0.55, "pp #rightarrow t#bar{t}");
+
+ if(doRatio){
+
  cSort->cd();
  pDSortRatio->SetTopMargin(0.05);
  pDSortRatio->Draw();
@@ -1678,8 +2481,11 @@ if(doSorts){
  pInvDSortRatio->cd();
  unity->Draw();
  pDSortRatio->Update();
- cSort->SaveAs("compHwEmu/Sorts/DemuxSort.png");
 
+ }
+
+ cSort->SaveAs("compHwEmu/Sorts/DemuxSort.pdf","pdf");
+ //cSort->Close();
  }
 
  }
