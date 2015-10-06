@@ -14,6 +14,7 @@ namespace l1t {
 
          event_.put(mp_etsums_, "MP");
          event_.put(mp_jets_, "MP");
+	 event_.put(mp_egammas_,"MP");
       }
    }
 }
