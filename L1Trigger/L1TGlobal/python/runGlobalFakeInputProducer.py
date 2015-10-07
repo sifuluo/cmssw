@@ -189,7 +189,8 @@ process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
 process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
 #process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+#process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
