@@ -9,6 +9,21 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
+#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
+
+namespace l1t {
+  bool operator > ( l1t::Tau& a, l1t::Tau& b )
+  {
+    if ( a.pt() == b.pt() ){
+      if( a.hwPhi() == b.hwPhi() )
+    return abs(a.hwEta()) > abs(b.hwEta());
+      else
+    return a.hwPhi() > b.hwPhi();
+    }
+    else
+      return a.pt() > b.pt();
+  }
+}
 
 l1t::Stage2Layer2TauAlgorithmFirmwareImp1::Stage2Layer2TauAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
@@ -25,10 +40,10 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::processEvent(const std::vector<l
                                                              std::vector<l1t::Tau> & taus) {
   
   // fill L1 candidates collections from clusters, merging neighbour clusters
-  merging(clusters, towers, taus); 
+  merging (clusters, towers, taus); 
   //FIXME: TO DO
-  // calibration (taus);
   // isolation   (taus);
+  dosorting(taus);
 }
 
 void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::CaloCluster>& clusters,
@@ -379,13 +394,104 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNN);
                 if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSS);
 
-
                 // it's the end! Perform the merging
                 l1t::Tau tau (emptyP4, mainCluster.hwPt()+secondaryCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
+                
+                // ==================================================================
+                // Energy calibration
+                // ==================================================================
+
+                // Corrections function of ieta, ET, and cluster shape
+                //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
+                int calibPt = mainCluster.hwPt();
+
+                // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
+                // use fg positon of main cluster only
+                double eta = 0.;
+                double phi = 0.;
+                double seedEta     = CaloTools::towerEta(mainCluster.hwEta());
+                double seedEtaSize = CaloTools::towerEtaSize(mainCluster.hwEta());
+                double seedPhi     = CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi());
+                double seedPhiSize = CaloTools::towerPhiSize(mainCluster.hwEta());
+                if(mainCluster.fgEta()==0)      eta = seedEta; // center
+                else if(mainCluster.fgEta()==2) eta = seedEta + seedEtaSize*0.25; // center + 1/4
+                else if(mainCluster.fgEta()==1) eta = seedEta - seedEtaSize*0.25; // center - 1/4
+                if(mainCluster.fgPhi()==0)      phi = seedPhi; // center
+                else if(mainCluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.25; // center + 1/4
+                else if(mainCluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.25; // center - 1/4
+
+                // Set 4-vector
+                math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
+                tau.setP4(calibP4);
+
+                // save tau candidate which is now complete
                 taus.push_back (tau);
             }
         }
     } // end loop on clusters
+}
+
+
+// -----------------------------------------------------------------------------------
+void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting (std::vector<l1t::Tau>& taus)
+{
+    
+    //Keep only 6 candidate with highest Pt in each eta-half
+    std::vector<l1t::Tau> tauEtaPos;
+    std::vector<l1t::Tau> tauEtaNeg;
+
+    for (unsigned int iTau = 0; iTau < taus.size(); iTau++)
+    {
+        if (taus.at(iTau).hwEta() > 0) tauEtaPos.push_back (taus.at(iTau));
+        else tauEtaNeg.push_back (taus.at(iTau));
+    }
+
+    std::vector<l1t::Tau>::iterator start_, end_;
+
+    start_ = tauEtaPos.begin();  
+    end_   = tauEtaPos.end();
+    BitonicSort<l1t::Tau>(down, start_, end_);
+    if (tauEtaPos.size()>6) tauEtaPos.resize(6);
+
+    start_ = tauEtaNeg.begin();  
+    end_   = tauEtaNeg.end();
+    BitonicSort<l1t::Tau>(down, start_, end_);
+    if (tauEtaNeg.size()>6) tauEtaNeg.resize(6);
+
+    taus.clear();
+    taus = tauEtaPos;
+    taus.insert(taus.end(),tauEtaNeg.begin(),tauEtaNeg.end());
+
+/*
+    std::vector<pair<int,l1t::Tau>> tauEtaP;
+    std::vector<pair<int,l1t::Tau>> tauEtaM;
+
+    for (unsigned int iTau = 0; iTau < taus.size(); iTau++)
+    {
+        if (taus.at(iTau).hwEta() > 0) tauEtaP.push_back (make_pair (taus.at(iTau).hwPt(), taus.at(iTau)));
+        else tauEtaM.push_back (make_pair (taus.at(iTau).hwPt(), taus.at(iTau)));
+    }
+
+    
+
+
+
+    // select only 6 highest pT cands in eta+ and 6 highest pT cands in eta-
+    taus.clear();
+    
+    sort(tauEtaP.begin(), tauEtaP.end());
+    sort(tauEtaM.begin(), tauEtaM.end());
+    reverse(tauEtaP.begin(), tauEtaP.end());
+    reverse(tauEtaM.begin(), tauEtaM.end());
+
+    for (unsigned int i = 0; i < tauEtaP.size() && i < 6; i++)
+        taus.push_back(tauEtaP.at(i).second)
+
+    for (unsigned int i = 0; i < tauEtaM.size() && i < 6; i++)
+        taus.push_back(tauEtaM.at(i).second)
+
+    return;
+    */
 }
 
 

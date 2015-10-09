@@ -30,6 +30,7 @@ namespace l1t {
     
   private:
     void merging(const std::vector<l1t::CaloCluster>& clusters,  const std::vector<l1t::CaloTower>& towers, std::vector<l1t::Tau>& taus);
+    void dosorting(std::vector<l1t::Tau>& taus);
 
     // isolation
     int isoCalTauHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
