@@ -153,6 +153,30 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 //math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
                 math::PtEtaPhiMLorentzVector emptyP4;
                 l1t::Tau tau (emptyP4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
+
+                // Corrections function of ieta, ET, and cluster shape
+                //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
+                int calibPt = mainCluster.hwPt();
+
+                // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
+                // use fg positon of main cluster only
+                double eta = 0.;
+                double phi = 0.;
+                double seedEta     = CaloTools::towerEta(mainCluster.hwEta());
+                double seedEtaSize = CaloTools::towerEtaSize(mainCluster.hwEta());
+                double seedPhi     = CaloTools::towerPhi(mainCluster.hwEta(), mainCluster.hwPhi());
+                double seedPhiSize = CaloTools::towerPhiSize(mainCluster.hwEta());
+                if(mainCluster.fgEta()==0)      eta = seedEta; // center
+                else if(mainCluster.fgEta()==2) eta = seedEta + seedEtaSize*0.25; // center + 1/4
+                else if(mainCluster.fgEta()==1) eta = seedEta - seedEtaSize*0.25; // center - 1/4
+                if(mainCluster.fgPhi()==0)      phi = seedPhi; // center
+                else if(mainCluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.25; // center + 1/4
+                else if(mainCluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.25; // center - 1/4
+
+                // Set 4-vector
+                math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
+                tau.setP4(calibP4);
+
                 taus.push_back (tau);
             }
 
@@ -403,7 +427,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
                 // Corrections function of ieta, ET, and cluster shape
                 //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
-                int calibPt = mainCluster.hwPt();
+                int calibPt = mainCluster.hwPt()+secondaryCluster.hwPt();
 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
