@@ -164,6 +164,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       // Energy calibration
       // Corrections function of ieta, ET, and cluster shape
       int calibPt = calibratedPt(cluster, egamma.hwPt());
+      egamma.setHwPt(calibPt);
 
       // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
       double eta = 0.;
@@ -281,7 +282,7 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoCalEgHwFootPrint(const l1t:
   // int hwEmEtSumRight = CaloTools::calHwEtSum(iEta,iPhi,towers,1,1,-1,1,CaloTools::ECAL);
 
   int etaSide = clus.checkClusterFlag(CaloCluster::TRIM_LEFT) ? 1 : -1; //if we trimed left, its the right (ie +ve) side we want
-  //int phiSide = iEta>0 ? 1 : -1;
+  int phiSide = iEta>0 ? 1 : -1;
 
   int ecalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,
       -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
@@ -289,9 +290,8 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoCalEgHwFootPrint(const l1t:
     CaloTools::calHwEtSum(iEta,iPhi,towers,etaSide,etaSide,
         -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
         params_->egPUSParam(2),CaloTools::ECAL);
-  /*int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::HCAL) +
-    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::HCAL);*/
-  int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::HCAL);
+  int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::HCAL) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::HCAL);
   return ecalHwFootPrint+hcalHwFootPrint;
 }
 
