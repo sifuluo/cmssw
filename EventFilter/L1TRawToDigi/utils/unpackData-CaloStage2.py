@@ -120,6 +120,8 @@ process.dumpRaw = cms.EDAnalyzer(
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
 process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
+if (options.debug):
+    process.caloStage2Digis.debug = cms.untracked.bool(True)
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
