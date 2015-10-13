@@ -23,7 +23,13 @@ namespace stage2 {
    MPUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize() << " AMC = " << block.amc().getAMCNumber();
+
+     // check this is the correct MP
+     unsigned int amc  = block.amc().getAMCNumber();
+     unsigned int bxid = block.amc().getBX();
+     if( (amc-1) != (bxid-1)%9 ) return true;
+     LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
