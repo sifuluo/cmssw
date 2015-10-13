@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
+#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
@@ -16,13 +16,16 @@ namespace l1t {
                return std::unique_ptr<PackerTokens>(new GTTokens(cfg, cc));
             };
 
-            virtual PackerMap getPackers(int fed, int fw) override {
+            virtual void fillDescription(edm::ParameterSetDescription& desc) override {};
+
+            virtual PackerMap getPackers(int fed, unsigned int fw) override {
                PackerMap res;
 
                if (fed == 1404) { 
                   // Use board id 1 for packing
                   res[{1, 1}] = {
-
+                     
+		     PackerFactory::get()->make("stage2::MuonPacker"),
 		     PackerFactory::get()->make("stage2::EGammaPacker"),
 		     PackerFactory::get()->make("stage2::EtSumPacker"),
 		     PackerFactory::get()->make("stage2::JetPacker"),
@@ -35,8 +38,9 @@ namespace l1t {
                return res;
             };
 
-            virtual void registerProducts(edm::one::EDProducerBase& prod) override {
+            virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
 	      
+	       prod.produces<MuonBxCollection>("GT");
 	       prod.produces<EGammaBxCollection>("GT");
 	       prod.produces<EtSumBxCollection>("GT");
 	       prod.produces<JetBxCollection>("GT");
@@ -50,8 +54,9 @@ namespace l1t {
                return std::unique_ptr<UnpackerCollections>(new GTCollections(e));
             };
 
-            virtual UnpackerMap getUnpackers(int fed, int board, int amc, int fw) override {
+            virtual UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override {
 
+               auto muon_unp = UnpackerFactory::get()->make("stage2::MuonUnpacker");
   	       auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
 	       auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");
 	       auto jet_unp = UnpackerFactory::get()->make("stage2::JetUnpacker");
@@ -64,14 +69,34 @@ namespace l1t {
 	       
                if (fed == 1404) {
                   
-		 // Need to fill other input collections         
+		 // From the rx buffers         
+		  res[0]  = muon_unp;
+		  res[2]  = muon_unp;
+		  res[4]  = muon_unp;
+		  res[6]  = muon_unp;
+		  res[8]  = egamma_unp;
+		  res[10] = egamma_unp;
 		  res[12] = jet_unp;
                   res[14] = jet_unp;
+		  res[16] = tau_unp;
+		  res[18] = tau_unp;
                   res[20] = etsum_unp;
+		  res[24] = ext_unp;
+		  //res[22] = empty link no data
+		  res[26] = ext_unp;
+		  res[28] = ext_unp;
+		  
+                  //From the tx buffers
+                  res[1]  = alg_unp;
+                  res[3]  = alg_unp;
+                  res[5]  = alg_unp;
+                  res[7]  = alg_unp;
+                  res[9]  = alg_unp;
+                  res[11] = alg_unp;
+                  res[13] = alg_unp;
+                  res[15] = alg_unp;
+                  res[17] = alg_unp;		  
 
-                  res[1] = alg_unp;
-                  res[3] = alg_unp;
-                  res[5] = alg_unp;
                   
                }
 	       
