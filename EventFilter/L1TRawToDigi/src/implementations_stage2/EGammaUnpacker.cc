@@ -4,6 +4,8 @@
 
 #include "L1TObjectCollections.h"
 
+#include "L1TStage2Layer2Constants.h"
+
 namespace l1t {
    namespace stage2 {
       class EGammaUnpacker : public Unpacker {
@@ -21,9 +23,11 @@ namespace stage2 {
    EGammaUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
+     using namespace l1t::stage2::layer2;
+
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(block.header().getSize() / 12.)); // Since there are 12 EGamma objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(block.header().getSize() / (double) demux::nOutputFramePerBX)); // 6 link frames per BX
 
      // Find the central, first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -39,15 +43,13 @@ namespace stage2 {
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
-     // Initialise index
-     int unsigned i = 0;
-
      // Loop over multiple BX and then number of EG cands filling collection
      for (int bx=firstBX; bx<=lastBX; bx++){
 
-       for (unsigned nEG=0; nEG < 12 && nEG < block.header().getSize(); nEG++){
+       for (unsigned iEG=0; iEG < demux::nEGPerLink && iEG < block.header().getSize(); iEG++){
 
-         uint32_t raw_data = block.payload()[i++];
+	 int iFrame = (bx-firstBX) * demux::nOutputFramePerBX + iEG;
+         uint32_t raw_data = block.payload().at(iFrame);
 
          // skip padding to bring EG candidates up to 12 pre BX
          if (raw_data == 0)
