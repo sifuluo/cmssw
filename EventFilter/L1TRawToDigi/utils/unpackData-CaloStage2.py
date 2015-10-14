@@ -19,16 +19,36 @@ options.register('streamer',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Read input from streamer file")
-options.register('dump',
-                 False,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "Print RAW data")
 options.register('debug',
                  True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Enable debug data")
+options.register('dumpRaw',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print RAW data")
+options.register('dumpDigis',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print digis")
+options.register('histos',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Produce standard histograms")
+options.register('edm',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Produce EDM file")
+options.register('valEvents',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Filter on validation events")
                  
 options.parseArguments()
 
@@ -67,25 +87,17 @@ process.options = cms.untracked.PSet(
 )
 
 
-# Output definition
-process.output = cms.OutputModule(
-    "PoolOutputModule",
-    outputCommands = cms.untracked.vstring("keep *"),
-    fileName = cms.untracked.string('l1tCalo_2016_EDM.root')
-)
-
 # Additional output definition
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
-
 
 # enable debug message logging for our modules
 process.MessageLogger.categories.append('L1TCaloEvents')
 
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
-if (options.dump):
+if (options.dumpRaw):
     process.MessageLogger.infos.placeholder = cms.untracked.bool(False)
     process.MessageLogger.infos.INFO = cms.untracked.PSet(limit = cms.untracked.int32(0))
     process.MessageLogger.infos.L1TCaloEvents = cms.untracked.PSet(
@@ -103,13 +115,15 @@ if (options.debug):
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
+# validation event filter
+process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
-    dumpPayload = cms.untracked.bool ( options.dump )
+    dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
 
 # raw to digi
@@ -125,16 +139,32 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.doText       = cms.untracked.bool(options.dumpDigis)
+process.l1tStage2CaloAnalyzer.doHistos     = cms.untracked.bool(options.histos)
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.dumpRaw
+    process.validationEventFilter
+    +process.dumpRaw
     +process.caloStage2Digis
     +process.gtStage2Digis
     +process.l1tStage2CaloAnalyzer
 )
 
-process.out = cms.EndPath(
-    process.output
-)
 
+# enable validation event filtering
+if (not options.valEvents):
+    process.path.remove(process.validationEventFilter)
+
+
+# optional EDM file
+if (options.edm):
+    process.output = cms.OutputModule(
+        "PoolOutputModule",
+        outputCommands = cms.untracked.vstring("keep *"),
+        fileName = cms.untracked.string('l1tCalo_EDM.root')
+    )
+
+    process.out = cms.EndPath(
+        process.output
+    )
