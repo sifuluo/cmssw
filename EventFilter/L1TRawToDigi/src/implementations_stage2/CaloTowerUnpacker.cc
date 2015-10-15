@@ -21,6 +21,12 @@ namespace stage2 {
    CaloTowerUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
+     // check this is the correct MP
+     unsigned int amc  = block.amc().getAMCNumber();
+     unsigned int bxid = block.amc().getBX();
+     if( (amc-1) != (bxid-1)%9 ) return true;
+     LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
+
      // Link number is block_ID / 2
      unsigned link = block.header().getID()/2;
      
