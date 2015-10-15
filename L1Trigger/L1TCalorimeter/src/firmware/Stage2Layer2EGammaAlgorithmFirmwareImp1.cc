@@ -92,6 +92,9 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int towerEtNN = towerNN.hwPt();
       int towerEtSS = towerSS.hwPt();
 
+      if(abs(iEta)>28)
+	continue;
+
       // initialize egamma from cluster
       if(iEta>0)
 	egammas_eta_pos.push_back(cluster);
