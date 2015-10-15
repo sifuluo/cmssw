@@ -98,7 +98,7 @@ namespace stage2 {
 
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
-       std::cout << "fjet = " << fjet << ", njet = " << nJet << ", block = " << block.payload()[fjet+nJet] << std::endl;
+
        raw_data = block.payload()[fjet+nJet];
 
        if (raw_data == 0)
