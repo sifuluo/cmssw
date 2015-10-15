@@ -344,32 +344,31 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     
   }
-  std::cout << "m_doMPEGs = " << m_doMPEGs <<  std::endl;
+
   // get EG
   if (m_doMPEGs) {
     Handle< BXVector<l1t::EGamma> > mpegs;
     iEvent.getByToken(m_mpEGToken,mpegs);
-    std::cout << "m_doMPEGs 1 " << m_doMPEGs << std::endl;
+
     for ( int ibx=mpegs->getFirstBX(); ibx<=mpegs->getLastBX(); ++ibx) {
-      std::cout << "m_doMPEGs 2 " << m_doMPEGs << std::endl;
+
       for ( auto itr = mpegs->begin(ibx); itr != mpegs->end(ibx); ++itr ) {
-	std::cout << "m_doMPEGs 3 " << m_doMPEGs << std::endl;
+
         hbx_.at(MPEG)->Fill( ibx );
 	het_.at(MPEG)->Fill( itr->hwPt() );
 	heta_.at(MPEG)->Fill( itr->hwEta() );
 	hphi_.at(MPEG)->Fill( itr->hwPhi() );
         hetaphi_.at(MPEG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
-	std::cout << "m_doMPEGs 4 " << m_doMPEGs << std::endl;
+
 	text << "MP EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
-	std::cout << "m_doMPEGs 5 " << m_doMPEGs << std::endl;
+
 	if (doEvtDisp_) hEvtMPEG->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
-	std::cout << "m_doMPEGs 6 " << m_doMPEGs << std::endl;
+
       }
       
     }
 
   }
-  std::cout << "m_doTaus = " << m_doTaus << std::endl;
 
   // get tau
   if (m_doMPTaus) {
@@ -395,7 +394,6 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 
   // get jet
-int njetmp=0; 
   std::vector<l1t::Jet> thejets_poseta;
   std::vector<l1t::Jet> thejets_negeta;
 
@@ -409,7 +407,6 @@ int njetmp=0;
     for ( int ibx=mpjets->getFirstBX(); ibx<=mpjets->getLastBX(); ++ibx) {
 
       for ( auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr ) {
-        njetmp+=1;
         hbx_.at(MPJet)->Fill( ibx );
 	het_.at(MPJet)->Fill( itr->hwPt() );
 	heta_.at(MPJet)->Fill( itr->hwEta() );
@@ -443,7 +440,6 @@ int njetmp=0;
                           }
                             }
 
-std::cout<<"njetmp "<<njetmp<<std::endl;
 
   // get sums
   if (m_doMPSums) {
@@ -463,7 +459,7 @@ std::cout<<"njetmp "<<njetmp<<std::endl;
         case l1t::EtSum::EtSumType::kTotalHt:  het_.at(MPSumHT)  ->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kTotalHtx: het_.at(MPSumMHTx)->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kTotalHty: het_.at(MPSumMHTy)->Fill( itr->hwPt() ); break;
-	default: std::cout<<"wrong type of MP sum"<<std::endl;
+	default: edm::LogError("L1T")<<"wrong type of MP sum"<<std::endl;
 	}
 	
 	//heta_.at(MPSum)->Fill( itr->hwEta() );
@@ -526,7 +522,6 @@ std::cout<<"njetmp "<<njetmp<<std::endl;
 
 
   // get jet
-int njetdem=0;
   std::vector<l1t::Jet> thejets;
 
   if (m_doJets) {
@@ -536,7 +531,6 @@ int njetdem=0;
     for ( int ibx=jets->getFirstBX(); ibx<=jets->getLastBX(); ++ibx) {
 
       for ( auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr ) {
-        njetdem+=1;
         hbx_.at(Jet)->Fill( ibx );
 	het_.at(Jet)->Fill( itr->hwPt() );
 	heta_.at(Jet)->Fill( 0.5*itr->hwEta() );
@@ -562,7 +556,6 @@ int njetdem=0;
       }
     }
   }
-  std::cout<<"njetdem "<<njetdem<<std::endl;
 
   // get sums
   if (m_doSums) {
@@ -580,7 +573,7 @@ int njetdem=0;
         case l1t::EtSum::EtSumType::kTotalHt:    het_.at(SumHT) ->Fill( itr->hwPt() ); break;
         case l1t::EtSum::EtSumType::kMissingEt:  het_.at(SumMET)->Fill( itr->hwPt() ); hphi_.at(SumMET)->Fill( itr->hwPhi() ); break;
         case l1t::EtSum::EtSumType::kMissingHt:  het_.at(SumMHT)->Fill( itr->hwPt() ); hphi_.at(SumMHT)->Fill( itr->hwPhi() );  break;
-	default: std::cout<<"wrong type of demux sum"<<std::endl;
+	default: edm::LogError("L1T")<<"wrong type of demux sum"<<std::endl;
 	}
 	//heta_.at(Sum)->Fill( itr->hwEta() );
 	//hphi_.at(Sum)->Fill( itr->hwPhi() );
