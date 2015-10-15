@@ -162,7 +162,7 @@ if (options.edm):
     process.output = cms.OutputModule(
         "PoolOutputModule",
         outputCommands = cms.untracked.vstring("keep *"),
-        fileName = cms.untracked.string('l1tCalo_EDM.root')
+        fileName = cms.untracked.string('l1tCalo_2016_EDM.root')
     )
 
     process.out = cms.EndPath(
