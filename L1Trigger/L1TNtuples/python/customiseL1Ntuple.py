@@ -18,11 +18,11 @@ def L1NtupleAOD(process):
     )
 
     process.load('L1Trigger.L1TNtuples.L1NtupleAOD_cff')
-    process.l1ntupleaod = cms.Path(
+    process.l1ntuple = cms.Path(
         process.L1NtupleAOD
     )
 
-    process.schedule.append(process.l1ntupleaod)
+    process.schedule.append(process.l1ntuple)
 
     return process
 
@@ -33,11 +33,11 @@ def L1NtupleRAW(process):
     )
 
     process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
-    process.l1ntupleraw = cms.Path(
+    process.l1ntuple = cms.Path(
         process.L1NtupleRAW
     )
 
-    process.schedule.append(process.l1ntupleraw)
+    process.schedule.append(process.l1ntuple)
 
     # for 5 BX of candidates in L1Extra
     if process.producers.has_key("gctDigis"):
@@ -55,11 +55,11 @@ def L1NtupleAODRAW(process):
     )
 
     process.load('L1Trigger.L1TNtuples.L1NtupleAODRAW_cff')
-    process.l1ntupleaod = cms.Path(
+    process.l1ntuple = cms.Path(
         process.L1NtupleAODRAW
     )
 
-    process.schedule.append(process.l1ntupleaodraw)
+    process.schedule.append(process.l1ntuple)
 
     return process
 
