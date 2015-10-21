@@ -97,7 +97,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       if(hOverE>511) hOverE = 511; 
       cluster.setHOverE(hOverE);
       // FG of the cluster is FG of the seed
-      bool fg = (tower.hwQual() & (0x1<<2));
+      bool fg = (tower.hwQual() & (0x1<<3));
       cluster.setFgECAL((int)fg);
     }
   }
