@@ -49,9 +49,8 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   l1t::CaloStage2Nav caloNav;
   egammas.clear();
 
-  //Keep candidates with iEta<0 and iEta>0 separate for sorting
-  std::vector<l1t::EGamma> egammas_eta_neg;  
-  std::vector<l1t::EGamma> egammas_eta_pos;
+  //EGammas without check of FG and shape ID
+  std::vector<l1t::EGamma> egammas_raw; 
 
   for(const auto& cluster : clusters)
   {
@@ -96,12 +95,8 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 	continue;
 
       // initialize egamma from cluster
-      if(iEta>0)
-	egammas_eta_pos.push_back(cluster);
-      else
-	egammas_eta_neg.push_back(cluster);
-      l1t::EGamma& egamma = (iEta > 0) ? egammas_eta_pos.back() : egammas_eta_neg.back();
-     
+      egammas_raw.push_back(cluster);
+      l1t::EGamma& egamma = egammas_raw.back();     
 
       // Trim cluster (only for egamma energy computation, the original cluster is unchanged)
       l1t::CaloCluster clusterTrim = trimCluster(cluster);
@@ -189,6 +184,25 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop
+
+  
+  //Keep only candidates which passes the FG veto and the shape ID
+  std::vector<l1t::EGamma> egammas_eta_neg;  
+  std::vector<l1t::EGamma> egammas_eta_pos;
+
+  for(const auto& egamma : egammas_raw){
+
+    int fgBit = egamma.hwQual() & (0x1);
+    int shapeBit = 1; //No shape ID in the current firmware LUT
+    //int shapeBit = egamma.hwQual() & (0x1<<2);
+    if(fgBit && shapeBit){
+      if(egamma.hwEta()<0)
+	egammas_eta_neg.push_back(egamma);
+      else
+	egammas_eta_pos.push_back(egamma);
+    }
+  }
+
 
  //Keep only 6 candidate with highest Pt in each eta-half
   std::vector<l1t::EGamma>::iterator start_, end_;
