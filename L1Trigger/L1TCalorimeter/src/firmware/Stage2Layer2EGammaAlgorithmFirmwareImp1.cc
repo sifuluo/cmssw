@@ -356,7 +356,7 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   // round corr*rawPt
   int addPt = corrXrawPt>>9;// 8 MS bits (truncation)
   int corrPt = rawPt + addPt;
-  if(corrPt>511) corrPt = 511;// 9 bits threshold
+  if(corrPt>255) corrPt = 255;// 8 bits threshold
   return corrPt;
 }
 
