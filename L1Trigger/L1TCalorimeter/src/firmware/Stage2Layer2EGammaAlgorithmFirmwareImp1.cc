@@ -172,11 +172,11 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       double seedPhi     = CaloTools::towerPhi(cluster.hwEta(), cluster.hwPhi());
       double seedPhiSize = CaloTools::towerPhiSize(cluster.hwEta());
       if(cluster.fgEta()==0)      eta = seedEta; // center
-      else if(cluster.fgEta()==2) eta = seedEta + seedEtaSize*0.25; // center + 1/4
-      else if(cluster.fgEta()==1) eta = seedEta - seedEtaSize*0.25; // center - 1/4
+      else if(cluster.fgEta()==2) eta = seedEta + seedEtaSize*0.251; // center + 1/4
+      else if(cluster.fgEta()==1) eta = seedEta - seedEtaSize*0.251; // center - 1/4
       if(cluster.fgPhi()==0)      phi = seedPhi; // center
-      else if(cluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.25; // center + 1/4
-      else if(cluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.25; // center - 1/4
+      else if(cluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.251; // center + 1/4
+      else if(cluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.251; // center - 1/4
 
       // Set 4-vector
       math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
