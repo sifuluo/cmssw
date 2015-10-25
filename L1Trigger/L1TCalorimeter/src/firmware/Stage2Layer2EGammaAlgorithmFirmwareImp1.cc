@@ -193,8 +193,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   for(const auto& egamma : egammas_raw){
 
     int fgBit = egamma.hwQual() & (0x1);
-    int shapeBit = 1; //No shape ID in the current firmware LUT
-    //int shapeBit = egamma.hwQual() & (0x1<<2);
+    int shapeBit = egamma.hwQual() & (0x1<<2);
     if(fgBit && shapeBit){
       if(egamma.hwEta()<0)
 	egammas_eta_neg.push_back(egamma);
