@@ -77,6 +77,9 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
     egamma.setHwEta(hwEta_GT);
     egamma.setHwPhi(hwPhi_GT);
 
+    //8 bits threshold
+    if(egamma.hwPt()>255)
+      egamma.setHwPt(255);
 
   }
 
