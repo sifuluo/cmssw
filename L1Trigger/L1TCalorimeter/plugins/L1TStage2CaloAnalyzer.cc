@@ -535,9 +535,9 @@ int njetdem=0;
         njetdem+=1;
         hbx_.at(Jet)->Fill( ibx );
 	het_.at(Jet)->Fill( itr->hwPt() );
-	heta_.at(Jet)->Fill( 0.5*itr->hwEta() );
-	hphi_.at(Jet)->Fill( 0.5*itr->hwPhi() );
-        hetaphi_.at(Jet)->Fill( 0.5*itr->hwEta(), 0.5*itr->hwPhi(), itr->hwPt() );
+	heta_.at(Jet)->Fill( itr->hwEta() );
+	hphi_.at(Jet)->Fill( itr->hwPhi() );
+        hetaphi_.at(Jet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
 	text << "Jet : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
 
