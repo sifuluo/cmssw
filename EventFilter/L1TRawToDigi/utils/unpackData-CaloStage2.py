@@ -151,11 +151,13 @@ process.path = cms.Path(
     +process.l1tStage2CaloAnalyzer
 )
 
-
 # enable validation event filtering
 if (not options.valEvents):
     process.path.remove(process.validationEventFilter)
 
+# enable RAW printout
+if (not options.dumpRaw):
+    process.path.remove(process.dumpRaw)
 
 # optional EDM file
 if (options.edm):
