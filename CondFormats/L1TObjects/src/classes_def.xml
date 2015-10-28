@@ -3,22 +3,22 @@
     <field name="data_" mapping="blob"/>  
   </class>
   <class name="std::vector<l1t::CaloParams::Node>"/>
-  <class name="l1t::CaloParams">
+  <class name="CaloParams">
     <field name="pnode_" mapping="blob"/>  
     <field name="etSumEtaMin_" mapping="blob" />
     <field name="etSumEtaMax_" mapping="blob" />
     <field name="etSumEtThreshold_" mapping="blob" />
   </class>
-  <class name="l1t::CaloParams::Node">
+  <class name="CaloParams::Node">
     <field name="dparams_" mapping="blob"/>  
     <field name="iparams_" mapping="blob"/>  
     <field name="sparams_" mapping="blob"/>  
     <field name="uparams_" mapping="blob"/>  
   </class>
-  <class name="l1t::CaloParams::TowerParams"/>
-  <class name="l1t::CaloParams::EgParams"/>
-  <class name="l1t::CaloParams::JetParams"/>
-  <class name="l1t::CaloParams::TauParams"/>
+  <class name="CaloParams::TowerParams"/>
+  <class name="CaloParams::EgParams"/>
+  <class name="CaloParams::JetParams"/>
+  <class name="CaloParams::TauParams"/>
   <class name="l1t::CaloConfig"/>
   <class name="L1MuScale"/>
   <class name="L1MuBinnedScale">
@@ -102,7 +102,14 @@
   <class name="L1TriggerKey">
     <field name="m_recordToKey" mapping="blob" />
   </class>
+  <class name="L1TriggerKeyExt">
+    <field name="m_recordToKey" mapping="blob" />
+  </class>
   <class name="L1TriggerKeyList">
+    <field name="m_recordKeyToken" mapping="blob" />
+    <field name="m_tscKeyToToken" mapping="blob" />
+  </class>
+  <class name="L1TriggerKeyListExt">
     <field name="m_recordKeyToken" mapping="blob" />
     <field name="m_tscKeyToToken" mapping="blob" />
   </class>

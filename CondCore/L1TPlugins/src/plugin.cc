@@ -13,6 +13,16 @@ REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
 
 REGISTER_PLUGIN(L1TriggerKeyListRcd, L1TriggerKeyList);
 
+#include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyExtRcd, L1TriggerKeyExt);
+
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
+
 // L1 scales
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
@@ -204,6 +214,6 @@ REGISTER_PLUGIN(L1CaloGeometryRecord, L1CaloGeometry);
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/CaloConfig.h"
 #include "CondFormats/DataRecord/interface/L1TCaloConfigRcd.h"
-using namespace l1t;
-REGISTER_PLUGIN(L1TCaloParamsRcd, CaloParams);
-REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);
+//using namespace l1t;
+REGISTER_PLUGIN(L1TCaloParamsRcd, l1t::CaloParams);
+REGISTER_PLUGIN(L1TCaloConfigRcd, l1t::CaloConfig);
