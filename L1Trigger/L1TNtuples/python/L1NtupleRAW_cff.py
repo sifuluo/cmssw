@@ -7,7 +7,7 @@ from L1Trigger.L1TNtuples.l1MenuTreeProducer_cfi import *
 
 L1NtupleRAW = cms.Sequence(
   l1NtupleProducer
-  +l1ExtraTreeProducer
+#  +l1ExtraTreeProducer
   +l1UpgradeTreeProducer
-  +l1MenuTreeProducer
+#  +l1MenuTreeProducer
 )

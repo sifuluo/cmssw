@@ -8,6 +8,8 @@
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -32,7 +34,7 @@ namespace L1Analysis
     ~L1AnalysisEvent();
     
     //void Print(std::ostream &os = std::cout) const;
-    void Set(const edm::Event& e, const edm::InputTag& hlt_);
+    void Set(const edm::Event& e, const edm::EDGetTokenT<edm::TriggerResults>& hlt_);
     void Reset() {event_.Reset();}
     L1AnalysisEventDataFormat * getData() {return &event_;}
 

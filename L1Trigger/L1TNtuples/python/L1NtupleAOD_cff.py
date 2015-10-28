@@ -6,9 +6,9 @@ from L1Trigger.L1TNtuples.l1JetRecoTreeProducer_cfi import *
 from L1Trigger.L1TNtuples.l1MuonRecoTreeProducer_cfi import *
 
 L1NtupleAOD = cms.Sequence(
-  l1ExtraTreeProducer
-  +l1MenuTreeProducer
-  +l1JetRecoTreeProducer
+#  l1ExtraTreeProducer
+#  +l1MenuTreeProducer
+  l1JetRecoTreeProducer
   #+l1MuonRecoTreeProducer
 )
 

@@ -39,3 +39,6 @@
 <use name="JetMETCorrections/Algorithms"/>
 <use name="PhysicsTools/Utilities"/>
 <use name="HLTrigger/HLTcore"/>
+<export>
+  <lib name="1"/>
+</export>

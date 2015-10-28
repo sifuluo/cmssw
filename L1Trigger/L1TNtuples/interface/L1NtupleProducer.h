@@ -43,6 +43,26 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
+
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisEvent.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisGMT.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisGT.h"
@@ -105,11 +125,11 @@ class L1NtupleProducer : public edm::EDAnalyzer {
       L1Analysis::L1AnalysisEvent* pL1evt; 
       L1Analysis::L1AnalysisEventDataFormat* pL1evt_data; 
    	
-      edm::InputTag hltSource_;
+      edm::EDGetTokenT<edm::TriggerResults> hltSource_;
 
    // Generator info  
     
-      edm::InputTag generatorSource_;
+      edm::EDGetTokenT<reco::GenParticleCollection> generatorSource_;
       L1Analysis::L1AnalysisGenerator* pL1generator;
       L1Analysis::L1AnalysisGeneratorDataFormat* pL1generator_data;
       
@@ -121,47 +141,55 @@ class L1NtupleProducer : public edm::EDAnalyzer {
        
    // GMT data
     
-      edm::InputTag gmtSource_;
+      edm::EDGetTokenT<L1MuGMTReadoutCollection> gmtSource_;
       L1Analysis::L1AnalysisGMT* pL1gmt;
       L1Analysis::L1AnalysisGMTDataFormat* pL1gmt_data;
        
    // GT data
        
-      edm::InputTag gtEvmSource_;
-      edm::InputTag gtSource_;
+      edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmSource_;
+      edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtSource_;
       L1Analysis::L1AnalysisGT* pL1gt;
       L1Analysis::L1AnalysisGTDataFormat* pL1gt_data;
       
    // GCT data
      
-      edm::InputTag gctCenJetsSource_ ;
-      edm::InputTag gctForJetsSource_ ;
-      edm::InputTag gctTauJetsSource_ ;
-      edm::InputTag gctIsoTauJetsSource_ ;
-      edm::InputTag gctEnergySumsSource_;
-      edm::InputTag gctIsoEmSource_ ;
-      edm::InputTag gctNonIsoEmSource_ ;   
+      edm::EDGetTokenT<L1GctJetCandCollection> gctCenJetsSource_ ;
+      edm::EDGetTokenT<L1GctJetCandCollection> gctForJetsSource_ ;
+      edm::EDGetTokenT<L1GctJetCandCollection> gctTauJetsSource_ ;
+      edm::EDGetTokenT<L1GctJetCandCollection> gctIsoTauJetsSource_ ;
+      edm::EDGetTokenT<L1GctEtMissCollection> gctETMSource_;
+      edm::EDGetTokenT<L1GctEtTotalCollection> gctETTSource_;
+      edm::EDGetTokenT<L1GctEtHadCollection> gctHTTSource_;
+      edm::EDGetTokenT<L1GctHtMissCollection> gctHTMSource_;
+      edm::EDGetTokenT<L1GctHFRingEtSumsCollection> gctHFSumsSource_;
+      edm::EDGetTokenT<L1GctHFBitCountsCollection> gctHFBitsSource_;
+      edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmSource_ ;
+      edm::EDGetTokenT<L1GctEmCandCollection> gctNonIsoEmSource_ ;   
       L1Analysis::L1AnalysisGCT* pL1gct;
       L1Analysis::L1AnalysisGCTDataFormat* pL1gct_data;
        
    // RCT data
         
-      edm::InputTag rctSource_; 
+      edm::EDGetTokenT<L1CaloRegionCollection> rctRgnSource_; 
+      edm::EDGetTokenT<L1CaloEmCollection> rctEmSource_; 
       L1Analysis::L1AnalysisRCT* pL1rct;
       L1Analysis::L1AnalysisRCTDataFormat* pL1rct_data;
        
    // DTTF data
       
-      edm::InputTag dttfSource_; 
+      edm::EDGetTokenT<L1MuDTChambPhContainer> dttfPhSource_; 
+      edm::EDGetTokenT<L1MuDTChambThContainer> dttfThSource_; 
+      edm::EDGetTokenT<L1MuDTTrackContainer> dttfTrkSource_; 
       L1Analysis::L1AnalysisDTTF* pL1dttf;
       L1Analysis::L1AnalysisDTTFDataFormat* pL1dttf_data;
   
    // CSCTF data
       
-      edm::InputTag csctfTrkSource_; 
-      edm::InputTag csctfLCTSource_; 
-      edm::InputTag csctfStatusSource_; 
-      edm::InputTag csctfDTStubsSource_; 
+      edm::EDGetTokenT<L1CSCTrackCollection> csctfTrkSource_; 
+      edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> csctfLCTSource_; 
+      edm::EDGetTokenT<L1CSCStatusDigiCollection> csctfStatusSource_; 
+      edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > csctfDTStubsSource_; 
       L1Analysis::L1AnalysisCSCTF* pL1csctf;
       L1Analysis::L1AnalysisCSCTFDataFormat* pL1csctf_data;
       CSCSectorReceiverLUT* srLUTs_[5][2];
@@ -175,8 +203,8 @@ class L1NtupleProducer : public edm::EDAnalyzer {
       unsigned long long m_csctfptlutCacheID ;
 
       // Calo TP data
-      edm::InputTag ecalSource_;
-      edm::InputTag hcalSource_;
+      edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalSource_;
+      edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalSource_;
       L1Analysis::L1AnalysisCaloTP* pL1calotp;
       L1Analysis::L1AnalysisCaloTPDataFormat* pL1calotp_data;
       unsigned long long ecalScaleCacheID_;

@@ -54,9 +54,11 @@ def L1NtupleAODRAW(process):
                                        fileName = cms.string('L1NtupleAODRAW.root')
     )
 
-    process.load('L1Trigger.L1TNtuples.L1NtupleAODRAW_cff')
+    process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
+    process.load('L1Trigger.L1TNtuples.L1NtupleAOD_cff')
     process.l1ntuple = cms.Path(
-        process.L1NtupleAODRAW
+        process.L1NtupleRAW
+        +process.L1NtupleAOD
     )
 
     process.schedule.append(process.l1ntuple)

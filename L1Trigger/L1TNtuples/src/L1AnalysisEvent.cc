@@ -41,7 +41,7 @@ L1Analysis::L1AnalysisEvent::~L1AnalysisEvent()
 
 }
 
-void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::InputTag& hlt_)
+void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::EDGetTokenT<edm::TriggerResults>& hlt_)
 {
 
   event_.run = e.id().run();
@@ -52,9 +52,9 @@ void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::InputTag& 
   event_.orbit = e.orbitNumber();   //overwritten by EVM info until fixed by fw
 
   
-  if (hlt_.label() != "none"){
+  if (!hlt_.isUninitialized()){
     edm::Handle<edm::TriggerResults> hltresults;
-    e.getByLabel(hlt_,hltresults);
+    e.getByToken(hlt_,hltresults);
     const edm::TriggerNames TrigNames_ = e.triggerNames(*hltresults);
     const int ntrigs = hltresults->size();
     

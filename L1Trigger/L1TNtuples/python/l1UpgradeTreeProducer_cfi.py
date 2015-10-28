@@ -7,6 +7,6 @@ l1UpgradeTreeProducer = cms.EDAnalyzer(
     jetLabel = cms.untracked.InputTag("caloStage2Digis"),
     muonLabel = cms.untracked.InputTag("caloStage2Digis"),
     sumsLabel = cms.untracked.InputTag("caloStage2Digis"),
-    maxL1Upgrade = cms.uint32(20)
+    maxL1Upgrade = cms.uint32(60)
 )
 
