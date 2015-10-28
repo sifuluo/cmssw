@@ -11,14 +11,14 @@
 #ifndef CondFormatsDataRecord_L1TCaloParamsRcd_h
 #define CondFormatsDataRecord_L1TCaloParamsRcd_h
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+//#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class L1TCaloParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TCaloParamsRcd> {};
+//class L1TCaloParamsRcd : public edm::eventsetup::EventSetupRecordImplementation<L1TCaloParamsRcd> {};
 
 // Dependent record implmentation:
-//#include "FWCore/Framework/interface/DependentRecordImplementation.h"
-//#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
-//#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-//class L1TCaloParamsRcd : public edm::eventsetup::DependentRecordImplementation<L1TCaloParamsRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
+class L1TCaloParamsRcd : public edm::eventsetup::DependentRecordImplementation<L1TCaloParamsRcd, boost::mpl::vector<L1TriggerKeyListExtRcd,L1TriggerKeyExtRcd> > {};
 
 #endif

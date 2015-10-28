@@ -122,7 +122,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      IDStrings.push_back("NAME");
      IDStrings.push_back("ID1");
      IDStrings.push_back("ID2");
-     IDStrings.push_back("maps_to");
+     IDStrings.push_back("MAPS_TO");
 
     l1t::OMDSReader::QueryResults paramResults =
        m_omdsReader.basicQuery( paramStrings,
@@ -283,7 +283,7 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 std::string ecid_name, maps_to;
 
 	 IDResults.fillVariableFromRow("NAME",j, ecid_name);
-	 IDResults.fillVariableFromRow("maps_to",j, maps_to);
+	 IDResults.fillVariableFromRow("MAPS_TO",j, maps_to);
 	 if(logic_id >= 2100001901 && logic_id <= 2100001916)
 	   //	   std::cout << " name " << ecid_name << " maps to " << maps_to <<std::endl;
 	 if(ecid_name != maps_to){
