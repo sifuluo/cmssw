@@ -1,17 +1,13 @@
 #!/bin/sh
 
 nflag=0
-pflag=0
 while getopts 'nph' OPTION
   do
   case $OPTION in
       n) nflag=1
           ;;
-      p) pflag=1
-	  ;;
       h) echo "Usage: [-n] tsckey"
           echo "  -n: no RS"
-          echo "  -p: centrally installed release, not on local machine"
           exit
           ;;
   esac
@@ -32,33 +28,13 @@ if [ -f l1config.db ]
     mv l1config.db l1config.db.save
 fi
 
-ln -sf /nfshome0/centraltspro/secure/authentication.xml .
-
-if [ ${pflag} -eq 0 ]
-    then
-    export SCRAM_ARCH=""
-    export VO_CMS_SW_DIR=""
-    source /opt/cmssw/cmsset_default.sh
-else
-    source /nfshome0/cmssw2/scripts/setup.sh
-    centralRel="-p"
-fi
-eval `scramv1 run -sh`
-
-echo "`date` : initializing sqlite file"
-if [ -e $CMSSW_BASE/src/CondFormats/L1TObjects/xml ]
-    then
-    $CMSSW_BASE/src/CondTools/L1Trigger/test/bootstrap.com -l
-else
-    $CMSSW_RELEASE_BASE/src/CondTools/L1Trigger/test/bootstrap.com
-fi
-
 # copy default objects
-cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py  inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T
+#cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py  inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=.
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadCondDB_cfg.py  inputDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS inputDBAuth=.
 cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVDummy_cfg.py useO2OTags=1
 
 echo "`date` : writing TSC payloads"
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh -c ${centralRel} ${key}
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh -c ${key}
 o2ocode=$?
 
 if [ ${o2ocode} -eq 0 ]
@@ -71,11 +47,11 @@ else
 fi
 
 echo "`date` : setting TSC IOVs"
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh ${centralRel} 10 ${key}
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh 10 ${key}
 o2ocode=$?
 
 if [ ${o2ocode} -eq 0 ]
-    then
+     then
     echo "L1-O2O-INFO: TSC IOVs OK"
 else
     echo "L1-O2O-ERROR: TSC IOVs not OK!"
@@ -86,7 +62,7 @@ fi
 if [ ${nflag} -eq 0 ]
     then
     echo "`date` : writing RS payloads and setting RS IOVs"
-    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs.sh ${centralRel} 10
+    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs.sh 10
     o2ocode=$?
 
     if [ ${o2ocode} -eq 0 ]
@@ -100,7 +76,5 @@ if [ ${nflag} -eq 0 ]
 else
     echo "`date` : using default RS payloads"
 fi
-
-rm -f authentication.xml
 
 exit ${o2ocode}

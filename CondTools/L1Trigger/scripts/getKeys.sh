@@ -28,7 +28,6 @@ getColumnFromL1Key()
 
   DB="cms_omds_lb"
   USER="cms_trg_r"
-#  PASSWORD_FILE=$HOME/secure/$USER.txt
   PASSWORD_FILE=/nfshome0/centraltspro/secure/$USER.txt
   PASSWORD=`cat $PASSWORD_FILE`
 
@@ -40,7 +39,8 @@ getColumnFromL1Key()
     select $COLUMN
     from CMS_TRG_L1_CONF.L1_CONF_DETAILS_VIEW
     where L1_KEY='$L1_KEY';
-  !`
+    !
+!`
   
   echo $RESULT
 }

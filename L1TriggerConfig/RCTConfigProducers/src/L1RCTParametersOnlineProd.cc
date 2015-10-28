@@ -44,6 +44,11 @@ class L1RCTParametersOnlineProd :
   void fillScaleFactors(
     const l1t::OMDSReader::QueryResults& results,
     std::vector< double >& output, int nfactor = 1 ) ;
+
+  // For eta*pt binning
+  void fillExtendedScaleFactors(
+    const l1t::OMDSReader::QueryResults& results,
+    std::vector< double >& output, int nEtaBins ) ;
   /*
 
   void fillScaleFactors(
@@ -191,9 +196,12 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
      scaleFactorQueryStrings.push_back( "SCALEFACTOR" ) ;
      scaleFactorQueryStrings.push_back( "FK_RCT_ETA" ) ;
 
+     std::vector< std::string > extendedScaleFactorQueryStrings{scaleFactorQueryStrings};
+     extendedScaleFactorQueryStrings.push_back( "PT_BIN" ) ;
+
      l1t::OMDSReader::QueryResults egammaEcalResults =
        m_omdsReader.basicQuery(
-         scaleFactorQueryStrings,
+         extendedScaleFactorQueryStrings,
          rctSchema,
          "EGAMMA_ECAL_SCALEFACTOR",
          "EGAMMA_ECAL_SCALEFACTOR.FK_VERSION",
@@ -211,7 +219,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
 //      std::cout << "egammaEcal " ;
      std::vector< double > egammaEcalScaleFactors ;
-     fillScaleFactors( egammaEcalResults, egammaEcalScaleFactors ) ;
+     fillExtendedScaleFactors( egammaEcalResults, egammaEcalScaleFactors, 28 ) ;
 
      // ~~~~~~~~~ EGamma HCAL scale factors ~~~~~~~~~
 
@@ -223,7 +231,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
      l1t::OMDSReader::QueryResults egammaHcalResults =
        m_omdsReader.basicQuery(
-         scaleFactorQueryStrings,
+         extendedScaleFactorQueryStrings,
          rctSchema,
          "EGAMMA_HCAL_SCALEFACTOR",
          "EGAMMA_HCAL_SCALEFACTOR.FK_VERSION",
@@ -241,7 +249,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
 //      std::cout << "egammaHcal " ;
      std::vector< double > egammaHcalScaleFactors ;
-     fillScaleFactors( egammaHcalResults, egammaHcalScaleFactors ) ;
+     fillExtendedScaleFactors( egammaHcalResults, egammaHcalScaleFactors, 28 ) ;
 
      // ~~~~~~~~~ JetMET ECAL scale factors ~~~~~~~~~
 
@@ -253,7 +261,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
      l1t::OMDSReader::QueryResults jetmetEcalResults =
        m_omdsReader.basicQuery(
-         scaleFactorQueryStrings,
+         extendedScaleFactorQueryStrings,
          rctSchema,
          "JETMET_ECAL_SCALEFACTOR",
          "JETMET_ECAL_SCALEFACTOR.FK_VERSION",
@@ -271,7 +279,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
 //      std::cout << "jetmetEcal " ;
      std::vector< double > jetmetEcalScaleFactors ;
-     fillScaleFactors( jetmetEcalResults, jetmetEcalScaleFactors ) ;
+     fillExtendedScaleFactors( jetmetEcalResults, jetmetEcalScaleFactors, 28 ) ;
 
      // ~~~~~~~~~ JetMET HCAL scale factors ~~~~~~~~~
 
@@ -283,7 +291,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
      l1t::OMDSReader::QueryResults jetmetHcalResults =
        m_omdsReader.basicQuery(
-         scaleFactorQueryStrings,
+         extendedScaleFactorQueryStrings,
          rctSchema,
          "JETMET_HCAL_SCALEFACTOR",
          "JETMET_HCAL_SCALEFACTOR.FK_VERSION",
@@ -301,7 +309,7 @@ L1RCTParametersOnlineProd::newObject( const std::string& objectKey )
 
 //      std::cout << "jetmetHcal " ;
      std::vector< double > jetmetHcalScaleFactors ;
-     fillScaleFactors( jetmetHcalResults, jetmetHcalScaleFactors ) ;
+     fillExtendedScaleFactors( jetmetHcalResults, jetmetHcalScaleFactors, 32 ) ;
 
 
 
@@ -513,55 +521,105 @@ L1RCTParametersOnlineProd::fillScaleFactors(
     return;
   }
 
-    std::vector< std::string > scaleFactorQuery6Strings ;
-    scaleFactorQuery6Strings.push_back( "SCALEFACTOR" ) ;
-    scaleFactorQuery6Strings.push_back( "SF2" ) ;
-    scaleFactorQuery6Strings.push_back( "SF3" ) ;
-    scaleFactorQuery6Strings.push_back( "SF4" ) ;
-    scaleFactorQuery6Strings.push_back( "SF5" ) ;
-    scaleFactorQuery6Strings.push_back( "SF6" ) ;
-       // Store scale factors in temporary array to get ordering right.
+  std::vector< std::string > scaleFactorQuery6Strings ;
+  scaleFactorQuery6Strings.push_back( "SCALEFACTOR" ) ;
+  scaleFactorQuery6Strings.push_back( "SF2" ) ;
+  scaleFactorQuery6Strings.push_back( "SF3" ) ;
+  scaleFactorQuery6Strings.push_back( "SF4" ) ;
+  scaleFactorQuery6Strings.push_back( "SF5" ) ;
+  scaleFactorQuery6Strings.push_back( "SF6" ) ;
+
+  // Store scale factors in temporary array to get ordering right.
   // Reserve space for 100 bins.
-
-    //  static const int reserve = 100 ;
   std::vector <double> sfTmp[100] ;
-  /*  
-  for( int i = 0 ; i < reserve ; ++i )
-    {
-      sfTmp[ i ] = 0. ;
-    }
-  */
   short maxBin = 0 ;
-  for( int i = 0 ; i < results.numberRows() ; ++i )
-    {
-      double sf[6] ;
-      for(int nf = 0; nf < nfactors; nf++){
-	results.fillVariableFromRow( scaleFactorQuery6Strings.at(nf), i, sf[nf] ) ;
-      }
-      short ieta = 0;
-      results.fillVariableFromRow( "FK_RCT_ETA", i, ieta ) ;
-      
-      for(int nf = 0; nf< nfactors; nf++)
-	//      sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
-	sfTmp[ieta-1].push_back(sf[nf]);
 
-      if( ieta > maxBin )
-	{
-	  maxBin = ieta ;
-	}
+  for( int i = 0 ; i < results.numberRows() ; ++i )
+  {
+    double sf[6] ;
+    for(int nf = 0; nf < nfactors; nf++){
+      results.fillVariableFromRow( scaleFactorQuery6Strings.at(nf), i, sf[nf] ) ;
     }
-  
+    short ieta = 0;
+    results.fillVariableFromRow( "FK_RCT_ETA", i, ieta ) ;
+
+    for(int nf = 0; nf< nfactors; nf++)
+      sfTmp[ieta-1].push_back(sf[nf]);
+
+    if( ieta > maxBin )
+    {
+      maxBin = ieta ;
+    }
+  }
 
   for( short i = 0 ; i < maxBin ; ++i )
-    {
-      for( short nf = 0; nf < nfactors; nf++)
-	output.push_back( sfTmp[ i ].at(nf) ) ;
-      
-    }
+  {
+    for( short nf = 0; nf < nfactors; nf++)
+      output.push_back( sfTmp[ i ].at(nf) ) ;
+  }
 }
 
-// ------------ method called to produce the data  ------------
+void
+L1RCTParametersOnlineProd::fillExtendedScaleFactors(
+  const l1t::OMDSReader::QueryResults& results,
+  std::vector< double >& output, int nEtaBins )
+{
+  if( nEtaBins != 28 && nEtaBins != 32 ){
+    edm::LogError( "L1-O2O" ) <<"invalid number of eta bins in scale factors fill."
+      << std::endl << "--- Note: jetMETHCalScaleFactors expects 32 eta bins, all others should be 28";
+    return;
+  }
+  output.clear();
+  // # Pt bins is hardcoded as 9+1 (1 for legacy)
+  // See source of L1RCTParameters::JetMETTPGSum(...) or 
+  // L1RCTParameters::EGammaTPGSum(...) for more info.
+  output.resize(nEtaBins*10);
+
+  // We will check if there are any pt bins > 0 and change this
+  bool isLegacyCollection = true;
+
+  for(int i=0; i<results.numberRows(); ++i)
+  {
+    double factor = 0.;
+    short ieta = 0;
+    short ptbin = 0;
+
+    results.fillVariableFromRow( "SCALEFACTOR", i, factor ) ;
+    results.fillVariableFromRow( "FK_RCT_ETA", i, ieta ) ;
+    results.fillVariableFromRow( "PT_BIN", i, ptbin ) ;
+
+    // In OMDS, ieta is 1-indexed, ptbin is not
+    ieta--;
+
+    if ( ptbin < 0 || ptbin > 9 )
+    {
+      edm::LogError( "L1-O2O" ) << "Bad pt binning in extended scale factors fill, found PT_BIN == " << ptbin;
+      output.clear();
+      return;
+    }
+    else if ( ptbin > 0 )
+    {
+      isLegacyCollection = false;
+    }
+
+    size_t fillPosition = ieta + nEtaBins*ptbin;
+    if ( fillPosition >= output.size() )
+    {
+      edm::LogError( "L1-O2O" ) << "Bad fill in extended scale factors fill, trying to fill ieta=" << ieta << ", ptbin=" << ptbin;
+      output.clear();
+      return;
+    }
+
+    output[fillPosition] = factor;
+  }
+
+  if ( isLegacyCollection )
+  {
+    output.resize(nEtaBins);
+  }
+}
 
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1RCTParametersOnlineProd);
+
