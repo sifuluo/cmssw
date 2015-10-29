@@ -131,6 +131,10 @@ private:
 
   TH1F *hsortMP_, *hsort_;
 
+  int m_mpBx = 0;
+  int m_dmxBx = 0;
+  bool m_allBx = false;
+
 };
 
 //
@@ -150,6 +154,10 @@ private:
 {
    //now do what ever initialization is needed
 
+  m_mpBx  = iConfig.getParameter<int>("mpBx");
+  m_dmxBx = iConfig.getParameter<int>("dmxBx");
+  m_allBx = iConfig.getParameter<bool>("allBx");
+    
   // register what you consume and keep token for later access:
   edm::InputTag nullTag("None");
 
@@ -293,12 +301,19 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // get regions ?
   // get RCT clusters ?
 
+  //check mpbx and dmxbx
+  if(m_mpBx < -2 || m_mpBx > 2 || m_dmxBx < -2 || m_dmxBx > 2)
+    edm::LogError("L1T") << "Selected MP Bx or Demux Bx to fill histograms is outside of range -2,2. Histos will be empty!";
+   
+
   // get towers
   if (m_doTowers) {
     Handle< BXVector<l1t::CaloTower> > towers;
     iEvent.getByToken(m_towerToken,towers);
 
     for ( int ibx=towers->getFirstBX(); ibx<=towers->getLastBX(); ++ibx) {
+
+      if ( !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = towers->begin(ibx); itr !=towers->end(ibx); ++itr ) {
 
@@ -330,6 +345,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     for ( int ibx=clusters->getFirstBX(); ibx<=clusters->getLastBX(); ++ibx) {
 
+      if (  !m_allBx && ibx != m_mpBx ) continue;
+
       for ( auto itr = clusters->begin(ibx); itr !=clusters->end(ibx); ++itr ) {
   	hbx_.at(Cluster)->Fill( ibx );
   	het_.at(Cluster)->Fill( itr->hwPt() );
@@ -349,6 +366,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(m_mpEGToken,mpegs);
     
     for ( int ibx=mpegs->getFirstBX(); ibx<=mpegs->getLastBX(); ++ibx) {
+
+      if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mpegs->begin(ibx); itr != mpegs->end(ibx); ++itr ) {
         hbx_.at(MPEG)->Fill( ibx );
@@ -373,6 +392,8 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(m_mpTauToken,mptaus);
     
     for ( int ibx=mptaus->getFirstBX(); ibx<=mptaus->getLastBX(); ++ibx) {
+
+      if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mptaus->begin(ibx); itr != mptaus->end(ibx); ++itr ) {
         hbx_.at(MPTau)->Fill( ibx );
@@ -403,6 +424,8 @@ int njetmp=0;
     //iEvent.getByToken(m_jetToken,jets);
     //if (mpjets->size(0) == jets->size(0)) std::cout<<"******notequal"<<std::endl;
     for ( int ibx=mpjets->getFirstBX(); ibx<=mpjets->getLastBX(); ++ibx) {
+
+      if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr ) {
         njetmp+=1;
@@ -439,7 +462,7 @@ int njetmp=0;
                           }
                             }
 
-std::cout<<"njetmp "<<njetmp<<std::endl;
+ //std::cout<<"njetmp "<<njetmp<<std::endl;
 
   // get sums
   if (m_doMPSums) {
@@ -447,6 +470,8 @@ std::cout<<"njetmp "<<njetmp<<std::endl;
     iEvent.getByToken(m_mpSumToken,mpsums);
     
     for ( int ibx=mpsums->getFirstBX(); ibx<=mpsums->getLastBX(); ++ibx) {
+
+      if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mpsums->begin(ibx); itr != mpsums->end(ibx); ++itr ) {
 	
@@ -481,6 +506,8 @@ std::cout<<"njetmp "<<njetmp<<std::endl;
     
     for ( int ibx=egs->getFirstBX(); ibx<=egs->getLastBX(); ++ibx) {
 
+      if (  !m_allBx && ibx != m_dmxBx ) continue;
+
       for ( auto itr = egs->begin(ibx); itr != egs->end(ibx); ++itr ) {
         hbx_.at(EG)->Fill( ibx );
 	het_.at(EG)->Fill( itr->hwPt() );
@@ -503,6 +530,8 @@ std::cout<<"njetmp "<<njetmp<<std::endl;
     iEvent.getByToken(m_tauToken,taus);
     
     for ( int ibx=taus->getFirstBX(); ibx<=taus->getLastBX(); ++ibx) {
+
+      if (  !m_allBx && ibx != m_dmxBx ) continue;
 
       for ( auto itr = taus->begin(ibx); itr != taus->end(ibx); ++itr ) {
         hbx_.at(Tau)->Fill( ibx );
@@ -531,6 +560,8 @@ int njetdem=0;
      
     for ( int ibx=jets->getFirstBX(); ibx<=jets->getLastBX(); ++ibx) {
 
+      if (  !m_allBx && ibx != m_dmxBx ) continue;
+
       for ( auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr ) {
         njetdem+=1;
         hbx_.at(Jet)->Fill( ibx );
@@ -558,7 +589,7 @@ int njetdem=0;
       }
     }
   }
-  std::cout<<"njetdem "<<njetdem<<std::endl;
+  // std::cout<<"njetdem "<<njetdem<<std::endl;
 
   // get sums
   if (m_doSums) {
@@ -566,6 +597,8 @@ int njetdem=0;
     iEvent.getByToken(m_sumToken,sums);
     
     for ( int ibx=sums->getFirstBX(); ibx<=sums->getLastBX(); ++ibx) {
+
+      if (  !m_allBx && ibx != m_dmxBx ) continue;
 
       for ( auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr ) {
 

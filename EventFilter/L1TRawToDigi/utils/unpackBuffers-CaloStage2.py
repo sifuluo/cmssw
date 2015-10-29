@@ -271,7 +271,7 @@ process.path = cms.Path(
     +process.stage2DemuxRaw
     +process.stage2GTRaw
     +process.rawDataCollector
-    +process.dumpRaw
+    #+process.dumpRaw
     +process.caloStage2Digis
     +process.gtStage2Digis
     +process.l1tStage2CaloAnalyzer
