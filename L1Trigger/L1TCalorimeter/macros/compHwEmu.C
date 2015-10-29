@@ -1,6 +1,6 @@
  void compHwEmu(){
 
-   bool doSave=false;
+   bool doSave=true;
    bool doRatio=true;
 
    bool doEgamma=false;
@@ -9,7 +9,7 @@
    bool doSums=true;
    bool doSorts=false;
 
-   bool doDemux=true;
+   bool doDemux=false;
 
    int nbins=0;
 
@@ -1038,7 +1038,7 @@ if(doJets){
   hwMPJetEt->SetMarkerStyle(21);
   hwMPJetEt->SetMarkerColor(1);
   hwMPJetEt->SetMarkerSize(0.4);
-  hwMPJetEt->GetXaxis()->SetRange(0,200);
+  //hwMPJetEt->GetXaxis()->SetRange(0,400);
   emMPJetEt->SetLineColor(kRed);
   hwMPJetEt->GetXaxis()->SetTitle("Level-1 Trigger Jet iE_{T}");
   hwMPJetEt->GetYaxis()->SetTitle("Number of candidates");

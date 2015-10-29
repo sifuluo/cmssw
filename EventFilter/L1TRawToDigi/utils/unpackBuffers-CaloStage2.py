@@ -246,7 +246,7 @@ process.rawDataCollector.verbose = cms.untracked.int32(2)
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("rawDataCollector"),
+    token = cms.untracked.InputTag("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
     dumpPayload = cms.untracked.bool ( options.dump )
 )

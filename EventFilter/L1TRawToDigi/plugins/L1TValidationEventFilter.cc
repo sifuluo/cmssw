@@ -98,7 +98,7 @@ bool
 L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-
+  
   edm::Handle<FEDRawDataCollection> feds;
   iEvent.getByToken(fedData_, feds);
 
@@ -114,9 +114,10 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   bool fatEvent = (header.lvl1ID() % period_ == 0 );
 
-  bool select = true;
+  bool select = false;
   for (auto itr : mpList_) {
-    select &= (header.bxID() % itr == 0);
+    //select &= (header.bxID() % itr == 0);
+    select |= ( ((header.bxID()-1)%9) == itr );
   }
 
   return fatEvent &&select;
