@@ -1,6 +1,6 @@
 //
 // ** class l1t::Stage2Layer2TauAlgorithmFirmwareImp1
-// ** authors: L. Cadamuro, L. Mastrolorenzo, J. Brooke
+// ** authors: J. Brooke, L. Cadamuro, L. Mastrolorenzo, J.B. Sauvan, T. Strebler, ...
 // ** date:   2 Oct 2015
 // ** Description: version of tau algorithm matching the jet-eg-tau merged implementation
 
@@ -59,6 +59,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         // by construction of the clustering, they are local maxima in the 9x3 jet window
         if (mainCluster.isValid())
         {
+            if (abs(mainCluster.hwEta()) >= 29) continue; // limit in main seed position in firmware
+
             int iEta = mainCluster.hwEta();
             int iPhi = mainCluster.hwPhi();
             int iEtaP = caloNav.offsetIEta(iEta, 1);
@@ -80,25 +82,46 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             const l1t::CaloTower& towerS2E = l1t::CaloTools::getTower(towers, iEtaP, iPhiP2);
 
             int seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbSum()); 
-            int clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
+            //int clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
 
+            std::vector<int> sites; // numbering of the secondary cluster sites (seed positions)
             // get only local max, also ask that they are above seed threshold
+// FIXME : in firmware N --> larger phi but apparently only for these secondaries ... sigh ...
+// might need to revert ; ALSO check EAST / WEST
+// or at least check that everything is coherent here
             if (is3x3Maximum(towerN2, towers, caloNav)  && towerN2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) 
-                satellites.push_back(towerN2);
+                sites.push_back(5);
             if (is3x3Maximum(towerN3, towers, caloNav)  && towerN3.hwPt()  >= seedThreshold)
-                satellites.push_back(towerN3);
+                sites.push_back(7);
             if (is3x3Maximum(towerN2W, towers, caloNav) && towerN2W.hwPt() >= seedThreshold)
-                satellites.push_back(towerN2W);
+                sites.push_back(4);
             if (is3x3Maximum(towerN2E, towers, caloNav) && towerN2E.hwPt() >= seedThreshold)
-                satellites.push_back(towerN2E);
+                sites.push_back(6);
             if (is3x3Maximum(towerS2, towers, caloNav)  && towerS2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) 
-                satellites.push_back(towerS2);
+                sites.push_back(2);
             if (is3x3Maximum(towerS3, towers, caloNav)  && towerS3.hwPt()  >= seedThreshold)
-                satellites.push_back(towerS3);
+                sites.push_back(0);
             if (is3x3Maximum(towerS2W, towers, caloNav) && towerS2W.hwPt() >= seedThreshold)
-                satellites.push_back(towerS2W);
+                sites.push_back(1);
             if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold)
-                satellites.push_back(towerS2E);
+                sites.push_back(3);
+
+            // if (is3x3Maximum(towerN2, towers, caloNav)  && towerN2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) 
+            //     satellites.push_back(towerN2);
+            // if (is3x3Maximum(towerN3, towers, caloNav)  && towerN3.hwPt()  >= seedThreshold)
+            //     satellites.push_back(towerN3);
+            // if (is3x3Maximum(towerN2W, towers, caloNav) && towerN2W.hwPt() >= seedThreshold)
+            //     satellites.push_back(towerN2W);
+            // if (is3x3Maximum(towerN2E, towers, caloNav) && towerN2E.hwPt() >= seedThreshold)
+            //     satellites.push_back(towerN2E);
+            // if (is3x3Maximum(towerS2, towers, caloNav)  && towerS2.hwPt()  >= seedThreshold && !mainCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) 
+            //     satellites.push_back(towerS2);
+            // if (is3x3Maximum(towerS3, towers, caloNav)  && towerS3.hwPt()  >= seedThreshold)
+            //     satellites.push_back(towerS3);
+            // if (is3x3Maximum(towerS2W, towers, caloNav) && towerS2W.hwPt() >= seedThreshold)
+            //     satellites.push_back(towerS2W);
+            // if (is3x3Maximum(towerS2E, towers, caloNav) && towerS2E.hwPt() >= seedThreshold)
+            //     satellites.push_back(towerS2E);
 
             /*
             // get list of secondary clusters - candidates for merging in the double "T shape"
@@ -121,8 +144,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             if(clusterS2W.isValid()) satellites.push_back(clusterS2W);
             if(clusterS2E.isValid()) satellites.push_back(clusterS2E);
             
-            
-
             // there are no neigbhours
             if (satellites.size() == 0)
             {
@@ -148,7 +169,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
             */
 
           
-            if (satellites.size() == 0) // no merging candidate
+            if (sites.size() == 0) // no merging candidate
             {
                 //math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
                 math::PtEtaPhiMLorentzVector emptyP4;
@@ -182,30 +203,377 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
             else
             {
-                std::sort(satellites.begin(), satellites.end(), compareTowers);
-                l1t::CaloTower& secondaryTower = satellites.back();
+                // std::sort(satellites.begin(), satellites.end(), compareTowers);
+                // l1t::CaloTower& secondaryTower = satellites.back();
 
-                // make cluster around the selected neighbour
-                math::XYZTLorentzVector emptyP4;
-                l1t::CaloCluster secondaryCluster ( emptyP4, secondaryTower.hwPt(), secondaryTower.hwEta(), secondaryTower.hwPhi() ) ;
-                secondaryCluster.setHwPtEm(secondaryTower.hwEtEm());
-                secondaryCluster.setHwPtHad(secondaryTower.hwEtHad());
-                secondaryCluster.setHwSeedPt(secondaryTower.hwPt());
-                // H/E of the cluster is H/E of the seed, with possible threshold on H
-                // H/E is currently encoded on 9 bits, from 0 to 1             
-                // FIXME: I do not set H/E and FG of the secondary as it is not used for the moment
-                // int hwEtHadTh = (tower.hwEtHad()>=hcalThreshold_ ? tower.hwEtHad() : 0);
-                // int hOverE    = (tower.hwEtEm()>0 ? (hwEtHadTh<<9)/tower.hwEtEm() : 511);
-                // if(hOverE>511) hOverE = 511; 
-                // cluster.setHOverE(hOverE);
-                // FG of the cluster is FG of the seed
-                // bool fg = (secondaryTower.hwQual() & (0x1<<2));
-                // secondaryCluster.setFgECAL((int)fg);
+                // // make cluster around the selected neighbour
+                // math::XYZTLorentzVector emptyP4;
+                // l1t::CaloCluster secondaryCluster ( emptyP4, secondaryTower.hwPt(), secondaryTower.hwEta(), secondaryTower.hwPhi() ) ;
+                // secondaryCluster.setHwPtEm(secondaryTower.hwEtEm());
+                // secondaryCluster.setHwPtHad(secondaryTower.hwEtHad());
+                // secondaryCluster.setHwSeedPt(secondaryTower.hwPt());
+                // // H/E of the cluster is H/E of the seed, with possible threshold on H
+                // // H/E is currently encoded on 9 bits, from 0 to 1             
+                // // FIXME: I do not set H/E and FG of the secondary as it is not used for the moment
+                // // int hwEtHadTh = (tower.hwEtHad()>=hcalThreshold_ ? tower.hwEtHad() : 0);
+                // // int hOverE    = (tower.hwEtEm()>0 ? (hwEtHadTh<<9)/tower.hwEtEm() : 511);
+                // // if(hOverE>511) hOverE = 511; 
+                // // cluster.setHOverE(hOverE);
+                // // FG of the cluster is FG of the seed
+                // // bool fg = (secondaryTower.hwQual() & (0x1<<2));
+                // // secondaryCluster.setFgECAL((int)fg);
                 
-                // make cluster around the selected TT
-                // look at the energies in neighbour towers
-                int iSecEta   = secondaryCluster.hwEta();
-                int iSecPhi   = secondaryCluster.hwPhi();
+                // // make cluster around the selected TT
+                // // look at the energies in neighbour towers
+                // int iSecEta   = secondaryCluster.hwEta();
+                // int iSecPhi   = secondaryCluster.hwPhi();
+                // int iSecEtaP  = caloNav.offsetIEta(iSecEta,  1);
+                // int iSecEtaM  = caloNav.offsetIEta(iSecEta, -1);
+                // int iSecPhiP  = caloNav.offsetIPhi(iSecPhi,  1);
+                // int iSecPhiP2 = caloNav.offsetIPhi(iSecPhi,  2);
+                // int iSecPhiM  = caloNav.offsetIPhi(iSecPhi, -1);
+                // int iSecPhiM2 = caloNav.offsetIPhi(iSecPhi, -2);
+                // const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiM);
+                // const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM);
+                // const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiM);
+                // const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhi );
+                // const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiP);
+                // const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP);
+                // const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiP);
+                // const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhi ); 
+                // const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM2);
+                // const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP2);
+
+                // // just use E+H for clustering
+                // int towerEtNW = towerNW.hwPt();
+                // int towerEtN  = towerN .hwPt();
+                // int towerEtNE = towerNE.hwPt();
+                // int towerEtE  = towerE .hwPt();
+                // int towerEtSE = towerSE.hwPt();
+                // int towerEtS  = towerS .hwPt();
+                // int towerEtSW = towerSW.hwPt();
+                // int towerEtW  = towerW .hwPt();
+                // int towerEtNN = towerNN.hwPt();
+                // int towerEtSS = towerSS.hwPt();
+                
+                // int towerEtEmNW = towerNW.hwEtEm();
+                // int towerEtEmN  = towerN .hwEtEm();
+                // int towerEtEmNE = towerNE.hwEtEm();
+                // int towerEtEmE  = towerE .hwEtEm();
+                // int towerEtEmSE = towerSE.hwEtEm();
+                // int towerEtEmS  = towerS .hwEtEm();
+                // int towerEtEmSW = towerSW.hwEtEm();
+                // int towerEtEmW  = towerW .hwEtEm();
+                // int towerEtEmNN = towerNN.hwEtEm();
+                // int towerEtEmSS = towerSS.hwEtEm();
+                // //
+                // int towerEtHadNW = towerNW.hwEtHad();
+                // int towerEtHadN  = towerN .hwEtHad();
+                // int towerEtHadNE = towerNE.hwEtHad();
+                // int towerEtHadE  = towerE .hwEtHad();
+                // int towerEtHadSE = towerSE.hwEtHad();
+                // int towerEtHadS  = towerS .hwEtHad();
+                // int towerEtHadSW = towerSW.hwEtHad();
+                // int towerEtHadW  = towerW .hwEtHad();
+                // int towerEtHadNN = towerNN.hwEtHad();
+                // int towerEtHadSS = towerSS.hwEtHad();
+
+
+                // if(towerEtNW < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+                // if(towerEtN  < clusterThreshold)
+                // {
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_N , false);
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
+                // }
+                // if(towerEtNE < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+                // if(towerEtE  < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_E , false);
+                // if(towerEtSE < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+                // if(towerEtS  < clusterThreshold)
+                // {
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_S , false);
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
+                // }
+                // if(towerEtSW < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+                // if(towerEtW  < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
+                // if(towerEtNN < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
+                // if(towerEtSS < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
+
+                // // now remove the overlapping clusters from the secondary
+                // // note: in firmware this is done vetoing TT on the MAIN cluster
+                // // so this simply recplicates the behaviour on the secondary
+                // // FIXME: in the future, this will be replaced by the tau trimming LUT
+
+                // vector <pair<int, int> > TTPos (10); // numbering of TT in cluster; iEta, iPhi
+                // TTPos.at(0) = make_pair (-1,  1); // SW
+                // TTPos.at(1) = make_pair (0,   1); // S
+                // TTPos.at(2) = make_pair (1,   1); // SE
+                // TTPos.at(3) = make_pair (1,   0); // E
+                // TTPos.at(4) = make_pair (1,  -1); // NE
+                // TTPos.at(5) = make_pair (0,  -1); // N
+                // TTPos.at(6) = make_pair (-1, -1); // NW
+                // TTPos.at(7) = make_pair (-1,  0); // W
+                // TTPos.at(8) = make_pair (0,   2); // SS
+                // TTPos.at(9) = make_pair (0,  -2); // NN
+
+                // vector <CaloCluster::ClusterFlag> TTPosRemap (10); // using geographical notation
+                // TTPosRemap.at(0) = CaloCluster::INCLUDE_SW;
+                // TTPosRemap.at(1) = CaloCluster::INCLUDE_S;
+                // TTPosRemap.at(2) = CaloCluster::INCLUDE_SE;
+                // TTPosRemap.at(3) = CaloCluster::INCLUDE_E;
+                // TTPosRemap.at(4) = CaloCluster::INCLUDE_NE;
+                // TTPosRemap.at(5) = CaloCluster::INCLUDE_N;
+                // TTPosRemap.at(6) = CaloCluster::INCLUDE_NW;
+                // TTPosRemap.at(7) = CaloCluster::INCLUDE_W;
+                // TTPosRemap.at(8) = CaloCluster::INCLUDE_SS;
+                // TTPosRemap.at(9) = CaloCluster::INCLUDE_NN;
+
+                // /*
+                // // neigbors
+                // vector <pair<int, int> > neigPos (8); // numbering of neighbors; iEta, iPhi
+                // neigPos.at(0) = make_pair (0,   3); // --
+                // neigPos.at(1) = make_pair (-1,  2); // --
+                // neigPos.at(2) = make_pair (0,   2); // --
+                // neigPos.at(3) = make_pair (1,   2); // S side   
+                // neigPos.at(4) = make_pair (-1, -2); // --
+                // neigPos.at(5) = make_pair (0,  -2); // --
+                // neigPos.at(6) = make_pair (1,  -2); // --  
+                // neigPos.at(7) = make_pair (0,  -3); // N side  
+                // */
+
+                // // relative position of secondary
+                // int deltaEta;
+                // if (iSecEta*iEta > 0) deltaEta = (iSecEta - iEta);
+                // else if (iSecEta > 0 ) deltaEta = (iSecEta - iEta -1); // must take into account the 0 that is skipped in TT numbering
+                // else deltaEta = (iSecEta - iEta +1); // in this case need to add 1 unit
+                
+                // int deltaPhi = (iSecPhi - iPhi);
+                // while (deltaPhi >  36) deltaPhi -= 72; // phi is in 1 - 72 so dPhi (with sign) is limited to 36
+                // while (deltaPhi < -36) deltaPhi += 72; // phi is in 1 - 72 so dPhi (with sign) is limited to 36
+                
+                // // loop on TT of secondary and decide if veto them
+                // for (unsigned int iTTsec = 0; iTTsec < TTPos.size(); iTTsec++)
+                // {
+                //     // is tower active in secondary?
+                //     //int thisTTeta = caloNav.offsetIEta(iSecEta,  TTPos.at(iTTsec).first);
+                //     //int thisTTphi = caloNav.offsetIPhi(iSecPhi,  TTPos.at(iTTsec).second);
+                //     bool isActive = secondaryCluster.checkClusterFlag (TTPosRemap.at(iTTsec));
+                //     if (isActive)
+                //     {
+                //         // find relative coordinates in the MAIN "reference frame"
+                //         int mainTTeta = caloNav.offsetIEta(iEta, deltaEta+TTPos.at(iTTsec).first);
+                //         int mainTTphi = caloNav.offsetIPhi(iPhi, deltaPhi+TTPos.at(iTTsec).second);
+                //         // now find to which geographical pos they correspond to
+                //         pair <int, int> coords = make_pair(mainTTeta, mainTTphi);
+                //         std::vector<pair<int,int>>::iterator res = std::find (TTPos.begin(), TTPos.end(), coords);
+                //         if (res != TTPos.end())
+                //         {
+                //             // check if overlapping TT of main is active
+                //             int idx = std::distance (TTPos.begin(), res);
+                //             if (mainCluster.checkClusterFlag(TTPosRemap.at(idx)))
+                //                 secondaryCluster.setClusterFlag(TTPosRemap.at(iTTsec), false); 
+                //         }
+                //     }
+                // }
+
+                // // trim one eta-side
+                // // The side with largest energy will be kept
+                // int EtEtaRight = 0;
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) EtEtaRight += towerEtNE;
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  EtEtaRight += towerEtE;
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) EtEtaRight += towerEtSE;
+                // int EtEtaLeft  = 0;
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) EtEtaLeft += towerEtNW;
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  EtEtaLeft += towerEtW;
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) EtEtaLeft += towerEtSW;
+                // // favour most central part
+                // /*if(iEta>0) cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight> EtEtaLeft) );
+                // else       cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>=EtEtaLeft) );*/
+                // //No iEta dependence in firmware
+                // secondaryCluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>= EtEtaLeft) );
+
+                // // finally compute secondary cluster energy
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
+                // {
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+                // }
+                // else
+                // {
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_E , false);
+                //     secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+                // }
+
+                // // compute cluster energy according to cluster flags
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtNW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtN);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtNE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtSE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtS);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtSW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtNN);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtSS);
+                // //
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmNW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmN);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmNE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmSE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmS);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmSW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmNN);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmSS);
+                // //
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadN);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSE);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadS);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadW);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNN);
+                // if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSS);
+
+                // find neighbor with highest energy, with some preference that is defined as in the firmware
+                // Remember: the maxima requirement is already applied
+                // For the four towers in a T
+                // If cluster 0 is on a maxima, use that
+                // Else if cluster 2 is on a maxima, use that
+                // Else if both clusters 1 & 3 are both on maxima: Use the highest energy cluster
+                // Else if cluster 1 is on a maxima, use that
+                // Else if cluster 3 is on a maxima, use that
+                // Else there is no candidate
+                // Similarly for south
+                // Then if N>S, use N
+                // else S
+                std::vector<l1t::CaloCluster*> secClusters = makeSecClusters (towers, sites, mainCluster, caloNav);
+                l1t::CaloCluster* secMaxN = 0;
+                l1t::CaloCluster* secMaxS = 0;
+                l1t::CaloCluster* secondaryCluster = 0;
+                
+                std::vector<int>::iterator isNeigh0 = find(sites.begin(), sites.end(), 0);
+                std::vector<int>::iterator isNeigh1 = find(sites.begin(), sites.end(), 1);
+                std::vector<int>::iterator isNeigh2 = find(sites.begin(), sites.end(), 2);
+                std::vector<int>::iterator isNeigh3 = find(sites.begin(), sites.end(), 3);
+                std::vector<int>::iterator isNeigh4 = find(sites.begin(), sites.end(), 4);
+                std::vector<int>::iterator isNeigh5 = find(sites.begin(), sites.end(), 5);
+                std::vector<int>::iterator isNeigh6 = find(sites.begin(), sites.end(), 6);
+                std::vector<int>::iterator isNeigh7 = find(sites.begin(), sites.end(), 7);
+                
+                // N neighbor --------------------------------------------------
+                if (isNeigh0 != sites.end())
+                    secMaxN = secClusters.at(isNeigh0 - sites.begin());
+                else if (isNeigh2 != sites.end())
+                    secMaxN = secClusters.at(isNeigh2 - sites.begin());
+                else if (isNeigh1 != sites.end() && isNeigh3 != sites.end() )
+                {
+                    if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() == (secClusters.at(isNeigh3 - sites.begin()))->hwPt()) // same E --> take 1
+                        secMaxN = secClusters.at(isNeigh1 - sites.begin());
+                    else
+                    {
+                        if ((secClusters.at(isNeigh1 - sites.begin()))->hwPt() > (secClusters.at(isNeigh3 - sites.begin()))->hwPt()) secMaxN = secClusters.at(isNeigh1 - sites.begin());
+                        else secMaxN = secClusters.at(isNeigh3 - sites.begin());
+                    }
+
+                }
+                else if (isNeigh1 != sites.end()) secMaxN = secClusters.at(isNeigh1 - sites.begin());
+                else if (isNeigh3 != sites.end()) secMaxN = secClusters.at(isNeigh3 - sites.begin());
+
+                // S neighbor --------------------------------------------------
+                if (isNeigh7 != sites.end())
+                    secMaxS = secClusters.at(isNeigh7 - sites.begin());
+                else if (isNeigh5 != sites.end())
+                    secMaxS = secClusters.at(isNeigh5 - sites.begin());
+                else if (isNeigh4 != sites.end() && isNeigh6 != sites.end() )
+                {
+                    if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() == (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) // same E --> take 1
+                        secMaxS = secClusters.at(isNeigh4 - sites.begin());
+                    else
+                    {
+                        if ((secClusters.at(isNeigh4 - sites.begin()))->hwPt() > (secClusters.at(isNeigh6 - sites.begin()))->hwPt()) secMaxS = secClusters.at(isNeigh4 - sites.begin());
+                        else secMaxS = secClusters.at(isNeigh6 - sites.begin());
+                    }
+
+                }
+                else if (isNeigh4 != sites.end()) secMaxS = secClusters.at(isNeigh4 - sites.begin());
+                else if (isNeigh6 != sites.end()) secMaxS = secClusters.at(isNeigh6 - sites.begin());
+
+                // N vs S neighbor --------------------------------------------------
+                if (secMaxN != 0 && secMaxS != 0)
+                {
+                    if (secMaxN->hwPt() > secMaxS->hwPt()) secondaryCluster = secMaxN;
+                    else secondaryCluster = secMaxS;
+                }
+                else
+                {
+                    if (secMaxN != 0) secondaryCluster = secMaxN;
+                    else if (secMaxS != 0) secondaryCluster = secMaxS;
+                    else cout << "!! No cluster formed but there were valid seeds!" << endl;
+                }
+
+                int iSecIdxPosition = find (secClusters.begin(), secClusters.end(), secondaryCluster) - secClusters.begin();
+                int secondaryClusterSite = sites.at(iSecIdxPosition);
+
+                // trim secondary cluster to remove overlap of TT 
+                // NOTE: in the firmware is the opposite (main cluster trimmed)
+                int neigEta [8] = {0, -1,  0,  1, -1,  0,  1,  0};
+                int neigPhi [8] = {3,  2,  2,  2, -2, -2, -2, -3};
+
+                vector <pair<int, int> > TTPos (10); // numbering of TT in cluster; <iEta, iPhi>
+                TTPos.at(0) = make_pair (-1,  1); // SW
+                TTPos.at(1) = make_pair (0,   1); // S
+                TTPos.at(2) = make_pair (1,   1); // SE
+                TTPos.at(3) = make_pair (1,   0); // E
+                TTPos.at(4) = make_pair (1,  -1); // NE
+                TTPos.at(5) = make_pair (0,  -1); // N
+                TTPos.at(6) = make_pair (-1, -1); // NW
+                TTPos.at(7) = make_pair (-1,  0); // W
+                TTPos.at(8) = make_pair (0,   2); // SS
+                TTPos.at(9) = make_pair (0,  -2); // NN
+
+                vector <CaloCluster::ClusterFlag> TTPosRemap (10); // using geographical notation
+                TTPosRemap.at(0) = CaloCluster::INCLUDE_SW;
+                TTPosRemap.at(1) = CaloCluster::INCLUDE_S;
+                TTPosRemap.at(2) = CaloCluster::INCLUDE_SE;
+                TTPosRemap.at(3) = CaloCluster::INCLUDE_E;
+                TTPosRemap.at(4) = CaloCluster::INCLUDE_NE;
+                TTPosRemap.at(5) = CaloCluster::INCLUDE_N;
+                TTPosRemap.at(6) = CaloCluster::INCLUDE_NW;
+                TTPosRemap.at(7) = CaloCluster::INCLUDE_W;
+                TTPosRemap.at(8) = CaloCluster::INCLUDE_SS;
+                TTPosRemap.at(9) = CaloCluster::INCLUDE_NN;
+
+                // loop over TT of secondary cluster, if there is overlap remove this towers
+                for (unsigned int iTT = 0; iTT < TTPos.size(); iTT++)
+                {
+                    //get this TT in the "frame" of the main
+                    int thisTTinMainEta = neigEta[secondaryClusterSite] + TTPos.at(iTT).first;
+                    int thisTTinMainPhi = neigPhi[secondaryClusterSite] + TTPos.at(iTT).second;
+                    pair<int, int> thisTT = make_pair (thisTTinMainEta, thisTTinMainPhi);
+                    // check if main cluster has this tower included; if true, switch it off
+                    auto thisTTItr = find (TTPos.begin(), TTPos.end(), thisTT);
+                    if (thisTTItr != TTPos.end())
+                    {
+                        int idx = thisTTItr - TTPos.begin();
+                        if (mainCluster.checkClusterFlag (TTPosRemap.at(idx)) ) secondaryCluster->setClusterFlag (TTPosRemap.at(iTT), false);
+                    }
+                }
+
+                // re-compute secondary cluster energy
+                int iSecEta = caloNav.offsetIEta (mainCluster.hwEta(), neigEta[secondaryClusterSite]);
+                int iSecPhi = caloNav.offsetIPhi (mainCluster.hwPhi(), neigPhi[secondaryClusterSite]);
+        
+                const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
+
+                secondaryCluster->setHwPtEm(towerSec.hwEtEm());
+                secondaryCluster->setHwPtHad(towerSec.hwEtHad());
+                secondaryCluster->setHwSeedPt(towerSec.hwPt());
+
                 int iSecEtaP  = caloNav.offsetIEta(iSecEta,  1);
                 int iSecEtaM  = caloNav.offsetIEta(iSecEta, -1);
                 int iSecPhiP  = caloNav.offsetIPhi(iSecPhi,  1);
@@ -234,7 +602,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int towerEtW  = towerW .hwPt();
                 int towerEtNN = towerNN.hwPt();
                 int towerEtSS = towerSS.hwPt();
-                
+
                 int towerEtEmNW = towerNW.hwEtEm();
                 int towerEtEmN  = towerN .hwEtEm();
                 int towerEtEmNE = towerNE.hwEtEm();
@@ -256,170 +624,43 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 int towerEtHadW  = towerW .hwEtHad();
                 int towerEtHadNN = towerNN.hwEtHad();
                 int towerEtHadSS = towerSS.hwEtHad();
-
-
-                if(towerEtNW < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-                if(towerEtN  < clusterThreshold)
-                {
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_N , false);
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
-                }
-                if(towerEtNE < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-                if(towerEtE  < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_E , false);
-                if(towerEtSE < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-                if(towerEtS  < clusterThreshold)
-                {
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_S , false);
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
-                }
-                if(towerEtSW < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-                if(towerEtW  < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
-                if(towerEtNN < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
-                if(towerEtSS < clusterThreshold) secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
-
-                // now remove the overlapping clusters from the secondary
-                // note: in firmware this is done vetoing TT on the MAIN cluster
-                // so this simply recplicates the behaviour on the secondary
-                // FIXME: in the future, this will be replaced by the tau trimming LUT
-
-                vector <pair<int, int> > TTPos (10); // numbering of TT in cluster; iEta, iPhi
-                TTPos.at(0) = make_pair (-1,  1); // SW
-                TTPos.at(1) = make_pair (0,   1); // S
-                TTPos.at(2) = make_pair (1,   1); // SE
-                TTPos.at(3) = make_pair (1,   0); // E
-                TTPos.at(4) = make_pair (1,  -1); // NE
-                TTPos.at(5) = make_pair (0,  -1); // N
-                TTPos.at(6) = make_pair (-1, -1); // NW
-                TTPos.at(7) = make_pair (-1,  0); // W
-                TTPos.at(8) = make_pair (0,   2); // SS
-                TTPos.at(9) = make_pair (0,  -2); // NN
-
-                vector <CaloCluster::ClusterFlag> TTPosRemap (10); // using geographical notation
-                TTPosRemap.at(0) = CaloCluster::INCLUDE_SW;
-                TTPosRemap.at(1) = CaloCluster::INCLUDE_S;
-                TTPosRemap.at(2) = CaloCluster::INCLUDE_SE;
-                TTPosRemap.at(3) = CaloCluster::INCLUDE_E;
-                TTPosRemap.at(4) = CaloCluster::INCLUDE_NE;
-                TTPosRemap.at(5) = CaloCluster::INCLUDE_N;
-                TTPosRemap.at(6) = CaloCluster::INCLUDE_NW;
-                TTPosRemap.at(7) = CaloCluster::INCLUDE_W;
-                TTPosRemap.at(8) = CaloCluster::INCLUDE_SS;
-                TTPosRemap.at(9) = CaloCluster::INCLUDE_NN;
-
-                /*
-                // neigbors
-                vector <pair<int, int> > neigPos (8); // numbering of neighbors; iEta, iPhi
-                neigPos.at(0) = make_pair (0,   3); // --
-                neigPos.at(1) = make_pair (-1,  2); // --
-                neigPos.at(2) = make_pair (0,   2); // --
-                neigPos.at(3) = make_pair (1,   2); // S side   
-                neigPos.at(4) = make_pair (-1, -2); // --
-                neigPos.at(5) = make_pair (0,  -2); // --
-                neigPos.at(6) = make_pair (1,  -2); // --  
-                neigPos.at(7) = make_pair (0,  -3); // N side  
-                */
-
-                // relative position of secondary
-                int deltaEta;
-                if (iSecEta*iEta > 0) deltaEta = (iSecEta - iEta);
-                else if (iSecEta > 0 ) deltaEta = (iSecEta - iEta -1); // must take into account the 0 that is skipped in TT numbering
-                else deltaEta = (iSecEta - iEta +1); // in this case need to add 1 unit
-                
-                int deltaPhi = (iSecPhi - iPhi);
-                while (deltaPhi >  36) deltaPhi -= 72; // phi is in 1 - 72 so dPhi (with sign) is limited to 36
-                while (deltaPhi < -36) deltaPhi += 72; // phi is in 1 - 72 so dPhi (with sign) is limited to 36
-                
-                // loop on TT of secondary and decide if veto them
-                for (unsigned int iTTsec = 0; iTTsec < TTPos.size(); iTTsec++)
-                {
-                    // is tower active in secondary?
-                    //int thisTTeta = caloNav.offsetIEta(iSecEta,  TTPos.at(iTTsec).first);
-                    //int thisTTphi = caloNav.offsetIPhi(iSecPhi,  TTPos.at(iTTsec).second);
-                    bool isActive = secondaryCluster.checkClusterFlag (TTPosRemap.at(iTTsec));
-                    if (isActive)
-                    {
-                        // find relative coordinates in the MAIN "reference frame"
-                        int mainTTeta = caloNav.offsetIEta(iEta, deltaEta+TTPos.at(iTTsec).first);
-                        int mainTTphi = caloNav.offsetIPhi(iPhi, deltaPhi+TTPos.at(iTTsec).second);
-                        // now find to which geographical pos they correspond to
-                        pair <int, int> coords = make_pair(mainTTeta, mainTTphi);
-                        std::vector<pair<int,int>>::iterator res = std::find (TTPos.begin(), TTPos.end(), coords);
-                        if (res != TTPos.end())
-                        {
-                            // check if overlapping TT of main is active
-                            int idx = std::distance (TTPos.begin(), res);
-                            if (mainCluster.checkClusterFlag(TTPosRemap.at(idx)))
-                                secondaryCluster.setClusterFlag(TTPosRemap.at(iTTsec), false); 
-                        }
-                    }
-                }
-
-                // trim one eta-side
-                // The side with largest energy will be kept
-                int EtEtaRight = 0;
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) EtEtaRight += towerEtNE;
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  EtEtaRight += towerEtE;
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) EtEtaRight += towerEtSE;
-                int EtEtaLeft  = 0;
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) EtEtaLeft += towerEtNW;
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  EtEtaLeft += towerEtW;
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) EtEtaLeft += towerEtSW;
-                // favour most central part
-                /*if(iEta>0) cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight> EtEtaLeft) );
-                else       cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>=EtEtaLeft) );*/
-                //No iEta dependence in firmware
-                secondaryCluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>= EtEtaLeft) );
-
-                // finally compute secondary cluster energy
-                if(secondaryCluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
-                {
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-                }
-                else
-                {
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_E , false);
-                    secondaryCluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-                }
-
-                // compute cluster energy according to cluster flags
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtNW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtN);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtNE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtSE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtS);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtSW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtNN);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPt(secondaryCluster.hwPt() + towerEtSS);
+                       
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtN);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtSE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtS);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtSW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNN);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtSS);
                 //
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmNW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmN);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmNE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmSE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmS);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmSW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmNN);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPtEm(secondaryCluster.hwPtEm() + towerEtEmSS);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmNW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmN);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmNE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmSE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmS);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmSW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmNN);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmSS);
                 //
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadN);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSE);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadS);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadW);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadNN);
-                if(secondaryCluster.checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster.setHwPtHad(secondaryCluster.hwPtHad() + towerEtHadSS);
-
-                // it's the end! Perform the merging
-                l1t::Tau tau (emptyP4, mainCluster.hwPt()+secondaryCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadNW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadN);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadNE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSE);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadS);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadW);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadNN);
+                if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSS);
+           
+                // finally, merging!
+                math::PtEtaPhiMLorentzVector emptyP4;
+                l1t::Tau tau (emptyP4, mainCluster.hwPt()+secondaryCluster->hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
                 
                 // ==================================================================
                 // Energy calibration
@@ -427,8 +668,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
                 // Corrections function of ieta, ET, and cluster shape
                 //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
-                int calibPt = mainCluster.hwPt()+secondaryCluster.hwPt();
-
+                int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
+                
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
                 double eta = 0.;
@@ -447,9 +688,11 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // Set 4-vector
                 math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
                 tau.setP4(calibP4);
-
                 // save tau candidate which is now complete
                 taus.push_back (tau);
+
+                // delete all sec clusters that were allocated with new
+                for (unsigned int isec = 0; isec < secClusters.size(); isec++) delete secClusters.at(isec);
             }
         }
     } // end loop on clusters
@@ -614,5 +857,172 @@ bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTow
     }
 
     return (!vetoTT); // negate because I ask if is a local maxima
+}
+
+std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSecClusters (const std::vector<l1t::CaloTower>& towers, std::vector<int> & sites, const l1t::CaloCluster& mainCluster, l1t::CaloStage2Nav& caloNav)
+{
+    int neigEta [8] = {0, -1,  0,  1, -1,  0,  1,  0};
+    int neigPhi [8] = {3,  2,  2,  2, -2, -2, -2, -3};
+    int clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
+
+    int iEtamain = mainCluster.hwEta();
+    int iPhimain = mainCluster.hwPhi();
+
+    std::vector<CaloCluster*> secClusters;
+    for (unsigned int isite = 0; isite < sites.size(); isite++)
+    {
+        // build full cluster at this site
+        const int siteNumber = sites.at(isite);
+        int iSecEta = caloNav.offsetIEta(iEtamain, neigEta[siteNumber]);
+        int iSecPhi = caloNav.offsetIPhi(iPhimain, neigPhi[siteNumber]);
+        
+        const l1t::CaloTower& towerSec = l1t::CaloTools::getTower(towers, iSecEta, iSecPhi);
+        
+        math::XYZTLorentzVector emptyP4;
+        l1t::CaloCluster* secondaryCluster = new l1t::CaloCluster ( emptyP4, towerSec.hwPt(), towerSec.hwEta(), towerSec.hwPhi() ) ;
+
+        secondaryCluster->setHwPtEm(towerSec.hwEtEm());
+        secondaryCluster->setHwPtHad(towerSec.hwEtHad());
+        secondaryCluster->setHwSeedPt(towerSec.hwPt());
+
+        int iSecEtaP  = caloNav.offsetIEta(iSecEta,  1);
+        int iSecEtaM  = caloNav.offsetIEta(iSecEta, -1);
+        int iSecPhiP  = caloNav.offsetIPhi(iSecPhi,  1);
+        int iSecPhiP2 = caloNav.offsetIPhi(iSecPhi,  2);
+        int iSecPhiM  = caloNav.offsetIPhi(iSecPhi, -1);
+        int iSecPhiM2 = caloNav.offsetIPhi(iSecPhi, -2);
+        const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiM);
+        const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM);
+        const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiM);
+        const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhi );
+        const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iSecEtaP, iSecPhiP);
+        const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP);
+        const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhiP);
+        const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iSecEtaM, iSecPhi ); 
+        const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiM2);
+        const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iSecEta , iSecPhiP2);
+
+        // just use E+H for clustering
+        int towerEtNW = towerNW.hwPt();
+        int towerEtN  = towerN .hwPt();
+        int towerEtNE = towerNE.hwPt();
+        int towerEtE  = towerE .hwPt();
+        int towerEtSE = towerSE.hwPt();
+        int towerEtS  = towerS .hwPt();
+        int towerEtSW = towerSW.hwPt();
+        int towerEtW  = towerW .hwPt();
+        int towerEtNN = towerNN.hwPt();
+        int towerEtSS = towerSS.hwPt();
+        
+        int towerEtEmNW = towerNW.hwEtEm();
+        int towerEtEmN  = towerN .hwEtEm();
+        int towerEtEmNE = towerNE.hwEtEm();
+        int towerEtEmE  = towerE .hwEtEm();
+        int towerEtEmSE = towerSE.hwEtEm();
+        int towerEtEmS  = towerS .hwEtEm();
+        int towerEtEmSW = towerSW.hwEtEm();
+        int towerEtEmW  = towerW .hwEtEm();
+        int towerEtEmNN = towerNN.hwEtEm();
+        int towerEtEmSS = towerSS.hwEtEm();
+        //
+        int towerEtHadNW = towerNW.hwEtHad();
+        int towerEtHadN  = towerN .hwEtHad();
+        int towerEtHadNE = towerNE.hwEtHad();
+        int towerEtHadE  = towerE .hwEtHad();
+        int towerEtHadSE = towerSE.hwEtHad();
+        int towerEtHadS  = towerS .hwEtHad();
+        int towerEtHadSW = towerSW.hwEtHad();
+        int towerEtHadW  = towerW .hwEtHad();
+        int towerEtHadNN = towerNN.hwEtHad();
+        int towerEtHadSS = towerSS.hwEtHad();
+
+
+        if(towerEtNW < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NW, false);
+        if(towerEtN  < clusterThreshold)
+        {
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_N , false);
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NN, false);
+        }
+        if(towerEtNE < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NE, false);
+        if(towerEtE  < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_E , false);
+        if(towerEtSE < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SE, false);
+        if(towerEtS  < clusterThreshold)
+        {
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_S , false);
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SS, false);
+        }
+        if(towerEtSW < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SW, false);
+        if(towerEtW  < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_W , false);
+        if(towerEtNN < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NN, false);
+        if(towerEtSS < clusterThreshold) secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SS, false);
+    
+        // trim one eta-side
+        // The side with largest energy will be kept
+        int EtEtaRight = 0;
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) EtEtaRight += towerEtNE;
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  EtEtaRight += towerEtE;
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) EtEtaRight += towerEtSE;
+        int EtEtaLeft  = 0;
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) EtEtaLeft += towerEtNW;
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  EtEtaLeft += towerEtW;
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) EtEtaLeft += towerEtSW;
+        // favour most central part
+        /*if(iEta>0) cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight> EtEtaLeft) );
+        else       cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>=EtEtaLeft) );*/
+        //No iEta dependence in firmware
+        secondaryCluster->setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>= EtEtaLeft) );
+
+        // finally compute secondary cluster energy
+        if(secondaryCluster->checkClusterFlag(CaloCluster::TRIM_LEFT))
+        {
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NW, false);
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_W , false);
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SW, false);
+        }
+        else
+        {
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_NE, false);
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_E , false);
+            secondaryCluster->setClusterFlag(CaloCluster::INCLUDE_SE, false);
+        }
+
+        // compute cluster energy according to cluster flags
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtN);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtSE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtS);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtSW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtNN);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPt(secondaryCluster->hwPt() + towerEtSS);
+        //
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmNW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmN);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmNE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmSE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmS);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmSW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmNN);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPtEm(secondaryCluster->hwPtEm() + towerEtEmSS);
+        //
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NW)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadNW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_N))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadN);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NE)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadNE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_E))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SE)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSE);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_S))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadS);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SW)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_W))  secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadW);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_NN)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadNN);
+        if(secondaryCluster->checkClusterFlag(CaloCluster::INCLUDE_SS)) secondaryCluster->setHwPtHad(secondaryCluster->hwPtHad() + towerEtHadSS);
+
+        // save this cluster in the vector
+        secClusters.push_back (secondaryCluster);
+    }
+    return secClusters;
 }
 
