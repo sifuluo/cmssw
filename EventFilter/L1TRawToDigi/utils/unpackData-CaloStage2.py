@@ -49,10 +49,19 @@ options.register('valEvents',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Filter on validation events")
+options.register('process',
+                 '',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Rename process if used")
                  
 options.parseArguments()
 
-process = cms.Process('Raw2Digi')
+pname="Raw2Digi"
+if (options.process!=""):
+    pname=options.process
+
+process = cms.Process(pname)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -121,7 +130,7 @@ process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("rawDataCollector"),
+    token = cms.untracked.InputTag("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
     dumpPayload = cms.untracked.bool ( options.dumpRaw )
 )
