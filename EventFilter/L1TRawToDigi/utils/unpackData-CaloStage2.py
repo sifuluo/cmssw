@@ -54,6 +54,11 @@ options.register('process',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Rename process if used")
+options.register('mps',
+                 '',
+                 VarParsing.VarParsing.multiplicity.list,
+                 VarParsing.VarParsing.varType.int,
+                 "List of MPs to process (works with valEvents=True)")
                  
 options.parseArguments()
 
@@ -126,6 +131,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # validation event filter
 process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
+if (len(options.mps) > 0):
+    process.validationEventFilter.select = cms.untracked.bool(True)
+    process.validationEventFilter.mpList = cms.untracked.vint32(options.mps)
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 

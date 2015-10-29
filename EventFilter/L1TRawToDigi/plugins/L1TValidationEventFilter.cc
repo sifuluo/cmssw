@@ -30,6 +30,7 @@ Implementation:
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
+#include <vector>
 #include <iostream>
 
 
@@ -57,7 +58,8 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> fedData_;
 
   int period_;
- 
+  bool select_;
+  std::vector<int> mpList_;
   //  edm::EDGetTokenT<FEDRawDataCollection> token_; 
 
 };
@@ -67,7 +69,9 @@ private:
 // constructors and destructor
 //
 L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iConfig) :
-  period_( iConfig.getUntrackedParameter<int>("period", 107) )
+  period_( iConfig.getUntrackedParameter<int>("period", 107) ),
+  select_( iConfig.getUntrackedParameter<bool>("select", false) ),
+  mpList_( iConfig.getUntrackedParameter<std::vector<int> >("mpList") )
 {
   //now do what ever initialization is needed
 
@@ -108,9 +112,15 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   const unsigned char *data = l1tRcd.data();
   FEDHeader header(data);
 
-  return (header.lvl1ID() % period_ == 0 );
+  bool fatEvent = (header.lvl1ID() % period_ == 0 );
+
+  bool select = true;
+  for (auto itr : mpList_) {
+    select &= (header.bxID() % itr == 0);
+  }
+
+  return fatEvent &&select;
     
-  //  return (iEvent.id().event() % period_)==0)
 
 }
 
