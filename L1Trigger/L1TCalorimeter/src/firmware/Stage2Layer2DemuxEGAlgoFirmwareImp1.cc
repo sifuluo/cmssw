@@ -59,7 +59,7 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
       }
     }
 
-    int hwEta_GT = (eta>0) ? closestPoint.first : - closestPoint.first - 1;
+    int hwEta_GT = (eta>0) ? closestPoint.first : - closestPoint.first;
 
     minDistance = 99999.;
     closestPoint = make_pair(0,0.);
