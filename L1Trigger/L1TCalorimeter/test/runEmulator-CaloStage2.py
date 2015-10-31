@@ -127,7 +127,7 @@ process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.mpBx = options.selMPBx
 process.l1tStage2CaloAnalyzer.dmxBx = options.selDemuxBx
 process.l1tStage2CaloAnalyzer.allBx = options.selAllBx
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("simCaloStage2Digis", "MP")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("simCaloStage2Digis", "MP")
 process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("simCaloStage2Digis", "MP")

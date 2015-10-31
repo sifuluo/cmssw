@@ -193,7 +193,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   for(const auto& egamma : egammas_raw){
 
     int fgBit = egamma.hwQual() & (0x1);
-    int shapeBit = egamma.hwQual() & (0x1<<2);
+    int shapeBit = egamma.hwQual()>>2 & (0x1);
     if(fgBit && shapeBit){
       if(egamma.hwEta()<0)
 	egammas_eta_neg.push_back(egamma);
@@ -273,7 +273,7 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShapeLutIndex(int i
     if(E>255) E = 255;
     unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
     unsigned int compressedE     = params_->egCompressShapesLUT()->data((0x1<<7)+E);
-    unsigned int compressedEta   = params_->egCompressShapesLUT()->data((0x1<<12)+iEtaNormed);
+    unsigned int compressedEta   = params_->egCompressShapesLUT()->data((0x1<<7)+(0x1<<8)+iEtaNormed);
     return (compressedShape | compressedE | compressedEta);
   }
   else // Uncompressed (kept for backward compatibility)
