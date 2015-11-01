@@ -13,6 +13,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
 
+
 namespace l1t {
   bool operator > ( l1t::EGamma& a, l1t::EGamma& b )
   {
@@ -90,6 +91,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int towerEtW  = towerW .hwPt();
       int towerEtNN = towerNN.hwPt();
       int towerEtSS = towerSS.hwPt();
+
 
       if(abs(iEta)>28)
 	continue;
@@ -172,11 +174,33 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       double seedPhi     = CaloTools::towerPhi(cluster.hwEta(), cluster.hwPhi());
       double seedPhiSize = CaloTools::towerPhiSize(cluster.hwEta());
       if(cluster.fgEta()==0)      eta = seedEta; // center
+      //Test
       else if(cluster.fgEta()==2) eta = seedEta + seedEtaSize*0.251; // center + 1/4
       else if(cluster.fgEta()==1) eta = seedEta - seedEtaSize*0.251; // center - 1/4
-      if(cluster.fgPhi()==0)      phi = seedPhi; // center
-      else if(cluster.fgPhi()==2) phi = seedPhi + seedPhiSize*0.251; // center + 1/4
-      else if(cluster.fgPhi()==1) phi = seedPhi - seedPhiSize*0.251; // center - 1/4
+
+
+      //fgPhi is recomputed after trimming
+      int fgPhi = 0;
+      
+      int EtUp   = 0;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NE)) EtUp += towerEtNE;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_N))  EtUp += towerEtN;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NW)) EtUp += towerEtNW;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NN)) EtUp += towerEtNN;
+      int EtDown = 0;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SE)) EtDown += towerEtSE;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_S))  EtDown += towerEtS;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SW)) EtDown += towerEtSW;
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SS)) EtDown += towerEtSS;
+      //
+      if(EtDown>EtUp) fgPhi = 2;
+      else if(EtUp>EtDown) fgPhi = 1;
+
+
+      if(fgPhi==0)      phi = seedPhi; // center
+      else if(fgPhi==2) phi = seedPhi + seedPhiSize*0.251; // center + 1/4
+      else if(fgPhi==1) phi = seedPhi - seedPhiSize*0.251; // center - 1/4
+      
 
       // Set 4-vector
       math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
