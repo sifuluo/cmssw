@@ -58,7 +58,8 @@ options.register('mps',
                  '',
                  VarParsing.VarParsing.multiplicity.list,
                  VarParsing.VarParsing.varType.int,
-                 "List of MPs to process (works with valEvents=True)")
+                 "List of MPs to process")
+
                  
 options.parseArguments()
 
@@ -131,9 +132,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # validation event filter
 process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
-if (len(options.mps) > 0):
+if (options.valEvents):
     process.validationEventFilter.select = cms.untracked.bool(True)
+else:
+    process.validationEventFilter.select = cms.untracked.bool(False)
+if (len(options.mps) > 0):
+    process.validationEventFilter.selectMPs = cms.untracked.bool(True)
     process.validationEventFilter.mpList = cms.untracked.vint32(options.mps)
+
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
