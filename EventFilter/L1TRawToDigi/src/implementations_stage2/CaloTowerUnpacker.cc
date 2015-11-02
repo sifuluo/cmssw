@@ -24,7 +24,8 @@ namespace stage2 {
      // check this is the correct MP
      unsigned int amc  = block.amc().getAMCNumber();
      unsigned int bxid = block.amc().getBX();
-     if( (amc-1) != (bxid-1)%9 ) return true;
+     //     if( (amc-1) != ((bxid-1)%9) ) return true;
+     if( (amc-1) != ((bxid-1+3)%9) ) return true;    // temporary measure !
      LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
 
      // Link number is block_ID / 2
