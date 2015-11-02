@@ -62,6 +62,7 @@ public:
       unsigned int phiRange;
 
       unsigned int isolationLUT;
+      unsigned int qualityLUT;     
 
       unsigned int etaWindow1Lower;
       unsigned int etaWindow1Upper;
