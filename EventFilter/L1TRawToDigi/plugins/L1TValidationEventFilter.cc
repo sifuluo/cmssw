@@ -57,11 +57,7 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<FEDRawDataCollection> fedData_;
 
-  bool select_;      // select validation events
   int period_;       // validation event period
-  bool selectMPs_;          // select specific MPs
-  std::vector<int> mpList_; // list of MPs to select
-  //  edm::EDGetTokenT<FEDRawDataCollection> token_; 
 
 };
 
@@ -70,10 +66,7 @@ private:
 // constructors and destructor
 //
 L1TValidationEventFilter::L1TValidationEventFilter(const edm::ParameterSet& iConfig) :
-  select_( iConfig.getUntrackedParameter<bool>("select", true) ),
-  period_( iConfig.getUntrackedParameter<int>("period", 107) ),
-  selectMPs_( iConfig.getUntrackedParameter<bool>("selectMPs", false) ),
-  mpList_( iConfig.getUntrackedParameter<std::vector<int> >("mpList") )
+  period_( iConfig.getUntrackedParameter<int>("period", 107) )
 {
   //now do what ever initialization is needed
 
@@ -116,12 +109,7 @@ L1TValidationEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   bool fatEvent = (header.lvl1ID() % period_ == 0 );
 
-  bool mp = false;
-  for (auto itr : mpList_) {
-    mp |= ( ((header.bxID()-1)%9) == itr );
-  }
-
-  return (select_ && fatEvent) || (selectMPs_ && mp);    
+  return fatEvent;
 
 }
 

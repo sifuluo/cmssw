@@ -132,14 +132,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 # validation event filter
 process.load('EventFilter.L1TRawToDigi.validationEventFilter_cfi')
-if (options.valEvents):
-    process.validationEventFilter.select = cms.untracked.bool(True)
-else:
-    process.validationEventFilter.select = cms.untracked.bool(False)
-if (len(options.mps) > 0):
-    process.validationEventFilter.selectMPs = cms.untracked.bool(True)
-    process.validationEventFilter.mpList = cms.untracked.vint32(options.mps)
 
+# MP selectah
+process.load('EventFilter.L1TRawToDigi.tmtFilter_cfi')
+process.tmtFilter.mpList = cms.untracked.vint32(options.mps)
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
@@ -177,6 +173,10 @@ process.path = cms.Path(
 # enable validation event filtering
 if (not options.valEvents):
     process.path.remove(process.validationEventFilter)
+
+# enable validation event filtering
+if (len(options.mps)==0):
+    process.path.remove(process.tmtFilter)
 
 # enable RAW printout
 if (not options.dumpRaw):
