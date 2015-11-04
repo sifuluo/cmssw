@@ -178,6 +178,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // Corrections function of ieta, ET, and cluster shape
                 //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
                 int calibPt = mainCluster.hwPt();
+                if (calibPt > 1023) calibPt = 1023; // only 10 bits available
+                tau.setHwPt(calibPt);
 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
@@ -197,7 +199,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // Set 4-vector
                 math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
                 tau.setP4(calibP4);
-
                 taus.push_back (tau);
             }
 
@@ -669,6 +670,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 // Corrections function of ieta, ET, and cluster shape
                 //int calibPt = calibratedPt(cluster, egamma.hwPt()); // FIXME! for the moment no calibration
                 int calibPt = mainCluster.hwPt()+secondaryCluster->hwPt();
+                if (calibPt > 1023) calibPt = 1023; // only 10 bits available
+                tau.setHwPt(calibPt);
                 
                 // Physical eta/phi. Computed from ieta/iphi of the seed tower and the fine-grain position within the seed
                 // use fg positon of main cluster only
