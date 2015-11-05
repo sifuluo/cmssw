@@ -20,7 +20,7 @@ namespace L1Analysis
     L1AnalysisL1Menu() {Reset();}
     ~L1AnalysisL1Menu() {}
     void Reset() {data_.Reset();}
-    void SetPrescaleFactorIndex(L1GtUtils & l1GtUtils_, const edm::Event& iEvent);
+    void SetPrescaleFactorIndex(L1GtUtils* l1GtUtils_, const edm::Event& iEvent);
     L1AnalysisL1MenuDataFormat * getData() {return &data_;}
 
   private :

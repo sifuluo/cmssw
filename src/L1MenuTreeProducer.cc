@@ -72,7 +72,7 @@ private:
  
   // EDM input tags
   edm::InputTag l1MenuInputTag_;
-  L1GtUtils l1GtUtils_;
+  L1GtUtils* l1GtUtils_;
 };
 
 
@@ -107,12 +107,12 @@ L1MenuTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   // getting l1GtUtils
   std::cout << "Extracting menu ... "<<std::endl; 
-  l1GtUtils_.retrieveL1EventSetup(iSetup);
+  l1GtUtils_->retrieveL1EventSetup(iSetup);
 
   // testing menu
   std::cout << "L1 trigger menu name and implementation:" << "\n"
-            << l1GtUtils_.l1TriggerMenu() << "\n"
-            << l1GtUtils_.l1TriggerMenuImplementation()
+            << l1GtUtils_->l1TriggerMenu() << "\n"
+            << l1GtUtils_->l1TriggerMenuImplementation()
             << std::endl;
 
   // adding PrescaleFactorIndex
@@ -133,7 +133,7 @@ L1MenuTreeProducer::beginRun(const edm::Run& iRun,
                              const edm::EventSetup& evSetup)
 {
   // L1GtTriggerMenuLite input tag from provenance
-  //l1GtUtils_.getL1GtRunCache(iRun, evSetup, true, true);
+  //l1GtUtils_->getL1GtRunCache(iRun, evSetup, true, true);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
