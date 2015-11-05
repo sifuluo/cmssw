@@ -1717,7 +1717,8 @@ void RunL1(Bool_t drawplots=true, Bool_t writefiles=true, Int_t whichFileAndLumi
   else if(whichFileAndLumiToUse==3){
     // 13 TeV ZeroBias 62X sample 20PU 25 ns, 2015 re-emulation
     NumberOfBunches = 2508; 
-    L1NtupleFileName = "root:///data2/p/pellicci/L1DPG/root/v14/25ns_20PU_ReEmul2015/L1Tree.root";
+//  L1NtupleFileName = "root:///data2/p/pellicci/L1DPG/root/v14/25ns_20PU_ReEmul2015/L1Tree.root";
+    L1NtupleFileName = "root:///uscms/home/cbrainer/NewData.root";
     themenufilename = "Menu_20PU_25bx.txt";
     //themenufilename = "Menu_Noprescales.txt";
     AveragePU = 20;
@@ -1728,8 +1729,9 @@ void RunL1(Bool_t drawplots=true, Bool_t writefiles=true, Int_t whichFileAndLumi
   else if(whichFileAndLumiToUse==4){
     // 13 TeV ZeroBias 62X sample 40 PU 25 ns, 2015 re-emulation
     NumberOfBunches = 2508; 
-    L1NtupleFileName = "root://lxcms02//data2/p/pellicci/L1DPG/root/v13/25ns_40PU_ReEmul2015/L1Tree.root";
-    themenufilename = "Menu_40PU_25bx.txt";
+//    L1NtupleFileName = "root://lxcms02//data2/p/pellicci/L1DPG/root/v13/25ns_40PU_ReEmul2015/L1Tree.root";
+    L1NtupleFileName = "root:///uscms/home/cbrainer/NewData.root";
+    themenufilename = "Menu_40PU_25bx.txt.2";
     //themenufilename = "Menu_Noprescales.txt";
     AveragePU = 40;
     Energy = 13;

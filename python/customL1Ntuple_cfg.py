@@ -119,12 +119,20 @@ options.register('puReweightingFile',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "InputFile to be used for PU reweighting (for example to scale luminosity)")
+options.register('useStage2',
+		 False, #default value
+		 VarParsing.VarParsing.multiplicity.singleton,
+		 VarParsing.VarParsing.varType.bool,
+		 "Enables Stage2 emulation for calos")
 
 options.parseArguments()
 
 
 #L1 ntuple
-from L1TriggerDPG.L1Ntuples.l1Ntuple_cfg import *
+if options.useStage2:
+	from L1TriggerDPG.L1Ntuples.l1Ntuple_stage2_cfg import *
+else:
+	from L1TriggerDPG.L1Ntuples.l1Ntuple_cfg import *
 
 if options.runOnMC and hasattr(process,'l1NtupleProducer') :
     print "[L1Menu]: Running on MC reading also PileUpSummary info"
@@ -142,8 +150,11 @@ if options.reEmulMuons :
 
 # re-emulation customisations
 
-if options.useUct2015 and options.useStage1Layer2:
-    print "[L1Menu]: ERROR !!! Currently cannot run both UCT and Stage1 Emulators at the same time"
+if options.useUct2015 and (options.useStage1Layer2 or options.useStage2):
+    print "[L1Menu]: ERROR !!! Currently cannot run both UCT and Stage1/2 Emulators at the same time"
+    sys.exit(1)
+if options.useStage1Layer2 and options.useStage2:
+    print "[L1Menu: ERROR !!! Cannot run both Stage 1 and Stage 2 Emulations at the same time. Pick one."
     sys.exit(1)
 
 if options.reEmulation :
@@ -161,12 +172,14 @@ if options.reEmulation and (options.customDTTF or options.customCSCTF or options
     from L1TriggerDPG.L1Menu.customiseL1Muons_cff import *
     customiseL1Muons(process, options.customDTTF, options.customCSCTF, options.customPACT, options.customGMT, options.dttfLutsFile)
 
-if options.reEmulation and (options.useUct2015 or options.useStage1Layer2) :
+if options.reEmulation and (options.useUct2015 or options.useStage1Layer2 or options.useStage2) :
     from L1TriggerDPG.L1Menu.customiseL1Calos_cff import *
     if options.useUct2015:
         customiseUCT2015(process, options.runOnMC, options.runOnPostLS1, options.whichPU)
     if options.useStage1Layer2:
         customiseStage1(process, options.runOnMC, options.runOnPostLS1, options.whichPU)
+    if options.useStage2:
+	customiseStage2(process, options.runOnMC, options.runOnPostLS1, options.whichPU)
 
 if options.puReweightingFile != "none" :
     from L1TriggerDPG.L1Menu.pileUpReweighting_cff import *

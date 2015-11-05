@@ -146,10 +146,10 @@ def customiseStage1(process, runOnMC, runOnPostLS1, whichPU ):
 
         getattr(process,'reEmul').replace(process.reEmulCaloChain, process.L1TCaloStage1_PPFromRaw)
 
-        l1ExtraReEmul = getattr(process,'l1ExtraReEmul') 
+#        l1ExtraReEmul = getattr(process,'l1ExtraReEmul') 
 
-        updatel1ExtraReEmulTag(process,"simCaloStage1LegacyFormatDigis")
-        updategtReEmulTag(process,"simCaloStage1LegacyFormatDigis")
+#        updatel1ExtraReEmulTag(process,"simCaloStage1LegacyFormatDigis")
+#        updategtReEmulTag(process,"simCaloStage1LegacyFormatDigis")
 
     else :
        print "[L1Menu]: ERROR: Can't customise calo chain with Stage1 emulator, reEmulCaloChain is missing!"
@@ -158,3 +158,49 @@ def customiseStage1(process, runOnMC, runOnPostLS1, whichPU ):
         print "[L1Menu]:\tConfiguring Ntuple to use Stage1 emulator information"
  
         updatel1ntupleTag(process,"simCaloStage1LegacyFormatDigis")
+
+
+###Chris new code below
+
+def customiseStage2(process, runOnMC, runOnPostLS1, whichPU ): #Copy of customiseStage1, above, changed for stage2
+
+    if hasattr(process,'reEmulCaloChain') :
+        print "[L1Menu]: Customising calo chain with new L1 Stage1 Emulator"
+
+        if runOnMC and runOnPostLS1 :
+            ## print "[L1Menu]:\tUsing MC configuration for post LS1"
+            process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_PPFromRaw_cff')
+            ## process.load('L1Trigger/L1TCalorimeter/caloStage1Params_cfi')
+            process.load('L1Trigger/L1TCalorimeter/caloStage1RegionSF_cfi') #No equivalent file exists for stage 2. Is it the same? Or do we not want it at all?
+            #process.caloStage1Params.jetSeedThreshold = 5.0
+            from L1Trigger.L1TCalorimeter.caloStage1RegionSF_cfi import regionSubtraction_PU40_MC13TeV
+            from L1Trigger.L1TCalorimeter.caloStage1RegionSF_cfi import regionSubtraction_PU20_MC13TeV
+            if whichPU == 20 :
+		print "Not yet done anything for this- we won't have this pileup anyway, right?" 
+		sys.exit(1)
+                process.caloStage1Params.regionPUSParams = regionSubtraction_PU20_MC13TeV
+        elif not runOnMC : 
+            ## print "[L1Menu]:\tUsing DATA configuration"
+            ## process.load("L1Trigger.UCT2015.emulation_cfi") # For running on data
+            ## process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
+            print "[L1Menu]:\tNot yet configured to run Stage2 emulator on DATA"
+            sys.exit(1)
+        else :
+            print "Illegal option(s) for Stage2 Emulator"
+            sys.exit(1)
+
+
+        getattr(process,'reEmul').replace(process.reEmulCaloChain, process.L1TCaloStage2_PPFromRaw)
+
+        l1ExtraReEmul = getattr(process,'l1ExtraReEmul') 
+
+#        updatel1ExtraReEmulTag(process,"simCaloStage1LegacyFormatDigis")
+#        updategtReEmulTag(process,"simCaloStage1LegacyFormatDigis")
+
+    else :
+       print "[L1Menu]: ERROR: Can't customise calo chain with Stage1 emulator, reEmulCaloChain is missing!"
+
+    if hasattr(process,'l1NtupleProducer') and hasattr(process,'l1ExtraTreeProducer') :
+        print "[L1Menu]:\tConfiguring Ntuple to use Stage1 emulator information. NOPE NOT DOING THIS"
+ 
+#        updatel1ntupleTag(process,"simCaloStage1LegacyFormatDigis")

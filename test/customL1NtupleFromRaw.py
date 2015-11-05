@@ -31,7 +31,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 ## readFiles.extend( ['root://eoscms.cern.ch//eos/cms/store/group/comm_trigger/L1Trigger/apana/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25__skim_150_1_6UN.root'] )
 ## readFiles.extend( ['root://xrootd.unl.edu//store/data/Commissioning2014/Cosmics/RAW/v3/000/228/929/00000/509C6C80-3164-E411-92E0-02163E00FFE1.root'] )
 
-readFiles.extend( ['root://lxcms02//data2/p/pellicci/L1DPG/root/RelValTTbar_730_GENSIMRECO.root'] )
+#readFiles.extend( ['root://lxcms02//data2/p/pellicci/L1DPG/root/RelValTTbar_730_GENSIMRECO.root'] )
+readFiles.extend( ['file:/uscms_data/d3/cbrainer/0074D53B-A577-E311-8655-0026189438BD.root'] )
 
 ## processDumpFile = open('config.dump', 'w')
 ## print >> processDumpFile, process.dumpPython()
