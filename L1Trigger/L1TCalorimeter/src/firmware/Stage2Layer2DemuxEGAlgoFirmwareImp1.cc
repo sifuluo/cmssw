@@ -37,7 +37,7 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
   vector<pair<int,double> > phiGT;
   for(int i=0;i<145;i++)
     phiGT.push_back( make_pair(i,i*(M_PI/72.)) );
-  phiGT.push_back( make_pair(0,2*M_PI) ); //2pi = 0
+  phiGT[144] = make_pair(0,2*M_PI); //2pi = 0
 
   outputEGammas = inputEGammas;
 
