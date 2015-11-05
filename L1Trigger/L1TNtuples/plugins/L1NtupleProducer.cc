@@ -222,9 +222,9 @@ void L1NtupleProducer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   analyzeRCT(e);
   analyzeDTTF(e);
   analyzeCSCTF(e,es); 
-  pL1calotp->Reset();
-  analyzeECAL(e, es);
-  analyzeHCAL(e, es);                           
+  //  pL1calotp->Reset();
+  //  analyzeECAL(e, es);
+  //  analyzeHCAL(e, es);                           
 
   tree_->Fill();
 

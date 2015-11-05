@@ -19,4 +19,5 @@
 <class name="L1Analysis::L1AnalysisRecoTrackDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1MenuDataFormat"/>
 <class name="L1Analysis::L1AnalysisL1UpgradeDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1CaloTowerDataFormat"/>
 </lcgdict>

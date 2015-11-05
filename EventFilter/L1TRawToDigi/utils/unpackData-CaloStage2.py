@@ -59,7 +59,11 @@ options.register('mps',
                  VarParsing.VarParsing.multiplicity.list,
                  VarParsing.VarParsing.varType.int,
                  "List of MPs to process")
-
+options.register('json',
+                 '',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "JSON file with list of good lumi sections")
                  
 options.parseArguments()
 
@@ -96,6 +100,10 @@ else :
         fileNames = cms.untracked.vstring (options.inputFiles),
         skipEvents=cms.untracked.uint32(options.skipEvents)
     )
+
+if (options.json):
+    import FWCore.PythonUtilities.LumiList as LumiList
+    process.source.lumisToProcess = LumiList.LumiList(filename = options.json).getVLuminosityBlockRange()
 
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
