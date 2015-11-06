@@ -53,6 +53,19 @@ from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 from EventFilter.Utilities.tcdsRawToDigi_cfi import *
 tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
+from EventFilter.L1TRawToDigi.caloStage1Digis_cfi import *
+
+from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
+
+from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
+caloStage1LegacyFormatDigis = L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi.clone()
+caloStage1LegacyFormatDigis.InputCollection = cms.InputTag("caloStage1Digis")
+caloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("caloStage1Digis:rlxTaus")
+caloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("caloStage1Digis:isoTaus")
+caloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("caloStage1Digis:HFRingSums")
+caloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("caloStage1Digis:HFBitCounts")
+
+
 RawToDigi = cms.Sequence(csctfDigis
                          +dttfDigis
                          +gctDigis
@@ -107,20 +120,25 @@ castorDigis.InputLabel = 'rawDataCollector'
 def _modifyRawToDigiForRun2( RawToDigi_object ) :
     RawToDigi_object.remove(gtEvmDigis)
 
-def _modifyRawToDigiForStage1Trigger( theProcess ) :
-    """
-    Modifies the RawToDigi sequence if using the Stage 1 L1 trigger
-    """
-    theProcess.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
-    theProcess.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
-    # Note that this function is applied before the objects in this file are added
-    # to the process. So things declared in this file should be used "bare", i.e.
-    # not with "theProcess." in front of them. caloStage1Digis and caloStage1LegacyFormatDigis
-    # are an exception because they are not declared in this file but loaded into the
-    # process in the "load" statements above.
-    L1RawToDigiSeq = cms.Sequence( gctDigis + theProcess.caloStage1Digis + theProcess.caloStage1LegacyFormatDigis)
-    RawToDigi.replace( gctDigis, L1RawToDigiSeq )
-
 eras.run2_common.toModify( RawToDigi, func=_modifyRawToDigiForRun2 )
+
+
+def _modifyRawToDigiForStage1Trigger( RawToDigi_object ) :
+    L1Stage1RawToDigiSeq = cms.Sequence( gctDigis 
+                                         +caloStage1Digis
+                                         +caloStage1LegacyFormatDigis)
+    RawToDigi_object.replace( gctDigis, L1Stage1RawToDigiSeq )
+
+eras.stage1L1Trigger.toModify( RawToDigi, func=_modifyRawToDigiForStage1Trigger )
+
+def _modifyRawToDigiForStage2Trigger( RawToDigi_object ) :
+    L1Stage2RawToDigiSeq = cms.Sequence( caloStage2Digis )
+    RawToDigi_object.replace( gctDigis, L1Stage2RawToDigiSeq )
+
+eras.stage2L1Trigger.toModify( RawToDigi, func=_modifyRawToDigiForStage2Trigger )
+
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
-modifyConfigurationStandardSequencesRawToDigiForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _modifyRawToDigiForStage1Trigger )
+
+
+
+
