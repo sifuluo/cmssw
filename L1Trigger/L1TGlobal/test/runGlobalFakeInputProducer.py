@@ -185,25 +185,11 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
+## Run the Stage 2 uGT emulator
+process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
+process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
+process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
 
-process.simL1uGtDigis = cms.EDProducer("l1t::GtProducer",
-    #TechnicalTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtObjectMapRecord = cms.bool(True),
-    AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(1),
-    L1DataBxInEvent = cms.int32(5),
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    ProduceL1GtDaqRecord = cms.bool(True),
-    GmtInputTag = cms.InputTag("gtInput"),
-    caloInputTag = cms.InputTag("gtInput"),
-    AlternativeNrBxBoardDaq = cms.uint32(0),
-    #WritePsbL1GtDaqRecord = cms.bool(True),
-    TriggerMenuLuminosity = cms.string('startup'),
-    PrescaleCSVFile = cms.string('prescale_L1TGlobal_nontrivial.csv'),
-    PrescaleSet = cms.uint32(7), #1 - 11
-    BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(0)
-)
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -211,9 +197,9 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
-		uGtRecInputTag = cms.InputTag("simL1uGtDigis"),
-		uGtAlgInputTag = cms.InputTag("simL1uGtDigis"),
-		uGtExtInputTag = cms.InputTag("simL1uGtDigis"),
+		uGtRecInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtExtInputTag = cms.InputTag("simGlobalStage2Digis"),
 		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(-2),
 		maxBx          = cms.int32(2),
@@ -227,7 +213,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-process.l1GtTrigReport.L1GtRecordInputTag = "simL1uGtDigis"
+process.l1GtTrigReport.L1GtRecordInputTag = "simGlobalStage2Digis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
@@ -241,7 +227,7 @@ else:
 process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
-    *process.simL1uGtDigis
+    *process.simGlobalStage2Digis
     *process.dumpGTRecord
 #    * process.debug
 #    *process.dumpED

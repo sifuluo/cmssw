@@ -88,6 +88,8 @@ l1t::GtBoard::GtBoard() :
     m_candL1Tau( new BXVector<const l1t::L1Candidate*>),
     m_candL1Jet( new BXVector<const l1t::L1Candidate*>),
     m_candL1EtSum( new BXVector<const l1t::EtSum*>),
+    m_firstEv(true),
+    m_firstEvLumiSegment(true),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -899,6 +901,9 @@ void l1t::GtBoard::runGTL(
 // run GTL
 void l1t::GtBoard::runFDL(edm::Event& iEvent, 
         const int iBxInEvent,
+        const int totalBxInEvent,
+        const unsigned int numberPhysTriggers,
+	const std::vector<int>& prescaleFactorsAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked ){
 
@@ -910,20 +915,27 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 
     }
 
-/* Nothing with prescales right now.
     // prescale counters are reset at the beginning of the luminosity segment
-    if (m_firstEv) {
+    if( m_firstEv ){
+      // prescale counters: numberPhysTriggers counters per bunch cross
+      m_prescaleCounterAlgoTrig.reserve(numberPhysTriggers*totalBxInEvent);
 
-        m_firstEv = false;
+      for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
+	m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
+      m_firstEv = false;
     }
 
     // TODO FIXME find the beginning of the luminosity segment
-    if (m_firstEvLumiSegment) {
+    if( m_firstEvLumiSegment ){
 
-        m_firstEvLumiSegment = false;
+      m_prescaleCounterAlgoTrig.clear();
+      for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
+	m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
 
+      m_firstEvLumiSegment = false;
     }
-*/
 
     // Copy Algorithm bits to Prescaled word 
     // Prescaling and Masking done below if requested.
@@ -933,37 +945,45 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
     // -------------------------------------------
     //      Apply Prescales or skip if turned off
     // -------------------------------------------
-    if (!algorithmTriggersUnprescaled){
-/*
-	for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
+    if( !algorithmTriggersUnprescaled ){
 
-            if (prescaleFactorsAlgoTrig.at(iBit) != 1) {
+      // iBxInEvent is ... -2 -1 0 1 2 ... while counters are 0 1 2 3 4 ...
+      int inBxInEvent =  totalBxInEvent/2 + iBxInEvent;
 
-        	bool bitValue = algoDecisionWord.at( iBit );
-        	if (bitValue) {
+      bool temp_algPrescaledOr = false;
+      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
 
-                    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
-                    if (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0) {
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial( iBit );
+	if( bitValue ){
+	  if( prescaleFactorsAlgoTrig.at(iBit) != 1 ){
 
-                	// bit already true in algoDecisionWord, just reset counter
-                	m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) =
-                            prescaleFactorsAlgoTrig.at(iBit);
-                    } else {
+	    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
+	    if( m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0 ){
 
-                	// change bit to false in prescaled word and final decision word
-                	algoDecisionWord[iBit] = false;
+	      // bit already true in algoDecisionWord, just reset counter
+	      m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
+	      temp_algPrescaledOr = true;
+	    } 
+	    else {
 
-                    } //if Prescale counter reached zero
-        	} //if algo bit is set true
-            } //if prescale factor is not 1 (ie. no prescale)
-	} //loop over alg bits
-*/
-	m_algPrescaledOr = m_algInitialOr; //temp
-	 
-    } else {
-        
-	// Since not Prescaling just take OR of Initial Work
-	m_algPrescaledOr = m_algInitialOr;
+	      // change bit to false in prescaled word and final decision word
+	      m_uGtAlgBlk.setAlgoDecisionPreScaled(iBit,false);
+
+	    } //if Prescale counter reached zero
+	  } //if prescale factor is not 1 (ie. no prescale)
+	  else {
+	    
+	    temp_algPrescaledOr = true;
+	  }
+	} //if algo bit is set true
+      } //loop over alg bits
+
+      m_algPrescaledOr = temp_algPrescaledOr; //temp
+     
+    } 
+    else {
+      // Since not Prescaling just take OR of Initial Work
+      m_algPrescaledOr = m_algInitialOr;
 	
     }//if we are going to apply prescales.
       

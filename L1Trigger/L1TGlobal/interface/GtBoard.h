@@ -99,6 +99,9 @@ public:
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
         const int iBxInEvent,
+        const int totalBxInEvent,
+        const unsigned int numberPhysTriggers,
+        const std::vector<int>& prescaleFactorsAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked );
 
@@ -244,9 +247,14 @@ private:
     GlobalAlgBlk m_uGtAlgBlk;
     GlobalExtBlk m_uGtExtBlk;
 
-  // cache  of maps
-  std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
-  
+    // cache  of maps
+    std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
+
+    /// prescale counters: NumberPhysTriggers counters per bunch cross in event
+    std::vector<std::vector<int> > m_prescaleCounterAlgoTrig;
+
+    bool m_firstEv;
+    bool m_firstEvLumiSegment;
 
 private:
 

@@ -22,6 +22,8 @@
 // system include files
 #include <string>
 #include <vector>
+#include<iostream>
+#include<fstream>
 
 #include <boost/cstdint.hpp>
 
@@ -123,6 +125,9 @@ private:
 
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
 
+    /// CSV file for prescales
+    std::string m_prescalesFile;
+
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
@@ -180,6 +185,11 @@ private:
 
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
+
+
+    /// prescale set used
+    unsigned int m_prescaleSet;
+
 
     /// run algorithm triggers
     ///     if true, unprescaled (all prescale factors 1)

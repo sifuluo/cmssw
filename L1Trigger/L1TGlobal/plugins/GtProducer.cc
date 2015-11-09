@@ -75,6 +75,9 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
             m_alternativeNrBxBoardDaq(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardDaq")),
             m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
+
+            m_prescaleSet(parSet.getParameter<unsigned int> ("PrescaleSet")),
+
             m_algorithmTriggersUnprescaled(parSet.getParameter<bool> ("AlgorithmTriggersUnprescaled")),
             m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
 
@@ -210,6 +213,22 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
     m_l1GtTmAlgoCacheID = 0ULL;
 
     m_l1GtTmVetoAlgoCacheID = 0ULL;
+
+
+    // directory in /data/Luminosity for the trigger menu
+    std::string menuDir = parSet.getParameter<std::string>("TriggerMenuLuminosity");
+    //std::string menuDir = "startup";
+
+    // prescale CSV file file
+    std::string prescaleFileName = parSet.getParameter<std::string>("PrescaleCSVFile");
+
+    // def.xml file
+    //std::string prescaleFileName = "prescale_L1TGlobal.csv";
+
+    edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/" +
+                       menuDir + "/" + prescaleFileName);
+
+    m_prescalesFile = f1.fullPath();
 
 }
 
@@ -356,6 +375,84 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     }
 */
     
+    // Get prescale factors from CSV file for now
+
+    std::fstream inputPrescaleFile;
+    inputPrescaleFile.open(m_prescalesFile);
+
+    std::vector<std::vector<int> > vec;
+
+    if( inputPrescaleFile ){
+      std::string prefix1("#");
+      std::string prefix2("-1");
+
+      std::string line; 
+
+      bool first = false;
+
+      while( getline(inputPrescaleFile,line) ){
+
+	if( !line.compare(0, prefix1.size(), prefix1) ) continue;
+	if( !line.compare(0, prefix2.size(), prefix2) ) continue;
+
+	istringstream split(line);
+	int value;
+	int col = 0;
+	char sep;
+
+	while( split >> value ){
+	  if( !first ){
+	    // Each new value read on line 1 should create a new inner vector
+	    vec.push_back(std::vector<int>());
+	  }
+
+	  vec[col].push_back(value);
+	  ++col;
+
+	  // read past the separator
+	  split>>sep;
+	}
+
+	// Finished reading line 1 and creating as many inner
+	// vectors as required
+	first = true;
+      }
+    }
+    else {
+      LogTrace("l1t|Global")
+	<< "\nCould not find file: " << m_prescalesFile
+	<< "\nFilling the prescale vectors with prescale 1"
+	<< "\nSetting prescale set to 1"
+	<< std::endl;
+
+      m_prescaleSet = 1;
+
+      for( int col=0; col<2; col++ ){
+	vec.push_back(std::vector<int>());
+	for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
+	  int inputDefaultPrescale = 1;
+	  vec[col].push_back(inputDefaultPrescale);
+	}
+      }
+    }
+
+    inputPrescaleFile.close();
+
+    m_prescaleFactorsAlgoTrig = &vec;
+
+
+    // // Used for testing
+    // for( int iL1Set=0; iL1Set<int(m_prescaleFactorsAlgoTrig->size()); iL1Set++ ){
+    //   if( m_prescaleFactorsAlgoTrig->size()>0 ){
+    // 	const std::vector<int>& testPrescaleSet = (*m_prescaleFactorsAlgoTrig).at(iL1Set);
+
+    // 	printf(" iL1Set=%4d", iL1Set);
+    // 	for( int iPrescale=0; iPrescale<int(testPrescaleSet.size()); iPrescale++ ){
+    // 	  printf(", %2d", testPrescaleSet[iPrescale]);
+    // 	}
+    // 	printf("\n");
+    //   }
+    // }
 
     // get / update the trigger mask from the EventSetup
     // local cache & check on cacheIdentifier
@@ -567,14 +664,24 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 */
 
 
-    // get the prescale factor set used in the actual luminosity segment
-//     int pfAlgoSetIndex = 0; // FIXME
-  // comment out for now DMP
-//     const std::vector<int>& prescaleFactorsAlgoTrig =
-//         (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
-    
-//     LogDebug("l1t|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
-    //
+    // get the prescale factor from the configuration for now
+    unsigned int pfAlgoSetIndex = m_prescaleSet;
+
+    // Require that prescale set be positive
+    if( pfAlgoSetIndex<1 ) pfAlgoSetIndex = 1;
+
+
+    if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size() ){
+      LogTrace("l1t|Global")
+	<< "\nAttempting to access prescale algo set: " << m_prescaleSet
+	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()-1
+	<< "Skipping event"
+	<< std::endl;
+    }
+
+    const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
+
+    LogDebug("l1t|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
 
 
 // Load the calorimeter input onto the uGt Board
@@ -622,6 +729,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 //  Run the Final Decision Logic for this BX
 	 m_uGtBrd->runFDL(iEvent,
 		          iBxInEvent,
+			  m_totalBxInEvent,
+			  m_numberPhysTriggers,
+			  prescaleFactorsAlgoTrig,
 		          m_algorithmTriggersUnprescaled,
 		          m_algorithmTriggersUnmasked
 		          );
