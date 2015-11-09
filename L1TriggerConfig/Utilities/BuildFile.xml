@@ -1,0 +1,7 @@
+<use   name="FWCore/Framework"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondTools/L1Trigger"/>
+<use   name="CondTools/L1TriggerExt"/>
+<use   name="L1TriggerConfig/L1TCaloParamsStage1Producers"/>
+<flags   EDM_PLUGIN="1"/>
