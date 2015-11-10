@@ -170,17 +170,32 @@ namespace l1t {
      m_gtUtil->retrieveL1(iEvent,evSetup,uGtAlgToken);
 
      // grab the map for the final decisions
+     const std::vector<std::pair<std::string, bool> > initialDecisions = m_gtUtil->decisionsInitial();
+     const std::vector<std::pair<std::string, bool> > prescaledDecisions = m_gtUtil->decisionsPrescaled();
      const std::vector<std::pair<std::string, bool> > finalDecisions = m_gtUtil->decisionsFinal();
+     const std::vector<std::pair<std::string, int> >  prescales = m_gtUtil->prescales();
+     const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
 
      // Dump the results
-     cout << "    Bit                  Algorithm Name              Result" << endl;
-     cout << "===========================================================" << endl;
-     for(unsigned int i=0; i<finalDecisions.size(); i++) {
-       std::string name = (finalDecisions.at(i)).first;
-       bool result = (finalDecisions.at(i)).second;
-       if(name != "NULL") cout << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(2) << result << endl;
+     cout << "    Bit                  Algorithm Name              Initial    Prescaled    Final       PS Factor     Masked" << endl;
+     cout << "=============================================================================================================" << endl;
+     for(unsigned int i=0; i<initialDecisions.size(); i++) {
+       
+       // get the name and trigger result
+       std::string name = (initialDecisions.at(i)).first;
+       bool resultInit = (initialDecisions.at(i)).second;
+
+       // get prescaled and final results (need some error checking here)
+       bool resultPre = (prescaledDecisions.at(i)).second;
+       bool resultFin = (finalDecisions.at(i)).second;
+       
+       // get the prescale and mask (needs some error checking here)
+       int prescale = (prescales.at(i)).second;
+       bool mask    = (masks.at(i)).second;
+       
+       if(name != "NULL") cout << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(3) << resultInit << resultPre << resultFin << setw(10) << prescale << setw(4) << mask << endl;
      }
-     cout << "===========================================================" << endl;
+     cout << "=============================================================================================================" << endl;
   }
 
   

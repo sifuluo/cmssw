@@ -25,12 +25,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+const int maxTriggers = 128; //Get this from a standard location
+
 // constructor
 l1t::L1TGlobalUtil::L1TGlobalUtil() 
 {
 
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
+
+    m_filledPrescales = false;
 
 }
 
@@ -64,6 +68,26 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 	m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
 
+    // Fill the mask and prescales (dummy for now)
+    if(!m_filledPrescales) {
+
+       for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
+
+          // Get the algorithm name
+          std::string algName = itAlgo->first;
+          int algBit = (itAlgo->second).algoBitNumber();
+
+	  (m_prescales[algBit]).first  = algName;
+	  (m_prescales[algBit]).second = 1;
+
+	  (m_masks[algBit]).first  = algName;
+	  (m_masks[algBit]).second = false;	  
+	  
+       }
+       
+      m_filledPrescales = true;
+    }
+    
 // Get the Global Trigger Output Algorithm block
      iEvent.getByToken(gtAlgToken,m_uGtAlgBlk);
 
@@ -96,13 +120,13 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 void l1t::L1TGlobalUtil::resetDecisionVectors() {
 
   // Reset all the vector contents with null information
-  int maxTriggers = 128; //Get this from a standard location
   m_decisionsInitial.clear();
   m_decisionsInitial.resize(maxTriggers);
   m_decisionsPrescaled.clear();
   m_decisionsPrescaled.resize(maxTriggers);
   m_decisionsFinal.clear();
   m_decisionsFinal.resize(maxTriggers);
+  
 
   for(int algBit = 0; algBit< maxTriggers; algBit++) {
 
@@ -117,6 +141,36 @@ void l1t::L1TGlobalUtil::resetDecisionVectors() {
 
   }
 
+
+}
+
+void l1t::L1TGlobalUtil::resetPrescaleVectors() {
+
+  // Reset all the vector contents with null information
+  m_prescales.clear();
+  m_prescales.resize(maxTriggers);
+  
+  for(int algBit = 0; algBit< maxTriggers; algBit++) {
+
+    (m_prescales.at(algBit)).first = "NULL";
+    (m_prescales.at(algBit)).second = 1;  
+
+  }
+
+}
+
+void l1t::L1TGlobalUtil::resetMaskVectors() {
+
+  // Reset all the vector contents with null information
+  m_masks.clear();
+  m_masks.resize(maxTriggers);
+  
+  for(int algBit = 0; algBit< maxTriggers; algBit++) {
+
+    (m_masks.at(algBit)).first = "NULL";
+    (m_masks.at(algBit)).second = false;  
+
+  }
 
 }
 
@@ -177,6 +231,26 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByBit(int& bit, bool& decision) c
   
   return false;  //couldn't get the information requested. 
 }
+const bool l1t::L1TGlobalUtil::getPrescaleByBit(int& bit, int& prescale) const {
+
+  // Need some check that this is a valid bit
+  if((m_prescales.at(bit)).first != "NULL") {
+    prescale = (m_prescales.at(bit)).second;
+    return true;
+  }
+  
+  return false;  //couldn't get the information requested. 
+}
+const bool l1t::L1TGlobalUtil::getMaskByBit(int& bit, bool& mask) const {
+
+  // Need some check that this is a valid bit
+  if((m_masks.at(bit)).first != "NULL") {
+    mask = (m_masks.at(bit)).second;
+    return true;
+  }
+  
+  return false;  //couldn't get the information requested. 
+}
 
 const bool l1t::L1TGlobalUtil::getInitialDecisionByName(const std::string& algName, bool& decision) const {
 
@@ -205,6 +279,26 @@ const bool l1t::L1TGlobalUtil::getFinalDecisionByName(const std::string& algName
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
     decision = (m_decisionsFinal.at(bit)).second;
+    return true;
+  }
+  
+  return false;  //trigger name was not the menu. 
+}
+const bool l1t::L1TGlobalUtil::getPrescaleByName(const std::string& algName, int& prescale) const {
+
+  int bit = -1;
+  if(getAlgBitFromName(algName,bit)) {
+    prescale = (m_prescales.at(bit)).second;
+    return true;
+  }
+  
+  return false;  //trigger name was not the menu. 
+}
+const bool l1t::L1TGlobalUtil::getMaskByName(const std::string& algName, bool& mask) const {
+
+  int bit = -1;
+  if(getAlgBitFromName(algName,bit)) {
+    mask = (m_masks.at(bit)).second;
     return true;
   }
   
