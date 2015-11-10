@@ -381,6 +381,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     inputPrescaleFile.open(m_prescalesFile);
 
     std::vector<std::vector<int> > vec;
+    std::vector<std::vector<int> > prescale_vec;
 
     if( inputPrescaleFile ){
       std::string prefix1("#");
@@ -388,7 +389,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
       std::string line; 
 
-      bool first = false;
+      bool first = true;
 
       while( getline(inputPrescaleFile,line) ){
 
@@ -401,7 +402,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 	char sep;
 
 	while( split >> value ){
-	  if( !first ){
+	  if( first ){
 	    // Each new value read on line 1 should create a new inner vector
 	    vec.push_back(std::vector<int>());
 	  }
@@ -415,8 +416,42 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 	// Finished reading line 1 and creating as many inner
 	// vectors as required
-	first = true;
+	first = false;
       }
+
+
+      int NumPrescaleSets = vec.size()-1;
+
+      if( NumPrescaleSets > 0 ){
+	// Fill default prescale set
+	for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+	  prescale_vec.push_back(std::vector<int>());
+	  for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
+	    int inputDefaultPrescale = 1;
+	    prescale_vec[iSet].push_back(inputDefaultPrescale);
+	  }
+	}
+
+	// Fill non-trivial prescale set
+	for( int iBit=0; iBit<int(vec[0].size()); iBit++ ){
+	  unsigned int algoBit = vec[0][iBit];
+	  // algoBit must be less than the number of triggers
+	  if( algoBit < m_numberPhysTriggers ){
+	    for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+	      int prescale = vec[iSet+1][iBit];
+	      prescale_vec[iSet][algoBit] = prescale;
+	    }
+	  }
+	  else{
+	    LogTrace("l1t|Global")
+	      << "\nPrescale file has algo bit: " << algoBit
+	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
+	      << "\nSomething is wrong. Ignoring."
+	      << std::endl;
+	  }
+	}
+      }
+
     }
     else {
       LogTrace("l1t|Global")
@@ -427,18 +462,19 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
       m_prescaleSet = 1;
 
-      for( int col=0; col<2; col++ ){
-	vec.push_back(std::vector<int>());
+      for( int col=0; col < 1; col++ ){
+	prescale_vec.push_back(std::vector<int>());
 	for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
 	  int inputDefaultPrescale = 1;
-	  vec[col].push_back(inputDefaultPrescale);
+	  prescale_vec[col].push_back(inputDefaultPrescale);
 	}
       }
     }
 
     inputPrescaleFile.close();
 
-    m_prescaleFactorsAlgoTrig = &vec;
+
+    m_prescaleFactorsAlgoTrig = &prescale_vec;
 
 
     // // Used for testing
@@ -453,6 +489,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // 	printf("\n");
     //   }
     // }
+
 
     // get / update the trigger mask from the EventSetup
     // local cache & check on cacheIdentifier
@@ -665,18 +702,20 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
     // get the prescale factor from the configuration for now
-    unsigned int pfAlgoSetIndex = m_prescaleSet;
+    // Prescale set indexed by zero internally, but externally indexed by 1
+    unsigned int pfAlgoSetIndex = m_prescaleSet-1;
 
     // Require that prescale set be positive
-    if( pfAlgoSetIndex<1 ) pfAlgoSetIndex = 1;
+    if( m_prescaleSet<=0 ) pfAlgoSetIndex = 0;
 
-
-    if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size() ){
+    if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size()-1 ){
       LogTrace("l1t|Global")
 	<< "\nAttempting to access prescale algo set: " << m_prescaleSet
-	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()-1
-	<< "Skipping event"
+	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()
+	<< "Setting former to latter."
 	<< std::endl;
+
+      pfAlgoSetIndex = (*m_prescaleFactorsAlgoTrig).size()-1;
     }
 
     const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
