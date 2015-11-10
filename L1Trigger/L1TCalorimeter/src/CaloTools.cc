@@ -73,7 +73,7 @@ bool l1t::CaloTools::isValidIEtaIPhi(int iEta,int iPhi)
   size_t absIEta = abs(iEta);
   if(iPhi<=0 || iPhi>kHBHENrPhi) return false;
   if(absIEta==0 || absIEta>kHFEnd) return false;
-  if(absIEta>kHBHEEnd && iPhi%kHFPhiSeg!=1) return false;
+  //if(absIEta>kHBHEEnd && iPhi%kHFPhiSeg!=1) return false;
   return true;
 
 }

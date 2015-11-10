@@ -305,7 +305,7 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(m_mpBx < -2 || m_mpBx > 2 || m_dmxBx < -2 || m_dmxBx > 2)
     edm::LogError("L1T") << "Selected MP Bx or Demux Bx to fill histograms is outside of range -2,2. Histos will be empty!";
    
-
+ 
   // get towers
   if (m_doTowers) {
     Handle< BXVector<l1t::CaloTower> > towers;
@@ -337,7 +337,6 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
   }
-
   // get cluster
   if (m_doClusters) {
     Handle< BXVector<l1t::CaloCluster> > clusters;
@@ -428,7 +427,7 @@ int njetmp=0;
       if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr ) {
-        njetmp+=1;
+	njetmp+=1;
         hbx_.at(MPJet)->Fill( ibx );
 	het_.at(MPJet)->Fill( itr->hwPt() );
 	heta_.at(MPJet)->Fill( itr->hwEta() );
@@ -563,7 +562,7 @@ int njetdem=0;
       if (  !m_allBx && ibx != m_dmxBx ) continue;
 
       for ( auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr ) {
-        njetdem+=1;
+	njetdem+=1;
         hbx_.at(Jet)->Fill( ibx );
 	het_.at(Jet)->Fill( itr->hwPt() );
 	heta_.at(Jet)->Fill( itr->hwEta() );
