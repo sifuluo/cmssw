@@ -47,8 +47,11 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+
 
 using namespace edm;
 using namespace std;
@@ -94,12 +97,13 @@ namespace l1t {
     
     bool m_dumpTestVectors;
     bool m_dumpGTRecord;
+    bool m_dumpTriggerResults;
     int m_minBx;
     int m_maxBx;
     int m_minBxVectors;
     int m_maxBxVectors;
-
     
+    L1TGlobalUtil* m_gtUtil;
   };
 
   GtRecordDump::GtRecordDump(const edm::ParameterSet& iConfig)
@@ -116,6 +120,7 @@ namespace l1t {
       m_minBx           = iConfig.getParameter<int>("minBx");
       m_maxBx           = iConfig.getParameter<int>("maxBx");     
       m_dumpGTRecord    = iConfig.getParameter<bool>("dumpGTRecord");
+      m_dumpTriggerResults = iConfig.getParameter<bool>("dumpTrigResults");
 
       m_minBxVectors    = iConfig.getParameter<int>("minBxVec");
       m_maxBxVectors    = iConfig.getParameter<int>("maxBxVec"); 
@@ -127,7 +132,8 @@ namespace l1t {
 
       m_absBx = 0;
       m_absBx += m_bxOffset;
-      
+
+      m_gtUtil = new L1TGlobalUtil();
   }
   
   // loop over events
@@ -156,7 +162,28 @@ namespace l1t {
   Handle<BXVector<GlobalExtBlk>> uGtExt;
   iEvent.getByToken(uGtExtToken,uGtExt);   
   
+ 
 
+  if(m_dumpTriggerResults) {
+    
+     //Fill the L1 result maps
+     m_gtUtil->retrieveL1(iEvent,evSetup,uGtAlgToken);
+
+     // grab the map for the final decisions
+     const std::vector<std::pair<std::string, bool> > finalDecisions = m_gtUtil->decisionsFinal();
+
+     // Dump the results
+     cout << "    Bit                  Algorithm Name              Result" << endl;
+     cout << "===========================================================" << endl;
+     for(unsigned int i=0; i<finalDecisions.size(); i++) {
+       std::string name = (finalDecisions.at(i)).first;
+       bool result = (finalDecisions.at(i)).second;
+       if(name != "NULL") cout << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(2) << result << endl;
+     }
+     cout << "===========================================================" << endl;
+  }
+
+  
   if(m_dumpGTRecord) {
    
        cout << " -----------------------------------------------------  " << endl;
