@@ -120,7 +120,7 @@ process.simCaloStage2Digis = caloStage2Digis.clone()
 process.simCaloStage2Digis.towerToken = cms.InputTag("simCaloStage2Layer1Digis")
 
 # emulator ES
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi')
 
 # histograms
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
