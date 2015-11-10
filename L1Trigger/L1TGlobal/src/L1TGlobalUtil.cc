@@ -71,6 +71,10 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
     // Fill the mask and prescales (dummy for now)
     if(!m_filledPrescales) {
 
+      // clear and dimension
+       resetPrescaleVectors();
+       resetMaskVectors();
+      
        for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
           // Get the algorithm name
@@ -87,34 +91,44 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        
       m_filledPrescales = true;
     }
-    
+
+
+   
 // Get the Global Trigger Output Algorithm block
      iEvent.getByToken(gtAlgToken,m_uGtAlgBlk);
 
-     // get the GlabalAlgBlk (Stupid find better way)
-     std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
+    //Make sure we have a valid AlgBlk
+     if(m_uGtAlgBlk.isValid()) {
+       // get the GlabalAlgBlk (Stupid find better way)
+       std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
 
-     // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
-     // Note: might be able to improve performance by not full remaking map with names each time
-     for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
+       // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
+       // Note: might be able to improve performance by not full remaking map with names each time
+       for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
-       // Get the algorithm name
-       std::string algName = itAlgo->first;
-       int algBit = (itAlgo->second).algoBitNumber();
+	 // Get the algorithm name
+	 std::string algName = itAlgo->first;
+	 int algBit = (itAlgo->second).algoBitNumber();
 
-       bool decisionInitial   = algBlk->getAlgoDecisionInitial(algBit);
-       (m_decisionsInitial[algBit]).first  = algName;
-       (m_decisionsInitial[algBit]).second = decisionInitial;
+	 bool decisionInitial   = algBlk->getAlgoDecisionInitial(algBit);
+	 (m_decisionsInitial[algBit]).first  = algName;
+	 (m_decisionsInitial[algBit]).second = decisionInitial;
 
-       bool decisionPrescaled = algBlk->getAlgoDecisionPreScaled(algBit);
-       (m_decisionsPrescaled[algBit]).first  = algName;
-       (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
+	 bool decisionPrescaled = algBlk->getAlgoDecisionPreScaled(algBit);
+	 (m_decisionsPrescaled[algBit]).first  = algName;
+	 (m_decisionsPrescaled[algBit]).second = decisionPrescaled;
 
-       bool decisionFinal     = algBlk->getAlgoDecisionFinal(algBit);
-       (m_decisionsFinal[algBit]).first  = algName;
-       (m_decisionsFinal[algBit]).second = decisionFinal;
+	 bool decisionFinal     = algBlk->getAlgoDecisionFinal(algBit);
+	 (m_decisionsFinal[algBit]).first  = algName;
+	 (m_decisionsFinal[algBit]).second = decisionFinal;
       
-     }  
+       }
+     } else {
+
+       cout
+	 << "Error no valid uGT Algorithm Data with Token provided " << endl;
+     }
+    
 }
 
 void l1t::L1TGlobalUtil::resetDecisionVectors() {
