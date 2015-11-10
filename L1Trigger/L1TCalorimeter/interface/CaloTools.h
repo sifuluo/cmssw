@@ -31,8 +31,8 @@ namespace l1t {
     //they are private to stop people using them as they will change (naming is invalid for a start)
     static const int kHBHEEnd=28;
     static const int kHFBegin=29;
-    static const int kHFEnd=32;
-    static const int kHFPhiSeg=4;
+    static const int kHFEnd=40;
+    static const int kHFPhiSeg=1;
     static const int kHFNrPhi=72/kHFPhiSeg;
     static const int kHBHENrPhi=72;
     static const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
