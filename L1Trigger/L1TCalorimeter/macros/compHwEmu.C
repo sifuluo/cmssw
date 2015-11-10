@@ -167,7 +167,7 @@
   TLegend* leg = new TLegend(0.6,0.75,0.85,0.85);
   leg->SetFillColor(0);
   leg->AddEntry(hwEgEt,"Upgrade hardware", "p");
-  leg->AddEntry(emEgEt,"Upgrade simulation", "l");
+  leg->AddEntry(emEgEt,"Upgrade emulator", "l");
 
   /*
     TLegend* leg = new TLegend(0.6,0.7,0.8,0.9);
@@ -205,8 +205,8 @@ if(doEgamma){
   leg->SetFillColor(0);
   leg->AddEntry(hwMPEgEt,"Upgrade hardware", "p");//"l");
   //leg->AddEntry(hwEgEt,"Upgrade hardware", "p");
-  leg->AddEntry(emMPEgEt,"Upgrade simulation", "l");
-  //leg->AddEntry(emEgEt,"Upgrade simulation", "p");
+  leg->AddEntry(emMPEgEt,"Upgrade emulator", "l");
+  //leg->AddEntry(emEgEt,"Upgrade emulator", "p");
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   
@@ -234,11 +234,11 @@ if(doEgamma){
   EgEtRatio->SetMinimum(0);
   emMPEgEt->Draw("same");//"");
   leg->Draw();
-  n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
   n2.DrawLatex(0.7, 0.65, "CMS");
-  n3.DrawLatex(0.7, 0.6, "Simulation");
+  n3.DrawLatex(0.7, 0.6, "Run 260627    #sqrt{s} = 13 TeV");
   n3.DrawLatex(0.7, 0.55, "Preliminary");
-  n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+  n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
     
 
   if(doRatio){
@@ -302,11 +302,10 @@ if(doEgamma){
  DEgEtRatio->SetMinimum(0);
  emEgEt->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
 
 
  if(doRatio){
@@ -351,8 +350,8 @@ if(doEgamma){
  leg->SetFillColor(0);
  leg->AddEntry(hwMPEgEta,"Upgrade hardware", "p");//"l");
  //leg->AddEntry(hwEgEta,"Upgrade hardware", "p");
- leg->AddEntry(emMPEgEta,"Upgrade simulation", "l");
- //leg->AddEntry(emEgEta,"Upgrade simulation", "p");
+ leg->AddEntry(emMPEgEta,"Upgrade emulator", "l");
+ //leg->AddEntry(emEgEta,"Upgrade emulator", "p");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
 
@@ -380,11 +379,11 @@ if(doEgamma){
  EgEtaRatio->SetMinimum(0);
  emMPEgEta->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -428,7 +427,7 @@ if(doEgamma){
  leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwEgEta,"Upgrade hardware", "p");
- leg->AddEntry(emEgEta,"Upgrade simulation", "l");
+ leg->AddEntry(emEgEta,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwEgEta->SetStats(0);
@@ -451,11 +450,10 @@ if(doEgamma){
  DEgEtaRatio->SetMinimum(0);
  emEgEta->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.2, 0.65, "CMS");
- n3.DrawLatex(0.2, 0.6, "Simulation");
- n3.DrawLatex(0.2, 0.55, "Preliminary");
- n4.DrawLatex(0.2, 0.45, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
 
  if(doRatio){
 
@@ -500,8 +498,8 @@ if(doEgamma){
  leg->SetFillColor(0);
  leg->AddEntry(hwMPEgPhi,"Upgrade hardware", "p");//"l");
  //leg->AddEntry(hwEgPhi,"Upgrade hardware", "p");
- leg->AddEntry(emMPEgPhi,"Upgrade simulation", "l");
- //leg->AddEntry(emEgPhi,"Upgrade simulation", "p");
+ leg->AddEntry(emMPEgPhi,"Upgrade emulator", "l");
+ //leg->AddEntry(emEgPhi,"Upgrade emulator", "p");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPEgPhi->SetStats(0);
@@ -530,11 +528,11 @@ if(doEgamma){
  EgPhiRatio->SetMinimum(0);
  emMPEgPhi->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.7, 0.8, "CMS");
- n3.DrawLatex(0.7, 0.75, "Simulation");
- n3.DrawLatex(0.7, 0.65, "Preliminary");
- n4.DrawLatex(0.7, 0.55, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+ 
 
  if(doRatio){
 
@@ -577,7 +575,7 @@ if(doEgamma){
  leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwEgPhi,"Upgrade hardware", "p");
- leg->AddEntry(emEgPhi,"Upgrade simulation", "l");
+ leg->AddEntry(emEgPhi,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwEgPhi->SetStats(0);
@@ -602,11 +600,11 @@ if(doEgamma){
  DEgPhiRatio->SetMinimum(0);
  emEgPhi->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
 
  if(doRatio){
@@ -1026,8 +1024,8 @@ if(doJets){
   leg->SetFillColor(0);
   leg->AddEntry(hwMPJetEt,"Upgrade hardware", "p");//"l");
   //leg->AddEntry(hwJetEt,"Upgrade hardware", "p");
-  leg->AddEntry(emMPJetEt,"Upgrade simulation", "l");
-  //leg->AddEntry(emJetEt,"Upgrade simulation", "p");
+  leg->AddEntry(emMPJetEt,"Upgrade emulator", "l");
+  //leg->AddEntry(emJetEt,"Upgrade emulator", "p");
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   //hwMPJetEt->Rebin(2);
@@ -1038,7 +1036,7 @@ if(doJets){
   hwMPJetEt->SetMarkerStyle(21);
   hwMPJetEt->SetMarkerColor(1);
   hwMPJetEt->SetMarkerSize(0.4);
-  //hwMPJetEt->GetXaxis()->SetRange(0,400);
+  hwMPJetEt->GetXaxis()->SetRange(0,200);
   emMPJetEt->SetLineColor(kRed);
   hwMPJetEt->GetXaxis()->SetTitle("Level-1 Trigger Jet iE_{T}");
   hwMPJetEt->GetYaxis()->SetTitle("Number of candidates");
@@ -1054,11 +1052,11 @@ if(doJets){
   JetEtRatio->SetMinimum(0);
   emMPJetEt->Draw("same");//"");
   leg->Draw();
-  n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
-  n2.DrawLatex(0.65, 0.65, "CMS");
-  n3.DrawLatex(0.65, 0.6, "Simulation");
-  n3.DrawLatex(0.65, 0.55, "Preliminary");
-  n4.DrawLatex(0.65, 0.45, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
 
   if(doRatio){
@@ -1102,7 +1100,7 @@ if(doJets){
  leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwJetEt,"Upgrade hardware", "p");
- leg->AddEntry(emJetEt,"Upgrade simulation", "l");
+ leg->AddEntry(emJetEt,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
 
@@ -1129,11 +1127,11 @@ if(doJets){
  DJetEtRatio->SetMinimum(0);
  emJetEt->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.65, 0.65, "CMS");
- n3.DrawLatex(0.65, 0.6, "Simulation");
- n3.DrawLatex(0.65, 0.55, "Preliminary");
- n4.DrawLatex(0.65, 0.45, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
 
  if(doRatio){
@@ -1177,12 +1175,12 @@ if(doJets){
  TPad* pInvJetEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
  pInvJetEtaRatio->SetFillStyle(0);
 
- leg = new TLegend(0.6,0.77,0.85,0.87);
+ leg = new TLegend(0.4,0.77,0.65,0.87);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPJetEta,"Upgrade hardware", "p");//"l");
  //leg->AddEntry(hwJetEta,"Upgrade hardware", "p");
- leg->AddEntry(emMPJetEta,"Upgrade simulation", "l");
- //leg->AddEntry(emJetEta,"Upgrade simulation", "p");
+ leg->AddEntry(emMPJetEta,"Upgrade emulator", "l");
+ //leg->AddEntry(emJetEta,"Upgrade emulator", "p");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPJetEta->SetStats(0);
@@ -1194,7 +1192,7 @@ if(doJets){
  emMPJetEta->SetMarkerStyle(20);
  emMPJetEta->SetMarkerColor(kRed);
  emMPJetEta->SetMarkerSize(0.4);
- hwMPJetEta->GetXaxis()->SetRange(10,74);
+ //hwMPJetEta->GetXaxis()->SetRange(10,74);
  hwMPJetEta->GetXaxis()->SetTitle("Level-1 Trigger Jet i#eta");
  hwMPJetEta->GetYaxis()->SetTitle("Number of candidates");
  hwMPJetEta->GetYaxis()->SetTitleSize(0.05);
@@ -1209,11 +1207,11 @@ if(doJets){
  JetEtaRatio->SetMinimum(0);
  emMPJetEta->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
- n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.4, 0.65, "CMS");
+ n3.DrawLatex(0.4, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.4, 0.55, "Preliminary");
+ n4.DrawLatex(0.4, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -1256,7 +1254,7 @@ if(doJets){
  leg = new TLegend(0.65,0.77,0.9,0.87);
  leg->SetFillColor(0);
  leg->AddEntry(hwJetEta,"Upgrade hardware", "p");
- leg->AddEntry(emJetEta,"Upgrade simulation", "l");
+ leg->AddEntry(emJetEta,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
 
@@ -1266,7 +1264,7 @@ if(doJets){
  hwJetEta->SetMarkerSize(0.4);
  emJetEta->SetLineColor(kRed);
  hwJetEta->GetXaxis()->SetTitle("Level-1 Trigger Jet i#eta");
- hwJetEta->GetXaxis()->SetRange(82,146);
+ // hwJetEta->GetXaxis()->SetRange(82,146);
  hwJetEta->GetYaxis()->SetTitle("Number of candidates");
  hwJetEta->GetYaxis()->SetTitleSize(0.05);
  hwJetEta->GetYaxis()->SetTitleOffset(0.77);
@@ -1280,11 +1278,11 @@ if(doJets){
  DJetEtaRatio->SetMinimum(0);
  emJetEta->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.75, 0.65, "CMS");
- n3.DrawLatex(0.75, 0.6, "Simulation");
- n3.DrawLatex(0.75, 0.55, "Preliminary");
- n4.DrawLatex(0.75, 0.45, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -1328,16 +1326,16 @@ if(doJets){
  pInvJetPhiRatio->SetFillStyle(0);
 
 
- leg = new TLegend(0.6,0.33,0.85,0.43);
+ leg = new TLegend(0.6,0.25,0.85,0.35);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPJetPhi,"Upgrade hardware", "p");//"l");
  //leg->AddEntry(hwJetPhi,"Upgrade hardware", "p");
- leg->AddEntry(emMPJetPhi,"Upgrade simulation", "l");
- //leg->AddEntry(emJetPhi,"Upgrade simulation", "p");
+ leg->AddEntry(emMPJetPhi,"Upgrade emulator", "l");
+ //leg->AddEntry(emJetPhi,"Upgrade emulator", "p");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
- //hwMPJetPhi->Rebin(4);
- //emMPJetPhi->Rebin(4);
+ hwMPJetPhi->Rebin(2);
+ emMPJetPhi->Rebin(2);
      
 
  hwMPJetPhi->SetStats(0);
@@ -1366,11 +1364,10 @@ if(doJets){
  JetPhiRatio->SetMinimum(0);
  emMPJetPhi->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.4, 0.4, "CMS");
- n3.DrawLatex(0.4, 0.35, "Simulation");
- n3.DrawLatex(0.4, 0.3, "Preliminary");
- n4.DrawLatex(0.6, 0.25, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
 
 
  if(doRatio){
@@ -1415,7 +1412,7 @@ if(doJets){
  leg = new TLegend(0.6,0.78,0.85,0.88);
  leg->SetFillColor(0);
  leg->AddEntry(hwJetPhi,"Upgrade hardware", "p");
- leg->AddEntry(emJetPhi,"Upgrade simulation", "l");
+ leg->AddEntry(emJetPhi,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwJetPhi->Rebin(4);
@@ -1445,11 +1442,11 @@ if(doJets){
  DJetPhiRatio->SetMinimum(0);
  emJetPhi->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.4, 0.85, "CMS");
- n3.DrawLatex(0.4, 0.8, "Simulation");
- n3.DrawLatex(0.4, 0.75, "Preliminary");
- n4.DrawLatex(0.6, 0.7, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
 
  if(doRatio){
@@ -1498,7 +1495,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPSumEt,"Upgrade hardware", "p");
- leg->AddEntry(emMPSumEt,"Upgrade simulation", "l");
+ leg->AddEntry(emMPSumEt,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPSumEt->Rebin(40);
@@ -1524,11 +1521,10 @@ if(doJets){
  SumEtRatio->SetMinimum(0);
  emMPSumEt->Draw("same");//""); 
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
 
  if(doRatio){
 
@@ -1571,7 +1567,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPSumEtx,"Upgrade hardware", "p");
- leg->AddEntry(emMPSumEtx,"Upgrade simulation", "l");
+ leg->AddEntry(emMPSumEtx,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPSumEtx->Rebin(10);
@@ -1598,12 +1594,11 @@ if(doJets){
  SumEtxRatio->SetMinimum(0);
  emMPSumEtx->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
-
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+ 
  if(doRatio){
 
  cMPSumEtx->cd();
@@ -1646,7 +1641,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPSumEty,"Upgrade hardware", "p");
- leg->AddEntry(emMPSumEty,"Upgrade simulation", "l");
+ leg->AddEntry(emMPSumEty,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPSumEty->Rebin(10);
@@ -1673,11 +1668,11 @@ if(doJets){
  SumEtyRatio->SetMinimum(0);
  emMPSumEty->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+ 
 
  if(doRatio){
 
@@ -1720,7 +1715,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPSumHt,"Upgrade hardware", "p");
- leg->AddEntry(emMPSumHt,"Upgrade simulation", "l");
+ leg->AddEntry(emMPSumHt,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPSumHt->Rebin(40);
@@ -1746,11 +1741,11 @@ if(doJets){
  SumHtRatio->SetMinimum(0);
  emMPSumHt->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -1793,7 +1788,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPSumHtx,"Upgrade hardware", "p");
- leg->AddEntry(emMPSumHtx,"Upgrade simulation", "l");
+ leg->AddEntry(emMPSumHtx,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPSumHtx->Rebin(10);
@@ -1820,11 +1815,11 @@ if(doJets){
  SumHtxRatio->SetMinimum(0);
  emMPSumHtx->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -1867,7 +1862,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMPSumHty,"Upgrade hardware", "p");
- leg->AddEntry(emMPSumHty,"Upgrade simulation", "l");
+ leg->AddEntry(emMPSumHty,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMPSumHty->Rebin(10);
@@ -1894,11 +1889,11 @@ if(doJets){
  SumHtyRatio->SetMinimum(0);
  emMPSumHty->Draw("same");//"");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+ 
 
  if(doRatio){
 
@@ -1943,7 +1938,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwSumEt,"Upgrade hardware", "p");
- leg->AddEntry(emSumEt,"Upgrade simulation", "l");
+ leg->AddEntry(emSumEt,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwSumEt->Rebin(40);
@@ -1969,11 +1964,11 @@ if(doJets){
  DSumEtRatio->SetMinimum(0);
  emSumEt->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -2017,7 +2012,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwSumMet,"Upgrade hardware", "p");
- leg->AddEntry(emSumMet,"Upgrade simulation", "l");
+ leg->AddEntry(emSumMet,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwSumMet->Rebin(10);
@@ -2043,11 +2038,11 @@ if(doJets){
  DSumMetRatio->SetMinimum(0);
  emSumMet->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -2091,7 +2086,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwSumHt,"Upgrade hardware", "p");
- leg->AddEntry(emSumHt,"Upgrade simulation", "l");
+ leg->AddEntry(emSumHt,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwSumHt->Rebin(40);
@@ -2117,11 +2112,11 @@ if(doJets){
  DSumHtRatio->SetMinimum(0);
  emSumHt->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -2165,7 +2160,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwSumMht,"Upgrade hardware", "p");
- leg->AddEntry(emSumMht,"Upgrade simulation", "l");
+ leg->AddEntry(emSumMht,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwSumMht->Rebin(10);
@@ -2191,11 +2186,10 @@ if(doJets){
  DSumMhtRatio->SetMinimum(0);
  emSumMht->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
 
  if(doRatio){
 
@@ -2239,7 +2233,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMetPhi,"Upgrade hardware", "p");
- leg->AddEntry(emMetPhi,"Upgrade simulation", "l");
+ leg->AddEntry(emMetPhi,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMetPhi->Rebin(8);
@@ -2265,11 +2259,11 @@ if(doJets){
  DMetPhiRatio->SetMinimum(0);
  emMetPhi->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -2313,7 +2307,7 @@ if(doJets){
  leg = new TLegend(0.65,0.75,0.9,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwMhtPhi,"Upgrade hardware", "p");
- leg->AddEntry(emMhtPhi,"Upgrade simulation", "l");
+ leg->AddEntry(emMhtPhi,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwMhtPhi->Rebin(8);
@@ -2339,11 +2333,11 @@ if(doJets){
  DMhtPhiRatio->SetMinimum(0);
  emMhtPhi->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
  n2.DrawLatex(0.7, 0.65, "CMS");
- n3.DrawLatex(0.7, 0.6, "Simulation");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
  n3.DrawLatex(0.7, 0.55, "Preliminary");
- n4.DrawLatex(0.7, 0.45, "pp #rightarrow t#bar{t}");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+
 
  if(doRatio){
 
@@ -2394,7 +2388,7 @@ if(doSorts){
  leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwSortMP,"Upgrade hardware", "p");
- leg->AddEntry(emSortMP,"Upgrade simulation", "l");
+ leg->AddEntry(emSortMP,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  hwSortMP->SetStats(0);
@@ -2418,11 +2412,11 @@ if(doSorts){
  SortMPRatio->SetMinimum(0);
  emSortMP->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.2, 0.65, "CMS");
- n3.DrawLatex(0.2, 0.6, "Simulation");
- n3.DrawLatex(0.2, 0.55, "Preliminary");
- n4.DrawLatex(0.2, 0.45, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+ 
 
  if(doRatio){
 
@@ -2464,7 +2458,7 @@ if(doSorts){
  leg = new TLegend(0.6,0.75,0.85,0.85);
  leg->SetFillColor(0);
  leg->AddEntry(hwSort,"Upgrade hardware", "p");
- leg->AddEntry(emSort,"Upgrade simulation", "l");
+ leg->AddEntry(emSort,"Upgrade emulator", "l");
  leg->SetBorderSize(0);
  leg->SetFillStyle(0);
  //hwSort->Rebin(3);
@@ -2490,11 +2484,11 @@ if(doSorts){
  DSortRatio->SetMinimum(0);
  emSort->Draw("same");
  leg->Draw();
- n1.DrawLatex(0.30, 0.92, "pp #rightarrow t#bar{t}    #sqrt{s} = 13 TeV  BX = 25ns  <PU> = 40");
- n2.DrawLatex(0.2, 0.65, "CMS");
- n3.DrawLatex(0.2, 0.6, "Simulation");
- n3.DrawLatex(0.2, 0.625, "Preliminary");
- n4.DrawLatex(0.2, 0.55, "pp #rightarrow t#bar{t}");
+ n2.DrawLatex(0.7, 0.65, "CMS");
+ n3.DrawLatex(0.7, 0.6, "Run 260627 #sqrt{s} = 13 TeV");
+ n3.DrawLatex(0.7, 0.55, "Preliminary");
+ n4.DrawLatex(0.7, 0.45, "Single Muon stream");
+ 
 
  if(doRatio){
 

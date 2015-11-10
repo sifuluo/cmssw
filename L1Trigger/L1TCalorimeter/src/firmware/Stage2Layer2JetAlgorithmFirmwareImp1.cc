@@ -312,27 +312,42 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
             
     } 
     
-    // do EtaUp and EtaDown
+    // do EtaUp
     for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
       
-      int towPhi = iphi;
-      while ( towPhi > phiMax ) towPhi -= phiMax;
-      while ( towPhi < phiMin ) towPhi += phiMax;
-      
-      if (ietaUp>=etaMin && ietaUp<=etaMax) {    
-    	const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
-    	int towEt = towEtaUp.hwPt();
-    	ring[2] += towEt;
+      if (ietaUp<=etaMax) {    
+        int towPhi = iphi;
+        while ( towPhi > phiMax ) towPhi -= phiMax;
+        while ( towPhi < phiMin ) towPhi += phiMax;
+
+        const CaloTower& towEtaUp = CaloTools::getTower(towers, ietaUp, towPhi);
+        int towEt = towEtaUp.hwPt();
+        ring[2] += towEt;
+      }else{
+        ring[2] = 0;
+        break;
       }
       
-      if (ietaDown>=etaMin && ietaDown<=etaMax) {
-    	const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
-    	int towEt = towEtaDown.hwPt();
-    	ring[3] += towEt;
+    } 
+    
+    // do EtaDown
+    for (int iphi=jetPhi-size+1; iphi<jetPhi+size; ++iphi) {
+      
+      if (ietaDown>=etaMin) {
+        int towPhi = iphi;
+        while ( towPhi > phiMax ) towPhi -= phiMax;
+        while ( towPhi < phiMin ) towPhi += phiMax;
+	
+        const CaloTower& towEtaDown = CaloTools::getTower(towers, ietaDown, towPhi);
+        int towEt = towEtaDown.hwPt();
+        ring[3] += towEt;
+      }else{
+        ring[3] = 0;
+        break;
       }
       
-    }
- 
+    }     
+    
     
   }
   
