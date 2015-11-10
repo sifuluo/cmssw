@@ -85,8 +85,10 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 	  (m_prescales[algBit]).second = 1;
 
 	  (m_masks[algBit]).first  = algName;
-	  (m_masks[algBit]).second = false;	  
-	  
+	  (m_masks[algBit]).second = true;	  
+
+	  (m_vetoMasks[algBit]).first  = algName;
+	  (m_vetoMasks[algBit]).second = false;
        }
        
       m_filledPrescales = true;
@@ -96,12 +98,16 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
    
 // Get the Global Trigger Output Algorithm block
      iEvent.getByToken(gtAlgToken,m_uGtAlgBlk);
+     m_finalOR = false;
 
     //Make sure we have a valid AlgBlk
      if(m_uGtAlgBlk.isValid()) {
-       // get the GlabalAlgBlk (Stupid find better way)
+       // get the GlabalAlgBlk (Stupid find better way) of BX=0
        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
 
+       // Grab the final OR from the AlgBlk
+       m_finalOR = algBlk->getFinalOR();
+       
        // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
        // Note: might be able to improve performance by not full remaking map with names each time
        for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
@@ -178,11 +184,16 @@ void l1t::L1TGlobalUtil::resetMaskVectors() {
   // Reset all the vector contents with null information
   m_masks.clear();
   m_masks.resize(maxTriggers);
+  m_vetoMasks.clear();
+  m_vetoMasks.resize(maxTriggers); 
   
   for(int algBit = 0; algBit< maxTriggers; algBit++) {
 
     (m_masks.at(algBit)).first = "NULL";
-    (m_masks.at(algBit)).second = false;  
+    (m_masks.at(algBit)).second = true;
+
+    (m_vetoMasks.at(algBit)).first = "NULL";
+    (m_vetoMasks.at(algBit)).second = false;     
 
   }
 
@@ -266,6 +277,17 @@ const bool l1t::L1TGlobalUtil::getMaskByBit(int& bit, bool& mask) const {
   return false;  //couldn't get the information requested. 
 }
 
+const bool l1t::L1TGlobalUtil::getVetoMaskByBit(int& bit, bool& veto) const {
+
+  // Need some check that this is a valid bit
+  if((m_vetoMasks.at(bit)).first != "NULL") {
+    veto = (m_vetoMasks.at(bit)).second;
+    return true;
+  }
+  
+  return false;  //couldn't get the information requested. 
+}
+
 const bool l1t::L1TGlobalUtil::getInitialDecisionByName(const std::string& algName, bool& decision) const {
 
   int bit = -1;
@@ -313,6 +335,16 @@ const bool l1t::L1TGlobalUtil::getMaskByName(const std::string& algName, bool& m
   int bit = -1;
   if(getAlgBitFromName(algName,bit)) {
     mask = (m_masks.at(bit)).second;
+    return true;
+  }
+  
+  return false;  //trigger name was not the menu. 
+}
+const bool l1t::L1TGlobalUtil::getVetoMaskByName(const std::string& algName, bool& veto) const {
+
+  int bit = -1;
+  if(getAlgBitFromName(algName,bit)) {
+    veto = (m_vetoMasks.at(bit)).second;
     return true;
   }
   

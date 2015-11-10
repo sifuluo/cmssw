@@ -175,10 +175,12 @@ namespace l1t {
      const std::vector<std::pair<std::string, bool> > finalDecisions = m_gtUtil->decisionsFinal();
      const std::vector<std::pair<std::string, int> >  prescales = m_gtUtil->prescales();
      const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
+     const std::vector<std::pair<std::string, bool> > vetoMasks = m_gtUtil->vetoMasks();
+     
 
      // Dump the results
-     cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked" << endl;
-     cout << "====================================================================================================" << endl;
+     cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked    Veto " << endl;
+     cout << "============================================================================================================" << endl;
      for(unsigned int i=0; i<initialDecisions.size(); i++) {
        
        // get the name and trigger result
@@ -192,10 +194,11 @@ namespace l1t {
        // get the prescale and mask (needs some error checking here)
        int prescale = (prescales.at(i)).second;
        bool mask    = (masks.at(i)).second;
+       bool veto    = (vetoMasks.at(i)).second;
        
-       if(name != "NULL") cout << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << endl;
+       if(name != "NULL") cout << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
      }
-     cout << "======================================================================================================" << endl;
+     cout << "===========================================================================================================" << endl;
   }
 
   
