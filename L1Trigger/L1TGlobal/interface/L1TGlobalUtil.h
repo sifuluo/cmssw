@@ -115,7 +115,7 @@ private:
     void resetDecisionVectors();
     void resetPrescaleVectors();
     void resetMaskVectors();
-    void loadPrescales();
+    void loadPrescalesAndMasks();
 
     // trigger menu
     const TriggerMenu* m_l1GtMenu;
@@ -136,6 +136,8 @@ private:
     std::string m_preScaleFileName;
     unsigned int m_PreScaleColumn;
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
     
     // access to the results block from uGT 
     edm::Handle<BXVector<GlobalAlgBlk>>  m_uGtAlgBlk;

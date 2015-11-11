@@ -84,7 +84,7 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        resetMaskVectors();
 
        //Load the full prescale set for use
-       loadPrescales();
+       loadPrescalesAndMasks();
 
        //Pick which set we are using
        if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {	  
@@ -108,10 +108,10 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
 	  (m_prescales[algBit]).second = prescaleSet.at(algBit);
 
 	  (m_masks[algBit]).first  = algName;
-	  (m_masks[algBit]).second = true;	  
+	  (m_masks[algBit]).second = m_triggerMaskAlgoTrig->at(algBit);	  
 
 	  (m_vetoMasks[algBit]).first  = algName;
-	  (m_vetoMasks[algBit]).second = false;
+	  (m_vetoMasks[algBit]).second = m_triggerMaskVetoAlgoTrig->at(algBit);
        }
        
       m_filledPrescales = true;
@@ -160,13 +160,16 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
     
 }
 
-void l1t::L1TGlobalUtil::loadPrescales() {
+void l1t::L1TGlobalUtil::loadPrescalesAndMasks() {
 
     std::fstream inputPrescaleFile;
     inputPrescaleFile.open(m_preScaleFileName);
 
-     std::vector<std::vector<int> > vec;
+    std::vector<std::vector<int> > vec;
     std::vector<std::vector<int> > prescale_vec;
+
+    std::vector<unsigned int> temp_triggerMask;
+    std::vector<unsigned int> temp_triggerVetoMask;
 
     if( inputPrescaleFile ){
       std::string prefix1("#");
@@ -179,7 +182,7 @@ void l1t::L1TGlobalUtil::loadPrescales() {
       while( getline(inputPrescaleFile,line) ){
 
 	if( !line.compare(0, prefix1.size(), prefix1) ) continue;
-	if( !line.compare(0, prefix2.size(), prefix2) ) continue;
+	//if( !line.compare(0, prefix2.size(), prefix2) ) continue;
 
 	istringstream split(line);
 	int value;
@@ -205,7 +208,46 @@ void l1t::L1TGlobalUtil::loadPrescales() {
       }
 
 
-      int NumPrescaleSets = vec.size()-1;
+      int NumPrescaleSets = 0;
+
+      int maskColumn = -1;
+      int maskVetoColumn = -1;
+      for( int iCol=0; iCol<int(vec.size()); iCol++ ){
+	if( vec[iCol].size() > 0 ){
+	  int firstRow = vec[iCol][0];
+
+	  if( firstRow > 0 ) NumPrescaleSets++;
+	  else if( firstRow==-2 ) maskColumn = iCol;
+	  else if( firstRow==-3 ) maskVetoColumn = iCol;
+	}
+      }
+
+      // Fill default values for mask and veto mask
+      for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
+	unsigned int inputDefaultMask = 1;
+	unsigned int inputDefaultVetoMask = 0;
+	temp_triggerMask.push_back(inputDefaultMask);
+	temp_triggerVetoMask.push_back(inputDefaultVetoMask);
+      }
+
+      // Fill non-trivial mask and veto mask
+      if( maskColumn>=0 || maskVetoColumn>=0 ){
+	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
+	  unsigned int algoBit = vec[0][iBit];
+	  // algoBit must be less than the number of triggers
+	  if( algoBit < m_numberPhysTriggers ){
+	    if( maskColumn>=0 ){
+	      unsigned int triggerMask = vec[maskColumn][iBit];
+	      temp_triggerMask[algoBit] = triggerMask;
+	    }
+	    if( maskVetoColumn>=0 ){
+	      unsigned int triggerVetoMask = vec[maskVetoColumn][iBit];
+	      temp_triggerVetoMask[algoBit] = triggerVetoMask;
+	    }
+	  }
+	}
+      }
+
 
       if( NumPrescaleSets > 0 ){
 	// Fill default prescale set
@@ -218,13 +260,21 @@ void l1t::L1TGlobalUtil::loadPrescales() {
 	}
 
 	// Fill non-trivial prescale set
-	for( int iBit=0; iBit<int(vec[0].size()); iBit++ ){
+	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
 	  unsigned int algoBit = vec[0][iBit];
 	  // algoBit must be less than the number of triggers
 	  if( algoBit < m_numberPhysTriggers ){
-	    for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
-	      int prescale = vec[iSet+1][iBit];
-	      prescale_vec[iSet][algoBit] = prescale;
+	    for( int iSet=0; iSet<int(vec.size()); iSet++ ){
+	      int useSet = -1;
+	      if( vec[iSet].size() > 0 ){
+		useSet = vec[iSet][0];
+	      }
+	      useSet -= 1;
+	      
+	      if( useSet<0 ) continue;
+
+	      int prescale = vec[iSet][iBit];
+	      prescale_vec[useSet][algoBit] = prescale;
 	    }
 	  }
 	  else{
@@ -258,9 +308,9 @@ void l1t::L1TGlobalUtil::loadPrescales() {
 
     inputPrescaleFile.close();
 
-
     m_prescaleFactorsAlgoTrig = &prescale_vec;
-
+    m_triggerMaskAlgoTrig     = &temp_triggerMask;
+    m_triggerMaskVetoAlgoTrig = &temp_triggerVetoMask;
 
 }
 

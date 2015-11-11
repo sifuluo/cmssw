@@ -206,6 +206,8 @@ namespace l1t {
        
        if(name != "NULL") cout << setfill(' ') << "   " << setw(5) << i << "   " << setw(40) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
      }
+     bool finOR = m_gtUtil->getFinalOR();
+     cout << "                                                                FinalOR = " << finOR <<endl;
      cout << "===========================================================================================================" << endl;
   }
 
