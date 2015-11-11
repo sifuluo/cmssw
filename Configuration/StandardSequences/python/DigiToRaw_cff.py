@@ -49,8 +49,7 @@ def _modifyDigiToRawForStage1L1Trigger( DigiToRaw_object ) :
     DigiToRaw.replace( gctDigiToRaw, L1TStage1DigiToRawSeq )
 
 eras.stage1L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage1L1Trigger )
-
-
+eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage1Raw")) )
 
 ### this appears to be incorrect ! ###
 eras.stage1L1Trigger.toModify( gctDigiToRaw, gctInputLabel = 'simCaloStage1LegacyFormatDigis' )
@@ -60,6 +59,9 @@ def _modifyDigiToRawForStage2L1Trigger( DigiToRaw_object ) :
     DigiToRaw.replace( gctDigiToRaw, L1TStage2DigiToRawSeq )
 
 eras.stage2L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage1L1Trigger )
+eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
+
+
 
 
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
