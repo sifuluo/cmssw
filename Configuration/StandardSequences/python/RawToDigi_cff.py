@@ -57,8 +57,8 @@ from EventFilter.L1TRawToDigi.caloStage1Digis_cfi import *
 
 from EventFilter.L1TRawToDigi.caloStage2Digis_cfi import *
 
-from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
-caloStage1LegacyFormatDigis = L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi.clone()
+import L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi
+caloStage1LegacyFormatDigis = L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi.simCaloStage1LegacyFormatDigis.clone()
 caloStage1LegacyFormatDigis.InputCollection = cms.InputTag("caloStage1Digis")
 caloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("caloStage1Digis:rlxTaus")
 caloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("caloStage1Digis:isoTaus")
@@ -133,7 +133,7 @@ eras.stage1L1Trigger.toModify( RawToDigi, func=_modifyRawToDigiForStage1Trigger 
 
 def _modifyRawToDigiForStage2Trigger( RawToDigi_object ) :
     L1Stage2RawToDigiSeq = cms.Sequence( caloStage2Digis )
-    RawToDigi_object.replace( gctDigis, L1Stage2RawToDigiSeq )
+    RawToDigi_object.replace( gctDigis, caloStage2Digis )
 
 eras.stage2L1Trigger.toModify( RawToDigi, func=_modifyRawToDigiForStage2Trigger )
 
