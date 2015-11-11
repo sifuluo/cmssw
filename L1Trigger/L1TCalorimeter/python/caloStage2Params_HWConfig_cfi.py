@@ -59,7 +59,7 @@ caloStage2Params.tauPUSParams                  = cms.vdouble(1,4,27)
 
 # jets
 caloStage2Params.jetLsb                = cms.double(0.5)
-caloStage2Params.jetSeedThreshold      = cms.double(0.)
+caloStage2Params.jetSeedThreshold      = cms.double(1.5)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
 
