@@ -52,7 +52,7 @@ class L1GtTriggerMask;
 
 namespace l1t {
 
-class GtProducer : public edm::EDProducer
+  class GtProducer : public edm::EDProducer
 {
 
 public:
@@ -124,6 +124,7 @@ private:
 
 
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
 
     /// CSV file for prescales
     std::string m_prescalesFile;
@@ -189,7 +190,6 @@ private:
 
     /// prescale set used
     unsigned int m_prescaleSet;
-
 
     /// run algorithm triggers
     ///     if true, unprescaled (all prescale factors 1)

@@ -247,6 +247,10 @@ if rootout:
 # Spit out filter efficiency at the end.
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
+# Options for multithreading
+#process.options.numberOfThreads = cms.untracked.uint32( 2 )
+#process.options.numberOfStreams = cms.untracked.uint32( 0 )
+
 if dump:
     outfile = open('dump_runGlobalFakeInputProducer_'+`job`+'.py','w')
     print >> outfile,process.dumpPython()
