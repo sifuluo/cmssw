@@ -160,16 +160,16 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
   
     // register products
-    if (m_produceL1GtDaqRecord) {
-	produces<GlobalAlgBlkBxCollection>();
-	produces<GlobalExtBlkBxCollection>();
+    if( m_produceL1GtDaqRecord ){
+      produces<GlobalAlgBlkBxCollection>();
+      produces<GlobalExtBlkBxCollection>();
     }
 
-/*  **** Needs Modifying ***
-    if (m_produceL1GtObjectMapRecord) {
-        produces<GtProducerObjectMapRecord>();
+
+    if( m_produceL1GtObjectMapRecord ) {
+      produces<L1GlobalTriggerObjectMapRecord>();
+      //produces<GtProducerObjectMapRecord>();
     }
-*/
 
 
     // create new uGt Board
@@ -905,16 +905,15 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     
     // register products
-    if (m_produceL1GtDaqRecord) {
-	iEvent.put( uGtAlgRecord );
-	iEvent.put( uGtExtRecord );
+    if( m_produceL1GtDaqRecord ){
+      iEvent.put( uGtAlgRecord );
+      iEvent.put( uGtExtRecord );
     }
 
-/**  OUTPUT RECORD
-    if (m_produceL1GtObjectMapRecord) {
-        iEvent.put( gtObjectMapRecord );
+
+    if( m_produceL1GtObjectMapRecord ){
+      iEvent.put( gtObjectMapRecord );
     }
-*/
 
 
 }
