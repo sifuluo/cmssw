@@ -44,6 +44,7 @@ ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 ## Make changes for Run 2
 ##
 def _modifyDigiToRawForStage1L1Trigger( DigiToRaw_object ) :
+    DigiToRaw.remove( l1GtEvmPack )
     L1TStage1DigiToRawSeq = cms.Sequence( gctDigiToRaw 
                                           +caloStage1Raw )
     DigiToRaw.replace( gctDigiToRaw, L1TStage1DigiToRawSeq )
@@ -55,10 +56,14 @@ eras.stage1L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda
 eras.stage1L1Trigger.toModify( gctDigiToRaw, gctInputLabel = 'simCaloStage1LegacyFormatDigis' )
 
 def _modifyDigiToRawForStage2L1Trigger( DigiToRaw_object ) :
-    L1TStage2DigiToRawSeq = cms.Sequence( caloStage2Raw )
-    DigiToRaw.replace( gctDigiToRaw, L1TStage2DigiToRawSeq )
+    DigiToRaw.remove( l1GtEvmPack )
+    DigiToRaw.replace( gctDigiToRaw, caloStage2Raw )
+    #DigiToRaw.remove( csctfpacker )
+    #DigiToRaw.remove( dttfpacker )
+    #DigiToRaw.remove( gctDigiToRaw )
+    #DigiToRaw.remove( l1GtPack )
 
-eras.stage2L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage1L1Trigger )
+eras.stage2L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage2L1Trigger )
 eras.stage2L1Trigger.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("caloStage2Raw")) )
 
 
