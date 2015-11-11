@@ -11,6 +11,9 @@
 /// 
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
+#include <iostream>
+#include <fstream>
+
 #include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -25,16 +28,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-const int maxTriggers = 128; //Get this from a standard location
 
 // constructor
-l1t::L1TGlobalUtil::L1TGlobalUtil() 
+l1t::L1TGlobalUtil::L1TGlobalUtil(std::string preScaleFileName, unsigned int psColumn) 
 {
 
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
 
     m_filledPrescales = false;
+
+    m_preScaleFileName = preScaleFileName;
+
+    m_numberPhysTriggers = 512; //need to get this out of the EventSetup
+
+    m_PreScaleColumn = psColumn;
 
 }
 
@@ -74,6 +82,21 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
       // clear and dimension
        resetPrescaleVectors();
        resetMaskVectors();
+
+       //Load the full prescale set for use
+       loadPrescales();
+
+       //Pick which set we are using
+       if(m_PreScaleColumn > m_prescaleFactorsAlgoTrig->size() || m_PreScaleColumn < 1) {	  
+	  LogTrace("l1t|Global")
+	   << "\nNo Prescale Set: " << m_PreScaleColumn
+	   << "\nMax Prescale Set value : " << m_prescaleFactorsAlgoTrig->size()  
+	    << "\nSetting prescale column to 1"
+	    << std::endl;
+	 m_PreScaleColumn = 1;
+       }
+       LogDebug("l1t|Global") << "Grabing prescale column "<< m_PreScaleColumn << endl;
+       const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig).at(m_PreScaleColumn-1);
       
        for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
 
@@ -82,7 +105,7 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
           int algBit = (itAlgo->second).algoBitNumber();
 
 	  (m_prescales[algBit]).first  = algName;
-	  (m_prescales[algBit]).second = 1;
+	  (m_prescales[algBit]).second = prescaleSet.at(algBit);
 
 	  (m_masks[algBit]).first  = algName;
 	  (m_masks[algBit]).second = true;	  
@@ -137,18 +160,122 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
     
 }
 
+void l1t::L1TGlobalUtil::loadPrescales() {
+
+    std::fstream inputPrescaleFile;
+    inputPrescaleFile.open(m_preScaleFileName);
+
+     std::vector<std::vector<int> > vec;
+    std::vector<std::vector<int> > prescale_vec;
+
+    if( inputPrescaleFile ){
+      std::string prefix1("#");
+      std::string prefix2("-1");
+
+      std::string line; 
+
+      bool first = true;
+
+      while( getline(inputPrescaleFile,line) ){
+
+	if( !line.compare(0, prefix1.size(), prefix1) ) continue;
+	if( !line.compare(0, prefix2.size(), prefix2) ) continue;
+
+	istringstream split(line);
+	int value;
+	int col = 0;
+	char sep;
+
+	while( split >> value ){
+	  if( first ){
+	    // Each new value read on line 1 should create a new inner vector
+	    vec.push_back(std::vector<int>());
+	  }
+
+	  vec[col].push_back(value);
+	  ++col;
+
+	  // read past the separator
+	  split>>sep;
+	}
+
+	// Finished reading line 1 and creating as many inner
+	// vectors as required
+	first = false;
+      }
+
+
+      int NumPrescaleSets = vec.size()-1;
+
+      if( NumPrescaleSets > 0 ){
+	// Fill default prescale set
+	for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+	  prescale_vec.push_back(std::vector<int>());
+	  for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
+	    int inputDefaultPrescale = 1;
+	    prescale_vec[iSet].push_back(inputDefaultPrescale);
+	  }
+	}
+
+	// Fill non-trivial prescale set
+	for( int iBit=0; iBit<int(vec[0].size()); iBit++ ){
+	  unsigned int algoBit = vec[0][iBit];
+	  // algoBit must be less than the number of triggers
+	  if( algoBit < m_numberPhysTriggers ){
+	    for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
+	      int prescale = vec[iSet+1][iBit];
+	      prescale_vec[iSet][algoBit] = prescale;
+	    }
+	  }
+	  else{
+	    LogTrace("l1t|Global")
+	      << "\nPrescale file has algo bit: " << algoBit
+	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
+	      << "\nSomething is wrong. Ignoring."
+	      << std::endl;
+	  }
+	}
+      }
+
+    }
+    else {
+      LogTrace("l1t|Global")
+	<< "\nCould not find file: " << m_preScaleFileName
+	<< "\nFilling the prescale vectors with prescale 1"
+	<< "\nSetting prescale set to 1"
+	<< std::endl;
+
+      m_PreScaleColumn = 1;
+
+      for( int col=0; col < 1; col++ ){
+	prescale_vec.push_back(std::vector<int>());
+	for( unsigned int iBit = 0; iBit < m_numberPhysTriggers; ++iBit ){
+	  int inputDefaultPrescale = 1;
+	  prescale_vec[col].push_back(inputDefaultPrescale);
+	}
+      }
+    }
+
+    inputPrescaleFile.close();
+
+
+    m_prescaleFactorsAlgoTrig = &prescale_vec;
+
+
+}
+
 void l1t::L1TGlobalUtil::resetDecisionVectors() {
 
   // Reset all the vector contents with null information
   m_decisionsInitial.clear();
-  m_decisionsInitial.resize(maxTriggers);
+  m_decisionsInitial.resize(m_numberPhysTriggers);
   m_decisionsPrescaled.clear();
-  m_decisionsPrescaled.resize(maxTriggers);
+  m_decisionsPrescaled.resize(m_numberPhysTriggers);
   m_decisionsFinal.clear();
-  m_decisionsFinal.resize(maxTriggers);
+  m_decisionsFinal.resize(m_numberPhysTriggers);
   
 
-  for(int algBit = 0; algBit< maxTriggers; algBit++) {
+  for(unsigned int algBit = 0; algBit< m_numberPhysTriggers; algBit++) {
 
     (m_decisionsInitial.at(algBit)).first = "NULL";
     (m_decisionsInitial.at(algBit)).second = false;
@@ -168,9 +295,9 @@ void l1t::L1TGlobalUtil::resetPrescaleVectors() {
 
   // Reset all the vector contents with null information
   m_prescales.clear();
-  m_prescales.resize(maxTriggers);
+  m_prescales.resize(m_numberPhysTriggers);
   
-  for(int algBit = 0; algBit< maxTriggers; algBit++) {
+  for(unsigned int algBit = 0; algBit< m_numberPhysTriggers; algBit++) {
 
     (m_prescales.at(algBit)).first = "NULL";
     (m_prescales.at(algBit)).second = 1;  
@@ -183,11 +310,11 @@ void l1t::L1TGlobalUtil::resetMaskVectors() {
 
   // Reset all the vector contents with null information
   m_masks.clear();
-  m_masks.resize(maxTriggers);
+  m_masks.resize(m_numberPhysTriggers);
   m_vetoMasks.clear();
-  m_vetoMasks.resize(maxTriggers); 
+  m_vetoMasks.resize(m_numberPhysTriggers); 
   
-  for(int algBit = 0; algBit< maxTriggers; algBit++) {
+  for(unsigned int algBit = 0; algBit< m_numberPhysTriggers; algBit++) {
 
     (m_masks.at(algBit)).first = "NULL";
     (m_masks.at(algBit)).second = true;

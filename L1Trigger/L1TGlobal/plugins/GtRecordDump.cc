@@ -133,7 +133,12 @@ namespace l1t {
       m_absBx = 0;
       m_absBx += m_bxOffset;
 
-      m_gtUtil = new L1TGlobalUtil();
+      std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
+      unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
+
+      edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + preScaleFileName);
+      
+      m_gtUtil = new L1TGlobalUtil(f1.fullPath(),preScColumn);
   }
   
   // loop over events
@@ -169,6 +174,8 @@ namespace l1t {
      //Fill the L1 result maps
      m_gtUtil->retrieveL1(iEvent,evSetup,uGtAlgToken);
 
+     LogDebug("l1t|Global") << "retrieved L1 data " << endl;
+     
      // grab the map for the final decisions
      const std::vector<std::pair<std::string, bool> > initialDecisions = m_gtUtil->decisionsInitial();
      const std::vector<std::pair<std::string, bool> > prescaledDecisions = m_gtUtil->decisionsPrescaled();
@@ -176,7 +183,8 @@ namespace l1t {
      const std::vector<std::pair<std::string, int> >  prescales = m_gtUtil->prescales();
      const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
      const std::vector<std::pair<std::string, bool> > vetoMasks = m_gtUtil->vetoMasks();
-     
+
+     LogDebug("l1t|Global") << "retrieved all event vectors " << endl;
 
      // Dump the results
      cout << "    Bit                  Algorithm Name                  Init    PScd  Final   PS Factor     Masked    Veto " << endl;

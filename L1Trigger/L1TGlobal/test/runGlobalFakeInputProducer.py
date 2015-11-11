@@ -209,7 +209,9 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		dumpGTRecord   = cms.bool(False),
                 dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(True),
-		tvFileName     = cms.string( ("TestVector_%03d.txt") % job )
+		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
+                psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
+                psColumn       = cms.int32(1)
 		 )
 
 
