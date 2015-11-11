@@ -128,8 +128,8 @@ void l1t::L1TGlobalUtil::retrieveL1(const edm::Event& iEvent, const edm::EventSe
        // get the GlabalAlgBlk (Stupid find better way) of BX=0
        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);     
 
-       // Grab the final OR from the AlgBlk
-       m_finalOR = algBlk->getFinalOR();
+       // Grab the final OR from the AlgBlk, note in algBlk is an integer word with the lowest bit rep. the finOR       
+       m_finalOR = ( algBlk->getFinalOR() & 0x1 );
        
        // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
        // Note: might be able to improve performance by not full remaking map with names each time

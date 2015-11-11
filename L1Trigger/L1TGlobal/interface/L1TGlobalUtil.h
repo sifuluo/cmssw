@@ -58,7 +58,8 @@ public:
         m_verbosity = verbosity;
     }
 
-    inline bool getFinalOR() {return m_finalOR;}
+ 
+    inline bool getFinalOR() {return m_finalOR;} 
     
     // get the trigger bit from the name
     const bool getAlgBitFromName(const std::string& AlgName, int& bit) const;
