@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-caloStage1Raw = cms.EDProducer(
+caloStage2Raw = cms.EDProducer(
     "L1TDigiToRaw",
     Setup = cms.string("stage2::CaloSetup"),
     InputLabel = cms.InputTag("simCaloStage2Digis"),

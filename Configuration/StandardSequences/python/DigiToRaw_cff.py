@@ -59,7 +59,7 @@ def _modifyDigiToRawForStage2L1Trigger( DigiToRaw_object ) :
     L1TStage2DigiToRawSeq = cms.Sequence( caloStage2Raw )
     DigiToRaw.replace( gctDigiToRaw, L1TStage2DigiToRawSeq )
 
-eras.stage1L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage1L1Trigger )
+eras.stage2L1Trigger.toModify( DigiToRaw, func=_modifyDigiToRawForStage1L1Trigger )
 
 
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"

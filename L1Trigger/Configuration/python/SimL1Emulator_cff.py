@@ -169,6 +169,7 @@ from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
 # we no longer load emulator parameters from L1Trigger/L1TCalorimeter/python/L1TCaloStage1_cff.py because this is fundamentally wrong
 
 def _modifySimL1EmulatorForStage1Trigger( SimL1Emulator_object ) :
+    print "Modifying SimL1Emulator for stage 1"
     L1TStage1EmulatorSeq = cms.Sequence( simRctUpgradeFormatDigis
                                      +simCaloStage1Digis
                                      +simCaloStage1FinalDigis
@@ -187,6 +188,7 @@ from L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi import simCaloStage2L
 from L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi import simCaloStage2Digis
 
 def _modifySimL1EmulatorForStage2Trigger( SimL1Emulator_object ) :
+    print "Modifying SimL1Emulator for stage 2"
     SimL1Emulator_object.replace( simRctDigis, simCaloStage2Layer1Digis )
     SimL1Emulator_object.replace( simGctDigis, simCaloStage2Digis )
 
