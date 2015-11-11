@@ -138,9 +138,11 @@ private:
     unsigned long long m_l1GtTmVetoAlgoCacheID;
 
 
-    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
-    std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
 
 private:
 

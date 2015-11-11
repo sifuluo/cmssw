@@ -239,6 +239,9 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
     std::vector<std::vector<int> > vec;
     std::vector<std::vector<int> > prescale_vec;
 
+    std::vector<unsigned int> temp_triggerMask;
+    std::vector<unsigned int> temp_triggerVetoMask;
+
     if( inputPrescaleFile ){
       std::string prefix1("#");
       std::string prefix2("-1");
@@ -250,7 +253,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
       while( getline(inputPrescaleFile,line) ){
 
 	if( !line.compare(0, prefix1.size(), prefix1) ) continue;
-	if( !line.compare(0, prefix2.size(), prefix2) ) continue;
+	//if( !line.compare(0, prefix2.size(), prefix2) ) continue;
 
 	istringstream split(line);
 	int value;
@@ -276,7 +279,46 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
       }
 
 
-      int NumPrescaleSets = vec.size()-1;
+      int NumPrescaleSets = 0;
+
+      int maskColumn = -1;
+      int maskVetoColumn = -1;
+      for( int iCol=0; iCol<int(vec.size()); iCol++ ){
+	if( vec[iCol].size() > 0 ){
+	  int firstRow = vec[iCol][0];
+
+	  if( firstRow > 0 ) NumPrescaleSets++;
+	  else if( firstRow==-2 ) maskColumn = iCol;
+	  else if( firstRow==-3 ) maskVetoColumn = iCol;
+	}
+      }
+
+      // Fill default values for mask and veto mask
+      for( unsigned int iBit = 0; iBit < temp_numberPhysTriggers; ++iBit ){
+	unsigned int inputDefaultMask = 1;
+	unsigned int inputDefaultVetoMask = 0;
+	temp_triggerMask.push_back(inputDefaultMask);
+	temp_triggerVetoMask.push_back(inputDefaultVetoMask);
+      }
+
+      // Fill non-trivial mask and veto mask
+      if( maskColumn>=0 || maskVetoColumn>=0 ){
+	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
+	  unsigned int algoBit = vec[0][iBit];
+	  // algoBit must be less than the number of triggers
+	  if( algoBit < temp_numberPhysTriggers ){
+	    if( maskColumn>=0 ){
+	      unsigned int triggerMask = vec[maskColumn][iBit];
+	      temp_triggerMask[algoBit] = triggerMask;
+	    }
+	    if( maskVetoColumn>=0 ){
+	      unsigned int triggerVetoMask = vec[maskVetoColumn][iBit];
+	      temp_triggerVetoMask[algoBit] = triggerVetoMask;
+	    }
+	  }
+	}
+      }
+
 
       if( NumPrescaleSets > 0 ){
 	// Fill default prescale set
@@ -289,13 +331,21 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 	}
 
 	// Fill non-trivial prescale set
-	for( int iBit=0; iBit<int(vec[0].size()); iBit++ ){
+	for( int iBit=1; iBit<int(vec[0].size()); iBit++ ){
 	  unsigned int algoBit = vec[0][iBit];
 	  // algoBit must be less than the number of triggers
 	  if( algoBit < temp_numberPhysTriggers ){
-	    for( int iSet=0; iSet<NumPrescaleSets; iSet++ ){
-	      int prescale = vec[iSet+1][iBit];
-	      prescale_vec[iSet][algoBit] = prescale;
+	    for( int iSet=0; iSet<int(vec.size()); iSet++ ){
+	      int useSet = -1;
+	      if( vec[iSet].size() > 0 ){
+		useSet = vec[iSet][0];
+	      }
+	      useSet -= 1;
+	      
+	      if( useSet<0 ) continue;
+
+	      int prescale = vec[iSet][iBit];
+	      prescale_vec[useSet][algoBit] = prescale;
 	    }
 	  }
 	  else{
@@ -330,6 +380,9 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
     inputPrescaleFile.close();
 
     m_initialPrescaleFactorsAlgoTrig = prescale_vec;
+
+    m_initialTriggerMaskAlgoTrig = temp_triggerMask;
+    m_initialTriggerMaskVetoAlgoTrig = temp_triggerVetoMask;
 
 }
 
@@ -479,6 +532,8 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // Set Prescale factors to initial 
     m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
+    m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
+    m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
 
 
     // // Used for testing
@@ -724,6 +779,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     const std::vector<int>& prescaleFactorsAlgoTrig = (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
 
+    const std::vector<unsigned int>& triggerMaskAlgoTrig = *m_triggerMaskAlgoTrig;
+    const std::vector<unsigned int>& triggerMaskVetoAlgoTrig = *m_triggerMaskVetoAlgoTrig;
+
     LogDebug("l1t|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
 
 
@@ -775,6 +833,8 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 			  m_totalBxInEvent,
 			  m_numberPhysTriggers,
 			  prescaleFactorsAlgoTrig,
+			  triggerMaskAlgoTrig,
+			  triggerMaskVetoAlgoTrig,
 		          m_algorithmTriggersUnprescaled,
 		          m_algorithmTriggersUnmasked
 		          );

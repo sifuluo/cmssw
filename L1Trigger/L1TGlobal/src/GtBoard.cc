@@ -904,6 +904,8 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
         const int totalBxInEvent,
         const unsigned int numberPhysTriggers,
 	const std::vector<int>& prescaleFactorsAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked ){
 
@@ -914,6 +916,7 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
                 << std::endl;
 
     }
+
 
     // prescale counters are reset at the beginning of the luminosity segment
     if( m_firstEv ){
@@ -986,26 +989,41 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
       m_algPrescaledOr = m_algInitialOr;
 	
     }//if we are going to apply prescales.
-      
-      
+
       
     // Copy Algorithm bits fron Prescaled word to Final Word 
     // Masking done below if requested.
     m_uGtAlgBlk.copyPrescaledToFinal();
     
-    if(!algorithmTriggersUnmasked) {
-    
- 
-/*
-       masking the bits goes here.
-*/       
-        m_algFinalOr = m_algPrescaledOr;
+    if( !algorithmTriggersUnmasked ){
+
+      bool temp_algFinalOr = false;
+      for( unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit ){
+
+	bool bitValue = m_uGtAlgBlk.getAlgoDecisionPreScaled( iBit );
+
+	if( bitValue ){
+	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+
+	  bool passMask = ( bitValue && !isMasked );
+
+	  if( passMask ) temp_algFinalOr = true;
+	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
+
+	  // Check if veto mask is true, set final OR to false, if necessary
+	  bool isVetoMask = ( triggerMaskVetoAlgoTrig.at(iBit) == 1 );
+	  if( isVetoMask ) temp_algFinalOr = false;
+	}
+      }
+
+      m_algFinalOr = temp_algFinalOr;
 	
-    } else {
-      
-         m_algFinalOr = m_algPrescaledOr;
+    } 
+    else {
+
+      m_algFinalOr = m_algPrescaledOr;
      
-    } ///if we are masking.	
+    } ///if we are masking.
 
 
 
