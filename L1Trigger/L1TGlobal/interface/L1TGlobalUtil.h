@@ -40,7 +40,7 @@ class L1TGlobalUtil
 public:
 
     // constructors
-    L1TGlobalUtil();
+  L1TGlobalUtil(std::string preScaleFileName, unsigned int psColumn);
 
     // destructor
     virtual ~L1TGlobalUtil();
@@ -115,6 +115,7 @@ private:
     void resetDecisionVectors();
     void resetPrescaleVectors();
     void resetMaskVectors();
+    void loadPrescales();
 
     // trigger menu
     const TriggerMenu* m_l1GtMenu;
@@ -128,6 +129,14 @@ private:
     
 private:
 
+    // Number of physics triggers
+    unsigned int m_numberPhysTriggers;
+    
+    //file  and container for prescale factors
+    std::string m_preScaleFileName;
+    unsigned int m_PreScaleColumn;
+    const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    
     // access to the results block from uGT 
     edm::Handle<BXVector<GlobalAlgBlk>>  m_uGtAlgBlk;
 
