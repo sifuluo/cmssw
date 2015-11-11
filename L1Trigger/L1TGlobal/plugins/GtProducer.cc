@@ -168,7 +168,6 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
     if( m_produceL1GtObjectMapRecord ) {
       produces<L1GlobalTriggerObjectMapRecord>();
-      //produces<GtProducerObjectMapRecord>();
     }
 
 
