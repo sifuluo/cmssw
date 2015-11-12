@@ -4,9 +4,9 @@ from Configuration.StandardSequences.Eras import eras
 
 # this function expects an incomplete list of subsystems to emulate
 # and returns a complete list, to ensure all required subsystems are emulated
-def getSubsystemsToEmulate(subsys, era):
+def getSubsystemsToEmulate(subsys):
 
-    if (era=='legacy'):
+    if not eras.stage2L1Trigger.isChosen():
         if 'ECAL' in subsys:
             subsys.append('RCT')
         if 'HCAL' in subsys:
@@ -33,7 +33,7 @@ def getSubsystemsToEmulate(subsys, era):
         if 'GMT' in subsys:
             subsys.append('GT')
 
-    if (era=='stage1'):
+    if eras.stage1L1Trigger.isChosen():
         if 'ECAL' in subsys:
             subsys.append('RCT')
         if 'HCAL' in subsys:
@@ -60,7 +60,7 @@ def getSubsystemsToEmulate(subsys, era):
         if 'GMT' in subsys:
             subsys.append('GT')
 
-    if (era=='stage2'):
+    if eras.stage2L1Trigger.isChosen():
         if 'ECAL' in subsys:
             subsys.append('CALOL1')
         if 'HCAL' in subsys:
@@ -210,9 +210,10 @@ def modifySimL1EmulatorForReEmulation(SimL1Emulator_object, subsys=[]):
 
 
 def customise_ReEmulateL1(process, subsys=[]):
-  
-    modifySimL1EmulatorForReEmulation(process.SimL1Emulator, subsys)
 
+    subsysFull = getSubsystemsToEmulate(subsys)
+  
+    modifySimL1EmulatorForReEmulation(process.SimL1Emulator, subsysFull)
 
 
 
