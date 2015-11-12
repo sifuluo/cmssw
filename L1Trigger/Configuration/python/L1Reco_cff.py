@@ -9,10 +9,6 @@ import FWCore.ParameterSet.Config as cms
 # V.M. Ghete 2009-07-11
 
  
-# L1Extra
-from L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi import *
-l1extraParticles.centralBxOnly = False
-
 # L1 GT lite record
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi import *
 
