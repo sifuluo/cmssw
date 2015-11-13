@@ -1,21 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-l1MuonRecoTreeProducer = cms.EDAnalyzer("L1MuonRecoTreeProducer",
-  maxMuon = cms.uint32(100),
-  muonTag = cms.InputTag("muons"),
-
-  maxRcpHit = cms.uint32(100),
-  rpcHitTag = cms.InputTag("rpcRecHits"),
-
-  runOnPostLS1 = cms.bool(False),
-
+l1Muon2RecoTreeProducer = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
+   maxMuon                          = cms.uint32(20),
+   MuonTag                          = cms.untracked.InputTag("muons"),
   #---------------------------------------------------------------------
   # TRIGGER MATCHING CONFIGURATION
   #---------------------------------------------------------------------
   # flag to turn trigger matching on / off
-  triggerMatching = cms.untracked.bool(False),
+  triggerMatching = cms.untracked.bool(True),
   # maximum delta R between trigger object and muon
-  triggerMaxDeltaR = cms.double(.1),
+  triggerMaxDeltaR = cms.double(0.1),
   # trigger to match to, may use regexp wildcard as supported by ROOT's 
   # TString; up to now the first found match (per run) is used.
   isoTriggerNames = cms.vstring(
@@ -30,6 +24,7 @@ l1MuonRecoTreeProducer = cms.EDAnalyzer("L1MuonRecoTreeProducer",
         ),
 
   # data best guess: change for MC!
+  triggerResults      = cms.InputTag("TriggerResults", "", "HLT"),
   triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
   # name of the hlt process (same as above):
   triggerProcessLabel = cms.untracked.string("HLT"),
