@@ -20,7 +20,7 @@ options.register('dump',
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
 options.register('doLayer1',
-                 True,
+                 False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Run layer 1 module")
@@ -29,12 +29,29 @@ options.register('doLayer2',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Run layer 2 module")
+options.register('selMPBx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Select MP readout Bx")
+options.register('selDemuxBx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Select Demux readout Bx")
+options.register('selAllBx',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Run over all Bx in readout for MP and demux")
+options.register('evtDisp',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Produce histos for individual events')
 
                  
 options.parseArguments()
-
-if (options.maxEvents == -1):
-    options.maxEvents = 1
 
 
 process = cms.Process('L1Emulator')
@@ -54,9 +71,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-inFile = 'file:l1tCalo_2016_EDM.root'
+#inFile = 'file:l1tCalo_2016_EDM.root'
 process.source = cms.Source("PoolSource",
-    fileNames=cms.untracked.vstring(inFile),
+    fileNames=cms.untracked.vstring(options.inputFiles),
     skipEvents=cms.untracked.uint32(options.skipEvents)
 )
 
@@ -105,27 +122,48 @@ process.simCaloStage2Digis = caloStage2Digis.clone()
 process.simCaloStage2Digis.towerToken = cms.InputTag("simCaloStage2Layer1Digis")
 
 # emulator ES
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi')
 
 # histograms
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.doEvtDisp = options.evtDisp
+process.l1tStage2CaloAnalyzer.mpBx = options.selMPBx
+process.l1tStage2CaloAnalyzer.dmxBx = options.selDemuxBx
+process.l1tStage2CaloAnalyzer.allBx = options.selAllBx
+process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("simCaloStage2Digis", "MP")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("simCaloStage2Digis", "MP")
+process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("simCaloStage2Digis", "MP")
 process.l1tStage2CaloAnalyzer.mpJetToken = cms.InputTag("simCaloStage2Digis", "MP")
 process.l1tStage2CaloAnalyzer.mpEtSumToken = cms.InputTag("simCaloStage2Digis", "MP")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("simCaloStage2Digis")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("simCaloStage2Digis")
 process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("simCaloStage2Digis")
 process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("simCaloStage2Digis")
 
+import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
+process.l1tCaloStage2HwHistos =  L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
+process.l1tStage2CaloAnalyzer.doEvtDisp = options.evtDisp
+process.l1tStage2CaloAnalyzer.mpBx = options.selMPBx
+process.l1tStage2CaloAnalyzer.dmxBx = options.selDemuxBx
+process.l1tStage2CaloAnalyzer.allBx = options.selAllBx
+process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.clusterToken = cms.InputTag("None")
+process.l1tCaloStage2HwHistos.mpEGToken = cms.InputTag("caloStage2Digis", "MP")
+process.l1tCaloStage2HwHistos.mpTauToken = cms.InputTag("caloStage2Digis","MP")
+process.l1tCaloStage2HwHistos.mpJetToken = cms.InputTag("caloStage2Digis", "MP")
+process.l1tCaloStage2HwHistos.mpEtSumToken = cms.InputTag("caloStage2Digis", "MP")
+process.l1tCaloStage2HwHistos.egToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.tauToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.jetToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
     process.simCaloStage2Layer1Digis
     +process.simCaloStage2Digis
     +process.l1tStage2CaloAnalyzer
+    +process.l1tCaloStage2HwHistos
 )
 
 if (not options.doLayer1):
