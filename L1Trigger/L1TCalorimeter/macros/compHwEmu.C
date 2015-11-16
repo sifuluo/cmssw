@@ -9,7 +9,7 @@
    bool doSums=true;
    bool doSorts=false;
 
-   bool doDemux=false;
+   bool doDemux=true;
 
    int nbins=0;
 

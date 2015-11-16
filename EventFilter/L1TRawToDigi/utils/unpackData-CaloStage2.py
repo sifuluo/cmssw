@@ -35,17 +35,17 @@ options.register('dumpDigis',
                  VarParsing.VarParsing.varType.bool,
                  "Print digis")
 options.register('histos',
-                 False,
+                 True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Produce standard histograms")
 options.register('edm',
-                 False,
+                 True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Produce EDM file")
 options.register('valEvents',
-                 False,
+                 True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Filter on validation events")
@@ -64,8 +64,14 @@ options.register('json',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "JSON file with list of good lumi sections")
-                 
+options.register('evtDisp',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Produce histos for individual events')
+
 options.parseArguments()
+
 
 pname="Raw2Digi"
 if (options.process!=""):
@@ -168,6 +174,7 @@ process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.doText       = cms.untracked.bool(options.dumpDigis)
 process.l1tStage2CaloAnalyzer.doHistos     = cms.untracked.bool(options.histos)
+process.l1tStage2CaloAnalyzer.doEvtDisp    = cms.bool(options.evtDisp)
 
 # Path and EndPath definitions
 process.path = cms.Path(
