@@ -13,6 +13,16 @@ REGISTER_PLUGIN(L1TriggerKeyRcd, L1TriggerKey);
 
 REGISTER_PLUGIN(L1TriggerKeyListRcd, L1TriggerKeyList);
 
+#include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyExtRcd, L1TriggerKeyExt);
+
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyListExt.h"
+
+REGISTER_PLUGIN(L1TriggerKeyListExtRcd, L1TriggerKeyListExt);
+
 // L1 scales
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"

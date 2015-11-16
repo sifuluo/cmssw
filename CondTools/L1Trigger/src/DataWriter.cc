@@ -9,6 +9,8 @@
 #include "CondCore/CondDB/interface/Serialization.h"
 
 #include <utility>
+#include <iostream>
+using namespace std;
 
 namespace l1t
 {
@@ -21,6 +23,7 @@ std::string
 DataWriter::writePayload( const edm::EventSetup& setup,
 			  const std::string& recordType )
 {
+
   WriterFactory* factory = WriterFactory::get();
   std::auto_ptr<WriterProxy> writer(factory->create( recordType + "@Writer" )) ;
   if( writer.get() == 0 )
@@ -41,6 +44,8 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   // transaction here will become read-only.
 //   cond::DbSession session = poolDb->session();
 //   cond::DbScopedTransaction tr(session);
+
+  cond::persistency::TransactionScope tr(poolDb->session().transaction());
 //   // if throw transaction will unroll
 //   tr.start(false);
 
@@ -49,8 +54,9 @@ DataWriter::writePayload( const edm::EventSetup& setup,
   std::string payloadToken = writer->save( setup ) ;
 
   edm::LogVerbatim( "L1-O2O" ) << recordType << " PAYLOAD TOKEN "
-			       << payloadToken ;
+			       << payloadToken <<flush;
 
+  tr.close();
 //   tr.commit ();
 
   return payloadToken ;
@@ -70,7 +76,7 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 
   cond::persistency::Session session = poolDb->session();
   cond::persistency::TransactionScope tr(session.transaction());
-  tr.start( false );
+///  tr.start( false );
 
   // Write L1TriggerKeyList payload and save payload token before committing
   boost::shared_ptr<L1TriggerKeyList> pointer(keyList);
@@ -78,7 +84,8 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			
   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
   // confused.
-  tr.commit ();
+  //tr.commit ();
+  tr.close ();
   
   // Set L1TriggerKeyList IOV
   updateIOV( "L1TriggerKeyListRcd",
