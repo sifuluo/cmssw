@@ -20,6 +20,10 @@
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeDataFormat.h"
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisL1CaloTowerDataFormat.h"
 
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoTauDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoMuon2DataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoElectronDataFormat.h"
+
 namespace{
   namespace{
     L1Analysis::L1AnalysisEventDataFormat          pL1ev; 
@@ -43,5 +47,9 @@ namespace{
     L1Analysis::L1AnalysisL1MenuDataFormat         pL1menu; 
     L1Analysis::L1AnalysisL1UpgradeDataFormat      pL1upgrade; 
     L1Analysis::L1AnalysisL1CaloTowerDataFormat      pL1calotower; 
+
+    L1Analysis::L1AnalysisRecoTauDataFormat        pL1tau; 
+    L1Analysis::L1AnalysisRecoMuon2DataFormat      pL1muon2;
+    L1Analysis::L1AnalysisRecoElectronDataFormat   pL1electron;
    }
 }

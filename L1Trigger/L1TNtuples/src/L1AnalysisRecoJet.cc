@@ -7,7 +7,6 @@ L1Analysis::L1AnalysisRecoJet::L1AnalysisRecoJet()
 {
 }
 
-
 L1Analysis::L1AnalysisRecoJet::~L1AnalysisRecoJet()
 {
 }
