@@ -486,7 +486,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFit( double *v, double *par ){
 
   // JETMET uses log10 rather than the ln used here...
-  double logX = log(v[0]);
+  double logX = log10(v[0]);
 
   double term1 = par[1] / ( logX * logX + par[2] );
   double term2 = par[3] * exp( -par[4]*((logX - par[5])*(logX - par[5])) );
