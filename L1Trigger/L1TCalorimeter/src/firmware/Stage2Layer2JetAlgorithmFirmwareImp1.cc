@@ -429,50 +429,6 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
     }
 
-
-  } else if( params_->jetCalibrationType() == "function6PtParams80EtaBins" ) { // If we want TT level calibration
-
-    if( params_->jetCalibrationParams().size() != 480){
-      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
-           params_->jetCalibrationParams().size() << "  Require size: 480  Not calibrating Stage 2 Jets" << std::endl;
-      return;
-    }
-
-    //Loop over jets and apply corrections
-    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
-
-      int etaBin;
-      if(jet->hwEta() < 0) //Account for a lack of 0
-        etaBin = jet->hwEta() + 40;
-      else 
-        etaBin = jet->hwEta() + 39;
-
-
-      double params[6]; //These are the parameters of the fit
-      double ptValue[1]; //This is the pt value to be corrected
-
-      ptValue[0] = jet->hwPt()*params_->jetLsb(); //Corrections derived in terms of physical pt
-
-      //Get the parameters from the vector
-      //Each 6 values are the parameters for an eta bin
-      for(int i=0; i<6; i++){
-        params[i] = params_->jetCalibrationParams()[etaBin*6 + i];
-      }
-
-      //Perform the correction based on the calibration function defined
-      //in calibFit
-      double correction =  calibFit(ptValue,params);
-
-      math::XYZTLorentzVector p4;
-      *jet = l1t::Jet( p4, correction*jet->hwPt(), jet->hwEta(), jet->hwPhi(), 0);
-
-    }
-
-  } else if( params_->jetCalibrationType() == "lut6PtBins22EtaBins" ) { // If we want to use a LUT instead
-
-    edm::LogError("l1t|stage 2") << "No LUT implementation for the calibration yet" << std::endl;
-    return;
-
   } else {
     if(params_->jetCalibrationType() != "None" && params_->jetCalibrationType() != "none") 
       edm::LogError("l1t|stage 2") << "Invalid calibration type in calo params. Not calibrating Stage 2 Jets" << std::endl;
