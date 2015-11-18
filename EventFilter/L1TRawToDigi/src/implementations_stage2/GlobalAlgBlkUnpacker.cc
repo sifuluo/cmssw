@@ -23,7 +23,12 @@ namespace stage2 {
 
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     unsigned int wdPerBX = 6; //Should this be configured someplace?
+    //Should this be configured someplace?
+     unsigned int wdPerBX = 6;
+     unsigned int initialBlkID = 33; //first block of inital alg bits before prescale
+     unsigned int prescaledBlkID = 39; //first block of alg bits after prescale
+     unsigned int finalBlkID = 45;   //first block of final alg bits 
+      
      int nBX = int(ceil(block.header().getSize() / 6.)); // FOR GT Not sure what we have here...put at 6 because of 6 frames 
 
      // Find the central, first and last BXs
@@ -46,7 +51,7 @@ namespace stage2 {
 
        
         // If this is the first block, instantiate GlobalAlg so it is there to fill from mult. blocks
-       if(block.header().getID()==1) {
+       if(block.header().getID()==initialBlkID) {
 
 	  LogDebug("L1T") << "Creating GT Algorithm Block for BX =" << bx;
           GlobalAlgBlk talg = GlobalAlgBlk();
@@ -58,10 +63,10 @@ namespace stage2 {
        GlobalAlgBlk alg = res_->at(bx,0);
 
        //Determine offset of algorithm bits based on block.ID
-       // ID=1  offset = 0;  ID=3  offset=192;  ID=5  offset=384=2*192; (before prescale)
-       // ID=7  offset = 0;  ID=9  offset=192;  ID=11 offset=384=2*192; (after prescale)
-       // ID=13 offset = 0;  ID=15 offset=192;  ID=17 offset=384=2*192; (after mask (Final))
-       int algOffset = block.header().getID()/2;
+       // ID=initialBlkID    offset = 0;  ID=initialBlkID+2    offset=192;  ID=initialBlkID+4    offset=384=2*192; (before prescale)
+       // ID=prescaledBlkID  offset = 0;  ID=prescaledBlkID+2  offset=192;  ID=prescaledBlkID+4  offset=384=2*192; (after prescale)
+       // ID=finalBlkID      offset = 0;  ID=finalBlkID+2      offset=192;  ID=finalBlkID+4      offset=384=2*192; (after mask (Final))
+       int algOffset = (block.header().getID() - initialBlkID + 1)/2;
        algOffset = (algOffset%3)*192;
 
        for(unsigned int wd=0;  wd<wdPerBX; wd++) {
@@ -69,15 +74,15 @@ namespace stage2 {
 	 LogDebug("L1T") << "BX "<<bx << " payload word " << wd << " 0x" << hex << raw_data << " offset=" << dec << algOffset  << std::endl;
 
          //parse these 32 bits into algorithm bits (perhaps needs a more efficient way of doing this?
-         if( (block.header().getID()!=5 && block.header().getID()!=11 && block.header().getID()!=17 ) || wd<4) {
+         if( (block.header().getID()!=initialBlkID+4 && block.header().getID()!=prescaledBlkID+4 && block.header().getID()!=finalBlkID+4 ) || wd<4) {
            for(unsigned int bt=0; bt<32; bt++) {
 	     int val = ((raw_data >> bt) & 0x1);
 	     int algBit = bt+wd*32+algOffset;
              if(val==1 && algBit < 128) { //FIX ME...get dimension from object
 	         LogDebug("L1T") << "Found valid alg bit ("<< algBit <<") on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
-	        if(block.header().getID()<6) {
+	        if(block.header().getID()<initialBlkID+5) {
 		  alg.setAlgoDecisionInitial(algBit,true);
-		} else if(block.header().getID()<12) {  
+		} else if(block.header().getID()<prescaledBlkID+5) {  
 		  alg.setAlgoDecisionPreScaled(algBit,true);
 		} else {  
 		  alg.setAlgoDecisionFinal(algBit,true);
@@ -86,7 +91,7 @@ namespace stage2 {
 	         LogDebug("L1T") << "Found invalid alg bit ("<< algBit <<") out of range (128) on bit ("<<bt<<") word ("<<wd<<") algOffset ("<<algOffset<<") block ID ("<< block.header().getID() <<")" <<std::endl;
 	     }
            }
-	 } else if(block.header().getID()==17 && wd==4) {
+	 } else if(block.header().getID()==finalBlkID+4 && wd==4) {
            //This is the FINOR
            alg.setFinalOR(raw_data);
            LogDebug("L1T")  << " Packing the FinalOR " << wd << " 0x" << hex << raw_data << endl;	

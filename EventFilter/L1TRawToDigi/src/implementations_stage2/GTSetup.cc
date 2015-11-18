@@ -86,8 +86,8 @@ namespace l1t {
 		  res[26] = ext_unp;
 		  res[28] = ext_unp;
 		  
-                  //From the tx buffers
-                  res[1]  = alg_unp;
+                  //From the tx buffers (old format)
+/*                  res[1]  = alg_unp;
                   res[3]  = alg_unp;
                   res[5]  = alg_unp;
                   res[7]  = alg_unp;
@@ -96,7 +96,17 @@ namespace l1t {
                   res[13] = alg_unp;
                   res[15] = alg_unp;
                   res[17] = alg_unp;		  
+*/
 
+                  res[33]  = alg_unp;
+                  res[35]  = alg_unp;
+                  res[37]  = alg_unp;
+                  res[39]  = alg_unp;
+                  res[41]  = alg_unp;
+                  res[43] = alg_unp;
+                  res[45] = alg_unp;
+                  res[47] = alg_unp;
+                  res[49] = alg_unp;		 
                   
                }
 	       
