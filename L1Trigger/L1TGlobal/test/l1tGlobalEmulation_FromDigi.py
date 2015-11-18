@@ -78,18 +78,23 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 
+
 ## Load our L1 menu
 process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
-
 process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
 #process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
 process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
+if(options.newXML):
+   print "Using new XML Grammar "
+   #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Point5IntegrationTest_2015_v1a.xml'
+   process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
+
 
 ## Run the Stage 2 uGT emulator
 process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
@@ -120,7 +125,7 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 
 # dump records
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
-        egInputTag    = cms.InputTag("gtStage2Digis","GT"),
+                egInputTag    = cms.InputTag("gtStage2Digis","GT"),
 		muInputTag    = cms.InputTag("gtStage2Digis","GT"),
 		tauInputTag   = cms.InputTag(""),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
@@ -134,7 +139,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
-        dumpTrigResults= cms.bool(True),
+                dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(False),
 		tvFileName     = cms.string( "TestVector.txt" ),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),

@@ -15,6 +15,7 @@ njob = 1 #number of jobs
 nevents = 3564 #number of events
 rootout = False #whether to produce root file
 dump = False #dump python
+newXML = False #whether running with the new Grammar
 
 # Argument parsing
 # vvv
@@ -63,6 +64,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
+process.MessageLogger.categories.append('l1t|Global')
+process.MessageLogger.debugModules = cms.untracked.vstring('*')
+process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(neventsPerJob)
     )
@@ -87,7 +92,7 @@ process.source = cms.Source("PoolSource",
 
 process.output =cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
-	fileName = cms.untracked.string('testGlobalMCInputProducer_'+repr(job)+'.root')
+	fileName = cms.untracked.string('testGlobalMCInputProducer_'+`job`+'.root')
 	)
 	
 process.options = cms.untracked.PSet()
@@ -182,6 +187,11 @@ process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2.xml'
 process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml'
+process.TriggerMenuXml.newGrammar = cms.bool(newXML)
+if(newXML):
+   print "Using new XML Grammar "
+   process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3a_NG.xml'
+
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
@@ -207,7 +217,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(False),
-                dumpTrigResults= cms.bool(True),
+                dumpTrigResults= cms.bool(False),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
@@ -254,6 +264,6 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 #process.options.numberOfStreams = cms.untracked.uint32( 0 )
 
 if dump:
-    outfile = open('dump_runGlobalFakeInputProducer_'+repr(job)+'.py','w')
+    outfile = open('dump_runGlobalFakeInputProducer_'+`job`+'.py','w')
     print >> outfile,process.dumpPython()
     outfile.close()
