@@ -24,7 +24,8 @@ namespace stage2 {
 
      LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(block.header().getSize() / 12.)); // Since there are 12 EGamma objects reported per event (see CMS IN-2013/005)
+     unsigned int nWords = 6; // every link transmits 6 words (3 muons) per bx
+     int nBX = int(ceil(block.header().getSize() / nWords)); // Since there are 12 EGamma objects reported per event (see CMS IN-2013/005)
 
      // Find the central, first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -46,13 +47,14 @@ namespace stage2 {
      // Loop over multiple BX and then number of EG cands filling collection
      for (int bx=firstBX; bx<=lastBX; bx++){
        
-       for (unsigned nMu=0; nMu < block.header().getSize(); nMu=nMu+2){ //need to check the 12*2...this is not really num muons it is max words in block.
+       for (unsigned nWord=0; nWord < nWords && i < block.header().getSize(); nWord=nWord+2){ //need to check the 12*2...this is not really num muons it is max words in block.
+
 
          //muons are spread over 64 bits grab the two 32 bit pieces
          uint32_t raw_data_00_31 = block.payload()[i++];
 	 uint32_t raw_data_32_63 = block.payload()[i++];
 
-         std::cout << "nMu = " << nMu << "Word 1 " << hex << raw_data_00_31 << " Word 2 " << raw_data_32_63 << dec << std::endl; 
+         std::cout << "nWord = " << nWord << "Word 1 " << hex << raw_data_00_31 << " Word 2 " << raw_data_32_63 << dec << std::endl; 
 	 
          // skip padding 
          if (raw_data_00_31 == 0)
