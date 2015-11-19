@@ -35,6 +35,9 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/GtCondition.h"
+#include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
@@ -60,7 +63,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtCastorCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtBptxCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtExternalCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
+//#include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
 
 // Conditions for uGt
@@ -429,7 +432,7 @@ void l1t::GtBoard::runGTL(
      m_algFinalOr=false;
      
      
-    /*
+    
     const std::vector<std::vector<MuonTemplate> >& corrMuon =
             m_l1GtMenu->corMuonTemplate();
 
@@ -443,12 +446,13 @@ void l1t::GtBoard::runGTL(
     LogDebug("l1t|Global") << "Size corrMuon " << corrMuon.size() 
                            << "\nSize corrCalo " << corrCalo.size() 
 			   << "\nSize corrSums " << corrEnergySum.size() << std::endl;
-    */
+    
 
     // conversion needed for correlation conditions
     // done in the condition loop when the first correlation template is in the menu
     bool convertScale = false;
 
+/* BLW Comment out 
     // get / update the calorimeter geometry from the EventSetup
     // local cache & check on cacheIdentifier
     unsigned long long l1CaloGeometryCacheID =
@@ -480,7 +484,7 @@ void l1t::GtBoard::runGTL(
         m_l1MuTriggerScalesCacheID = l1MuTriggerScalesCacheID;
         convertScale = true;
     }
-
+*/
     if (convertScale) {
 
 /*  Comment out for now
@@ -618,186 +622,99 @@ void l1t::GtBoard::runGTL(
 
                 }
                     break;
-/*  Don't access conditions for now		
-                case CondJetCounts: {
-                    L1GtJetCountsCondition* jcCondition = new L1GtJetCountsCondition(
-                            itCond->second, this, nrL1JetCounts);
 
-                    jcCondition->setVerbosity(m_verbosity);
-                    jcCondition->evaluateConditionStoreResult();
-
-                    cMapResults[itCond->first] = jcCondition;
-
-                    if (m_verbosity && m_isDebugEnabled) {
-                        std::ostringstream myCout;
-                        jcCondition->print(myCout);
-
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-
-                    //                  delete jcCondition;
-                }
-                    break;
-*/
                 case CondExternal: {
   
- /*  Don't access conditions for now 
-                    bool externalCondResult = true;
 
-                    // FIXME need a solution to read External with real value
-
-                    L1GtExternalCondition* externalCondition = new L1GtExternalCondition(
-                            itCond->second, externalCondResult);
-
-                    externalCondition->setVerbosity(m_verbosity);
-                    externalCondition->evaluateConditionStoreResult();
-
-                    cMapResults[itCond->first] = externalCondition;
-
-                    if (m_verbosity && m_isDebugEnabled) {
-                        std::ostringstream myCout;
-                        externalCondition->print(myCout);
-
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-
-                    //                  delete externalCondition;
-*/
                 }
                     break;
                 case CondCorrelation: {
 
 
-/*  Don't access conditions for now
+
+
                     // get first the sub-conditions
-                    const L1GtCorrelationTemplate* corrTemplate =
-                        static_cast<const L1GtCorrelationTemplate*>(itCond->second);
-                    const L1GtConditionCategory cond0Categ = corrTemplate->cond0Category();
-                    const L1GtConditionCategory cond1Categ = corrTemplate->cond1Category();
-                    const int cond0Ind = corrTemplate->cond0Index();
-                    const int cond1Ind = corrTemplate->cond1Index();
+                    const CorrelationTemplate* corrTemplate =
+	            static_cast<const CorrelationTemplate*>(itCond->second);
+		    const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
+		    const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
+		    const int cond0Ind = corrTemplate->cond0Index();
+		    const int cond1Ind = corrTemplate->cond1Index();
 
-                    const L1GtCondition* cond0Condition = 0;
-                    const L1GtCondition* cond1Condition = 0;
+		    const GtCondition* cond0Condition = 0;
+		    const GtCondition* cond1Condition = 0;
 
-                    // maximum number of objects received for evaluation of l1t::Type1s condition
-                    int cond0NrL1Objects = 0;
-                    int cond1NrL1Objects = 0;
+		    // maximum number of objects received for evaluation of l1t::Type1s condition
+		    int cond0NrL1Objects = 0;
+		    int cond1NrL1Objects = 0;
+		     LogDebug("l1t|Global") << " cond0NrL1Objects" << cond0NrL1Objects << "  cond1NrL1Objects  " << cond1NrL1Objects << std::endl;
 
-                    int cond0EtaBits = 0;
-                    int cond1EtaBits = 0;
 
-                    switch (cond0Categ) {
-                        case CondMuon: {
-                            cond0Condition = &((corrMuon[iChip])[cond0Ind]);
-                            cond0NrL1Objects = nrL1Mu;
-                            cond0EtaBits = ifMuEtaNumberBits;
-                        }
-                            break;
-                        case CondCalo: {
-                            cond0Condition = &((corrCalo[iChip])[cond0Ind]);
+//BLW		    int cond0EtaBits = 0;
+//		    int cond1EtaBits = 0;
 
-                            switch ((cond0Condition->objectType())[0]) {
-                                case NoIsoEG:
-                                    cond0NrL1Objects= nrL1NoIsoEG;
-                                    break;
-                                case IsoEG:
-                                    cond0NrL1Objects = nrL1IsoEG;
-                                    break;
-                                case CenJet:
-                                    cond0NrL1Objects = nrL1CenJet;
-                                    break;
-                                case ForJet:
-                                    cond0NrL1Objects = nrL1ForJet;
-                                    break;
-                                case TauJet:
-                                    cond0NrL1Objects = nrL1TauJet;
-                                    break;
-                                default:
-                                    cond0NrL1Objects = 0;
-                                    break;
-                            }
+		    switch (cond0Categ) {
+			case CondMuon: {
+			    cond0Condition = &((corrMuon[iChip])[cond0Ind]);
+			    cond0NrL1Objects = nrL1Mu;
+//BLW			    cond0EtaBits = ifMuEtaNumberBits;
+			}
+			    break;
+			case CondCalo: {
 
-                            cond0EtaBits = ifCaloEtaNumberBits;
-                        }
-                            break;
-                        case CondEnergySum: {
-                            cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
-                            cond0NrL1Objects = 1;
-                        }
-                            break;
-                        default: {
-                            // do nothing, should not arrive here
-                        }
-                            break;
-                    }
+			}
+			    break;
+			case CondEnergySum: {
+//			    cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
+//			    cond0NrL1Objects = 1;
+			}
+			    break;
+			default: {
+			    // do nothing, should not arrive here
+			}
+			    break;
+		    }
 
-                    switch (cond1Categ) {
-                        case CondMuon: {
-                            cond1Condition = &((corrMuon[iChip])[cond1Ind]);
-                            cond1NrL1Objects = nrL1Mu;
-                            cond1EtaBits = ifMuEtaNumberBits;
-                        }
-                            break;
-                        case CondCalo: {
-                            cond1Condition = &((corrCalo[iChip])[cond1Ind]);
+		    switch (cond1Categ) {
+			case CondMuon: {
+			    cond1Condition = &((corrMuon[iChip])[cond1Ind]);
+			    cond1NrL1Objects = nrL1Mu;
+//BLW			    cond1EtaBits = ifMuEtaNumberBits;
+			}
+			    break;
+			case CondCalo: {
 
-                            switch ((cond1Condition->objectType())[0]) {
-                                case NoIsoEG:
-                                    cond1NrL1Objects= nrL1NoIsoEG;
-                                    break;
-                                case IsoEG:
-                                    cond1NrL1Objects = nrL1IsoEG;
-                                    break;
-                                case CenJet:
-                                    cond1NrL1Objects = nrL1CenJet;
-                                    break;
-                                case ForJet:
-                                    cond1NrL1Objects = nrL1ForJet;
-                                    break;
-                                case TauJet:
-                                    cond1NrL1Objects = nrL1TauJet;
-                                    break;
-                                default:
-                                    cond1NrL1Objects = 0;
-                                    break;
-                            }
+			}
+			    break;
+			case CondEnergySum: {
+//			    cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
+//			    cond1NrL1Objects = 1;
+			}
+			    break;
+			default: {
+			    // do nothing, should not arrive here
+			}
+			    break;
+		    }
 
-                             cond1EtaBits = ifCaloEtaNumberBits;
-                        }
-                            break;
-                        case CondEnergySum: {
-                            cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
-                            cond1NrL1Objects = 1;
-                        }
-                            break;
-                        default: {
-                            // do nothing, should not arrive here
-                        }
-                            break;
-                    }
+		    CorrCondition* correlationCond =
+			new CorrCondition(itCond->second, cond0Condition, cond1Condition, this);
 
-                    L1GtCorrelationCondition* correlationCond =
-                        new L1GtCorrelationCondition(itCond->second,
-                            cond0Condition, cond1Condition,
-                            cond0NrL1Objects, cond1NrL1Objects,
-                            cond0EtaBits, cond1EtaBits,
-                            this, this, m_gtEtaPhiConversions);
+		    correlationCond->setVerbosity(m_verbosity);
+		    correlationCond->evaluateConditionStoreResult(iBxInEvent);
 
-                    correlationCond->setVerbosity(m_verbosity);
-                    correlationCond->evaluateConditionStoreResult();
+		    cMapResults[itCond->first] = correlationCond;
 
-                    cMapResults[itCond->first] = correlationCond;
+		    if (m_verbosity && m_isDebugEnabled) {
+			std::ostringstream myCout;
+			correlationCond->print(myCout);
 
-                    if (m_verbosity && m_isDebugEnabled) {
-                        std::ostringstream myCout;
-                        correlationCond->print(myCout);
+			LogTrace("l1t|Global") << myCout.str() << std::endl;
+		    }
 
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
+		    //  		delete correlationCond;
 
-                    //                  delete correlationCond;
-*/
+                
                 }
                     break;
                 case CondNull: {
