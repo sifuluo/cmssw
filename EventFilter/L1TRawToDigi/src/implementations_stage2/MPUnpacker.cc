@@ -4,6 +4,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
 #include "CaloCollections.h"
 
 namespace l1t {
@@ -122,6 +124,7 @@ namespace stage2 {
          
        LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual();
 
+       jet.setP4( l1t::CaloTools::p4MP(&jet) );
        res1_->push_back(0,jet);
 
        // Push them back in the right place (for checking sorting)
@@ -190,6 +193,7 @@ namespace stage2 {
 	   
        LogDebug("L1T") << "Egamma: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " qual " << eg.hwQual();
        
+       eg.setP4( l1t::CaloTools::p4MP(&eg) );
        res3_->push_back(0,eg);
      }
 
@@ -231,6 +235,7 @@ namespace stage2 {
 	   
        LogDebug("L1T") << "Tau: eta " << tau.hwEta() << " phi " << tau.hwPhi() << " pT " << tau.hwPt() << " qual " << tau.hwQual();
        
+       tau.setP4( l1t::CaloTools::p4MP(&tau) );
        res4_->push_back(0,tau);
      }
 

@@ -2,6 +2,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
 #include "L1TObjectCollections.h"
 
 #include "L1TStage2Layer2Constants.h"
@@ -72,7 +74,9 @@ namespace stage2 {
 
          LogDebug("L1T") << "Tau: eta " << tau.hwEta() << " phi " << tau.hwPhi() << " pT " << tau.hwPt() << " iso " << tau.hwIso() << " qual " << tau.hwQual();
 
-         res_->push_back(bx,tau);
+	 tau.setP4( l1t::CaloTools::p4Demux(&tau) );
+
+         res_->push_back(bx, tau);
 
        }
 
