@@ -415,7 +415,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
 	            condition->getType() == esConditionType::QuadMuon      )       
 	  {
              parseMuonV2(*condition,chipNr,false);
-             std::cout << "Returning from parseMuonV2 " << std::endl;
+             
 	     
 	  //parse Correlation Conditions	 	
 	  } else if(condition->getType() == esConditionType::MuonMuonCorrelation    ||
@@ -426,7 +426,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
 		    condition->getType() == esConditionType::InvariantMass )       
 	  {
              parseCorrelationV2(*condition,chipNr);
-	     std::cout << "Returning from parseCorrelationV2 " << std::endl;
+	    
 	  }      
       
       }//if condition is a new one
@@ -1157,8 +1157,8 @@ void l1t::TriggerMenuXmlParser::clearMaps() {
 bool l1t::TriggerMenuXmlParser::insertConditionIntoMap(GtCondition& cond, const int chipNr) {
 
     std::string cName = cond.condName();
-    //LogTrace("TriggerMenuXmlParser")
-    std::cout << "    Trying to insert condition \"" << cName << "\" in the condition map." ;
+    LogTrace("TriggerMenuXmlParser")
+    << "    Trying to insert condition \"" << cName << "\" in the condition map." ;
 
     // no condition name has to appear twice!
     if ((m_conditionMap[chipNr]).count(cName) != 0) {
@@ -1168,8 +1168,8 @@ bool l1t::TriggerMenuXmlParser::insertConditionIntoMap(GtCondition& cond, const 
     }
 
     (m_conditionMap[chipNr])[cName] = &cond;
-    //LogTrace("TriggerMenuXmlParser")
-    std::cout << "      OK - condition inserted!"
+     LogTrace("TriggerMenuXmlParser")
+     << "      OK - condition inserted!"
     << std::endl;
 
 
@@ -2103,7 +2103,7 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
 	unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
         int isolationLUT = 0xF; //default is to ignore unless specified.
 	int charge = -1;
-	int qualityLUT = 0xF; //default is to ignore unless specified.		
+	int qualityLUT = 0xFFFF; //default is to ignore unless specified.		
 	
         const std::vector<esCut*>& cuts = object->getCuts();
         for (size_t kk = 0; kk < cuts.size(); kk++)
@@ -2243,13 +2243,13 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
         return false;
     }
     else {
-        LogDebug("l1t|Global") << "Added Condition " << name << " to the ConditionMap" << std::endl;
+        LogDebug("TriggerMenuXmlParser") << "Added Condition " << name << " to the ConditionMap" << std::endl;
         if (corrFlag) {
-	    std::cout << "Added Condition " << name << " to the corMuonTemplate vector" << std::endl;
+	    
             (m_corMuonTemplate[chipNr]).push_back(muonCond);
         }
         else {
-	    LogDebug("l1t|Global") << "Added Condition " << name << " to the vecMuonTemplate vector" << std::endl;
+	    LogDebug("TriggerMenuXmlParser") << "Added Condition " << name << " to the vecMuonTemplate vector" << std::endl;
             (m_vecMuonTemplate[chipNr]).push_back(muonCond);
         }
 
@@ -2339,8 +2339,8 @@ bool l1t::TriggerMenuXmlParser::parseMuonCorr(const tmeventsetup::esObject* corr
     int cntPhi = 0;
     unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
     int isolationLUT = 0xF; //default is to ignore unless specified.
-    int charge = 0;
-    int qualityLUT = 0xF; //default is to ignore unless specified.		
+    int charge = -1;       //defaut is to ignore unless specified
+    int qualityLUT = 0xFFFF; //default is to ignore unless specified.		
 
     const std::vector<esCut*>& cuts = corrMu->getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++)
@@ -2475,7 +2475,6 @@ bool l1t::TriggerMenuXmlParser::parseMuonCorr(const tmeventsetup::esObject* corr
     }
     else {
         LogDebug("l1t|Global") << "Added Condition " << name << " to the ConditionMap" << std::endl;
-	    std::cout << "Added Condition " << name << " to the corMuonTemplate vector" << std::endl;
             (m_corMuonTemplate[chipNr]).push_back(muonCond);
     }
 
@@ -4707,13 +4706,13 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
       for (size_t jj = 0; jj < cuts.size(); jj++)
       {
         const esCut* cut = cuts.at(jj);
-        std::cout << "    cut name = " << cut->getName() << "\n";
+/*        std::cout << "    cut name = " << cut->getName() << "\n";
         std::cout << "    cut target = " << cut->getObjectType() << "\n";
         std::cout << "    cut type = " << cut->getCutType() << "\n";
         std::cout << "    cut min. value  index = " << cut->getMinimum().value << " " << cut->getMinimum().index << "\n";
         std::cout << "    cut max. value  index = " << cut->getMaximum().value << " " << cut->getMaximum().index << "\n";
         std::cout << "    cut data = " << cut->getData() << "\n";
-
+*/
         corrParameter.corrCutType = cut->getCutType();
 	corrParameter.minCutValue = cut->getMinimum().value;
 	corrParameter.maxCutValue = cut->getMaximum().value;
@@ -4733,10 +4732,11 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
       for (size_t jj = 0; jj < objects.size(); jj++)
       {
         const esObject* object = objects.at(jj);
-        std::cout << "      obj name = " << object->getName() << "\n";
+/*        std::cout << "      obj name = " << object->getName() << "\n";
         std::cout << "      obj type = " << object->getType() << "\n";
         std::cout << "      obj op = " << object->getComparisonOperator() << "\n";
         std::cout << "      obj bx = " << object->getBxOffset() << "\n";
+*/
 
 // check the leg type
         if(object->getType() == esObjectType::Muon) {
@@ -4745,13 +4745,13 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
           //BLW Is there a problem here with not entering second instanance into the m_corMuonTemplate[]?
           if ((m_conditionMap[chipNr]).count(object->getName()) == 0) {
 	   
-	                   std::cout << "Heading into parseMuonCorr " << std::endl;
-             bool result = parseMuonCorr(object,chipNr);
-                           std::cout << "Returning from parseMuonCorr" << std::endl;	     
+	                  
+              parseMuonCorr(object,chipNr);
+                           	     
 	     
-	     std::cout << " Adding Correlation Muon Condition. result of add " << result << std::endl;
+	    
           } else {
-	     std::cout << "Not Adding Correlation Muon Condition." << std::endl;
+	     LogDebug("TriggerMenuXmlParser")  << "Not Adding Correlation Muon Condition." << std::endl;
 	  }
 	  
           //Now set some flags for this subCondition
@@ -4798,8 +4798,8 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
     // get greater equal flag for the correlation condition
     bool gEq = true;
     if (intGEq[0] != intGEq[1]) {
-       // edm::LogError("TriggerMenuXmlParser")
-         std::cout       << "Inconsistent GEq flags for sub-conditions "
+        edm::LogError("TriggerMenuXmlParser")
+                << "Inconsistent GEq flags for sub-conditions "
                 << " for the correlation condition " << name << std::endl;
         return false;
 
@@ -4838,7 +4838,7 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 
     (m_vecCorrelationTemplate[chipNr]).push_back(correlationCond);
     
-    std::cout << "leaving from parseCorrelationV2 " << std::endl;
+    
     //
     return true;
 }
