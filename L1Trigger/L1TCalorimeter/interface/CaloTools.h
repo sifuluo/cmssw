@@ -17,6 +17,13 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 namespace l1t {
 
   class CaloTools{
@@ -40,6 +47,8 @@ namespace l1t {
 
   public:
     enum SubDet{ECAL=0x1,HCAL=0x2,CALO=0x3}; //CALO is a short cut for ECAL|HCAL
+
+    static bool insertTower( std::vector<l1t::CaloTower>& towers, const l1t::CaloTower& tower);
 
     static const l1t::CaloTower&   getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
     static const l1t::CaloCluster& getCluster(const std::vector<l1t::CaloCluster>& clusters,int iEta,int iPhi);
@@ -71,6 +80,19 @@ namespace l1t {
     static float towerPhi(int ieta, int iphi);
     static float towerEtaSize(int ieta);
     static float towerPhiSize(int ieta);
+
+    // conversion methods
+    static math::PtEtaPhiMLorentzVector p4Demux(l1t::L1Candidate*);
+    static l1t::EGamma egP4Demux(l1t::EGamma&);
+    static l1t::Tau    tauP4Demux(l1t::Tau&);
+    static l1t::Jet    jetP4Demux(l1t::Jet&);
+    static l1t::EtSum  etSumP4Demux(l1t::EtSum&);
+
+    static math::PtEtaPhiMLorentzVector p4MP(l1t::L1Candidate*);
+    static l1t::EGamma egP4MP(l1t::EGamma&);
+    static l1t::Tau    tauP4MP(l1t::Tau&);
+    static l1t::Jet    jetP4MP(l1t::Jet&);
+    static l1t::EtSum  etSumP4MP(l1t::EtSum&);
 
 
   private:

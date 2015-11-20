@@ -62,6 +62,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -160,13 +161,17 @@ process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.simCaloStage2Layer1Digis
+    process.ecalDigis
+    +process.hcalDigis
+    +process.simCaloStage2Layer1Digis
     +process.simCaloStage2Digis
     +process.l1tStage2CaloAnalyzer
     +process.l1tCaloStage2HwHistos
 )
 
 if (not options.doLayer1):
+    process.path.remove(process.ecalDigis)
+    process.path.remove(process.hcalDigis)
     process.path.remove(process.simCaloStage2Layer1Digis)
     process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis")
 

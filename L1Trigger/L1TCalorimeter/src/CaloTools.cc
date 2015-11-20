@@ -6,6 +6,16 @@
 const l1t::CaloTower l1t::CaloTools::nullTower_;
 const l1t::CaloCluster l1t::CaloTools::nullCluster_;
 
+
+bool l1t::CaloTools::insertTower(std::vector<l1t::CaloTower>& towers, const l1t::CaloTower& tower) {
+  size_t towerIndex = CaloTools::caloTowerHash(tower.hwEta(), tower.hwPhi());
+  if (towers.size() > towerIndex) {
+    towers.at(towerIndex) = tower;
+    return true;
+  }
+  else return false;
+}
+
 //currently implemented as a brute force search but this will hopefully change in the future
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
@@ -167,3 +177,116 @@ float l1t::CaloTools::towerPhiSize(int ieta)
 }
 
 
+
+
+// this conversion is based on GT input definitions in CMS DN-2014/029 
+math::PtEtaPhiMLorentzVector l1t::CaloTools::p4Demux(l1t::L1Candidate* cand) {
+
+  return math::PtEtaPhiMLorentzVector( cand->hwPt() * 0.5 + 1.E-6,
+				       cand->hwEta() * 0.0435,
+				       cand->hwPhi() * 0.0435,
+				       0. ) ;
+  
+}
+
+
+l1t::EGamma l1t::CaloTools::egP4Demux(l1t::EGamma& eg) {
+  
+  return l1t::EGamma( p4Demux(&eg),
+		      eg.hwPt(),
+		      eg.hwEta(),
+		      eg.hwPhi(),
+		      eg.hwQual(),
+		      eg.hwIso() );
+
+}
+
+
+l1t::Tau l1t::CaloTools::tauP4Demux(l1t::Tau& tau) {
+
+  return l1t::Tau( p4Demux(&tau),
+		   tau.hwPt(),
+		   tau.hwEta(),
+		   tau.hwPhi(),
+		   tau.hwQual(),
+		   tau.hwIso() );
+
+}
+
+
+l1t::Jet l1t::CaloTools::jetP4Demux(l1t::Jet& jet) {
+
+  return l1t::Jet( p4Demux(&jet),
+		   jet.hwPt(),
+		   jet.hwEta(),
+		   jet.hwPhi(),
+		   jet.hwQual() );
+  
+}
+
+
+l1t::EtSum l1t::CaloTools::etSumP4Demux(l1t::EtSum& etsum) {
+
+  return l1t::EtSum( p4Demux(&etsum),
+		     etsum.getType(),
+		     etsum.hwPt(),
+		     etsum.hwEta(),
+		     etsum.hwPhi(),
+		     etsum.hwQual() );
+  
+}
+
+
+
+// 
+math::PtEtaPhiMLorentzVector l1t::CaloTools::p4MP(l1t::L1Candidate* cand) {
+
+  return math::PtEtaPhiMLorentzVector( cand->hwPt() * 0.5 + 1.E-6,
+				       towerEta(cand->hwEta()),
+				       towerPhi(cand->hwEta(), cand->hwPhi()),
+				       0. ) ;
+
+}
+
+l1t::EGamma l1t::CaloTools::egP4MP(l1t::EGamma& eg) {
+
+  return l1t::EGamma( p4MP(&eg),
+		      eg.hwPt(),
+		      eg.hwEta(),
+		      eg.hwPhi(),
+		      eg.hwQual(),
+		      eg.hwIso() );
+}
+
+
+l1t::Tau l1t::CaloTools::tauP4MP(l1t::Tau& tau) {
+
+  return l1t::Tau( p4MP(&tau),
+		   tau.hwPt(),
+		   tau.hwEta(),
+		   tau.hwPhi(),
+		   tau.hwQual(),
+		   tau.hwIso() );
+}
+
+
+l1t::Jet l1t::CaloTools::jetP4MP(l1t::Jet& jet) {
+
+  return l1t::Jet( p4MP(&jet),
+		   jet.hwPt(),
+		   jet.hwEta(),
+		   jet.hwPhi(),
+		   jet.hwQual() );
+
+}
+
+l1t::EtSum l1t::CaloTools::etSumP4MP(l1t::EtSum& etsum) {
+
+  return l1t::EtSum( p4MP(&etsum),
+		     etsum.getType(),
+		     etsum.hwPt(),
+		     etsum.hwEta(),
+		     etsum.hwPhi(),
+		     etsum.hwQual() );
+  
+}
