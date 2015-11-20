@@ -20,7 +20,7 @@ options.register('dump',
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
 options.register('doLayer1',
-                 True,
+                 False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Run layer 1 module")
@@ -44,6 +44,11 @@ options.register('selAllBx',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Run over all Bx in readout for MP and demux")
+options.register('evtDisp',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 'Produce histos for individual events')
 
                  
 options.parseArguments()
@@ -122,6 +127,7 @@ process.load('L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi')
 
 # histograms
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
+process.l1tStage2CaloAnalyzer.doEvtDisp = options.evtDisp
 process.l1tStage2CaloAnalyzer.mpBx = options.selMPBx
 process.l1tStage2CaloAnalyzer.dmxBx = options.selDemuxBx
 process.l1tStage2CaloAnalyzer.allBx = options.selAllBx
@@ -138,6 +144,10 @@ process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("simCaloStage2Digis")
 
 import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
 process.l1tCaloStage2HwHistos =  L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
+process.l1tStage2CaloAnalyzer.doEvtDisp = options.evtDisp
+process.l1tStage2CaloAnalyzer.mpBx = options.selMPBx
+process.l1tStage2CaloAnalyzer.dmxBx = options.selDemuxBx
+process.l1tStage2CaloAnalyzer.allBx = options.selAllBx
 process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis")
 process.l1tCaloStage2HwHistos.clusterToken = cms.InputTag("None")
 process.l1tCaloStage2HwHistos.mpEGToken = cms.InputTag("caloStage2Digis", "MP")
