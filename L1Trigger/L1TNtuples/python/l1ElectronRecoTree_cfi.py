@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1ElectronRecoTreeProducer = cms.EDAnalyzer("L1ElectronRecoTreeProducer",
+l1ElectronRecoTree = cms.EDAnalyzer("L1ElectronRecoTreeProducer",
    maxElectron                          = cms.uint32(20),
    ElectronTag                          = cms.untracked.InputTag("gedGsfElectrons"),
    RhoTag                               = cms.untracked.InputTag("fixedGridRhoFastjetAllCalo"),

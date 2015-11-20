@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1Muon2RecoTreeProducer = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
+l1MuonRecoTree = cms.EDAnalyzer("L1Muon2RecoTreeProducer",
    maxMuon                          = cms.uint32(20),
    MuonTag                          = cms.untracked.InputTag("muons"),
   #---------------------------------------------------------------------
