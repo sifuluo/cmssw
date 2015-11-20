@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1TauRecoTreeProducer = cms.EDAnalyzer("L1TauRecoTreeProducer",
+l1TauRecoTree = cms.EDAnalyzer("L1TauRecoTreeProducer",
    maxTau                          = cms.uint32(20),
    PFTauTag                        = cms.untracked.InputTag("hpsPFTauProducer"),
    PFTauDMFindingOld               = cms.untracked.InputTag("hpsPFTauDiscriminationByDecayModeFindingOldDMs"),
