@@ -326,19 +326,177 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
     }
 
+    // since we have two good legs get the correlation parameters
+    CorrelationTemplate::CorrelationParameter corrPar =
+        *(m_gtCorrelationTemplate->correlationParameter());
+
+
+    // vector to store the indices of the calorimeter objects
+    // from the combination evaluated in the condition
+    SingleCombInCond objectsInComb;
+    objectsInComb.reserve(nObjInCond);
+
+    // clear the m_combinationsInCond vector
+    (combinationsInCond()).clear();
+
+    // pointers to objects
+//    const std::vector<const L1MuGMTCand*>* candMuVec = 0;
+    const BXVector<const l1t::Muon*>* candMuVec = 0;
+
+    // make the conversions of the indices, depending on the combination of objects involved
+    // (via pair index)
+
+    int phiIndex0 = 0;
+    int phiIndex1 = 0;
+
+    int etaIndex0 = 0;
+    int etaIndex1 = 0;
+
+    int etIndex0 = 0;
+    int etIndex1 = 0;
+
+    LogTrace("L1TGlobal")
+            << "  Sub-condition 0: std::vector<SingleCombInCond> size: "
+            << (cond0Comb.size()) << std::endl;
+    LogTrace("L1TGlobal")
+            << "  Sub-condition 1: std::vector<SingleCombInCond> size: "
+            << (cond1Comb.size()) << std::endl;
+
+
+    // loop over all combinations which produced individually "true" as Type1s
+    //  
+    // BLW: Optimization issue: potentially making the same comparison twice  
+    //                          if both legs are the same object type.
+    for (std::vector<SingleCombInCond>::const_iterator it0Comb =
+            cond0Comb.begin(); it0Comb != cond0Comb.end(); it0Comb++) {
+
+        // Type1s: there is 1 object only, no need for a loop, index 0 should be OK in (*it0Comb)[0]
+        // ... but add protection to not crash
+        int obj0Index = -1;
+
+        if ((*it0Comb).size() > 0) {
+            obj0Index = (*it0Comb)[0];
+        } else {
+            LogTrace("L1TGlobal")
+                    << "\n  SingleCombInCond (*it0Comb).size() "
+                    << ((*it0Comb).size()) << std::endl;
+            return false;
+        }
+
+// Collect the information on the first leg of the correlation
+        switch (cond0Categ) {
+            case CondMuon: {
+                candMuVec = m_uGtB->getCandL1Mu();
+                phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
+                etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
+		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
+            }
+                break;
+            case CondCalo: {
  
-    condResult = true;
+ 
+            }
+                break;
+            case CondEnergySum: {
+
+            }
+                break;
+            default: {
+                // should not arrive here, there are no correlation conditions defined for this object
+                return false;
+            }
+                break;
+        } //end switch on first leg type
+
+// Now loop over the second leg to get its information
+        for (std::vector<SingleCombInCond>::const_iterator it1Comb =
+                cond1Comb.begin(); it1Comb != cond1Comb.end(); it1Comb++) {
+
+            // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
+            // ... but add protection to not crash
+            int obj1Index = -1;
+
+            if ((*it1Comb).size() > 0) {
+                obj1Index = (*it1Comb)[0];
+            } else {
+                LogTrace("L1TGlobal")
+                        << "\n  SingleCombInCond (*it1Comb).size() "
+                        << ((*it1Comb).size()) << std::endl;
+                return false;
+            }
+	    
+	    //If we are dealing with the same object type avoid the two legs
+	    // either being the same object 
+	    if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
+	               obj0Index == obj1Index ) continue;
+
+            switch (cond1Categ) {
+                case CondMuon: {
+                   candMuVec = m_uGtB->getCandL1Mu();
+                   phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
+                   etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
+		   etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
+                }
+                    break;
+                case CondCalo: {
+
+
+                }
+                    break;
+                case CondEnergySum: {
+
+                }
+                    break;
+                default: {
+                    // should not arrive here, there are no correlation conditions defined for this object
+                    return false;
+                }
+                    break;
+            } //end switch on second leg
+
+            if (m_verbosity) {
+                LogDebug("L1TGlobal") << "    Correlation pair ["
+                        << l1GtObjectEnumToString(cndObjTypeVec[0]) << ", "
+                        << l1GtObjectEnumToString(cndObjTypeVec[1])
+                        << "] with collection indices [" << obj0Index << ", "
+                        << obj1Index << "] " << " has: \n"
+			<< "     Et  value   = ["<< etIndex0  << ", " << etIndex1 <<  "]\n"
+			<< "     phi indices = ["<< phiIndex0 << ", " << phiIndex1 << "]\n"
+			<< "     eta indices = ["<< etaIndex0 << ", " << etaIndex1 << "]\n" << std::endl;
+            }
+
+
+// Now perform the desired correlation on these two objects
+            bool reqResult = true;
+	    
+            // clear the indices in the combination
+            objectsInComb.clear();
+
+            objectsInComb.push_back(obj0Index);
+            objectsInComb.push_back(obj1Index);
+
+            // if we get here all checks were successful for this combination
+            // set the general result for evaluateCondition to "true"
+
+            if (reqResult) {
+
+                condResult = true;
+                (combinationsInCond()).push_back(objectsInComb);
+
+            } 
+
+        } //end loop over second leg
+
+    } //end loop over first leg
+
+
+
     if (m_verbosity  && condResult) {
         LogDebug("L1TGlobal") << " pass(es) the correlation condition.\n"
                 << std::endl;
     }    
     
-    
-    
-    
-    
-    
-    
+      
     return condResult;
 
 }
