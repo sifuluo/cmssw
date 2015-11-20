@@ -198,7 +198,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for( auto jet = localMPJets->begin(); jet != localMPJets->end(); ++jet) 
       mpjets->push_back(ibx, CaloTools::jetP4MP(*jet));
     for( auto etsum = localMPEtSums->begin(); etsum != localMPEtSums->end(); ++etsum)
-      mpsums->push_back(ibx, *etsum);
+      mpsums->push_back(ibx, CaloTools::etSumP4MP(*etsum));
     for( auto eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(ibx, CaloTools::egP4Demux(*eg));
     for( auto tau = localTaus->begin(); tau != localTaus->end(); ++tau)
@@ -206,7 +206,7 @@ L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     for( auto jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(ibx, CaloTools::jetP4Demux(*jet));
     for( auto etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) 
-      etsums->push_back(ibx, *etsum);
+      etsums->push_back(ibx, CaloTools::etSumP4Demux(*etsum));
 
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Cluster)=" << localClusters->size() << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;    

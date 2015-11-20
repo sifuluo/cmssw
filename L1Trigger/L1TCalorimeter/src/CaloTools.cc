@@ -225,6 +225,18 @@ l1t::Jet l1t::CaloTools::jetP4Demux(l1t::Jet& jet) {
 }
 
 
+l1t::EtSum l1t::CaloTools::etSumP4Demux(l1t::EtSum& etsum) {
+
+  return l1t::EtSum( p4Demux(&etsum),
+		     etsum.getType(),
+		     etsum.hwPt(),
+		     etsum.hwEta(),
+		     etsum.hwPhi(),
+		     etsum.hwQual() );
+  
+}
+
+
 
 // 
 math::PtEtaPhiMLorentzVector l1t::CaloTools::p4MP(l1t::L1Candidate* cand) {
@@ -266,4 +278,15 @@ l1t::Jet l1t::CaloTools::jetP4MP(l1t::Jet& jet) {
 		   jet.hwPhi(),
 		   jet.hwQual() );
 
+}
+
+l1t::EtSum l1t::CaloTools::etSumP4MP(l1t::EtSum& etsum) {
+
+  return l1t::EtSum( p4MP(&etsum),
+		     etsum.getType(),
+		     etsum.hwPt(),
+		     etsum.hwEta(),
+		     etsum.hwPhi(),
+		     etsum.hwQual() );
+  
 }

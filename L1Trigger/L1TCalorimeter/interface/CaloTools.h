@@ -20,6 +20,7 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -85,12 +86,13 @@ namespace l1t {
     static l1t::EGamma egP4Demux(l1t::EGamma&);
     static l1t::Tau    tauP4Demux(l1t::Tau&);
     static l1t::Jet    jetP4Demux(l1t::Jet&);
+    static l1t::EtSum  etSumP4Demux(l1t::EtSum&);
 
     static math::PtEtaPhiMLorentzVector p4MP(l1t::L1Candidate*);
     static l1t::EGamma egP4MP(l1t::EGamma&);
     static l1t::Tau    tauP4MP(l1t::Tau&);
     static l1t::Jet    jetP4MP(l1t::Jet&);
-
+    static l1t::EtSum  etSumP4MP(l1t::EtSum&);
 
 
   private:

@@ -2,6 +2,8 @@
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
 #include "L1TObjectCollections.h"
 
 #include "L1TStage2Layer2Constants.h"
@@ -56,6 +58,7 @@ namespace stage2 {
     
        et.setHwPt(raw_data & 0xFFF);
        et.setType(l1t::EtSum::kTotalEt);       
+       et.setP4( l1t::CaloTools::p4Demux(&et) );
 
        LogDebug("L1T") << "ET: pT " << et.hwPt() << " bx " << bx;
 
@@ -70,6 +73,7 @@ namespace stage2 {
     
        ht.setHwPt(raw_data & 0xFFF);
        ht.setType(l1t::EtSum::kTotalHt);       
+       ht.setP4( l1t::CaloTools::p4Demux(&ht) );
 
        LogDebug("L1T") << "HT: pT " << ht.hwPt();
 
@@ -85,6 +89,7 @@ namespace stage2 {
        met.setHwPt(raw_data & 0xFFF);
        met.setHwPhi((raw_data >> 12) & 0xFF);
        met.setType(l1t::EtSum::kMissingEt);       
+       met.setP4( l1t::CaloTools::p4Demux(&met) );
 
        LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
 
@@ -100,6 +105,7 @@ namespace stage2 {
        mht.setHwPt(raw_data & 0xFFF);
        mht.setHwPhi((raw_data >> 12) & 0xFF);
        mht.setType(l1t::EtSum::kMissingHt);       
+       mht.setP4( l1t::CaloTools::p4Demux(&mht) );
 
        LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt() << " bx " << bx;
 
