@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1NtupleProducer = cms.EDAnalyzer("L1NtupleProducer",
+l1Tree = cms.EDAnalyzer("L1NtupleProducer",
     verbose              = cms.untracked.bool(False),
     physVal              = cms.bool(True),
 

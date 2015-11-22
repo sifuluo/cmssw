@@ -115,12 +115,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 
 # emulator
-from L1Trigger.L1TCalorimeter.caloStage2Layer1Digis_cfi import caloStage2Layer1Digis
-process.simCaloStage2Layer1Digis = caloStage2Layer1Digis.clone()
-
-from L1Trigger.L1TCalorimeter.caloStage2Digis_cfi import caloStage2Digis
-process.simCaloStage2Digis = caloStage2Digis.clone()
-process.simCaloStage2Digis.towerToken = cms.InputTag("simCaloStage2Layer1Digis")
+process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
+process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
+process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
+process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
 
 # emulator ES
 process.load('L1Trigger.L1TCalorimeter.caloStage2Params_HWConfig_cfi')

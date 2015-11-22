@@ -82,4 +82,3 @@ def L1NtupleAODRAW(process):
     process.schedule.append(process.l1ntuple)
 
     return process
-

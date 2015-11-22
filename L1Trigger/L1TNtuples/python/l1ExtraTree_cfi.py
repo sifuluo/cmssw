@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1ExtraTreeProducer = cms.EDAnalyzer("L1ExtraTreeProducer",
+l1ExtraTree = cms.EDAnalyzer("L1ExtraTreeProducer",
    nonIsoEmLabel = cms.untracked.InputTag("l1extraParticles:NonIsolated"),
    isoEmLabel = cms.untracked.InputTag("l1extraParticles:Isolated"),
    tauJetLabel = cms.untracked.InputTag("l1extraParticles:Tau"),

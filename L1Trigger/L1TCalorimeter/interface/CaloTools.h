@@ -33,7 +33,7 @@ namespace l1t {
     CaloTools(){}
     ~CaloTools(){}
   
-  private:
+  public:
     //temporary location of these key parameters, probably should be read in from a database
     //they are private to stop people using them as they will change (naming is invalid for a start)
     static const int kHBHEEnd=28;
