@@ -167,8 +167,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     const GtConditionCategory cond1Categ = m_gtCorrelationTemplate->cond1Category();
 
     const MuonTemplate* corrMuon = 0;
-//    const CaloTemplate* corrCalo = 0;
-//    const EnergySumTemplate* corrEnergySum = 0;
+    const CaloTemplate* corrCalo = 0;
+    const EnergySumTemplate* corrEnergySum = 0;
 
     // FIXME copying is slow...
     CombinationsInCond cond0Comb;
@@ -195,13 +195,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         }
             break;
         case CondCalo: {
-/*            corrCalo = static_cast<const CaloTemplate*>(m_gtCond0);
+            corrCalo = static_cast<const CaloTemplate*>(m_gtCond0);
 
-            CaloCondition caloCondition(corrCalo, m_gtPSB,
-                    m_cond0NrL1Objects, m_cond0NrL1Objects, m_cond0NrL1Objects,
-                    m_cond0NrL1Objects, m_cond0NrL1Objects, m_cond0EtaBits);
+            CaloCondition caloCondition(corrCalo, m_uGtB,
+                    0, 0, 0, 0); //BLW these are counters that don't seem to be used...perhaps remove.
 
-            caloCondition.evaluateConditionStoreResult();
+            caloCondition.evaluateConditionStoreResult(bxEval);
             reqObjResult = caloCondition.condLastResult();
 
             cond0Comb = (caloCondition.getCombinationsInCond());
@@ -211,15 +210,16 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
-                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                LogTrace("L1TGlobal") << myCout.str() << std::endl;
             }
-*/        }
+        }
             break;
         case CondEnergySum: {
-/*            corrEnergySum = static_cast<const EnergySumTemplate*>(m_gtCond0);
-            EnergySumCondition eSumCondition(corrEnergySum, m_gtPSB);
 
-            eSumCondition.evaluateConditionStoreResult();
+            corrEnergySum = static_cast<const EnergySumTemplate*>(m_gtCond0);
+            EnergySumCondition eSumCondition(corrEnergySum, m_uGtB);
+
+            eSumCondition.evaluateConditionStoreResult(bxEval);
             reqObjResult = eSumCondition.condLastResult();
 
             cond0Comb = (eSumCondition.getCombinationsInCond());
@@ -229,9 +229,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
-                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                LogTrace("L1TGlobal") << myCout.str() << std::endl;
             }
-*/        }
+        }
             break;
         default: {
             // should not arrive here, there are no correlation conditions defined for this object
@@ -272,12 +272,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
         }
             break;
         case CondCalo: {
-/*            corrCalo = static_cast<const CaloTemplate*>(m_gtCond1);
-            CaloCondition caloCondition(corrCalo, m_gtPSB,
-                    m_cond1NrL1Objects, m_cond1NrL1Objects, m_cond1NrL1Objects,
-                    m_cond1NrL1Objects, m_cond1NrL1Objects, m_cond1EtaBits);
+            corrCalo = static_cast<const CaloTemplate*>(m_gtCond1);
+            CaloCondition caloCondition(corrCalo, m_uGtB,
+                    0, 0, 0, 0); //BLW these are counters that don't seem to be used...perhaps remove.
 
-            caloCondition.evaluateConditionStoreResult();
+            caloCondition.evaluateConditionStoreResult(bxEval);
             reqObjResult = caloCondition.condLastResult();
 
             cond1Comb = (caloCondition.getCombinationsInCond());
@@ -287,15 +286,17 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
-                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                LogTrace("L1TGlobal") << myCout.str() << std::endl;
             }
 
-*/        }
+        }
             break;
         case CondEnergySum: {
-/*            corrEnergySum = static_cast<const EnergySumTemplate*>(m_gtCond1);
-            EnergySumCondition eSumCondition(corrEnergySum, m_gtPSB);
-            eSumCondition.evaluateConditionStoreResult();
+            corrEnergySum = static_cast<const EnergySumTemplate*>(m_gtCond1);
+	    
+            EnergySumCondition eSumCondition(corrEnergySum, m_uGtB);
+
+            eSumCondition.evaluateConditionStoreResult(bxEval);
             reqObjResult = eSumCondition.condLastResult();
 
             cond1Comb = (eSumCondition.getCombinationsInCond());
@@ -305,9 +306,9 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
-                LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
+                LogTrace("L1TGlobal") << myCout.str() << std::endl;
             }
-*/        }
+        }
             break;
         default: {
             // should not arrive here, there are no correlation conditions defined for this object
@@ -340,8 +341,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     (combinationsInCond()).clear();
 
     // pointers to objects
-//    const std::vector<const L1MuGMTCand*>* candMuVec = 0;
-    const BXVector<const l1t::Muon*>* candMuVec = 0;
+    const BXVector<const l1t::Muon*>*        candMuVec    = 0;
+    const BXVector<const l1t::L1Candidate*>* candCaloVec  = 0;
+    const BXVector<const l1t::EtSum*>*       candEtSumVec = 0;
+
 
     // make the conversions of the indices, depending on the combination of objects involved
     // (via pair index)
@@ -392,15 +395,49 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
             }
                 break;
+
+// Calorimeter Objects (EG, Jet, Tau)
             case CondCalo: {
+               switch(cndObjTypeVec[0]) {
+	         case NoIsoEG: {
+		    candCaloVec = m_uGtB->getCandL1EG();
+		 }
+		   break;
+		 case CenJet: {
+		    candCaloVec = m_uGtB->getCandL1Jet();
+		 }
+		   break;
+		 case TauJet: {
+		    candCaloVec = m_uGtB->getCandL1Tau();
+		 }
+	           break;
+		 default: {
+		 }  
+	           break;
+	       } //end switch on calo type.
  
+                phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
+                etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
+		etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt(); 
  
             }
                 break;
+		
+// Energy Sums		
             case CondEnergySum: {
 
+                for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
+		  if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[0] ) {
+                    phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
+                    etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
+		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
+                  } //check it is the EtSum we want   
+                } // loop over Etsums
+		
             }
                 break;
+		
+		
             default: {
                 // should not arrive here, there are no correlation conditions defined for this object
                 return false;
@@ -439,11 +476,39 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 }
                     break;
                 case CondCalo: {
-
+        	   switch(cndObjTypeVec[1]) {
+	             case NoIsoEG: {
+			candCaloVec = m_uGtB->getCandL1EG();
+		     }
+		       break;
+		     case CenJet: {
+			candCaloVec = m_uGtB->getCandL1Jet();
+		     }
+		       break;
+		     case TauJet: {
+			candCaloVec = m_uGtB->getCandL1Tau();
+		     }
+	               break;
+		     default: {
+		     }  
+	           break;
+	           } //end switch on calo type.
+ 
+                   phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
+                   etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
+		   etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt(); 
 
                 }
                     break;
                 case CondEnergySum: {
+
+                   for( int iEtSum=0; iEtSum < (int)candEtSumVec->size(bxEval); iEtSum++) {
+		     if( (candEtSumVec->at(bxEval,iEtSum))->getType() == cndObjTypeVec[1] ) {
+                       phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
+                       etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
+		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
+                     } //check it is the EtSum we want   
+                   } // loop over Etsums
 
                 }
                     break;

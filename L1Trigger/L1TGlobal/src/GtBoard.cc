@@ -38,6 +38,8 @@
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
+
+/*
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
@@ -45,6 +47,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
+*/
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
@@ -443,7 +446,7 @@ void l1t::GtBoard::runGTL(
     const std::vector<std::vector<EnergySumTemplate> >& corrEnergySum =
             m_l1GtMenu->corEnergySumTemplate();
 
-    LogDebug("l1t|Global") << "Size corrMuon " << corrMuon.size() 
+    LogDebug("L1TGlobal") << "Size corrMuon " << corrMuon.size() 
                            << "\nSize corrCalo " << corrCalo.size() 
 			   << "\nSize corrSums " << corrEnergySum.size() << std::endl;
     
@@ -656,16 +659,16 @@ void l1t::GtBoard::runGTL(
 		    switch (cond0Categ) {
 			case CondMuon: {
 			    cond0Condition = &((corrMuon[iChip])[cond0Ind]);
-			    cond0NrL1Objects = nrL1Mu;
+//			    cond0NrL1Objects = nrL1Mu;
 //BLW			    cond0EtaBits = ifMuEtaNumberBits;
 			}
 			    break;
 			case CondCalo: {
-
+                            cond0Condition = &((corrCalo[iChip])[cond0Ind]);
 			}
 			    break;
 			case CondEnergySum: {
-//			    cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
+			    cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
 //			    cond0NrL1Objects = 1;
 			}
 			    break;
@@ -678,16 +681,16 @@ void l1t::GtBoard::runGTL(
 		    switch (cond1Categ) {
 			case CondMuon: {
 			    cond1Condition = &((corrMuon[iChip])[cond1Ind]);
-			    cond1NrL1Objects = nrL1Mu;
+//			    cond1NrL1Objects = nrL1Mu;
 //BLW			    cond1EtaBits = ifMuEtaNumberBits;
 			}
 			    break;
 			case CondCalo: {
-
+                            cond1Condition = &((corrCalo[iChip])[cond1Ind]);
 			}
 			    break;
 			case CondEnergySum: {
-//			    cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
+			    cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
 //			    cond1NrL1Objects = 1;
 			}
 			    break;
