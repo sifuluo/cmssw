@@ -15,7 +15,7 @@ def L1NtupleTFileOut(process):
 
     process.TFileService = cms.Service(
         "TFileService",
-        fileName = cms.string('L1NtupleAOD.root')
+        fileName = cms.string('L1Ntuple.root')
     )
 
     return process
@@ -62,19 +62,26 @@ def L1NtupleRAW(process):
 
 
 
-def L1NtupleSIM(process):
+def L1NtupleEMU(process):
 
     L1NtupleTFileOut(process)
 
-    process.load('L1Trigger.L1TNtuples.L1NtupleSIM_cff')
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
     process.l1ntuplesim = cms.Path(
-        process.L1NtupleSIM
+        process.L1NtupleEMU
     )
 
     process.schedule.append(process.l1ntuplesim)
 
     return process
 
+
+def L1NtupleRAWEMU(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+
+    return process
 
 
 def L1NtupleAODRAW(process):
@@ -85,11 +92,11 @@ def L1NtupleAODRAW(process):
     return process
 
 
-def L1NtupleAODRAWSIM(process):
+def L1NtupleAODRAWEMU(process):
 
     L1NtupleRAW(process)
+    L1NtupleEMU(process)
     L1NtupleAOD(process)
-    L1NtupleSIM(process)
 
     return process
 
