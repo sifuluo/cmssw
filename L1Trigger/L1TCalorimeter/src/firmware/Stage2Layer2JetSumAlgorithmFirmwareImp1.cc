@@ -31,7 +31,7 @@ l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::~Stage2Layer2JetSumAlgorithmFirmwa
 void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::Jet> & alljets, std::vector<l1t::EtSum> & htsums) 
 {
 
-  int etaMax=40, etaMin=1, phiMax=72, phiMin=1;
+  int etaMax=36, etaMin=1, phiMax=72, phiMin=1;
   
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {
