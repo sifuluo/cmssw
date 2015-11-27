@@ -24,6 +24,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+const static unsigned int maxPhysicsTriggers = 512;  //TO DO Move this to a standard parameter area.
+
 // constructors
 
 // empty constructor, all members set to zero;
@@ -35,14 +37,14 @@ GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
     m_finalOR=0;
 
     // Reserve/Clear out the decision words
-    m_algoDecisionInitial.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionInitial.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionInitial.reserve(maxPhysicsTriggers);
+    m_algoDecisionInitial.assign(maxPhysicsTriggers,false);
     
-    m_algoDecisionPreScaled.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionPreScaled.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionPreScaled.reserve(maxPhysicsTriggers);
+    m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
 
-    m_algoDecisionFinal.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionFinal.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionFinal.reserve(maxPhysicsTriggers);
+    m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 }
 
@@ -58,14 +60,14 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_finalOR=0;
 
     // Reserve/Clear out the decision words
-    m_algoDecisionInitial.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionInitial.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionInitial.reserve(maxPhysicsTriggers);
+    m_algoDecisionInitial.assign(maxPhysicsTriggers,false);
     
-    m_algoDecisionPreScaled.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionPreScaled.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionPreScaled.reserve(maxPhysicsTriggers);
+    m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
 
-    m_algoDecisionFinal.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_algoDecisionFinal.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionFinal.reserve(maxPhysicsTriggers);
+    m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 }
 
@@ -130,9 +132,9 @@ void GlobalAlgBlk::reset()
 
     // Clear out the decision words
     // but leave the vector intact 
-    m_algoDecisionInitial.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
-    m_algoDecisionPreScaled.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
-    m_algoDecisionFinal.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_algoDecisionInitial.assign(maxPhysicsTriggers,false);
+    m_algoDecisionPreScaled.assign(maxPhysicsTriggers,false);
+    m_algoDecisionFinal.assign(maxPhysicsTriggers,false);
 
 
 }
