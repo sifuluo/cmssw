@@ -447,8 +447,11 @@ double l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibFit( double *v, double *p
   double term1 = par[1] / ( logX * logX + par[2] );
   double term2 = par[3] * exp( -par[4]*((logX - par[5])*(logX - par[5])) );
 
-  // Final fitting function 
-  double f    = par[0] + term1 + term2; 
-
+  // Final fitting function, with sanity check
+  double f = par[0] + term1 + term2;
+  if (f < 0)
+    f = 0;
+  if (f != f) // stop NaN
+    f = 1;
   return f;
 }
