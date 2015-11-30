@@ -85,19 +85,10 @@ namespace l1t {
 		  //res[22] = empty link no data
 		  res[26] = ext_unp;
 		  res[28] = ext_unp;
+		  res[30] = ext_unp;
 		  
-                  //From the tx buffers (old format)
-/*                  res[1]  = alg_unp;
-                  res[3]  = alg_unp;
-                  res[5]  = alg_unp;
-                  res[7]  = alg_unp;
-                  res[9]  = alg_unp;
-                  res[11] = alg_unp;
-                  res[13] = alg_unp;
-                  res[15] = alg_unp;
-                  res[17] = alg_unp;		  
-*/
 
+                  //From tx buffers
                   res[33]  = alg_unp;
                   res[35]  = alg_unp;
                   res[37]  = alg_unp;
