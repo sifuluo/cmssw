@@ -50,7 +50,10 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
       ratio &= params_->towerMaskRatio() ;
       
       int sum  = etEm + etHad;
-      sum &= params_->towerMaskSum() ;
+
+      // apply 
+      if (sum >= params_->towerMaskSum())
+	sum = params_->towerMaskSum();
       
       int qual = 0;
       qual |= (etEm==0 || etHad==0 ? 0x1 : 0x0 );  // denominator ==0 flag
