@@ -480,6 +480,8 @@ private:
     bool parseCaloV2( tmeventsetup::esCondition condCalo,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
+    bool parseCaloCorr(const tmeventsetup::esObject* corrCalo,
+            unsigned int chipNr = 0);
 
     /// parse an "energy sum" condition
     /* bool parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node, */
@@ -497,6 +499,9 @@ private:
     bool parseEnergySumV2( tmeventsetup::esCondition condEnergySums,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
+
+    bool parseEnergySumCorr(const tmeventsetup::esObject* corrESum,
+            unsigned int chipNr = 0);
 
     /// parse a "jet counts" condition
     bool parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,

@@ -210,7 +210,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
-                LogTrace("L1TGlobal") << myCout.str() << std::endl;
+                LogDebug("L1TGlobal") << myCout.str() << std::endl;
             }
         }
             break;
@@ -229,7 +229,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
-                LogTrace("L1TGlobal") << myCout.str() << std::endl;
+                LogDebug("L1TGlobal") << myCout.str() << std::endl;
             }
         }
             break;
@@ -286,7 +286,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 caloCondition.print(myCout);
 
-                LogTrace("L1TGlobal") << myCout.str() << std::endl;
+                LogDebug("L1TGlobal") << myCout.str() << std::endl;
             }
 
         }
@@ -306,7 +306,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 std::ostringstream myCout;
                 eSumCondition.print(myCout);
 
-                LogTrace("L1TGlobal") << myCout.str() << std::endl;
+                LogDebug("L1TGlobal") << myCout.str() << std::endl;
             }
         }
             break;
@@ -349,14 +349,21 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     // make the conversions of the indices, depending on the combination of objects involved
     // (via pair index)
 
-    int phiIndex0 = 0;
-    int phiIndex1 = 0;
+    int phiIndex0  = 0;
+    double phi0Phy = 0.;
+    int phiIndex1  = 0;
+    double phi1Phy = 0.;
 
-    int etaIndex0 = 0;
-    int etaIndex1 = 0;
+    int etaIndex0  = 0;
+    double eta0Phy = 0.;
+    int etaIndex1  = 0;
+    double eta1Phy = 0.;
 
-    int etIndex0 = 0;
-    int etIndex1 = 0;
+    int etIndex0  = 0;
+    double et0Phy = 0.;
+    int etIndex1  = 0;
+    double et1Phy = 0.;
+    
 
     LogTrace("L1TGlobal")
             << "  Sub-condition 0: std::vector<SingleCombInCond> size: "
@@ -393,6 +400,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
                 etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
 		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
+		
+		//Scales need to come from the Menu (FIX ME)
+		phi0Phy = phiIndex0 * 1.0908307824964559E-02;
+		eta0Phy = etaIndex0 * 1.0908307824964559E-02;
+		et0Phy  = etIndex0  * 0.5;
             }
                 break;
 
@@ -419,6 +431,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
                 etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
 		etIndex0  =  (candCaloVec->at(bxEval,obj0Index))->hwPt(); 
+
+		//Scales need to come from the Menu (FIX ME)
+		phi0Phy = phiIndex0 * 4.3633231299858237E-02;
+		eta0Phy = etaIndex0 * 4.3633231299858237E-02;
+		et0Phy  = etIndex0  * 0.5;
+
  
             }
                 break;
@@ -431,6 +449,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     phiIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                     etaIndex0 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		    etIndex0  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
+
+		    //Scales need to come from the Menu (FIX ME)
+		    phi0Phy = phiIndex0 * 1.0908307824964559E-02;
+		    eta0Phy = 0.; //No Eta for Energy Sums
+		    et0Phy  = etIndex0 * 0.5;
+
                   } //check it is the EtSum we want   
                 } // loop over Etsums
 		
@@ -440,6 +464,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		
             default: {
                 // should not arrive here, there are no correlation conditions defined for this object
+		LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 0" << std::cout;
                 return false;
             }
                 break;
@@ -465,7 +490,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	    //If we are dealing with the same object type avoid the two legs
 	    // either being the same object 
 	    if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
-	               obj0Index == obj1Index ) continue;
+	               obj0Index == obj1Index ) {
+		
+		       LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
+		       continue;
+	    }	       
 
             switch (cond1Categ) {
                 case CondMuon: {
@@ -473,6 +502,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                    phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
                    etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
 		   etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
+		   
+		   //Scales need to come from the Menu (FIX ME)
+		   phi1Phy = phiIndex1 * 1.0908307824964559E-02;
+		   eta1Phy = etaIndex1 * 1.0908307824964559E-02;
+		   et1Phy  = etIndex1  * 0.5;		   
                 }
                     break;
                 case CondCalo: {
@@ -498,6 +532,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                    etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
 		   etIndex1  =  (candCaloVec->at(bxEval,obj1Index))->hwPt(); 
 
+		   //Scales need to come from the Menu (FIX ME)
+		   phi1Phy = phiIndex1 * 4.3633231299858237E-02;
+		   eta1Phy = etaIndex1 * 4.3633231299858237E-02;
+		   et1Phy  = etIndex1  * 0.5;
                 }
                     break;
                 case CondEnergySum: {
@@ -507,6 +545,12 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                        phiIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwPhi();
                        etaIndex1 =  (candEtSumVec->at(bxEval,iEtSum))->hwEta();
 		       etIndex1  =  (candEtSumVec->at(bxEval,iEtSum))->hwPt(); 
+
+		       //Scales need to come from the Menu (FIX ME)
+		       phi1Phy = phiIndex1 * 1.0908307824964559E-02;
+		       eta1Phy = 0.; //No Eta for Energy Sums
+		       et1Phy  = etIndex1 * 0.5;
+
                      } //check it is the EtSum we want   
                    } // loop over Etsums
 
@@ -514,6 +558,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                     break;
                 default: {
                     // should not arrive here, there are no correlation conditions defined for this object
+		    LogDebug("L1TGlobal") << "Error could not find the Cond Category for Leg 0" << std::cout;
                     return false;
                 }
                     break;
@@ -532,7 +577,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 
 // Now perform the desired correlation on these two objects
-            bool reqResult = true;
+            bool reqResult = false;
 	    
             // clear the indices in the combination
             objectsInComb.clear();
@@ -542,6 +587,143 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
             // if we get here all checks were successful for this combination
             // set the general result for evaluateCondition to "true"
+
+
+// These all require some delta eta and phi calculations.  Do them first...for now real calculation but need to
+// revise this to line up with firmware calculations.
+	    double deltaPhiPhy  = fabs(phi1Phy - phi0Phy);
+	    if(deltaPhiPhy> M_PI) deltaPhiPhy = 2.*M_PI - deltaPhiPhy;
+            double deltaEtaPhy  = fabs(eta1Phy - eta0Phy); 
+
+// Switch on the different types of correlation conditions:
+            switch(corrPar.corrCutType) {
+
+	       case 6: {
+	       
+		  
+		  LogDebug("L1TGlobal") << "    Testing Delta Eta Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "] \n"
+					   << "    deltaEta = " << deltaEtaPhy  << std::endl; 		      
+		  
+		  if( deltaEtaPhy > corrPar.minCutValue &&
+		      deltaEtaPhy < corrPar.maxCutValue ) {
+
+
+		     LogDebug("L1TGlobal") << "    Passed Delta Eta Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+
+		       		  
+                        reqResult = true;
+		 } else {
+		    
+		     LogDebug("L1TGlobal") << "    Failed Delta Eta Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+		    
+		 }	
+	       }
+	         break;   	 
+
+	       case 7: {
+	       
+		  
+		  LogDebug("L1TGlobal") << "    Testing Delta Phi Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "] \n"
+					   << "    deltaPhi = " << deltaPhiPhy  << std::endl; 		      
+		  
+		  if( deltaPhiPhy > corrPar.minCutValue &&
+		      deltaPhiPhy < corrPar.maxCutValue ) {
+
+
+		     LogDebug("L1TGlobal") << "    Passed Delta Phi Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+
+		       		  
+                        reqResult = true;
+		 } else {
+		    
+		     LogDebug("L1TGlobal") << "    Failed Delta Phi Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+		    
+		 }	
+	       }
+	         break;   	 
+
+	       case 8: {
+	       
+		  
+		  double deltaRSq = deltaPhiPhy*deltaPhiPhy + deltaEtaPhy*deltaEtaPhy;
+		  
+		  LogDebug("L1TGlobal") << "    Testing Delta R Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "] \n"
+					   << "    deltaPhiPhy = " << deltaPhiPhy << "\n"
+					   << "    deltaEtaPhy = " << deltaEtaPhy << "\n"
+					   << "    deltaRSq    = " << deltaRSq << "  sqrt(|deltaRSq|) = "<< sqrt(fabs(deltaRSq)) << std::endl; 		      
+		  
+		  if( deltaRSq > (corrPar.minCutValue * corrPar.minCutValue) &&
+		      deltaRSq < (corrPar.maxCutValue * corrPar.maxCutValue) ) {
+
+
+		     LogDebug("L1TGlobal") << "    Passed Delta R Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+
+		       		  
+                        reqResult = true;
+		 } else {
+		    
+		     LogDebug("L1TGlobal") << "    Failed Delta R Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+		    
+		 }	
+	       }
+	         break;   	 
+
+	       
+	       case 9: {
+	       
+	          //invariant mass calculation based on 
+		  // M = sqrt(2*p1*p2(cosh(eta1-eta2) - cos(phi1 - phi2)))
+		  //
+		  // We probably need to revise this to line up with firmware calculation
+		  // placeholder for now
+                  double cosDeltaPhi  = cos(deltaPhiPhy);
+		  double coshDeltaEta = cosh(deltaEtaPhy);		  
+
+		  double massSq = 2.0*et0Phy*et1Phy*(coshDeltaEta - cosDeltaPhi);
+		  
+		  LogDebug("L1TGlobal") << "    Testing Invaiant Mass [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "] \n"
+					   << "    deltaPhiPhy = " << deltaPhiPhy << "  cos() = " << cosDeltaPhi << "\n"
+					   << "    deltaEtaPhy = " << deltaEtaPhy << "  cosh()= " << coshDeltaEta << "\n"
+					   << "    massSq   = " << massSq << "  sqrt(|massSq|) = "<< sqrt(fabs(massSq)) << std::endl; 		      
+		  
+		  if(  massSq > 0. &&
+		      (int)massSq > (corrPar.minCutValue * corrPar.minCutValue) &&
+		      (int)massSq < (corrPar.maxCutValue * corrPar.maxCutValue) ) {
+
+
+		     LogDebug("L1TGlobal") << "    Passed Invariant Mass Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+
+		       		  
+                        reqResult = true;
+		 } else {
+		    
+		     LogDebug("L1TGlobal") << "    Failed Invariant Mass Cut [" << corrPar.minCutValue 
+		                           << "," << corrPar.maxCutValue << "]" << std::endl;		      
+		    
+		 }	
+	       }
+	         break;   	 
+		 
+	       default: {
+	          reqResult = false;
+	       } 
+	         break; 
+	       
+	    } //end switch statment
+
+
+
 
             if (reqResult) {
 
