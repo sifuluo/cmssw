@@ -8,7 +8,7 @@ from L1Trigger.L1TNtuples.l1UpgradeTree_cfi import *
 
 L1NtupleRAW = cms.Sequence(
   l1Tree
-#  +l1ExtraTree
+  +l1ExtraTree
   +l1CaloTowerTree
   +l1UpgradeTree
 #  +l1MenuTree
