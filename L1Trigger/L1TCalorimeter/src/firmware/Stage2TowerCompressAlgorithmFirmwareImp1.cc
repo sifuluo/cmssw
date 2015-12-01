@@ -47,7 +47,9 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
 	if (etEm>=etHad) ratio = (int) std::round(log(float(etEm) / float(etHad))/log(2.));
 	else ratio = (int) std::round(log(float(etHad) / float(etEm))/log(2.));
       }
-      ratio &= params_->towerMaskRatio() ;
+
+      if (ratio >= params_->towerMaskRatio())
+	ratio = params_->towerMaskRatio();
       
       int sum  = etEm + etHad;
 
