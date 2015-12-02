@@ -64,9 +64,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
-process.MessageLogger.categories.append('l1t|Global')
-process.MessageLogger.debugModules = cms.untracked.vstring('*')
-process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
+#process.MessageLogger.categories.append('l1t|Global')
+#process.MessageLogger.debugModules = cms.untracked.vstring('*')
+#process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(neventsPerJob)
@@ -149,7 +149,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 		       ),
 		       
                        muParams = cms.untracked.PSet(
-		           muBx    = cms.untracked.vint32(0, -1,  0,  0,  1,  2),
+		           muBx    = cms.untracked.vint32(-2, -1,  0,  0,  1,  2),
 			   muHwPt  = cms.untracked.vint32(5, 20, 30, 61, 40, 50),
 			   muHwPhi = cms.untracked.vint32(11, 21, 31, 61, 41, 51),
 			   muHwEta = cms.untracked.vint32(12, 22, 32, 62, 42, 52),
@@ -168,7 +168,7 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 		           jetBx    = cms.untracked.vint32(  0,   0,   2,   1,   1,   2),
 			   jetHwPt  = cms.untracked.vint32(100, 200, 130, 170,  85, 145),
 			   jetHwPhi = cms.untracked.vint32(  2,  67,  10,   3,  78,  10),
-			   jetHwEta = cms.untracked.vint32(  1,  19,  11,   0,  17,  11)
+			   jetHwEta = cms.untracked.vint32(  110,  -99,  11,   0,  17,  11)
 		       ),
 		       
                        etsumParams = cms.untracked.PSet(
@@ -190,8 +190,8 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.
 process.TriggerMenuXml.newGrammar = cms.bool(newXML)
 if(newXML):
    print "Using new XML Grammar "
-   process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3a_NG.xml'
-
+   process.TriggerMenuXml.DefXmlFile = 'test-dist-mass.xml' 
+   #process.TriggerMenuXml.DefXmlFile = 'EGTest.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
@@ -200,6 +200,7 @@ process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','T
 process.load('L1Trigger.L1TGlobal.simGlobalStage2Digis_cff')
 process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
+#process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
 
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
@@ -208,16 +209,15 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtInput"),
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
-		uGtRecInputTag = cms.InputTag("simGlobalStage2Digis"),
 		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
 		uGtExtInputTag = cms.InputTag("simGlobalStage2Digis"),
 		bxOffset       = cms.int32(skip),
-		minBx          = cms.int32(-2),
-		maxBx          = cms.int32(2),
+		minBx          = cms.int32(0),
+		maxBx          = cms.int32(0),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(False),
-                dumpTrigResults= cms.bool(False),
+		dumpGTRecord   = cms.bool(True),
+                dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),

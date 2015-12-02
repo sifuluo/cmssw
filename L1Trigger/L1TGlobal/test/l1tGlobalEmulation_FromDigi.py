@@ -93,8 +93,8 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v2a
 process.TriggerMenuXml.newGrammar = cms.bool(options.newXML)
 if(options.newXML):
    print "Using new XML Grammar "
-   #process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3a_NG.xml'
-   process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
+   process.TriggerMenuXml.DefXmlFile = 'L1Menu_CollisionsHeavyIons2015_v4_uGT_v2.xml'
+   #process.TriggerMenuXml.DefXmlFile = 'MuonTest.xml'
 
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
@@ -106,7 +106,7 @@ process.simGlobalStage2Digis.caloInputTag = cms.InputTag("gtStage2Digis","GT")
 process.simGlobalStage2Digis.GmtInputTag = cms.InputTag("gtStage2Digis","GT")
 process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
-process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
+process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(0)
 
 
 
@@ -135,9 +135,8 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
-		uGtRecInputTag = cms.InputTag(""),
-		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
-		uGtExtInputTag = cms.InputTag(""),
+		uGtAlgInputTag = cms.InputTag("gtStage2Digis"),
+		uGtExtInputTag = cms.InputTag("gtStage2Digis"),
 		bxOffset       = cms.int32(0),
 		minBx          = cms.int32(0),
 		maxBx          = cms.int32(0),

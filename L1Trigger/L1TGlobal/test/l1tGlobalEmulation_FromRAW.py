@@ -201,7 +201,7 @@ process.simGlobalStage2Digis.caloInputTag = cms.InputTag("gtStage2Digis","GT")
 process.simGlobalStage2Digis.GmtInputTag = cms.InputTag("gtStage2Digis","GT")
 process.simGlobalStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGlobalStage2Digis.PrescaleSet = cms.uint32(1)
-process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(1)
+process.simGlobalStage2Digis.Verbosity = cms.untracked.int32(0)
 
 
 
@@ -230,7 +230,6 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
-		uGtRecInputTag = cms.InputTag(""),
 		uGtAlgInputTag = cms.InputTag("gtStage2Digis"),
 		uGtExtInputTag = cms.InputTag("gtStage2Digis"),
 		bxOffset       = cms.int32(0),
