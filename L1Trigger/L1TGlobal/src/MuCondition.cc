@@ -389,7 +389,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     //   value >= high pt threshold & isolated muon:
     //       OK, trigger
 
-    LogDebug("l1t|Global")
+    LogDebug("L1TGlobal")
       << "\n MuonTemplate::ObjectParameter : "
       << "\n\t ptHighThreshold = " << objPar.ptHighThreshold 
       << "\n\t ptLowThreshold  = " << objPar.ptLowThreshold
@@ -398,17 +398,17 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
       << "\n\t etaRange        = " << objPar.etaRange
       << "\n\t phiLow          = " << objPar.phiLow
       << "\n\t phiHigh         = " << objPar.phiHigh
-      << "\n\t phiWindowLower  = " << objPar.phiWindowLower
-      << "\n\t phiWindowUpper  = " << objPar.phiWindowUpper
-      << "\n\t phiWindowVetoLower = " << objPar.phiWindowVetoLower
-      << "\n\t phiWindowVetoLower = " << objPar.phiWindowVetoLower
+      << "\n\t phiWindow1Lower = " << objPar.phiWindow1Lower
+      << "\n\t phiWindow1Upper = " << objPar.phiWindow1Upper
+      << "\n\t phiWindow2Lower = " << objPar.phiWindow2Lower
+      << "\n\t phiWindow2Lower = " << objPar.phiWindow2Lower
       << "\n\t charge          = " << objPar.charge
       << "\n\t qualityLUT      = " << objPar.qualityLUT
       << "\n\t isolationLUT    = " << objPar.isolationLUT
       << "\n\t enableMip       = " << objPar.enableMip
       << std::endl;
 
-    LogDebug("l1t|Global")
+    LogDebug("L1TGlobal")
       << "\n l1t::Muon : "
       << "\n\t hwPt   = " <<  cand.hwPt()
       << "\n\t hwEta  = " << cand.hwEta()
@@ -419,30 +419,30 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
       << std::endl;
 
 
-    if ( !checkThreshold(objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
+//    if ( !checkThreshold(objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
       if ( !checkThreshold(objPar.ptLowThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
-	LogDebug("l1t|Global") << "\t\t Muon Failed checkThreshold " << std::endl;
+	LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;
 	return false;
       }
-    }
+//    }
 
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower, 8) ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 8) ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
 
     // check phi
-    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindowLower, objPar.phiWindowUpper, objPar.phiWindowVetoLower, objPar.phiWindowVetoLower) ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
+    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }
 
     // check charge
     if( objPar.charge>=0 ){
       if( cand.hwCharge() != objPar.charge ){
-	LogDebug("l1t|Global") << "\t\t l1t::Candidate failed charge requirement" << std::endl;
+	LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed charge requirement" << std::endl;
 	return false;
       }
     }
@@ -452,12 +452,12 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     // check quality ( bit check ) with quality LUT
     // sanity check on candidate quality
     if( cand.hwQual()>16 ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
       return false;
     }
     bool passQualLUT = ( (objPar.qualityLUT >> cand.hwQual()) & 1 );
     if( !passQualLUT ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed quality requirement" << std::endl;
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed quality requirement" << std::endl;
       return false;
     }
 
@@ -465,12 +465,12 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     // check isolation ( bit check ) with isolation LUT
     // sanity check on candidate isolation
     if( cand.hwIso()>4 ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate has out of range hwIso = " << cand.hwIso() << std::endl;
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwIso = " << cand.hwIso() << std::endl;
       return false;
     }
     bool passIsoLUT = ( (objPar.isolationLUT >> cand.hwIso()) & 1 );
     if( !passIsoLUT ){
-      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
+      LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
       return false;
     }
 

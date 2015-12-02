@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
+const static unsigned int maxExternalConditions = 256;  //TO DO Move this to a standard parameter area.
 // constructors
 
 // empty constructor, all members set to zero;
@@ -35,8 +36,8 @@ GlobalExtBlk::GlobalExtBlk(int orbitNr, int bxNr, int bxInEvent):
     m_finalOR=0;
 
     // Reserve/Clear out the decision words
-    m_extDecision.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_extDecision.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_extDecision.reserve(maxExternalConditions);
+    m_extDecision.assign(maxExternalConditions,false);
     
 }
 
@@ -52,8 +53,8 @@ GlobalExtBlk::GlobalExtBlk( )
     m_finalOR=0;
 
     // Reserve/Clear out the decision words
-    m_extDecision.reserve(L1GlobalTriggerReadoutSetup::NumberPhysTriggers);
-    m_extDecision.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_extDecision.reserve(maxExternalConditions);
+    m_extDecision.assign(maxExternalConditions,false);
 
 }
 
@@ -100,7 +101,7 @@ void GlobalExtBlk::reset()
 
     // Clear out the decision words
     // but leave the vector intact 
-    m_extDecision.assign(L1GlobalTriggerReadoutSetup::NumberPhysTriggers,false);
+    m_extDecision.assign(maxExternalConditions,false);
 
 
 }

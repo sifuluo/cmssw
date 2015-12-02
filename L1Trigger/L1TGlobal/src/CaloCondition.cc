@@ -236,15 +236,16 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     // clear the m_combinationsInCond vector
     combinationsInCond().clear();
 
-
-
     ////// NEW Method
     if( nObjInCond==1 ){
 
       // clear the indices in the combination
-      objectsInComb.clear();
+      //objectsInComb.clear();
 
       for( int i=0; i<numberObjects; i++ ){
+
+       // clear the indices in the combination
+        objectsInComb.clear();
 
 	totalLoops++;
 	bool passCondition = checkObjectParameter(0, *(candVec->at(useBx,i)));
@@ -258,10 +259,11 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     }
     else if( nObjInCond==2 ){
 
-      // clear the indices in the combination
-      objectsInComb.clear();
-
       for( int i=0; i<numberObjects; i++ ){
+
+        // clear the indices in the combination
+        objectsInComb.clear();
+
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 
@@ -331,10 +333,11 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     }
     else if( nObjInCond==3 ){
 
-      // clear the indices in the combination
-      objectsInComb.clear();
-
       for( int i=0; i<numberObjects; i++ ){
+
+        // clear the indices in the combination
+        objectsInComb.clear();
+
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
@@ -380,10 +383,12 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
     } // end if condition has 3 objects
     else if( nObjInCond==4 ){
 
-      // clear the indices in the combination
-      objectsInComb.clear();
 
       for( int i=0; i<numberObjects; i++ ){
+
+        // clear the indices in the combination
+        objectsInComb.clear();
+
 	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
 	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
@@ -547,7 +552,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
     }
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower, 7) ){
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindow1Lower, objPar.etaWindow1Upper, objPar.etaWindow2Lower, objPar.etaWindow2Upper, 7) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
@@ -557,7 +562,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
 //     }
 
     // check phi
-    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindowLower, objPar.phiWindowUpper, objPar.phiWindowVetoLower, objPar.phiWindowVetoLower) ){
+    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindow1Lower, objPar.phiWindow1Upper, objPar.phiWindow2Lower, objPar.phiWindow2Upper) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }
