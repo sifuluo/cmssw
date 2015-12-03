@@ -82,24 +82,40 @@ GlobalAlgBlk::~GlobalAlgBlk()
 
 
 /// Set decision bits
-void GlobalAlgBlk::setAlgoDecisionInitial(int bit, bool val)   
+void GlobalAlgBlk::setAlgoDecisionInitial(unsigned int bit, bool val)   
 { 
-//   if(bit < m_algoDecisionInitial.size()) {
+   if(bit < m_algoDecisionInitial.size()) {
        
       m_algoDecisionInitial.at(bit) = val;   
    
- //  } 
-   // Need some erorr checking here.
-   
+   } else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set an algorithm bit " << bit << " beyond limit " << m_algoDecisionInitial.size();
+   }
    
 }
-void GlobalAlgBlk::setAlgoDecisionPreScaled(int bit, bool val) 
+void GlobalAlgBlk::setAlgoDecisionPreScaled(unsigned int bit, bool val) 
 { 
-   m_algoDecisionPreScaled.at(bit) = val; 
+
+   if(bit < m_algoDecisionPreScaled.size()) {
+
+     m_algoDecisionPreScaled.at(bit) = val; 
+   } else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set an algorithm bit " << bit << " beyond limit " << m_algoDecisionPreScaled.size();
+   }
+
 }
-void GlobalAlgBlk::setAlgoDecisionFinal(int bit, bool val)     
+void GlobalAlgBlk::setAlgoDecisionFinal(unsigned int bit, bool val)     
 { 
-   m_algoDecisionFinal.at(bit) = val; 
+
+   if(bit < m_algoDecisionFinal.size()) {
+     m_algoDecisionFinal.at(bit) = val; 
+   } else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set an algorithm bit " << bit << " beyond limit " << m_algoDecisionFinal.size();
+   }
+
 }
 
 /// Get decision bits
@@ -163,6 +179,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
@@ -176,6 +193,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;
@@ -190,6 +208,7 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
       if((i%4) == 0){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
     myCout << std::endl;

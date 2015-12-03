@@ -69,14 +69,16 @@ GlobalExtBlk::~GlobalExtBlk()
 
 
 /// Set decision bits
-void GlobalExtBlk::setExternalDecision(int bit, bool val)   
+void GlobalExtBlk::setExternalDecision(unsigned int bit, bool val)   
 { 
-//   if(bit < m_algoDecision.size()) {
+   if(bit < m_extDecision.size()) {
        
       m_extDecision.at(bit) = val;   
    
-//   } 
-   // Need some erorr checking here.
+   }else { 
+     // Need some erorr checking here.
+     LogTrace("L1TGlobal") << "Attempting to set a external bit " << bit << " beyond limit " << m_extDecision.size();
+   }
       
 }
 
@@ -111,24 +113,28 @@ void GlobalExtBlk::print(std::ostream& myCout) const
 {
 
     myCout << " GlobalExtBlk " << std::endl;
-    
+/*    
     myCout << "    Orbit Number (hex):  0x" << std::hex << std::setw(8) << std::setfill('0') << m_orbitNr << std::endl;
 
     myCout << "    Bx Number (hex):     0x" << std::hex << std::setw(4) << std::setfill('0') << m_bxNr << std::endl;
 
     myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
-
+*/
     // Loop through bits to create a hex word of algorithm bits.
     int lengthWd = m_extDecision.size();
-    myCout << "    External Condition   0x" << std::hex;
+    myCout << "    External Conditions   0x" << std::hex;
     int digit = 0;
+    bool firstNonZero = false;
     for(int i=lengthWd-1; i>-1; i--) {
       if(m_extDecision.at(i)) digit |= (1 << (i%4));
-      if((i%4) == 0){
+      if(digit > 0) firstNonZero = true;
+      if((i%4) == 0 && firstNonZero){
          myCout << std::hex << std::setw(1) << digit;
 	 digit = 0; 
+	 if(i%32 == 0 && i<lengthWd-1) myCout << " ";
       }  
     } //end loop over algorithm bits
+    if(!firstNonZero) myCout << "0";
     myCout << std::endl;    
 
 }

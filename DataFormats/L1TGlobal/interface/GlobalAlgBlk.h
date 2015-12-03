@@ -67,9 +67,9 @@ public:
     void copyPrescaledToFinal() { m_algoDecisionFinal   = m_algoDecisionPreScaled; }
 
     /// Set decision bits
-    void setAlgoDecisionInitial(int bit, bool val);
-    void setAlgoDecisionPreScaled(int bit, bool val);
-    void setAlgoDecisionFinal(int bit, bool val);
+    void setAlgoDecisionInitial(unsigned int bit, bool val);
+    void setAlgoDecisionPreScaled(unsigned int bit, bool val);
+    void setAlgoDecisionFinal(unsigned int bit, bool val);
 
     /// Get decision bits
     bool getAlgoDecisionInitial(unsigned int bit) const;

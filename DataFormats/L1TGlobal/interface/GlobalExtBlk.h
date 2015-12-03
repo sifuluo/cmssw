@@ -60,7 +60,7 @@ public:
     inline const int getFinalOR() const     { return m_finalOR; }
 
     /// Set decision bits
-    void setExternalDecision(int bit, bool val);
+    void setExternalDecision(unsigned int bit, bool val);
 
     /// Get decision bits
     bool getExternalDecision(unsigned int bit) const;
