@@ -27,30 +27,10 @@
 const static unsigned int maxExternalConditions = 256;  //TO DO Move this to a standard parameter area.
 // constructors
 
-// empty constructor, all members set to zero;
-GlobalExtBlk::GlobalExtBlk(int orbitNr, int bxNr, int bxInEvent):
-   m_orbitNr(orbitNr), m_bxNr(bxNr), m_bxInEvent(bxInEvent)
-{
-
-    //Clear out the header data
-    m_finalOR=0;
-
-    // Reserve/Clear out the decision words
-    m_extDecision.reserve(maxExternalConditions);
-    m_extDecision.assign(maxExternalConditions,false);
-    
-}
-
 
 // empty constructor, all members set to zero;
 GlobalExtBlk::GlobalExtBlk( )
 {
-
-    //Clear out the header data
-    m_orbitNr=0;
-    m_bxNr=0;
-    m_bxInEvent=0;
-    m_finalOR=0;
 
     // Reserve/Clear out the decision words
     m_extDecision.reserve(maxExternalConditions);
@@ -95,12 +75,6 @@ bool GlobalExtBlk::getExternalDecision(unsigned int bit) const
 void GlobalExtBlk::reset()
 {
 
-    //Clear out the header data
-    m_orbitNr=0;
-    m_bxNr=0;
-    m_bxInEvent=0;
-    m_finalOR=0;
-
     // Clear out the decision words
     // but leave the vector intact 
     m_extDecision.assign(maxExternalConditions,false);
@@ -113,13 +87,7 @@ void GlobalExtBlk::print(std::ostream& myCout) const
 {
 
     myCout << " GlobalExtBlk " << std::endl;
-/*    
-    myCout << "    Orbit Number (hex):  0x" << std::hex << std::setw(8) << std::setfill('0') << m_orbitNr << std::endl;
 
-    myCout << "    Bx Number (hex):     0x" << std::hex << std::setw(4) << std::setfill('0') << m_bxNr << std::endl;
-
-    myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
-*/
     // Loop through bits to create a hex word of algorithm bits.
     int lengthWd = m_extDecision.size();
     myCout << "    External Conditions   0x" << std::hex;

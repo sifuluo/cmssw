@@ -344,7 +344,19 @@ namespace l1t {
 	    cout << "No EtSum Data in this event " << endl;
 	 }  
 	               
-
+      // Dump the output record
+ 	  cout << " ------ uGtExt ----------" << endl;
+	  if(uGtExt.isValid()) {
+	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
+		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
+        	     extBlk->print(std::cout);
+		} 
+	     } else {
+		 cout << "No Ext Conditions stored for this bx " << i << endl;
+	     }       
+	  } else {
+	    cout << "No uGtExt Data in this event " << endl; 
+	  }         
 
      // Dump the output record
  	  cout << " ------ uGtAlg ----------" << endl;
@@ -360,19 +372,7 @@ namespace l1t {
 	    cout << "No uGtAlg Data in this event " << endl; 
 	  }         
 
-      // Dump the output record
- 	  cout << " ------ uGtExt ----------" << endl;
-	  if(uGtExt.isValid()) {
-	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
-		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
-        	     extBlk->print(std::cout);
-		} 
-	     } else {
-		 cout << "No Ext Conditions stored for this bx " << i << endl;
-	     }       
-	  } else {
-	    cout << "No uGtExt Data in this event " << endl; 
-	  }         
+
 
 
 
