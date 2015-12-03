@@ -95,6 +95,10 @@ namespace stage2 {
            //This is the FINOR
            alg.setFinalOR(raw_data);
            LogDebug("L1T")  << " Packing the FinalOR " << wd << " 0x" << hex << raw_data << endl;	
+	 } else if(block.header().getID()==finalBlkID+4 && wd==5) {
+           //This is the Prescale Column
+           alg.setPreScColumn(raw_data & 0xFF );
+           LogDebug("L1T")  << " Packing the Prescale Column " << wd << " 0x" << hex << raw_data << endl;	
          }
        }
 

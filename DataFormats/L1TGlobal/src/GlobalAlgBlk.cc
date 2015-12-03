@@ -35,6 +35,7 @@ GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
 
     //Clear out the header data
     m_finalOR=0;
+    m_preScColumn=0;
 
     // Reserve/Clear out the decision words
     m_algoDecisionInitial.reserve(maxPhysicsTriggers);
@@ -58,6 +59,7 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_bxNr=0;
     m_bxInEvent=0;
     m_finalOR=0;
+    m_preScColumn=0;
 
     // Reserve/Clear out the decision words
     m_algoDecisionInitial.reserve(maxPhysicsTriggers);
@@ -145,6 +147,7 @@ void GlobalAlgBlk::reset()
     m_bxNr=0;
     m_bxInEvent=0;
     m_finalOR=0;
+    m_preScColumn=0;
 
     // Clear out the decision words
     // but leave the vector intact 
@@ -167,6 +170,8 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
     myCout << "    Bx Number (hex):     0x" << std::hex << std::setw(4) << std::setfill('0') << m_bxNr << std::endl;
 
     myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
+    
+    myCout << "    PreScale Column:     "   <<std::setw(2) << m_preScColumn << std::endl;
 
     myCout << "    Final OR (hex):      Ox" << std::hex << std::setw(1) << std::setfill('0') << m_finalOR << std::endl;
     

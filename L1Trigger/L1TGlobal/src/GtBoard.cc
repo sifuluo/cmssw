@@ -968,8 +968,9 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
     m_uGtAlgBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
     m_uGtAlgBlk.setbxNr((bxNr & 0xFFFF));
     m_uGtAlgBlk.setbxInEventNr((iBxInEvent & 0xF));
+    m_uGtAlgBlk.setPreScColumn(0); //TO DO: get this and fill it in.
 
-// Set the header information and Final OR
+// Set the header information and Final OR (TO DO: Clean this up)
     int finalOR = 0x0;     
     if(m_algFinalOr) finalOR  = (finalOR | 0x2);  
     if(m_uGtFinalBoard) {

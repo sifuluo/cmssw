@@ -51,16 +51,18 @@ public:
 public:
 
     /// set simple members
-    void setOrbitNr(int orbNr)     { m_orbitNr   = orbNr; }
-    void setbxNr(int bxNr)         { m_bxNr      = bxNr; }
-    void setbxInEventNr(int bxNr)  { m_bxInEvent = bxNr; }
-    void setFinalOR(int fOR)       { m_finalOR   = fOR; }
+    void setOrbitNr(int orbNr)     { m_orbitNr     = orbNr; }
+    void setbxNr(int bxNr)         { m_bxNr        = bxNr; }
+    void setbxInEventNr(int bxNr)  { m_bxInEvent   = bxNr; }
+    void setFinalOR(int fOR)       { m_finalOR     = fOR; }
+    void setPreScColumn(int psC)   { m_preScColumn = psC; }
 
     /// get simple members
     inline const int getOrbitNr() const     { return m_orbitNr; }
     inline const int getbxNr() const        { return m_bxNr; }
     inline const int getbxInEventNr() const { return m_bxInEvent; }
     inline const int getFinalOR() const     { return m_finalOR; }
+    inline const int getPreScColumn() const { return m_preScColumn; }
 
     /// Copy vectors words
     void copyInitialToPrescaled() { m_algoDecisionPreScaled   = m_algoDecisionInitial; }
@@ -96,6 +98,9 @@ private:
 
     // finalOR 
     int m_finalOR;
+    
+    //Prescale Column
+    int m_preScColumn;
 
    
     std::vector<bool> m_algoDecisionInitial;

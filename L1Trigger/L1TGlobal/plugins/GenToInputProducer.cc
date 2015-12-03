@@ -472,7 +472,7 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
  
    // Insert all the bx into the L1 Collections
-   printf("Event %i  EmptyBxEvt %i emptyBxTrailer %i diff %i \n",eventCnt_,emptyBxEvt_,emptyBxTrailer_,(emptyBxEvt_ - eventCnt_));
+   //printf("Event %i  EmptyBxEvt %i emptyBxTrailer %i diff %i \n",eventCnt_,emptyBxEvt_,emptyBxTrailer_,(emptyBxEvt_ - eventCnt_));
 
    // Fill Muons
    for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
