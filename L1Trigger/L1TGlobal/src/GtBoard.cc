@@ -432,8 +432,9 @@ void l1t::GtBoard::runGTL(
      m_uGtExtBlk.reset();
      m_algInitialOr=false;
      m_algPrescaledOr=false;
+     m_algFinalOrPreVeto=false;
      m_algFinalOr=false;
-     
+     m_algFinalOrVeto=false;
      
     
     const std::vector<std::vector<MuonTemplate> >& corrMuon =
@@ -932,18 +933,21 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 
 	  // Check if veto mask is true, set final OR to false, if necessary
 	  bool isVetoMask = ( triggerMaskVetoAlgoTrig.at(iBit) == 1 );
-	  if( isVetoMask ) temp_algFinalOr = false;
+	  if( isVetoMask ) m_algFinalOrVeto = true;
 	}
       }
 
-      m_algFinalOr = temp_algFinalOr;
+      m_algFinalOrPreVeto = temp_algFinalOr;
 	
     } 
     else {
 
-      m_algFinalOr = m_algPrescaledOr;
+      m_algFinalOrPreVeto = m_algPrescaledOr;
      
     } ///if we are masking.
+
+// Set FinalOR for this board
+   m_algFinalOr = (m_algFinalOrPreVeto & !m_algFinalOrVeto);
 
 
 
@@ -969,15 +973,10 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
     m_uGtAlgBlk.setbxNr((bxNr & 0xFFFF));
     m_uGtAlgBlk.setbxInEventNr((iBxInEvent & 0xF));
     m_uGtAlgBlk.setPreScColumn(0); //TO DO: get this and fill it in.
-
-// Set the header information and Final OR (TO DO: Clean this up)
-    int finalOR = 0x0;     
-    if(m_algFinalOr) finalOR  = (finalOR | 0x2);  
-    if(m_uGtFinalBoard) {
-       finalOR = (finalOR | 0x8);
-       if( (finalOR >>1) & 0x1 ) finalOR = (finalOR | 0x1);
-    }
-    m_uGtAlgBlk.setFinalOR(finalOR);
+        
+    m_uGtAlgBlk.setFinalORVeto(m_algFinalOrVeto);
+    m_uGtAlgBlk.setFinalORPreVeto(m_algFinalOrPreVeto); 
+    m_uGtAlgBlk.setFinalOR(m_algFinalOr);
     
 
     uGtAlgRecord->push_back(iBxInEvent, m_uGtAlgBlk);

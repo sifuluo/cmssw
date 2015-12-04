@@ -59,6 +59,8 @@ GlobalAlgBlk::GlobalAlgBlk( )
     m_bxNr=0;
     m_bxInEvent=0;
     m_finalOR=0;
+    m_finalORPreVeto = 0;
+    m_finalORVeto = 0;    
     m_preScColumn=0;
 
     // Reserve/Clear out the decision words
@@ -147,6 +149,8 @@ void GlobalAlgBlk::reset()
     m_bxNr=0;
     m_bxInEvent=0;
     m_finalOR=0;
+    m_finalORPreVeto = 0;
+    m_finalORVeto = 0;
     m_preScColumn=0;
 
     // Clear out the decision words
@@ -172,8 +176,10 @@ void GlobalAlgBlk::print(std::ostream& myCout) const
     myCout << "    Local Bx (hex):      0x" << std::hex << std::setw(1) << std::setfill('0') << m_bxInEvent << std::endl;
     
     myCout << "    PreScale Column:     "   <<std::setw(2) << m_preScColumn << std::endl;
-
-    myCout << "    Final OR (hex):      Ox" << std::hex << std::setw(1) << std::setfill('0') << m_finalOR << std::endl;
+    
+    myCout << "    Final OR Veto:       " << std::hex << std::setw(1) << std::setfill('0') << m_finalORVeto << std::endl;
+    
+    myCout << "    Final OR:            " << std::hex << std::setw(1) << std::setfill('0') << m_finalOR << std::endl;
     
     // Loop through bits to create a hex word of algorithm bits.
     int lengthWd = m_algoDecisionInitial.size();
