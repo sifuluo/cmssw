@@ -857,6 +857,7 @@ bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::is3x3Maximum (const l1t::CaloTow
     
             if (vetoTT) break;
         }
+        if (vetoTT) break;
     }
 
     return (!vetoTT); // negate because I ask if is a local maxima
