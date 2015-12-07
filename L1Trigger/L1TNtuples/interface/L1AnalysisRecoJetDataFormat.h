@@ -50,6 +50,20 @@ namespace L1Analysis
     fRBX.clear();
 
     // PF quantities
+    chef.clear();
+    nhef.clear();
+    pef.clear();
+    eef.clear();
+    mef.clear();
+    hfhef.clear();
+    hfemef.clear();
+    chMult.clear();
+    nhMult.clear();
+    phMult.clear();
+    elMult.clear();
+    muMult.clear();
+    hfhMult.clear();
+    hfemMult.clear();
 
     }
 
@@ -80,6 +94,21 @@ namespace L1Analysis
     std::vector<int> n90hits;
     std::vector<double> fHPD;
     std::vector<double> fRBX;
+
+    std::vector<float> chef;
+    std::vector<float> nhef;
+    std::vector<float> pef;
+    std::vector<float> eef;
+    std::vector<float> mef;
+    std::vector<float> hfhef;
+    std::vector<float> hfemef;
+    std::vector<int> chMult;
+    std::vector<int> nhMult;
+    std::vector<int> phMult;
+    std::vector<int> elMult;
+    std::vector<int> muMult;
+    std::vector<int> hfhMult;
+    std::vector<int> hfemMult;
 
   };
 }
