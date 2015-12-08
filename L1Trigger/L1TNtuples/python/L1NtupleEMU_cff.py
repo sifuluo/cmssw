@@ -7,6 +7,7 @@ l1CaloTowerEmuTree = l1CaloTowerTree.clone()
 l1CaloTowerEmuTree.ecalToken = cms.untracked.InputTag("none")
 l1CaloTowerEmuTree.hcalToken = cms.untracked.InputTag("none")
 l1CaloTowerEmuTree.l1TowerToken = cms.untracked.InputTag("simCaloStage2Layer1Digis")
+l1CaloTowerEmuTree.l1ClusterToken = cms.untracked.InputTag("simCaloStage2Digis", "MP")
 
 l1UpgradeEmuTree = l1UpgradeTree.clone()
 l1UpgradeEmuTree.egToken = cms.untracked.InputTag("simCaloStage2Digis")
