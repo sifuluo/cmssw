@@ -931,9 +931,9 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 	  if( passMask ) temp_algFinalOr = true;
 	  else           m_uGtAlgBlk.setAlgoDecisionFinal(iBit,false);
 
-	  // Check if veto mask is true, set final OR to false, if necessary
-	  bool isVetoMask = ( triggerMaskVetoAlgoTrig.at(iBit) == 1 );
-	  if( isVetoMask ) m_algFinalOrVeto = true;
+	  // Check if veto mask is true, if it is, set the event veto flag.
+	  if ( triggerMaskVetoAlgoTrig.at(iBit) == 1 ) m_algFinalOrVeto = true;
+
 	}
       }
 

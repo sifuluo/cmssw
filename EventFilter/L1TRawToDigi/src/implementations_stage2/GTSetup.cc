@@ -25,11 +25,11 @@ namespace l1t {
                   // Use board id 1 for packing
                   res[{1, 1}] = {
                      
-		     PackerFactory::get()->make("stage2::MuonPacker"),
-		     PackerFactory::get()->make("stage2::EGammaPacker"),
-		     PackerFactory::get()->make("stage2::EtSumPacker"),
-		     PackerFactory::get()->make("stage2::JetPacker"),
-		     PackerFactory::get()->make("stage2::TauPacker"),
+		     //PackerFactory::get()->make("stage2::MuonPacker"),
+		     //PackerFactory::get()->make("stage2::EGammaPacker"),
+		     //PackerFactory::get()->make("stage2::EtSumPacker"),
+		     //PackerFactory::get()->make("stage2::JetPacker"),
+		     //PackerFactory::get()->make("stage2::TauPacker"),
                      PackerFactory::get()->make("stage2::GlobalAlgBlkPacker"),
                      PackerFactory::get()->make("stage2::GlobalExtBlkPacker")
                   };
