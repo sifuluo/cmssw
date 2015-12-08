@@ -58,6 +58,7 @@ namespace L1Analysis
       muonBx.clear();
 
       nSums = 0;
+      sumType.clear();
       sumEt.clear();
       sumPhi.clear();
       sumIEt.clear();
@@ -108,6 +109,7 @@ namespace L1Analysis
 
     
     unsigned int nSums;
+    std::vector<int> sumType;
     std::vector<double> sumEt;
     std::vector<double> sumPhi;
     std::vector<int> sumIEt;
