@@ -37,17 +37,17 @@ namespace L1Analysis
     }
     
 
-    int nTower;
-    std::vector<int> ieta;
-    std::vector<int> iphi;
-    std::vector<int> iet;
-    std::vector<int> iem;
-    std::vector<int> ihad;
-    std::vector<int> iratio;
-    std::vector<int> iqual;
-    std::vector<double> et;
-    std::vector<double> eta;
-    std::vector<double> phi;
+    short nTower;
+    std::vector<short> ieta;
+    std::vector<short> iphi;
+    std::vector<short> iet;
+    std::vector<short> iem;
+    std::vector<short> ihad;
+    std::vector<short> iratio;
+    std::vector<short> iqual;
+    std::vector<float> et;
+    std::vector<float> eta;
+    std::vector<float> phi;
     
   }; 
 } 
