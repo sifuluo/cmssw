@@ -45,8 +45,8 @@ namespace l1t {
 	       prod.produces<EtSumBxCollection>("GT");
 	       prod.produces<JetBxCollection>("GT");
 	       prod.produces<TauBxCollection>("GT");
-               prod.produces<GlobalAlgBlkBxCollection>();
-               prod.produces<GlobalExtBlkBxCollection>();
+               prod.produces<GlobalAlgBlkBxCollection>("GT");
+               prod.produces<GlobalExtBlkBxCollection>("GT");
 
             };
 

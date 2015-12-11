@@ -13,8 +13,8 @@ namespace l1t {
 	event_.put(jets_, "GT");
 	event_.put(taus_, "GT");
 	
-	event_.put(algBlk_);
-	event_.put(extBlk_); 
+	event_.put(algBlk_,"GT");
+	event_.put(extBlk_,"GT"); 
 
       }
    }

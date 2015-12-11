@@ -217,10 +217,14 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     tauToken = cms.InputTag("gtStage2Digis","GT"),
     jetToken = cms.InputTag("gtStage2Digis","GT"),
     etSumToken = cms.InputTag("gtStage2Digis","GT"),
-    gtAlgToken = cms.InputTag("gtStage2Digis"),
+    gtAlgToken = cms.InputTag("gtStage2Digis","GT"),
     emulDxAlgToken = cms.InputTag("None"),
     emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
 )
+
+# Take Digis to RAW
+#process.load("EventFilter.L1TRawToDigi.gtStage2Raw_cfi")
+#process.gtStage2Raw.InputLabel = cms.InputTag("gtStage2Digis","GT")
 
 
 # dump records
@@ -230,15 +234,15 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		tauInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
 		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
-		uGtAlgInputTag = cms.InputTag("gtStage2Digis"),
-		uGtExtInputTag = cms.InputTag("gtStage2Digis"),
+		uGtAlgInputTag = cms.InputTag("gtStage2Digis","GT"),
+		uGtExtInputTag = cms.InputTag("gtStage2Digis","GT"),
 		bxOffset       = cms.int32(0),
-		minBx          = cms.int32(0),
-		maxBx          = cms.int32(0),
+		minBx          = cms.int32(-2),
+		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(False),
-                dumpTrigResults= cms.bool(False),
+                dumpTrigResults= cms.bool(True),
 		dumpVectors    = cms.bool(False),
 		tvFileName     = cms.string( "TestVector_Data.txt" ),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
@@ -255,7 +259,8 @@ process.path = cms.Path(
     +process.gtStage2Digis
     +process.simGlobalStage2Digis
     +process.l1tGlobalAnalyzer
-    +process.dumpGTRecord    
+    +process.dumpGTRecord 
+#    +process.gtStage2Raw   
 )
 
 # enable validation event filtering
