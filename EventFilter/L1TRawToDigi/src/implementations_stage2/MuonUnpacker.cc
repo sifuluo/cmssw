@@ -54,7 +54,7 @@ namespace stage2 {
          uint32_t raw_data_00_31 = block.payload()[i++];
 	 uint32_t raw_data_32_63 = block.payload()[i++];
 
-         std::cout << "nWord = " << nWord << "Word 1 " << hex << raw_data_00_31 << " Word 2 " << raw_data_32_63 << dec << std::endl; 
+         LogDebug("L1T") << "nWord = " << nWord << "Word 1 " << hex << raw_data_00_31 << " Word 2 " << raw_data_32_63 << dec << std::endl; 
 	 
          // skip padding 
          if (raw_data_00_31 == 0)
