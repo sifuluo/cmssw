@@ -356,76 +356,76 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
 
-  const std::map<long, esAlgorithm*>& algoMap = menu->getAlgorithmMap();
-  const std::map<long, esCondition*>& condMap = menu->getConditionMap();
+  const std::map<long, esAlgorithm>& algoMap = menu->getAlgorithmMap();
+  const std::map<long, esCondition>& condMap = menu->getConditionMap();
 //  const std::map<std::string, esScale*>& scaleMap = menu->getScaleMap();
 
-  for (std::map<long, esAlgorithm*>::const_iterator cit = algoMap.begin();
+  for (std::map<long, esAlgorithm>::const_iterator cit = algoMap.begin();
        cit != algoMap.end(); cit++)
   {
     //condition chip (artifact)  TO DO: Update
     int chipNr = 0;
   
     //get algorithm
-    const esAlgorithm* algo = cit->second;
+    const esAlgorithm& algo = cit->second;
 
     //parse the algorithm
-    parseAlgorithmV2(*algo,chipNr);
+    parseAlgorithmV2(algo,chipNr); //blw
 
     //get conditions for this algorithm
-    const std::vector<std::string>& rpn_vec = algo->getRpnVector();
+    const std::vector<std::string>& rpn_vec = algo.getRpnVector();
     for (size_t ii = 0; ii < rpn_vec.size(); ii++)
     {
       const std::string& token = rpn_vec.at(ii);
       if (isGate(token)) continue;
-      long hash = menu->getHash(token);
-      const esCondition* condition = condMap.find(hash)->second;
+      long hash = getHash(token);
+      const esCondition& condition = condMap.find(hash)->second;
      
       //check to see if this condtion already exists
-      if ((m_conditionMap[chipNr]).count(condition->getName()) == 0) {
+      if ((m_conditionMap[chipNr]).count(condition.getName()) == 0) {
      	  
 	  // parse Calo Conditions (EG, Jets, Taus)      
-	  if(condition->getType() == esConditionType::SingleEgamma || 
-             condition->getType() == esConditionType::DoubleEgamma ||
-	     condition->getType() == esConditionType::TripleEgamma ||
-	     condition->getType() == esConditionType::QuadEgamma   ||
-	     condition->getType() == esConditionType::SingleTau    ||
-	     condition->getType() == esConditionType::DoubleTau    ||
-	     condition->getType() == esConditionType::TripleTau    ||
-	     condition->getType() == esConditionType::QuadTau      ||
-	     condition->getType() == esConditionType::SingleJet    ||
-	     condition->getType() == esConditionType::DoubleJet    ||
-	     condition->getType() == esConditionType::TripleJet    ||
-	     condition->getType() == esConditionType::QuadJet      ) 
+	  if(condition.getType() == esConditionType::SingleEgamma || 
+             condition.getType() == esConditionType::DoubleEgamma ||
+	     condition.getType() == esConditionType::TripleEgamma ||
+	     condition.getType() == esConditionType::QuadEgamma   ||
+	     condition.getType() == esConditionType::SingleTau    ||
+	     condition.getType() == esConditionType::DoubleTau    ||
+	     condition.getType() == esConditionType::TripleTau    ||
+	     condition.getType() == esConditionType::QuadTau      ||
+	     condition.getType() == esConditionType::SingleJet    ||
+	     condition.getType() == esConditionType::DoubleJet    ||
+	     condition.getType() == esConditionType::TripleJet    ||
+	     condition.getType() == esConditionType::QuadJet      ) 
 	  {
-             parseCaloV2(*condition,chipNr,false);
+             parseCaloV2(condition,chipNr,false); //blw 
 
 	  // parse Energy Sums	 
-	  } else if(condition->getType() == esConditionType::TotalEt ||
-                    condition->getType() == esConditionType::TotalHt ||
-		    condition->getType() == esConditionType::MissingEt ||
-		    condition->getType() == esConditionType::MissingHt )
+	  } else if(condition.getType() == esConditionType::TotalEt ||
+                    condition.getType() == esConditionType::TotalHt ||
+		    condition.getType() == esConditionType::MissingEt ||
+		    condition.getType() == esConditionType::MissingHt )
 	  {
-             parseEnergySumV2(*condition,chipNr,false); 	
+             parseEnergySumV2(condition,chipNr,false); 	
 
 	  //parse Muons	 	
-	  } else if(condition->getType() == esConditionType::SingleMuon    ||
-	            condition->getType() == esConditionType::DoubleMuon    ||
-	            condition->getType() == esConditionType::TripleMuon    ||
-	            condition->getType() == esConditionType::QuadMuon      )       
+	  } else if(condition.getType() == esConditionType::SingleMuon    ||
+	            condition.getType() == esConditionType::DoubleMuon    ||
+	            condition.getType() == esConditionType::TripleMuon    ||
+	            condition.getType() == esConditionType::QuadMuon      )       
 	  {
-             parseMuonV2(*condition,chipNr,false);
+             parseMuonV2(condition,chipNr,false);
              
 	     
 	  //parse Correlation Conditions	 	
-	  } else if(condition->getType() == esConditionType::MuonMuonCorrelation    ||
-	            condition->getType() == esConditionType::MuonEsumCorrelation    ||
-	            condition->getType() == esConditionType::CaloMuonCorrelation    ||
-	            condition->getType() == esConditionType::CaloCaloCorrelation    ||
-		    condition->getType() == esConditionType::CaloEsumCorrelation    ||
-		    condition->getType() == esConditionType::InvariantMass )       
+	  } else if(condition.getType() == esConditionType::MuonMuonCorrelation    ||
+	            condition.getType() == esConditionType::MuonEsumCorrelation    ||
+	            condition.getType() == esConditionType::CaloMuonCorrelation    ||
+	            condition.getType() == esConditionType::CaloCaloCorrelation    ||
+		    condition.getType() == esConditionType::CaloEsumCorrelation    ||
+		    condition.getType() == esConditionType::InvariantMass )       
 	  {
-             parseCorrelationV2(*condition,chipNr);
+             parseCorrelationV2(condition,chipNr);
 	    
 	  }      
       
@@ -2085,14 +2085,14 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
     bool gEq = false;
     
 // Loop over objects and extract the cuts on the objects
-    const std::vector<esObject*>& objects = condMu.getObjects();
+    const std::vector<esObject>& objects = condMu.getObjects();
     for (size_t jj = 0; jj < objects.size(); jj++) {   
 
-       const esObject* object = objects.at(jj);
-       gEq =  (object->getComparisonOperator() == esComparisonOperator::GE);
+       const esObject object = objects.at(jj);
+       gEq =  (object.getComparisonOperator() == esComparisonOperator::GE);
 
 //  BLW TO DO: This needs to be added to the Object Parameters   
-       relativeBx = object->getBxOffset();
+       relativeBx = object.getBxOffset();
 
 //  Loop over the cuts for this object
         int upperThresholdInd = -1; 
@@ -2105,25 +2105,25 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
 	int charge = -1;
 	int qualityLUT = 0xFFFF; //default is to ignore unless specified.		
 	
-        const std::vector<esCut*>& cuts = object->getCuts();
+        const std::vector<esCut>& cuts = object.getCuts();
         for (size_t kk = 0; kk < cuts.size(); kk++)
         {
-          const esCut* cut = cuts.at(kk); 
+          const esCut cut = cuts.at(kk); 
 	 
-	  switch(cut->getCutType()){
+	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
-	       lowerThresholdInd = cut->getMinimum().index;
-	       upperThresholdInd = cut->getMaximum().index;
+	       lowerThresholdInd = cut.getMinimum().index;
+	       upperThresholdInd = cut.getMaximum().index;
 	       break;
 	       
 	     case esCutType::Eta: {
 	       
                  if(cntEta == 0) {
-		    etaWindow1Lower = cut->getMinimum().index;
-		    etaWindow1Upper = cut->getMaximum().index;
+		    etaWindow1Lower = cut.getMinimum().index;
+		    etaWindow1Upper = cut.getMaximum().index;
 		 } else if(cntEta == 1) {
-		    etaWindow2Lower = cut->getMinimum().index;
-		    etaWindow2Upper = cut->getMaximum().index;
+		    etaWindow2Lower = cut.getMinimum().index;
+		    etaWindow2Upper = cut.getMaximum().index;
                  } else {
         	   edm::LogError("TriggerMenuXmlParser") << "Too Many Eta Cuts for muon-condition ("
         	       << particle << ")" << std::endl;
@@ -2136,11 +2136,11 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
 	     case esCutType::Phi: {
 
                 if(cntPhi == 0) {
-		    phiWindow1Lower = cut->getMinimum().index;
-		    phiWindow1Upper = cut->getMaximum().index;
+		    phiWindow1Lower = cut.getMinimum().index;
+		    phiWindow1Upper = cut.getMaximum().index;
 		 } else if(cntPhi == 1) {
-		    phiWindow2Lower = cut->getMinimum().index;
-		    phiWindow2Upper = cut->getMaximum().index;
+		    phiWindow2Lower = cut.getMinimum().index;
+		    phiWindow2Upper = cut.getMaximum().index;
                  } else {
         	   edm::LogError("TriggerMenuXmlParser") << "Too Many Phi Cuts for muon-condition ("
         	       << particle << ")" << std::endl;
@@ -2155,12 +2155,12 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
 	       break;
 	     case esCutType::Quality:
 	     
-                qualityLUT = l1tstr2int(cut->getData());
+                qualityLUT = l1tstr2int(cut.getData());
 	     
 	       break;
 	     case esCutType::Isolation: {
 
-                isolationLUT = l1tstr2int(cut->getData());
+                isolationLUT = l1tstr2int(cut.getData());
 		       
 	       } break;
 	     default:
@@ -2342,25 +2342,25 @@ bool l1t::TriggerMenuXmlParser::parseMuonCorr(const tmeventsetup::esObject* corr
     int charge = -1;       //defaut is to ignore unless specified
     int qualityLUT = 0xFFFF; //default is to ignore unless specified.		
 
-    const std::vector<esCut*>& cuts = corrMu->getCuts();
+    const std::vector<esCut>& cuts = corrMu->getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++)
     {
-      const esCut* cut = cuts.at(kk); 
+      const esCut cut = cuts.at(kk); 
 
-      switch(cut->getCutType()){
+      switch(cut.getCutType()){
 	 case esCutType::Threshold:
-	   lowerThresholdInd = cut->getMinimum().index;
-	   upperThresholdInd = cut->getMaximum().index;
+	   lowerThresholdInd = cut.getMinimum().index;
+	   upperThresholdInd = cut.getMaximum().index;
 	   break;
 
 	 case esCutType::Eta: {
 
              if(cntEta == 0) {
-		etaWindow1Lower = cut->getMinimum().index;
-		etaWindow1Upper = cut->getMaximum().index;
+		etaWindow1Lower = cut.getMinimum().index;
+		etaWindow1Upper = cut.getMaximum().index;
 	     } else if(cntEta == 1) {
-		etaWindow2Lower = cut->getMinimum().index;
-		etaWindow2Upper = cut->getMaximum().index;
+		etaWindow2Lower = cut.getMinimum().index;
+		etaWindow2Upper = cut.getMaximum().index;
              } else {
                edm::LogError("TriggerMenuXmlParser") << "Too Many Eta Cuts for muon-condition ("
         	   << particle << ")" << std::endl;
@@ -2373,11 +2373,11 @@ bool l1t::TriggerMenuXmlParser::parseMuonCorr(const tmeventsetup::esObject* corr
 	 case esCutType::Phi: {
 
             if(cntPhi == 0) {
-		phiWindow1Lower = cut->getMinimum().index;
-		phiWindow1Upper = cut->getMaximum().index;
+		phiWindow1Lower = cut.getMinimum().index;
+		phiWindow1Upper = cut.getMaximum().index;
 	     } else if(cntPhi == 1) {
-		phiWindow2Lower = cut->getMinimum().index;
-		phiWindow2Upper = cut->getMaximum().index;
+		phiWindow2Lower = cut.getMinimum().index;
+		phiWindow2Upper = cut.getMaximum().index;
              } else {
                edm::LogError("TriggerMenuXmlParser") << "Too Many Phi Cuts for muon-condition ("
         	   << particle << ")" << std::endl;
@@ -2392,12 +2392,12 @@ bool l1t::TriggerMenuXmlParser::parseMuonCorr(const tmeventsetup::esObject* corr
 	   break;
 	 case esCutType::Quality:
 
-            qualityLUT = l1tstr2int(cut->getData());
+            qualityLUT = l1tstr2int(cut.getData());
 
 	   break;
 	 case esCutType::Isolation: {
 
-            isolationLUT = l1tstr2int(cut->getData());
+            isolationLUT = l1tstr2int(cut.getData());
 
 	   } break;
 	 default:
@@ -2966,14 +2966,14 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
     bool gEq = false;
     
 // Loop over objects and extract the cuts on the objects
-    const std::vector<esObject*>& objects = condCalo.getObjects();
+    const std::vector<esObject>& objects = condCalo.getObjects();
     for (size_t jj = 0; jj < objects.size(); jj++) {   
 
-       const esObject* object = objects.at(jj);
-       gEq =  (object->getComparisonOperator() == esComparisonOperator::GE);
+       const esObject object = objects.at(jj);
+       gEq =  (object.getComparisonOperator() == esComparisonOperator::GE);
 
 //  BLW TO DO: This needs to be added to the Object Parameters   
-       relativeBx = object->getBxOffset();
+       relativeBx = object.getBxOffset();
 
 //  Loop over the cuts for this object
         int thresholdInd = 0;
@@ -2985,23 +2985,23 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
 	int qualityLUT   = 0xF; //default is to ignore quality unless specified.	
 		
 	
-        const std::vector<esCut*>& cuts = object->getCuts();
+        const std::vector<esCut>& cuts = object.getCuts();
         for (size_t kk = 0; kk < cuts.size(); kk++)
         {
-          const esCut* cut = cuts.at(kk); 
+          const esCut cut = cuts.at(kk); 
 	 
-	  switch(cut->getCutType()){
+	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
-	       thresholdInd = cut->getMinimum().index;
+	       thresholdInd = cut.getMinimum().index;
 	       break;
 	     case esCutType::Eta: {
 	       
                  if(cntEta == 0) {
-		    etaWindow1Lower = cut->getMinimum().index;
-		    etaWindow1Upper = cut->getMaximum().index;
+		    etaWindow1Lower = cut.getMinimum().index;
+		    etaWindow1Upper = cut.getMaximum().index;
 		 } else if(cntEta == 1) {
-		    etaWindow2Lower = cut->getMinimum().index;
-		    etaWindow2Upper = cut->getMaximum().index;
+		    etaWindow2Lower = cut.getMinimum().index;
+		    etaWindow2Upper = cut.getMaximum().index;
                  } else {
         	   edm::LogError("TriggerMenuXmlParser") << "Too Many Eta Cuts for calo-condition ("
         	       << particle << ")" << std::endl;
@@ -3014,11 +3014,11 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
 	     case esCutType::Phi: {
 
                 if(cntPhi == 0) {
-		    phiWindow1Lower = cut->getMinimum().index;
-		    phiWindow1Upper = cut->getMaximum().index;
+		    phiWindow1Lower = cut.getMinimum().index;
+		    phiWindow1Upper = cut.getMaximum().index;
 		 } else if(cntPhi == 1) {
-		    phiWindow2Lower = cut->getMinimum().index;
-		    phiWindow2Upper = cut->getMaximum().index;
+		    phiWindow2Lower = cut.getMinimum().index;
+		    phiWindow2Upper = cut.getMaximum().index;
                  } else {
         	   edm::LogError("TriggerMenuXmlParser") << "Too Many Phi Cuts for calo-condition ("
         	       << particle << ")" << std::endl;
@@ -3037,12 +3037,12 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
 	       }break;
 	     case esCutType::Quality: {
              
-	       qualityLUT = l1tstr2int(cut->getData());
+	       qualityLUT = l1tstr2int(cut.getData());
 
 	       }break;
 	     case esCutType::Isolation: {
 
-               isolationLUT = l1tstr2int(cut->getData());
+               isolationLUT = l1tstr2int(cut.getData());
 		       
 	       } break;
 	     default:
@@ -3259,23 +3259,23 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
      int qualityLUT   = 0xF; //default is to ignore quality unless specified.	
 
 
-     const std::vector<esCut*>& cuts = corrCalo->getCuts();
+     const std::vector<esCut>& cuts = corrCalo->getCuts();
      for (size_t kk = 0; kk < cuts.size(); kk++)
      {
-       const esCut* cut = cuts.at(kk); 
+       const esCut cut = cuts.at(kk); 
 
-       switch(cut->getCutType()){
+       switch(cut.getCutType()){
 	  case esCutType::Threshold:
-	    thresholdInd = cut->getMinimum().index;
+	    thresholdInd = cut.getMinimum().index;
 	    break;
 	  case esCutType::Eta: {
 
               if(cntEta == 0) {
-		 etaWindow1Lower = cut->getMinimum().index;
-		 etaWindow1Upper = cut->getMaximum().index;
+		 etaWindow1Lower = cut.getMinimum().index;
+		 etaWindow1Upper = cut.getMaximum().index;
 	      } else if(cntEta == 1) {
-		 etaWindow2Lower = cut->getMinimum().index;
-		 etaWindow2Upper = cut->getMaximum().index;
+		 etaWindow2Lower = cut.getMinimum().index;
+		 etaWindow2Upper = cut.getMaximum().index;
               } else {
         	edm::LogError("TriggerMenuXmlParser") << "Too Many Eta Cuts for calo-condition ("
         	    << particle << ")" << std::endl;
@@ -3288,11 +3288,11 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
 	  case esCutType::Phi: {
 
              if(cntPhi == 0) {
-		 phiWindow1Lower = cut->getMinimum().index;
-		 phiWindow1Upper = cut->getMaximum().index;
+		 phiWindow1Lower = cut.getMinimum().index;
+		 phiWindow1Upper = cut.getMaximum().index;
 	      } else if(cntPhi == 1) {
-		 phiWindow2Lower = cut->getMinimum().index;
-		 phiWindow2Upper = cut->getMaximum().index;
+		 phiWindow2Lower = cut.getMinimum().index;
+		 phiWindow2Upper = cut.getMaximum().index;
               } else {
         	edm::LogError("TriggerMenuXmlParser") << "Too Many Phi Cuts for calo-condition ("
         	    << particle << ")" << std::endl;
@@ -3311,12 +3311,12 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
 	    }break;
 	  case esCutType::Quality: {
 
-	    qualityLUT = l1tstr2int(cut->getData());
+	    qualityLUT = l1tstr2int(cut.getData());
 
 	    }break;
 	  case esCutType::Isolation: {
 
-            isolationLUT = l1tstr2int(cut->getData());
+            isolationLUT = l1tstr2int(cut.getData());
 
 	    } break;
 	  default:
@@ -3774,14 +3774,14 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
 //    l1t::EnergySumsObjectRequirement objPar = condEnergySum.objectRequirement();
 
 // Loop over objects and extract the cuts on the objects
-    const std::vector<esObject*>& objects = condEnergySum.getObjects();
+    const std::vector<esObject>& objects = condEnergySum.getObjects();
     for (size_t jj = 0; jj < objects.size(); jj++) {   
 
-       const esObject* object = objects.at(jj);
-       gEq =  (object->getComparisonOperator() == esComparisonOperator::GE);
+       const esObject object = objects.at(jj);
+       gEq =  (object.getComparisonOperator() == esComparisonOperator::GE);
 
 //  BLW TO DO: This needs to be added to the Object Parameters   
-       relativeBx = object->getBxOffset();
+       relativeBx = object.getBxOffset();
 
 //  Loop over the cuts for this object
         int thresholdInd = 0;
@@ -3789,14 +3789,14 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
 	unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
 		
 	
-        const std::vector<esCut*>& cuts = object->getCuts();
+        const std::vector<esCut>& cuts = object.getCuts();
         for (size_t kk = 0; kk < cuts.size(); kk++)
         {
-          const esCut* cut = cuts.at(kk); 
+          const esCut cut = cuts.at(kk); 
 	 
-	  switch(cut->getCutType()){
+	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
-	       thresholdInd = cut->getMinimum().index;
+	       thresholdInd = cut.getMinimum().index;
 	       break;
 
 	     case esCutType::Eta: 
@@ -3805,11 +3805,11 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
 	     case esCutType::Phi: {
 
                 if(cntPhi == 0) {
-		    phiWindow1Lower = cut->getMinimum().index;
-		    phiWindow1Upper = cut->getMaximum().index;
+		    phiWindow1Lower = cut.getMinimum().index;
+		    phiWindow1Upper = cut.getMaximum().index;
 		 } else if(cntPhi == 1) {
-		    phiWindow2Lower = cut->getMinimum().index;
-		    phiWindow2Upper = cut->getMaximum().index;
+		    phiWindow2Lower = cut.getMinimum().index;
+		    phiWindow2Upper = cut.getMaximum().index;
                  } else {
         	   edm::LogError("TriggerMenuXmlParser") << "Too Many Phi Cuts for esum-condition ("
         	       << type << ")" << std::endl;
@@ -3986,14 +3986,14 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
     unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
 
 
-    const std::vector<esCut*>& cuts = corrESum->getCuts();
+    const std::vector<esCut>& cuts = corrESum->getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++)
     {
-      const esCut* cut = cuts.at(kk); 
+      const esCut cut = cuts.at(kk); 
 
-      switch(cut->getCutType()){
+      switch(cut.getCutType()){
 	 case esCutType::Threshold:
-	   thresholdInd = cut->getMinimum().index;
+	   thresholdInd = cut.getMinimum().index;
 	   break;
 
 	 case esCutType::Eta: 
@@ -4002,11 +4002,11 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
 	 case esCutType::Phi: {
 
             if(cntPhi == 0) {
-		phiWindow1Lower = cut->getMinimum().index;
-		phiWindow1Upper = cut->getMaximum().index;
+		phiWindow1Lower = cut.getMinimum().index;
+		phiWindow1Upper = cut.getMaximum().index;
 	     } else if(cntPhi == 1) {
-		phiWindow2Lower = cut->getMinimum().index;
-		phiWindow2Upper = cut->getMaximum().index;
+		phiWindow2Lower = cut.getMinimum().index;
+		phiWindow2Upper = cut.getMaximum().index;
              } else {
                edm::LogError("TriggerMenuXmlParser") << "Too Many Phi Cuts for esum-condition ("
         	   << type << ")" << std::endl;
@@ -5152,10 +5152,10 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 
 // Get the correlation Cuts on the legs
         
-      const std::vector<esCut*>& cuts = corrCond.getCuts();      
+      const std::vector<esCut>& cuts = corrCond.getCuts();      
       for (size_t jj = 0; jj < cuts.size(); jj++)
       {
-        const esCut* cut = cuts.at(jj);
+        const esCut cut = cuts.at(jj);
 /*        std::cout << "    cut name = " << cut->getName() << "\n";
         std::cout << "    cut target = " << cut->getObjectType() << "\n";
         std::cout << "    cut type = " << cut->getCutType() << "\n";
@@ -5163,15 +5163,15 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
         std::cout << "    cut max. value  index = " << cut->getMaximum().value << " " << cut->getMaximum().index << "\n";
         std::cout << "    cut data = " << cut->getData() << "\n";
 */
-        corrParameter.corrCutType = cut->getCutType();
-	corrParameter.minCutValue = cut->getMinimum().value;
-	corrParameter.maxCutValue = cut->getMaximum().value;
+        corrParameter.corrCutType = cut.getCutType();
+	corrParameter.minCutValue = cut.getMinimum().value;
+	corrParameter.maxCutValue = cut.getMaximum().value;
 
       }
 
 
 // Get the two objects that form the legs
-      const std::vector<esObject*>& objects = corrCond.getObjects();
+      const std::vector<esObject>& objects = corrCond.getObjects();
       if(objects.size() != 2) {
             edm::LogError("TriggerMenuXmlParser")
                     << "incorrect number of objects for the correlation condition " << name << " corrFlag " << corrFlag << std::endl;
@@ -5181,7 +5181,7 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 // loop over legs      
       for (size_t jj = 0; jj < objects.size(); jj++)
       {
-        const esObject* object = objects.at(jj);
+        const esObject object = objects.at(jj);
 /*        std::cout << "      obj name = " << object->getName() << "\n";
         std::cout << "      obj type = " << object->getType() << "\n";
         std::cout << "      obj op = " << object->getComparisonOperator() << "\n";
@@ -5189,35 +5189,35 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 */
 
 // check the leg type
-        if(object->getType() == esObjectType::Muon) {
+        if(object.getType() == esObjectType::Muon) {
 	  // we have a muon  
 
           //BLW Is there a problem here with not entering second instanance into the m_corMuonTemplate[]?
-          if ((m_conditionMap[chipNr]).count(object->getName()) == 0) {
+          if ((m_conditionMap[chipNr]).count(object.getName()) == 0) {
 	   	                  
-              parseMuonCorr(object,chipNr);	     
+              parseMuonCorr(&object,chipNr);	     
 	    
           } else {
 	     LogDebug("TriggerMenuXmlParser")  << "Not Adding Correlation Muon Condition." << std::endl;
 	  }
 	  
           //Now set some flags for this subCondition
-	  intGEq[jj] = (object->getComparisonOperator() == esComparisonOperator::GE);
+	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
           objType[jj] = Mu;
           condCateg[jj] = CondMuon;
           corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;
 
 
 	  
-        } else if(object->getType() == esObjectType::Egamma ||
-	          object->getType() == esObjectType::Jet    ||
-		  object->getType() == esObjectType::Tau ) {
+        } else if(object.getType() == esObjectType::Egamma ||
+	          object.getType() == esObjectType::Jet    ||
+		  object.getType() == esObjectType::Tau ) {
 	  // we have an Calo object
 
           //BLW Is there a problem here with not entering second instanance into the m_corMuonTemplate[]?
-          if ((m_conditionMap[chipNr]).count(object->getName()) == 0) {
+          if ((m_conditionMap[chipNr]).count(object.getName()) == 0) {
 	   	                  
-              parseCaloCorr(object,chipNr);	     
+              parseCaloCorr(&object,chipNr);	     
 	    
           } else {
 	     LogDebug("TriggerMenuXmlParser")  << "Not Adding Correlation Calo Condition." << std::endl;
@@ -5225,8 +5225,8 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 	  
 
           //Now set some flags for this subCondition
-	  intGEq[jj] = (object->getComparisonOperator() == esComparisonOperator::GE);
-          switch(object->getType()) {
+	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
+          switch(object.getType()) {
 	     case esObjectType::Egamma: { 
 	      objType[jj] = NoIsoEG;
 	     }
@@ -5247,14 +5247,14 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
           corrIndexVal[jj] = (m_corCaloTemplate[chipNr]).size() - 1;
 	  
 	  
-        } else if(object->getType() == esObjectType::ETM  ||
-	          object->getType() == esObjectType::HTM ) {
+        } else if(object.getType() == esObjectType::ETM  ||
+	          object.getType() == esObjectType::HTM ) {
 	  // we have Energy Sum
 
           //BLW Is there a problem here with not entering second instanance into the m_corMuonTemplate[]?
-          if ((m_conditionMap[chipNr]).count(object->getName()) == 0) {
+          if ((m_conditionMap[chipNr]).count(object.getName()) == 0) {
 	   	                  
-              parseEnergySumCorr(object,chipNr);	     
+              parseEnergySumCorr(&object,chipNr);	     
 	    
           } else {
 	     LogDebug("TriggerMenuXmlParser")  << "Not Adding Correlation EtSum Condition." << std::endl;
@@ -5262,8 +5262,8 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 	  
 
           //Now set some flags for this subCondition
-	  intGEq[jj] = (object->getComparisonOperator() == esComparisonOperator::GE);
-          switch(object->getType()) {
+	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
+          switch(object.getType()) {
 	     case esObjectType::ETM: { 
 	      objType[jj] = L1GtObject::ETM;
 	     }
