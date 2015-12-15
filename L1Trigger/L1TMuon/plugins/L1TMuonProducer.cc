@@ -373,8 +373,8 @@ L1TMuonProducer::splitAndConvertMuons(const edm::Handle<MicroGMTConfiguration::I
     }
   }
   for (int i = 0; i < 6; ++i) {
-    if(wedges_pos[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf+ / omtf+" << std::endl;
-    if(wedges_neg[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf- / omtf-" << std::endl;
+    if(wedges_pos[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf+ / omtf+. Wedge " << i << ": Size " << wedges_pos[i].size() << std::endl;
+    if(wedges_neg[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for emtf- / omtf-. Wedge " << i << ": Size " << wedges_neg[i].size() << std::endl;
   }
 }
 
@@ -395,7 +395,7 @@ L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::InputColl
     wedges[in->at(bx, i).processor()].push_back(outMu);
   }
   for (int i = 0; i < 12; ++i) {
-    if(wedges[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel" << std::endl;
+    if(wedges[i].size() > 3) edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel. Wedge " << i << ": Size " << wedges[i].size() << std::endl;
   }
 }
 
