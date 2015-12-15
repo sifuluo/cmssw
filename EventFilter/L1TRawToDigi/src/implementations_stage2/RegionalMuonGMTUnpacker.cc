@@ -87,7 +87,7 @@ namespace l1t {
                }
                // Detect and ignore comma events
                if (raw_data_00_31 == 0x505050bc || raw_data_32_63 == 0x505050bc) {
-                  edm::LogWarning("L1T|Muon") << "Comma detected in raw data stream. BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
+                  edm::LogWarning("L1T|Muon") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
                   continue;
                }
  
