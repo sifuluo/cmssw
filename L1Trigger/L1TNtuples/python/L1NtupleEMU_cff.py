@@ -14,7 +14,7 @@ l1UpgradeEmuTree.egToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.tauToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.jetToken = cms.untracked.InputTag("simCaloStage2Digis")
 l1UpgradeEmuTree.muonToken = cms.untracked.InputTag("simCaloStage2Digis")
-l1UpgradeEmuTree.sumsToken = cms.untracked.InputTag("simCaloStage2Digis")
+l1UpgradeEmuTree.sumToken = cms.untracked.InputTag("simCaloStage2Digis")
 
 L1NtupleEMU = cms.Sequence(
   l1CaloTowerEmuTree
