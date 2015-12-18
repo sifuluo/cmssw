@@ -39,7 +39,7 @@
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
-//#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 
 #include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 
@@ -173,16 +173,16 @@ public:
             const std::vector<std::vector<EnergySumTemplate> >&);
 
     //
-/*
-    inline const std::vector<std::vector<L1GtExternalTemplate> >&
+
+    inline const std::vector<std::vector<ExternalTemplate> >&
         vecExternalTemplate() const {
 
         return m_vecExternalTemplate;
     }
 
     void setVecExternalTemplate(
-            const std::vector<std::vector<L1GtExternalTemplate> >&);
-*/
+            const std::vector<std::vector<ExternalTemplate> >&);
+
     //
     inline const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTemplate() const {
 
@@ -455,6 +455,10 @@ private:
     bool parseExternal(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
 */
+      bool parseExternalV2(tmeventsetup::esCondition condExt,
+        unsigned int chipNr = 0);
+
+
     /// parse a correlation condition
     bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
@@ -562,7 +566,7 @@ private:
     std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
-//    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
+    std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;

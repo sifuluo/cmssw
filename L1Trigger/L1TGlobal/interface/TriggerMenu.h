@@ -30,6 +30,7 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 
 
@@ -50,7 +51,7 @@ public:
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
             const std::vector<std::vector<EnergySumTemplate> >&,
-//            const std::vector<std::vector<L1GtExternalTemplate> >&,
+            const std::vector<std::vector<ExternalTemplate> >&,
             const std::vector<std::vector<CorrelationTemplate> >&,
             const std::vector<std::vector<MuonTemplate> >&,
             const std::vector<std::vector<CaloTemplate> >&,
@@ -128,16 +129,16 @@ public:
     void setVecEnergySumTemplate(
             const std::vector<std::vector<EnergySumTemplate> >&);
 
-/*
-    inline const std::vector<std::vector<L1GtExternalTemplate> >&
+
+    inline const std::vector<std::vector<ExternalTemplate> >&
         vecExternalTemplate() const {
 
         return m_vecExternalTemplate;
     }
 
     void setVecExternalTemplate(
-            const std::vector<std::vector<L1GtExternalTemplate> >&);
-*/
+            const std::vector<std::vector<ExternalTemplate> >&);
+
     //
     inline const std::vector<std::vector<CorrelationTemplate> >&
         vecCorrelationTemplate() const {
@@ -228,7 +229,7 @@ private:
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
 
-//    std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
+    std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;
 
     std::vector<std::vector<CorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<MuonTemplate> > m_corMuonTemplate;

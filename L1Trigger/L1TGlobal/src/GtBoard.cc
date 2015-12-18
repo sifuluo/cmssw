@@ -35,6 +35,7 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
@@ -52,6 +53,7 @@
 #include "L1Trigger/L1TGlobal/interface/MuCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
+#include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
 
 //   *** Comment out what do we do with this.
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -73,6 +75,7 @@ l1t::GtBoard::GtBoard() :
     m_candL1Tau( new BXVector<const l1t::L1Candidate*>),
     m_candL1Jet( new BXVector<const l1t::L1Candidate*>),
     m_candL1EtSum( new BXVector<const l1t::EtSum*>),
+    m_candL1External( new BXVector<const GlobalExtBlk*>),
     m_firstEv(true),
     m_firstEvLumiSegment(true),
     m_isDebugEnabled(edm::isDebugEnabled())
@@ -113,6 +116,7 @@ l1t::GtBoard::~GtBoard() {
     delete m_candL1Tau;
     delete m_candL1Jet;
     delete m_candL1EtSum;
+    delete m_candL1External;
 
 //    delete m_gtEtaPhiConversions;
 
@@ -142,6 +146,7 @@ void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const in
   m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1EtSum->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1External->setBXRange( m_bxFirst_, m_bxLast_ );
 
   m_uGtAlgBlk.reset();
   m_uGtExtBlk.reset();
@@ -375,6 +380,51 @@ void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
 
 }
 
+// receive data from Global External Conditions
+void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
+    const edm::EDGetTokenT<BXVector<GlobalExtBlk> >& extInputToken, const bool receiveExt
+    ) {
+
+    if (m_verbosity) {
+        LogDebug("L1TGlobal")
+                << "\n**** GtBoard receiving external data = "
+	  //<< "\n     from input tag " << muInputTag << "\n"
+                << std::endl;
+    }
+
+    resetExternal();
+
+    // get data from Global Muon Trigger
+    if (receiveExt) {
+        edm::Handle<BXVector<GlobalExtBlk>> extData;
+        iEvent.getByToken(extInputToken, extData);
+
+        if (!extData.isValid()) {
+            if (m_verbosity) {
+                edm::LogWarning("L1TGlobal")
+                        << "\nWarning: BXVector<GlobalExtBlk> with input tag "
+		  //<< muInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
+                        << std::endl;
+            }
+        } else {
+           // bx in muon data
+           for(int i = extData->getFirstBX(); i <= extData->getLastBX(); ++i) {
+  
+              //Loop over ext in this bx
+              for(std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
+
+	        (*m_candL1External).push_back(i,&(*ext));
+              } //end loop over ext in bx
+	   } //end loop over bx   
+
+        } //end if over valid ext data
+
+    } //end if ReveiveExt data
+
+}
+
+
 // run GTL
 void l1t::GtBoard::runGTL(
         edm::Event& iEvent, const edm::EventSetup& evSetup,
@@ -607,7 +657,23 @@ void l1t::GtBoard::runGTL(
                     break;
 
                 case CondExternal: {
-  
+
+                    ExternalCondition* extCondition = new ExternalCondition(
+                            itCond->second, this);
+
+                    extCondition->setVerbosity(m_verbosity);
+                    extCondition->evaluateConditionStoreResult(iBxInEvent);
+
+                    cMapResults[itCond->first] = extCondition;
+
+                    if (m_verbosity && m_isDebugEnabled) {
+                        std::ostringstream myCout;
+                        extCondition->print(myCout);
+
+                        LogTrace("l1t|Global") << myCout.str() << std::endl;
+                    }
+                    //                    delete extCondition;
+
 
                 }
                     break;
@@ -989,6 +1055,7 @@ void l1t::GtBoard::reset() {
 
   resetMu();
   resetCalo();
+  resetExternal();
 
   m_uGtAlgBlk.reset();
   m_uGtExtBlk.reset();
@@ -1022,6 +1089,14 @@ void l1t::GtBoard::resetCalo() {
   m_candL1EtSum->setBXRange( m_bxFirst_, m_bxLast_ );
 
 }
+
+void l1t::GtBoard::resetExternal() {
+
+  m_candL1External->clear();
+  m_candL1External->setBXRange( m_bxFirst_, m_bxLast_ );
+
+}
+
 
 // print Global Muon Trigger data received by GTL
 void l1t::GtBoard::printGmtData(const int iBxInEvent) const {

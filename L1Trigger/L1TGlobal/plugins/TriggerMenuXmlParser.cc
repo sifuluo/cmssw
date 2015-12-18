@@ -156,13 +156,13 @@ void l1t::TriggerMenuXmlParser::setVecEnergySumTemplate(
 }
 
 
-/*
+
 void l1t::TriggerMenuXmlParser::setVecExternalTemplate(
-        const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTempl) {
+        const std::vector<std::vector<ExternalTemplate> >& vecExternalTempl) {
 
     m_vecExternalTemplate = vecExternalTempl;
 }
-*/
+
 
 void l1t::TriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTempl) {
@@ -226,7 +226,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
-//    m_vecExternalTemplate.resize(m_numberConditionChips);
+    m_vecExternalTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -276,7 +276,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
-//    m_vecExternalTemplate.resize(m_numberConditionChips);
+    m_vecExternalTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -386,7 +386,12 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
 		    condition.getType() == esConditionType::InvariantMass )       
 	  {
              parseCorrelationV2(condition,chipNr);
-	    
+
+	  //parse Muons	 	
+	  } else if(condition.getType() == esConditionType::Externals      )       
+	  {
+             parseExternalV2(condition,chipNr);
+	     	    
 	  }      
       
       }//if condition is a new one
@@ -4047,6 +4052,98 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
     //
     return true;
 }
+
+
+
+/**
+ * parseExternal Parse an External condition and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool l1t::TriggerMenuXmlParser::parseExternalV2(tmeventsetup::esCondition condExt,
+        unsigned int chipNr) {
+
+
+    using namespace tmeventsetup;
+
+    
+    // get condition, particle name and type name
+    std::string condition = "ext";     
+    std::string particle = "test-fix";
+    std::string type = l1t2string( condExt.getType() );
+    std::string name = l1t2string( condExt.getName() );
+
+
+    LogDebug("TriggerMenuXmlParser")
+      << "\n ****************************************** " 
+      << "\n      (in parseExternalV2) " 
+      << "\n condition = " << condition 
+      << "\n particle  = " << particle 
+      << "\n type      = " << type 
+      << "\n name      = " << name 
+      << std::endl;
+
+
+    // object type and condition type
+    // object type - irrelevant for External conditions
+    GtConditionType cType = TypeExternal;
+
+    int relativeBx = 0;    
+    unsigned int channelID = 0;
+
+    // Get object for External conditions
+    const std::vector<esObject>& objects = condExt.getObjects();
+    for (size_t jj = 0; jj < objects.size(); jj++) {   
+
+       const esObject object = objects.at(jj);
+       if(object.getType() == esObjectType::EXT) {
+          relativeBx = object.getBxOffset();
+          channelID = object.getExternalChannelId();
+       }
+    }   
+
+
+    // set the boolean value for the ge_eq mode - irrelevant for External conditions
+    bool gEq = false;
+
+    // now create a new External condition
+    ExternalTemplate externalCond(name);
+
+    externalCond.setCondType(cType);
+    externalCond.setCondGEq(gEq);
+    externalCond.setCondChipNr(chipNr);
+    externalCond.setCondRelativeBx(relativeBx);
+    externalCond.setExternalChannel(channelID);
+
+    LogTrace("TriggerMenuXmlParser") 
+             << externalCond << "\n" << std::endl;
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(externalCond, chipNr)) {
+
+        edm::LogError("TriggerMenuXmlParser")
+            << "    Error: duplicate condition (" << name
+            << ")" << std::endl;
+
+        return false;
+    } else {
+
+        (m_vecExternalTemplate[chipNr]).push_back(externalCond);
+
+    }
+         
+    return true;
+}
+
+
+
 
 
 /**
