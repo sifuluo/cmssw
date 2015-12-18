@@ -28,8 +28,6 @@
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"

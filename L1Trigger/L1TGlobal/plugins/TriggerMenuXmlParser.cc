@@ -103,19 +103,14 @@ void l1t::TriggerMenuXmlParser::setGtNumberPhysTriggers(
 }
 
 // set the number of technical triggers
+/*
 void l1t::TriggerMenuXmlParser::setGtNumberTechTriggers(
         const unsigned int& numberTechTriggersValue) {
 
     m_numberTechTriggers = numberTechTriggersValue;
 
 }
-
-// set the number of L1 jet counts received by GT
-void l1t::TriggerMenuXmlParser::setGtNumberL1JetCounts(const unsigned int& numberL1JetCountsValue) {
-
-    m_numberL1JetCounts = numberL1JetCountsValue;
-
-}
+*/
 
 
 // set the condition maps
@@ -160,41 +155,14 @@ void l1t::TriggerMenuXmlParser::setVecEnergySumTemplate(
     m_vecEnergySumTemplate = vecEnergySumTempl;
 }
 
-void l1t::TriggerMenuXmlParser::setVecJetCountsTemplate(
-        const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTempl) {
 
-    m_vecJetCountsTemplate = vecJetCountsTempl;
-}
-
-void l1t::TriggerMenuXmlParser::setVecCastorTemplate(
-        const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTempl) {
-
-    m_vecCastorTemplate = vecCastorTempl;
-}
-
-void l1t::TriggerMenuXmlParser::setVecHfBitCountsTemplate(
-        const std::vector<std::vector<L1GtHfBitCountsTemplate> >& vecHfBitCountsTempl) {
-
-    m_vecHfBitCountsTemplate = vecHfBitCountsTempl;
-}
-
-void l1t::TriggerMenuXmlParser::setVecHfRingEtSumsTemplate(
-        const std::vector<std::vector<L1GtHfRingEtSumsTemplate> >& vecHfRingEtSumsTempl) {
-
-    m_vecHfRingEtSumsTemplate = vecHfRingEtSumsTempl;
-}
-
-void l1t::TriggerMenuXmlParser::setVecBptxTemplate(
-        const std::vector<std::vector<L1GtBptxTemplate> >& vecBptxTempl) {
-
-    m_vecBptxTemplate = vecBptxTempl;
-}
-
+/*
 void l1t::TriggerMenuXmlParser::setVecExternalTemplate(
         const std::vector<std::vector<L1GtExternalTemplate> >& vecExternalTempl) {
 
     m_vecExternalTemplate = vecExternalTempl;
 }
+*/
 
 void l1t::TriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<CorrelationTemplate> >& vecCorrelationTempl) {
@@ -235,10 +203,12 @@ void l1t::TriggerMenuXmlParser::setGtAlgorithmAliasMap(const AlgorithmMap& algoM
     m_algorithmAliasMap = algoMap;
 }
 
+/*
 // set the technical trigger map
 void l1t::TriggerMenuXmlParser::setGtTechnicalTriggerMap(const AlgorithmMap& ttMap) {
     m_technicalTriggerMap = ttMap;
 }
+*/
 
 //
 
@@ -256,12 +226,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
-    m_vecJetCountsTemplate.resize(m_numberConditionChips);
-    m_vecCastorTemplate.resize(m_numberConditionChips);
-    m_vecHfBitCountsTemplate.resize(m_numberConditionChips);
-    m_vecHfRingEtSumsTemplate.resize(m_numberConditionChips);
-    m_vecBptxTemplate.resize(m_numberConditionChips);
-    m_vecExternalTemplate.resize(m_numberConditionChips);
+//    m_vecExternalTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -311,12 +276,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
-    m_vecJetCountsTemplate.resize(m_numberConditionChips);
-    m_vecCastorTemplate.resize(m_numberConditionChips);
-    m_vecHfBitCountsTemplate.resize(m_numberConditionChips);
-    m_vecHfRingEtSumsTemplate.resize(m_numberConditionChips);
-    m_vecBptxTemplate.resize(m_numberConditionChips);
-    m_vecExternalTemplate.resize(m_numberConditionChips);
+//    m_vecExternalTemplate.resize(m_numberConditionChips);
 
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -1267,7 +1227,7 @@ bool l1t::TriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg)
     return true;
 
 }
-
+/*
 // insert a technical trigger into technical trigger map
 bool l1t::TriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& alg) {
 
@@ -1333,7 +1293,7 @@ bool l1t::TriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorithm& al
 
 }
 
-
+*/
 
 // get the type of the condition, as defined in enum, from the condition type
 // as defined in the XML file
@@ -4088,589 +4048,6 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
     return true;
 }
 
-/**
- * parseJetCounts Parse a "jet counts" condition and
- * insert an entry to the conditions map
- *
- * @param node The corresponding node.
- * @param name The name of the condition.
- * @param chipNr The number of the chip this condition is located.
- *
- * @return "true" if succeeded, "false" if an error occurred.
- *
- */
-
-bool l1t::TriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
-    const std::string& name, unsigned int chipNr) {
-
-    XERCES_CPP_NAMESPACE_USE
-
-      /*
-    // get condition, particle name and type name
-    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
-    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
-    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
-
-    if (particle != m_xmlConditionAttrObjectJetCounts) {
-        edm::LogError("TriggerMenuXmlParser") << "Wrong particle for JetCounts condition ("
-            << particle << ")" << std::endl;
-        return false;
-    }
-
-    // object type and condition type
-    L1GtObject jetCountsObjType = JetCounts;
-    GtConditionType cType = TypeJetCounts;
-
-    // global object
-    int nrObj = 1;
-
-    // get greater equal flag
-
-    int intGEq = getGEqFlag(node, m_xmlTagCountThreshold);
-    if (intGEq < 0) {
-        edm::LogError("TriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
-            << std::endl;
-        return false;
-    }
-    // set the boolean value for the ge_eq mode
-    bool gEq = (intGEq != 0);
-
-    // get values
-
-    // temporary storage of the parameters
-    std::vector<L1GtJetCountsTemplate::ObjectParameter> objParameter(nrObj);
-
-    // get countIndex value and fill into structure
-    // they are expressed in  base 10  (values: 0 - m_numberL1JetCounts)
-    char* endPtr = const_cast<char*>(type.c_str());
-    long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
-
-    if (*endPtr != 0) {
-
-        LogDebug("TriggerMenuXmlParser") << "Unable to convert " << type << " to dec."
-            << std::endl;
-
-        return false;
-    }
-
-    // test if count index is out of range
-    if ((typeInt < 0) || (typeInt > static_cast<int>(m_numberL1JetCounts))) {
-        LogDebug("TriggerMenuXmlParser") << "Count index " << typeInt
-            << " outside range [0, " << m_numberL1JetCounts << "]" << std::endl;
-
-        return false;
-    }
-
-    objParameter[0].countIndex = static_cast<unsigned int>(typeInt);
-
-    // get count threshold values and fill into structure
-    std::vector<boost::uint64_t> tmpValues(nrObj);
-
-    if ( !getConditionChildValuesOld(node, m_xmlTagCountThreshold, nrObj, tmpValues) ) {
-        return false;
-    }
-
-    for (int i = 0; i < nrObj; i++) {
-        objParameter[i].countThreshold = tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      JetCounts count threshold (hex) for JetCounts object " << i << " = "
-        //<< std::hex << objParameter[i].countThreshold << std::dec
-        //<< std::endl;
-
-        // TODO FIXME un-comment when tag available in XML file
-
-        //        // get countOverflow logical flag and fill into structure
-        //        DOMNode* n1;
-        //        if ( (n1 = findXMLChild(node->getFirstChild(), m_xmlTagCountThreshold)) == 0) {
-        //            edm::LogError("TriggerMenuXmlParser")
-        //            << "    Could not get countOverflow for JetCounts condition ("
-        //            << name << ")"
-        //            << std::endl;
-        //            return false;
-        //        }
-        //        if ( (n1 = findXMLChild(n1->getFirstChild(), m_xmlTagCountThreshold)) == 0) {
-        //            edm::LogError("TriggerMenuXmlParser")
-        //            << "    Could not get countOverflow for JetCounts condition ("
-        //            << name << ")"
-        //            << std::endl;
-        //            return false;
-        //        }
-        //
-        //        int tmpInt = getBitFromNode(n1);
-        //        if (tmpInt == 0) {
-        //            objParameter[i].countOverflow = false;
-        //
-        //            LogTrace("TriggerMenuXmlParser")
-        //            << "      JetCounts countOverflow logical flag (hex) = "
-        //            << std::hex << objParameter[i].countOverflow << std::dec
-        //            << std::endl;
-        //        } else if (tmpInt == 1) {
-        //            objParameter[i].countOverflow = true;
-        //
-        //            LogTrace("TriggerMenuXmlParser")
-        //            << "      JetCounts countOverflow logical flag (hex) = "
-        //            << std::hex << objParameter[i].countOverflow << std::dec
-        //            << std::endl;
-        //        } else {
-        //            LogTrace("TriggerMenuXmlParser")
-        //            << "      JetCounts countOverflow logical flag (hex) = "
-        //            << std::hex << tmpInt << std::dec << " - wrong value! "
-        //            << std::endl;
-        //            return false;
-        //        }
-
-    }
-
-    // object types - all same objType
-    std::vector<L1GtObject> objType(nrObj, jetCountsObjType);
-
-    // now create a new JetCounts condition
-
-    L1GtJetCountsTemplate jetCountsCond(name);
-
-    jetCountsCond.setCondType(cType);
-    jetCountsCond.setObjectType(objType);
-    jetCountsCond.setCondGEq(gEq);
-    jetCountsCond.setCondChipNr(chipNr);
-
-    jetCountsCond.setConditionParameter(objParameter);
-
-    if (edm::isDebugEnabled() ) {
-
-        std::ostringstream myCoutStream;
-        jetCountsCond.print(myCoutStream);
-        LogTrace("TriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
-
-    }
-
-    // insert condition into the map
-    if ( !insertConditionIntoMap(jetCountsCond, chipNr)) {
-
-        edm::LogError("TriggerMenuXmlParser") << "    Error: duplicate condition (" << name
-            << ")" << std::endl;
-
-        return false;
-    } else {
-
-        (m_vecJetCountsTemplate[chipNr]).push_back(jetCountsCond);
-
-    }
-
-      */
-    //
-    return true;
-}
-
-/**
- * parseCastor Parse a CASTOR condition and
- * insert an entry to the conditions map
- *
- * @param node The corresponding node.
- * @param name The name of the condition.
- * @param chipNr The number of the chip this condition is located.
- *
- * @return "true" if succeeded, "false" if an error occurred.
- *
- */
-
-bool l1t::TriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
-    const std::string& name, unsigned int chipNr) {
-
-    XERCES_CPP_NAMESPACE_USE
-
-      /*
-    // get condition, particle name and type name
-    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
-    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
-    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
-
-    if (particle != m_xmlConditionAttrObjectCastor) {
-        edm::LogError("TriggerMenuXmlParser")
-            << "\nError: wrong particle for Castor condition ("
-            << particle << ")" << std::endl;
-        return false;
-    }
-
-    // object type and condition type
-    // object type - irrelevant for CASTOR conditions
-    GtConditionType cType = TypeCastor;
-
-    // no objects for CASTOR conditions
-
-    // set the boolean value for the ge_eq mode - irrelevant for CASTOR conditions
-    bool gEq = false;
-
-    // now create a new CASTOR condition
-
-    L1GtCastorTemplate castorCond(name);
-
-    castorCond.setCondType(cType);
-    castorCond.setCondGEq(gEq);
-    castorCond.setCondChipNr(chipNr);
-
-
-    if (edm::isDebugEnabled() ) {
-
-        std::ostringstream myCoutStream;
-        castorCond.print(myCoutStream);
-        LogTrace("TriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
-
-    }
-
-    // insert condition into the map
-    if ( !insertConditionIntoMap(castorCond, chipNr)) {
-
-        edm::LogError("TriggerMenuXmlParser")
-            << "    Error: duplicate condition (" << name
-            << ")" << std::endl;
-
-        return false;
-    } else {
-
-        (m_vecCastorTemplate[chipNr]).push_back(castorCond);
-
-    }
-      */
-
-    //
-    return true;
-}
-
-
-/**
- * parseHfBitCounts Parse a "HF bit counts" condition and
- * insert an entry to the conditions map
- *
- * @param node The corresponding node.
- * @param name The name of the condition.
- * @param chipNr The number of the chip this condition is located.
- *
- * @return "true" if succeeded, "false" if an error occurred.
- *
- */
-
-bool l1t::TriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
-    const std::string& name, unsigned int chipNr) {
-
-    XERCES_CPP_NAMESPACE_USE
-
-      /*
-    // get condition, particle name and type name
-    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
-    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
-    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
-
-    if (particle != m_xmlConditionAttrObjectHfBitCounts) {
-        edm::LogError("TriggerMenuXmlParser") << "Wrong particle for HfBitCounts condition ("
-            << particle << ")" << std::endl;
-        return false;
-    }
-
-    // object type and condition type
-    L1GtObject hfBitCountsObjType = HfBitCounts;
-    GtConditionType cType = TypeHfBitCounts;
-
-    // global object
-    int nrObj = 1;
-
-    // get greater equal flag
-
-    int intGEq = getGEqFlag(node, m_xmlTagCountThreshold);
-    if (intGEq < 0) {
-        edm::LogError("TriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
-            << std::endl;
-        return false;
-    }
-    // set the boolean value for the ge_eq mode
-    bool gEq = (intGEq != 0);
-
-    // get values
-
-    // temporary storage of the parameters
-    std::vector<L1GtHfBitCountsTemplate::ObjectParameter> objParameter(nrObj);
-
-    // get countIndex value and fill into structure
-    // they are expressed in  base 10
-    char* endPtr = const_cast<char*>(type.c_str());
-    long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
-
-    if (*endPtr != 0) {
-
-        LogDebug("TriggerMenuXmlParser") << "Unable to convert " << type << " to dec."
-            << std::endl;
-
-        return false;
-    }
-
-    // test if count index is out of range FIXME introduce m_numberL1HfBitCounts?
-    //if ((typeInt < 0) || (typeInt > static_cast<int>(m_numberL1HfBitCounts))) {
-    //    LogDebug("TriggerMenuXmlParser") << "Count index " << typeInt
-    //        << " outside range [0, " << m_numberL1HfBitCounts << "]" << std::endl;
-    //
-    //    return false;
-    //}
-
-    objParameter[0].countIndex = static_cast<unsigned int>(typeInt);
-
-    // get count threshold values and fill into structure
-    std::vector<boost::uint64_t> tmpValues(nrObj);
-
-    if ( !getConditionChildValuesOld(node, m_xmlTagCountThreshold, nrObj, tmpValues) ) {
-        return false;
-    }
-
-    for (int i = 0; i < nrObj; i++) {
-        objParameter[i].countThreshold = tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      HfBitCounts count threshold (hex) for HfBitCounts object " << i << " = "
-        //<< std::hex << objParameter[i].countThreshold << std::dec
-        //<< std::endl;
-
-    }
-
-    // object types - all same objType
-    std::vector<L1GtObject> objType(nrObj, hfBitCountsObjType);
-
-    // now create a new HfBitCounts condition
-
-    L1GtHfBitCountsTemplate hfBitCountsCond(name);
-
-    hfBitCountsCond.setCondType(cType);
-    hfBitCountsCond.setObjectType(objType);
-    hfBitCountsCond.setCondGEq(gEq);
-    hfBitCountsCond.setCondChipNr(chipNr);
-
-    hfBitCountsCond.setConditionParameter(objParameter);
-
-    if (edm::isDebugEnabled() ) {
-
-        std::ostringstream myCoutStream;
-        hfBitCountsCond.print(myCoutStream);
-        LogTrace("TriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
-
-    }
-
-    // insert condition into the map
-    if ( !insertConditionIntoMap(hfBitCountsCond, chipNr)) {
-
-        edm::LogError("TriggerMenuXmlParser") << "    Error: duplicate condition (" << name
-            << ")" << std::endl;
-
-        return false;
-    } else {
-
-        (m_vecHfBitCountsTemplate[chipNr]).push_back(hfBitCountsCond);
-
-    }
-
-      */
-    //
-    return true;
-}
-
-
-/**
- * parseHfRingEtSums Parse a "HF Ring ET sums" condition and
- * insert an entry to the conditions map
- *
- * @param node The corresponding node.
- * @param name The name of the condition.
- * @param chipNr The number of the chip this condition is located.
- *
- * @return "true" if succeeded, "false" if an error occurred.
- *
- */
-
-bool l1t::TriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* node,
-    const std::string& name, unsigned int chipNr) {
-
-    XERCES_CPP_NAMESPACE_USE
-
-      /*
-    // get condition, particle name and type name
-    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
-    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
-    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
-
-    if (particle != m_xmlConditionAttrObjectHfRingEtSums) {
-        edm::LogError("TriggerMenuXmlParser") << "Wrong particle for HfRingEtSums condition ("
-            << particle << ")" << std::endl;
-        return false;
-    }
-
-    // object type and condition type
-    L1GtObject hfRingEtSumsObjType = HfRingEtSums;
-    GtConditionType cType = TypeHfRingEtSums;
-
-    // global object
-    int nrObj = 1;
-
-    // get greater equal flag
-
-    int intGEq = getGEqFlag(node, m_xmlTagEtThreshold);
-    if (intGEq < 0) {
-        edm::LogError("TriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
-            << std::endl;
-        return false;
-    }
-    // set the boolean value for the ge_eq mode
-    bool gEq = (intGEq != 0);
-
-    // get values
-
-    // temporary storage of the parameters
-    std::vector<L1GtHfRingEtSumsTemplate::ObjectParameter> objParameter(nrObj);
-
-    // get etSumIndex value and fill into structure
-    // they are expressed in  base 10
-    char* endPtr = const_cast<char*>(type.c_str());
-    long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
-
-    if (*endPtr != 0) {
-
-        LogDebug("TriggerMenuXmlParser") << "Unable to convert " << type << " to dec."
-            << std::endl;
-
-        return false;
-    }
-
-    // test if ET sum index is out of range FIXME introduce m_numberL1HfRingEtSums?
-    //if ((typeInt < 0) || (typeInt > static_cast<int>(m_numberL1HfRingEtSums))) {
-    //    LogDebug("TriggerMenuXmlParser") << "Count index " << typeInt
-    //        << " outside range [0, " << m_numberL1HfRingEtSums << "]" << std::endl;
-    //
-    //    return false;
-    //}
-
-    objParameter[0].etSumIndex = static_cast<unsigned int>(typeInt);
-
-    // get ET sum threshold values and fill into structure
-    std::vector<boost::uint64_t> tmpValues(nrObj);
-
-    if ( !getConditionChildValuesOld(node, m_xmlTagEtThreshold, nrObj, tmpValues) ) {
-        return false;
-    }
-
-    for (int i = 0; i < nrObj; i++) {
-        objParameter[i].etSumThreshold = tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      HfRingEtSums count threshold (hex) for HfRingEtSums object " << i << " = "
-        //<< std::hex << objParameter[i].etSumThreshold << std::dec
-        //<< std::endl;
-
-    }
-
-    // object types - all same objType
-    std::vector<L1GtObject> objType(nrObj, hfRingEtSumsObjType);
-
-    // now create a new HfRingEtSums condition
-
-    L1GtHfRingEtSumsTemplate hfRingEtSumsCond(name);
-
-    hfRingEtSumsCond.setCondType(cType);
-    hfRingEtSumsCond.setObjectType(objType);
-    hfRingEtSumsCond.setCondGEq(gEq);
-    hfRingEtSumsCond.setCondChipNr(chipNr);
-
-    hfRingEtSumsCond.setConditionParameter(objParameter);
-
-    if (edm::isDebugEnabled() ) {
-
-        std::ostringstream myCoutStream;
-        hfRingEtSumsCond.print(myCoutStream);
-        LogTrace("TriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
-
-    }
-
-    // insert condition into the map
-    if ( !insertConditionIntoMap(hfRingEtSumsCond, chipNr)) {
-
-        edm::LogError("TriggerMenuXmlParser") << "    Error: duplicate condition (" << name
-            << ")" << std::endl;
-
-        return false;
-    } else {
-
-        (m_vecHfRingEtSumsTemplate[chipNr]).push_back(hfRingEtSumsCond);
-
-    }
-      */
-
-    //
-    return true;
-}
-
-/**
- * parseBptx Parse a BPTX condition and
- * insert an entry to the conditions map
- *
- * @param node The corresponding node.
- * @param name The name of the condition.
- * @param chipNr The number of the chip this condition is located.
- *
- * @return "true" if succeeded, "false" if an error occurred.
- *
- */
-
-bool l1t::TriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* node,
-    const std::string& name, unsigned int chipNr) {
-
-    XERCES_CPP_NAMESPACE_USE
-
-      /*
-    // get condition, particle name and type name
-    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
-    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
-    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
-
-    if (particle != m_xmlConditionAttrObjectBptx) {
-        edm::LogError("TriggerMenuXmlParser")
-            << "\nError: wrong particle for Bptx condition ("
-            << particle << ")" << std::endl;
-        return false;
-    }
-
-    // object type and condition type
-    // object type - irrelevant for BPTX conditions
-    GtConditionType cType = TypeBptx;
-
-    // no objects for BPTX conditions
-
-    // set the boolean value for the ge_eq mode - irrelevant for BPTX conditions
-    bool gEq = false;
-
-    // now create a new BPTX condition
-
-    L1GtBptxTemplate bptxCond(name);
-
-    bptxCond.setCondType(cType);
-    bptxCond.setCondGEq(gEq);
-    bptxCond.setCondChipNr(chipNr);
-
-    LogTrace("TriggerMenuXmlParser") << bptxCond << "\n" << std::endl;
-
-    // insert condition into the map
-    if ( !insertConditionIntoMap(bptxCond, chipNr)) {
-
-        edm::LogError("TriggerMenuXmlParser")
-            << "    Error: duplicate condition (" << name
-            << ")" << std::endl;
-
-        return false;
-    } else {
-
-        (m_vecBptxTemplate[chipNr]).push_back(bptxCond);
-
-    }
-      */
-
-    //
-    return true;
-}
-
 
 /**
  * parseExternal Parse an External condition and
@@ -4683,12 +4060,12 @@ bool l1t::TriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* node,
  * @return "true" if succeeded, "false" if an error occurred.
  *
  */
-
+/*
 bool l1t::TriggerMenuXmlParser::parseExternal(XERCES_CPP_NAMESPACE::DOMNode* node,
     const std::string& name, unsigned int chipNr) {
 
     XERCES_CPP_NAMESPACE_USE
-
+*/
       /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
@@ -4737,9 +4114,10 @@ bool l1t::TriggerMenuXmlParser::parseExternal(XERCES_CPP_NAMESPACE::DOMNode* nod
       */
 
     //
+/*    
     return true;
 }
-
+*/
 
 /**
  * parseCorrelation Parse a correlation condition and
@@ -5660,21 +5038,6 @@ bool l1t::TriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* nod
     else if (condition == m_xmlConditionAttrConditionEnergySum) {
         return parseEnergySum(node, name, chipNr);
     }
-    else if (condition == m_xmlConditionAttrConditionJetCounts) {
-        return parseJetCounts(node, name, chipNr);
-    }
-    else if (condition == m_xmlConditionAttrConditionCastor) {
-        return parseCastor(node, name, chipNr);
-    }
-    else if (condition == m_xmlConditionAttrConditionHfBitCounts) {
-        return parseHfBitCounts(node, name, chipNr);
-    }
-    else if (condition == m_xmlConditionAttrConditionHfRingEtSums) {
-        return parseHfRingEtSums(node, name, chipNr);
-    }
-    else if (condition == m_xmlConditionAttrConditionBptx) {
-        return parseBptx(node, name, chipNr);
-    }
     else if (condition == m_xmlConditionAttrConditionExternal) {
         return parseExternal(node, name, chipNr);
     }
@@ -6001,7 +5364,7 @@ bool l1t::TriggerMenuXmlParser::parseAlgorithms( l1t::AlgorithmList algorithms )
  * @return "true" on success, "false" if an error occurred.
  *
  */
-
+/*
 bool l1t::TriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* node,
     const std::string& algName) {
 
@@ -6082,7 +5445,7 @@ bool l1t::TriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* n
     return true;
 
 }
-
+*/
 /*
  * parseTechTriggers Parse the technical triggers
  *
@@ -6091,7 +5454,7 @@ bool l1t::TriggerMenuXmlParser::workTechTrigger(XERCES_CPP_NAMESPACE::DOMNode* n
  * @return "true" if succeeded, "false" if an error occurred.
  *
  */
-
+/*
 bool l1t::TriggerMenuXmlParser::parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDOMParser* parser) {
 
     XERCES_CPP_NAMESPACE_USE
@@ -6137,7 +5500,7 @@ bool l1t::TriggerMenuXmlParser::parseTechTriggers(XERCES_CPP_NAMESPACE::XercesDO
 
     return true;
 }
-
+*/
 
 /**
  * workXML parse the XML-File

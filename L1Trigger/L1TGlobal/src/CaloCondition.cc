@@ -26,13 +26,7 @@
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-/*#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-*/
 
 #include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"

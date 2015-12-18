@@ -26,8 +26,6 @@
 // user include files
 //   base class
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 // forward declarations
 
 // constructors

@@ -39,35 +39,14 @@
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
 
-/*
-#include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
-*/
-
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+//#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
-
-
-//#include "L1Trigger/GlobalTrigger/interface/L1CaloCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtHfBitCountsCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtHfRingEtSumsCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtCastorCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtBptxCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtExternalCondition.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
-
 
 // Conditions for uGt
 #include "L1Trigger/L1TGlobal/interface/MuCondition.h"
