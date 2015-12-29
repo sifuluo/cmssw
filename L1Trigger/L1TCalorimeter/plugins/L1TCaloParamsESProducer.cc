@@ -127,6 +127,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
 
   m_params.setEgPUSType(conf.getParameter<std::string>("egPUSType"));
 
+  m_params.setEgIsolationType(conf.getParameter<std::string>("egIsolationType"));
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<LUT> egIsoLUT( new LUT(egIsoLUTStream) );
