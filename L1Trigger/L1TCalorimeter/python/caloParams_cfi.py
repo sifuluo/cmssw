@@ -47,6 +47,7 @@ caloParams = cms.ESProducer(
     egMinPtHOverEIsolation                    = cms.int32(1),
     egMaxPtHOverEIsolation                    = cms.int32(40),
     egPUSType               = cms.string("None"),
+    egIsolationType          = cms.string("unspecified"),
     egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),
     #egIsoLUTFileBarrel         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.30.txt"),
     #egIsoLUTFileEndcaps        = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.50.txt"),
@@ -74,6 +75,7 @@ caloParams = cms.ESProducer(
     tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUTetPU.txt"),
     tauCalibrationLUTFileEta      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEta.txt"),
     tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT.txt"),
+    tauCompressLUTFile            = cms.FileInPath("L1Trigger/L1TCalorimeter/data/Tau_Eta_Et_compression_LUT.txt"),
     tauEtToHFRingEtLUTFile        = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauHwEtToHFRingScale_LUT.txt"),
     tauPUSParams                  = cms.vdouble(1,4,27),
 
