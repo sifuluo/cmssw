@@ -202,11 +202,11 @@ namespace l1t {
     // DO NOT ADD ENTRIES ANYWHERE BUT DIRECTLY BEFORE "NUM_CALOPARAMNODES"
     enum { regionPUS=0,
 	   egTrimming=1, egMaxHOverE=2, egCompressShapes=3, egShapeId=4, egCalibration=5, egPUS=6, egIsolation=7,
-	   tauCalibration=8, tauPUS=9, tauIsolation=10,
-	   jetPUS=11, jetCalibration=12,
-	   hiCentrality=13, hiQ2=14, 
-	   tauEtToHFRingEt=15,
-	   NUM_CALOPARAMNODES=16
+	   tauCalibration=8, tauPUS=9, tauIsolation=10, tauCompress=11,
+	   jetPUS=12, jetCalibration=13,
+	   hiCentrality=14, hiQ2=15, 
+	   tauEtToHFRingEt=16,
+	   NUM_CALOPARAMNODES=17
     };
 
     CaloParams() { version_=Version; pnode_.resize(NUM_CALOPARAMNODES); }
@@ -327,6 +327,7 @@ namespace l1t {
     std::string tauCalibrationType() const { return pnode_[tauCalibration].type_; }
     std::vector<double> tauCalibrationParams() { return pnode_[tauCalibration].dparams_; }
     l1t::LUT* tauCalibrationLUT() { return &pnode_[tauCalibration].LUT_; }
+    l1t::LUT* tauCompressLUT() { return &pnode_[tauCompress].LUT_; }
 
     l1t::LUT* tauEtToHFRingEtLUT() { return &pnode_[tauEtToHFRingEt].LUT_; }
 
@@ -354,6 +355,7 @@ namespace l1t {
 
     void setTauCalibrationParams(std::vector<double> params) { pnode_[tauCalibration].dparams_ = params; }
     void setTauCalibrationLUT(const l1t::LUT & lut) { pnode_[tauCalibration].LUT_ = lut; }
+    void setTauCompressLUT(const l1t::LUT & lut) { pnode_[tauCompress].LUT_ = lut; }
     void setTauPUSParams(const std::vector<double> & params) { pnode_[tauPUS].dparams_ = params; }
 
     void setTauEtToHFRingEtLUT(const l1t::LUT & lut) { pnode_[tauEtToHFRingEt].LUT_ = lut; }
