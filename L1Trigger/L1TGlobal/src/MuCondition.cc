@@ -417,12 +417,10 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
       << std::endl;
 
 
-//    if ( !checkThreshold(objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
-      if ( !checkThreshold(objPar.ptLowThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
+      if ( !checkThreshold(objPar.ptLowThreshold, objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
 	LogDebug("L1TGlobal") << "\t\t Muon Failed checkThreshold " << std::endl;
 	return false;
       }
-//    }
 
 
     // check eta

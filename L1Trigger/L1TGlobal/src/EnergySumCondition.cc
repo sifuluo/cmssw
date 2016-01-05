@@ -203,7 +203,7 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
     bool condGEqVal = m_gtEnergySumTemplate->condGEq();
 
     // check energy threshold
-    if ( !checkThreshold(objPar.etThreshold, candEt, condGEqVal) ) {
+    if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, candEt, condGEqVal) ) {
       LogDebug("l1t|Global") << "\t\t l1t::EtSum failed checkThreshold" << std::endl;
         return false;
     }

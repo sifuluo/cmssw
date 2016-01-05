@@ -2563,7 +2563,10 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
       if( !getXMLHexTextValue(str_condCalo, dst) ) return false;
       //if( cnt<nrObj ) objParameter[cnt].etThreshold = dst;
       /// DMP: Use dec instead of hex
-      if( cnt<nrObj ) objParameter[cnt].etThreshold = objPar->etThreshold();
+      if( cnt<nrObj ) {
+         objParameter[cnt].etLowThreshold = objPar->etThreshold();
+         objParameter[cnt].etHighThreshold = 999; //not implemented in old grammar
+      }
 
       // Eta Range
       //str_condCalo = "ffff";
@@ -2642,7 +2645,7 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
       // Output for debugging
       LogDebug("TriggerMenuXmlParser") 
 	<< "\n      Calo ET high threshold (hex) for calo object " << cnt << " = "
-	<< std::hex << objParameter[cnt].etThreshold << std::dec
+	<< std::hex << objParameter[cnt].etLowThreshold << std::dec
 	<< "\n      etaWindow (hex) for calo object " << cnt << " = "
 	<< std::hex << objParameter[cnt].etaRange << std::dec
 	<< "\n      phiRange (hex) for calo object " << cnt << " = "
@@ -2941,7 +2944,8 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
        relativeBx = object.getBxOffset();
 
 //  Loop over the cuts for this object
-        int thresholdInd = 0;
+        int upperThresholdInd = -1;
+	int lowerThresholdInd = 0;
         int cntEta = 0;
         unsigned int etaWindow1Lower=-1, etaWindow1Upper=-1, etaWindow2Lower=-1, etaWindow2Upper=-1;
 	int cntPhi = 0;
@@ -2957,7 +2961,8 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
 	 
 	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
-	       thresholdInd = cut.getMinimum().index;
+	       lowerThresholdInd = cut.getMinimum().index;
+	       upperThresholdInd = cut.getMaximum().index;
 	       break;
 	     case esCutType::Eta: {
 	       
@@ -3017,7 +3022,8 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
         } //end loop over cuts
 
 // Fill the object parameters
-        objParameter[cnt].etThreshold        = thresholdInd;
+	objParameter[cnt].etHighThreshold = upperThresholdInd;
+	objParameter[cnt].etLowThreshold  = lowerThresholdInd;
 	objParameter[cnt].etaWindow1Lower     = etaWindow1Lower;
 	objParameter[cnt].etaWindow1Upper     = etaWindow1Upper;
 	objParameter[cnt].etaWindow2Lower = etaWindow2Lower;
@@ -3031,8 +3037,8 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
 
       // Output for debugging
       LogDebug("TriggerMenuXmlParser") 
-	<< "\n      Calo ET high threshold (hex) for calo object " << caloObjType << " " << cnt << " = "
-	<< std::hex << objParameter[cnt].etThreshold << std::dec
+	<< "\n      Calo ET high thresholds (hex) for calo object " << caloObjType << " " << cnt << " = "
+	<< std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold << std::dec
 	<< "\n      etaWindow (hex) for calo object " << cnt << " = "
 	<< std::hex << objParameter[cnt].etaRange << std::dec
 	<< "\n      phiRange (hex) for calo object " << cnt << " = "
@@ -3215,7 +3221,8 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
     relativeBx = corrCalo->getBxOffset();
 
 //  Loop over the cuts for this object
-     int thresholdInd = 0;
+     int upperThresholdInd = -1;
+     int lowerThresholdInd = 0;
      int cntEta = 0;
      unsigned int etaWindow1Lower=-1, etaWindow1Upper=-1, etaWindow2Lower=-1, etaWindow2Upper=-1;
      int cntPhi = 0;
@@ -3231,7 +3238,8 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
 
        switch(cut.getCutType()){
 	  case esCutType::Threshold:
-	    thresholdInd = cut.getMinimum().index;
+	    lowerThresholdInd = cut.getMinimum().index;
+	    upperThresholdInd = cut.getMaximum().index;
 	    break;
 	  case esCutType::Eta: {
 
@@ -3291,22 +3299,23 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
      } //end loop over cuts
 
 // Fill the object parameters
-     objParameter[0].etThreshold        = thresholdInd;
-     objParameter[0].etaWindow1Lower     = etaWindow1Lower;
-     objParameter[0].etaWindow1Upper     = etaWindow1Upper;
+     objParameter[0].etLowThreshold  = lowerThresholdInd;
+     objParameter[0].etHighThreshold = upperThresholdInd;
+     objParameter[0].etaWindow1Lower = etaWindow1Lower;
+     objParameter[0].etaWindow1Upper = etaWindow1Upper;
      objParameter[0].etaWindow2Lower = etaWindow2Lower;
      objParameter[0].etaWindow2Upper = etaWindow2Upper;
-     objParameter[0].phiWindow1Lower     = phiWindow1Lower;
-     objParameter[0].phiWindow1Upper     = phiWindow1Upper;
+     objParameter[0].phiWindow1Lower = phiWindow1Lower;
+     objParameter[0].phiWindow1Upper = phiWindow1Upper;
      objParameter[0].phiWindow2Lower = phiWindow2Lower;
      objParameter[0].phiWindow2Upper = phiWindow2Upper;
-     objParameter[0].isolationLUT       = isolationLUT;
-     objParameter[0].qualityLUT         = qualityLUT; //TO DO: Must add 
+     objParameter[0].isolationLUT    = isolationLUT;
+     objParameter[0].qualityLUT      = qualityLUT; //TO DO: Must add 
 
    // Output for debugging
    LogDebug("TriggerMenuXmlParser") 
      << "\n      Calo ET high threshold (hex) for calo object " << caloObjType << " "  << " = "
-     << std::hex << objParameter[0].etThreshold << std::dec
+     << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etHighThreshold << std::dec
      << "\n      etaWindow (hex) for calo object "  << " = "
      << std::hex << objParameter[0].etaRange << std::dec
      << "\n      phiRange (hex) for calo object "  << " = "
@@ -3478,7 +3487,8 @@ bool l1t::TriggerMenuXmlParser::parseEnergySum(l1t::EnergySumsCondition condEner
     l1t::EnergySumsObjectRequirement objPar = condEnergySum.objectRequirement();
 
     // ET Threshold
-    objParameter[cnt].etThreshold = objPar.etThreshold();
+    objParameter[cnt].etLowThreshold = objPar.etThreshold();
+    objParameter[cnt].etLowThreshold = 999; //not implemented in old grammar
 
     int cntPhi=0;
     unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
@@ -3504,7 +3514,7 @@ bool l1t::TriggerMenuXmlParser::parseEnergySum(l1t::EnergySumsCondition condEner
     // Output for debugging
     LogDebug("TriggerMenuXmlParser") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
-      << std::hex << objParameter[cnt].etThreshold << std::dec
+      << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold <<std::dec
       << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
       << objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
       << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
@@ -3749,7 +3759,8 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
        relativeBx = object.getBxOffset();
 
 //  Loop over the cuts for this object
-        int thresholdInd = 0;
+        int lowerThresholdInd = 0;
+	int upperThresholdInd = -1;
 	int cntPhi = 0;
 	unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
 		
@@ -3761,7 +3772,8 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
 	 
 	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
-	       thresholdInd = cut.getMinimum().index;
+	       lowerThresholdInd = cut.getMinimum().index;
+	       upperThresholdInd = cut.getMaximum().index;
 	       break;
 
 	     case esCutType::Eta: 
@@ -3794,9 +3806,10 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
 
 
     // Fill the object parameters
-    objParameter[cnt].etThreshold        = thresholdInd;
-    objParameter[cnt].phiWindow1Lower     = phiWindow1Lower;
-    objParameter[cnt].phiWindow1Upper     = phiWindow1Upper;
+    objParameter[cnt].etLowThreshold   = lowerThresholdInd;
+    objParameter[cnt].etHighThreshold = upperThresholdInd;
+    objParameter[cnt].phiWindow1Lower = phiWindow1Lower;
+    objParameter[cnt].phiWindow1Upper = phiWindow1Upper;
     objParameter[cnt].phiWindow2Lower = phiWindow2Lower;
     objParameter[cnt].phiWindow2Upper = phiWindow2Upper;
 
@@ -3804,7 +3817,7 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
     // Output for debugging
     LogDebug("TriggerMenuXmlParser") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
-      << std::hex << objParameter[cnt].etThreshold << std::dec
+      << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold << std::dec
       << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
       << objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
       << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
@@ -3946,7 +3959,8 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
    relativeBx = corrESum->getBxOffset();
 
 //  Loop over the cuts for this object
-    int thresholdInd = 0;
+    int lowerThresholdInd = 0;
+    int upperThresholdInd = -1;
     int cntPhi = 0;
     unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
 
@@ -3958,7 +3972,8 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
 
       switch(cut.getCutType()){
 	 case esCutType::Threshold:
-	   thresholdInd = cut.getMinimum().index;
+	   lowerThresholdInd = cut.getMinimum().index;
+	   upperThresholdInd = cut.getMaximum().index;
 	   break;
 
 	 case esCutType::Eta: 
@@ -3991,9 +4006,10 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
 
 
     // Fill the object parameters
-    objParameter[0].etThreshold        = thresholdInd;
-    objParameter[0].phiWindow1Lower     = phiWindow1Lower;
-    objParameter[0].phiWindow1Upper     = phiWindow1Upper;
+    objParameter[0].etLowThreshold  = lowerThresholdInd;
+    objParameter[0].etHighThreshold = upperThresholdInd;
+    objParameter[0].phiWindow1Lower = phiWindow1Lower;
+    objParameter[0].phiWindow1Upper = phiWindow1Upper;
     objParameter[0].phiWindow2Lower = phiWindow2Lower;
     objParameter[0].phiWindow2Upper = phiWindow2Upper;
 
@@ -4001,7 +4017,7 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
     // Output for debugging
     LogDebug("TriggerMenuXmlParser") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
-      << std::hex << objParameter[0].etThreshold << std::dec
+      << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etLowThreshold << std::dec
       << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
       << objParameter[0].phiWindow1Lower << " / " << objParameter[0].phiWindow1Upper
       << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "

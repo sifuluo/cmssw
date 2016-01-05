@@ -525,7 +525,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
       << "\n CaloTemplate: "
       << "\n\t condRelativeBx = " << m_gtCaloTemplate->condRelativeBx()
       << "\n ObjectParameter : "
-      << "\n\t etThreshold = " << objPar.etThreshold
+      << "\n\t etThreshold = " << objPar.etLowThreshold << " - " << objPar.etHighThreshold
       << "\n\t etaRange    = " << objPar.etaRange
       << "\n\t phiRange    = " << objPar.phiRange
       << "\n\t isolationLUT= " << objPar.isolationLUT
@@ -540,7 +540,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
 
 
     // check energy threshold
-    if ( !checkThreshold(objPar.etThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
+    if ( !checkThreshold(objPar.etLowThreshold, objPar.etHighThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkThreshold" << std::endl;
         return false;
     }
