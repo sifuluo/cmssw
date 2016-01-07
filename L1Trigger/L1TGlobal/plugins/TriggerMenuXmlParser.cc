@@ -2030,15 +2030,27 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
     }
 
 
-// BLW TO DO: How do we deal with these in the new format    
-//    std::string str_chargeCorrelation = l1t2string( condMu.requestedChargeCorr() );
-    std::string str_chargeCorrelation = "ig";
-    unsigned int chargeCorrelation = 0;
-    if( str_chargeCorrelation=="ig" )      chargeCorrelation = 1;
-    else if( str_chargeCorrelation=="ls" ) chargeCorrelation = 2;
-    else if( str_chargeCorrelation=="os" ) chargeCorrelation = 4;
-
-    //getXMLHexTextValue("1", dst);
+//  Look for cuts on the objects in the condition
+     unsigned int chargeCorrelation = 1;
+     const std::vector<esCut>& cuts = condMu.getCuts();      
+     for (size_t jj = 0; jj < cuts.size(); jj++)
+      {
+        const esCut cut = cuts.at(jj);
+        std::cout << "    cut name = " << cut.getName() << "\n";
+        std::cout << "    cut target = " << cut.getObjectType() << "\n";
+        std::cout << "    cut type = " << cut.getCutType() << "\n";
+        std::cout << "    cut min. value  index = " << cut.getMinimum().value << " " << cut.getMinimum().index << "\n";
+        std::cout << "    cut max. value  index = " << cut.getMaximum().value << " " << cut.getMaximum().index << "\n";
+        std::cout << "    cut data = " << cut.getData() << "\n";
+	
+	if(cut.getCutType() == esCutType::ChargeCorrelation) { 
+	   if( cut.getData()=="ls" )      chargeCorrelation = 2;
+	   else if( cut.getData()=="os" ) chargeCorrelation = 4;
+	   else chargeCorrelation = 1; //ignore correlation
+        }
+      }
+   
+    //set charge correlation parameter
     corrParameter.chargeCorrelation = chargeCorrelation;//tmpValues[0];
 
 
@@ -2067,7 +2079,7 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
 	int cntPhi = 0;
 	unsigned int phiWindow1Lower=-1, phiWindow1Upper=-1, phiWindow2Lower=-1, phiWindow2Upper=-1;
         int isolationLUT = 0xF; //default is to ignore unless specified.
-	int charge = -1;
+	int charge = -1; //default value is to ignore unless specified
 	int qualityLUT = 0xFFFF; //default is to ignore unless specified.		
 	
         const std::vector<esCut>& cuts = object.getCuts();
@@ -2116,7 +2128,10 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
 	       }break;
 	       
 	     case esCutType::Charge:
-	       // charge = cut->get ???  //BLW TO DO: What do we do here.
+               std::cout << "Found Charge Cut " << std::endl;
+	       if( cut.getData()=="positive" ) charge = 0;
+               else if( cut.getData()=="negative" ) charge = 1;
+	       else charge = -1;
 	       break;
 	     case esCutType::Quality:
 	     
@@ -2353,7 +2368,10 @@ bool l1t::TriggerMenuXmlParser::parseMuonCorr(const tmeventsetup::esObject* corr
 	   }break;
 
 	 case esCutType::Charge:
-	   // charge = cut->get ???  //BLW TO DO: What do we do here.
+	   std::cout << "Found Charge Cut " << std::endl;  
+	   if( cut.getData()=="positive" ) charge = 0;
+           else if( cut.getData()=="negative" ) charge = 1;
+	   else charge = -1; 
 	   break;
 	 case esCutType::Quality:
 

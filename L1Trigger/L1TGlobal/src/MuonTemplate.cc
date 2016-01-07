@@ -117,6 +117,8 @@ void MuonTemplate::print(std::ostream& myCout) const
         << std::hex << m_objectParameter[i].enableIso << std::endl;
         myCout << "    requestIso        = "
         << std::hex << m_objectParameter[i].requestIso << std::endl;
+	myCout << "    charge            ="
+	<< std::dec << m_objectParameter[i].charge << std::endl;
         myCout << "    qualityLUT        = "
         << std::hex << m_objectParameter[i].qualityLUT << std::endl;
         myCout << "    isolationLUT      = "

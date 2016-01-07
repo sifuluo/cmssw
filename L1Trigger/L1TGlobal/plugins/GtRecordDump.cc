@@ -257,6 +257,7 @@ namespace l1t {
 		     cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
 		     cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
 		     cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;
+		     cout << "   Chrg "<< std::dec << std::setw(1) << mu->hwCharge();
 		     cout << endl;
 		     nObj++;
 		 }

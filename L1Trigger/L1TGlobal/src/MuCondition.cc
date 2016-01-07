@@ -231,6 +231,9 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
         // charge ignore bit (D0) not set?
         if ((chargeCorr & 1) == 0) {
 
+
+          LogDebug("l1t|Global") << "===> MuCondition:: Checking Charge Correlation" << std::endl;
+
 	  for (int i = 0; i < nObjInCond; i++) {
 	    // check valid charge - skip if invalid charge
 	    int chargeValid = (candVec->at(useBx,index[i]))->hwChargeValid(); //BLW Change for BXVector
@@ -242,6 +245,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 	  }
 
 	  if ( !tmpResult) {
+	    LogDebug("l1t|Global") << "===> MuCondition:: Charge Correlation Failed...No Valid Charges" << std::endl;
 	    continue;
 	  }
 
@@ -251,15 +255,19 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 	    // find out if signs are equal
 	    bool equalSigns = true;
 	    for (int i = 0; i < nObjInCond-1; i++) {
-	      if ((candVec->at(useBx,index[i]))->charge() != (candVec->at(useBx,index[i+1]))->charge()) { //BLW Change for BXVector
+	      if ((candVec->at(useBx,index[i]))->hwCharge() != (candVec->at(useBx,index[i+1]))->hwCharge()) { //BLW Change for BXVector
 		equalSigns = false;
 		break;
 	      }
 	    }
-
+             
+	     
+	     LogDebug("l1t|Global") << "===> MuCondition:: Checking Charge Correlation equalSigns = " << equalSigns << std::endl;
+	     
 	    // two or three particle condition
 	    if (nObjInCond == 2 || nObjInCond == 3) {
 	      if( !( ((chargeCorr & 2)!=0 && equalSigns) || ((chargeCorr & 4)!=0 && !equalSigns) ) ){
+	        LogDebug("l1t|Global") << "===> MuCondition:: 2/3 Muon Fail Charge Correlation Condition =" << chargeCorr << std::endl;
 		continue;
 	      }
 	    }
@@ -268,12 +276,13 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
 	      unsigned int posCount = 0;
 
 	      for (int i = 0; i < nObjInCond; i++) {
-		if ((candVec->at(useBx,index[i]))->charge()> 0) {  //BLW Change for BXVector
+		if ((candVec->at(useBx,index[i]))->hwCharge()> 0) {  //BLW Change for BXVector
 		  posCount++;
 		}
 	      }
 
 	      if( !( ((chargeCorr & 2)!=0 && equalSigns) || ((chargeCorr & 4)!=0 && posCount==2) ) ){
+	        LogDebug("l1t|Global") << "===> MuCondition:: 4 Muon Fail Charge Correlation Condition = " << chargeCorr << " posCnt " << posCount << std::endl;
 		continue;
 	      }
 	    }
@@ -388,32 +397,32 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
     //       OK, trigger
 
     LogDebug("L1TGlobal")
-      << "\n MuonTemplate::ObjectParameter : "
-      << "\n\t ptHighThreshold = " << objPar.ptHighThreshold 
-      << "\n\t ptLowThreshold  = " << objPar.ptLowThreshold
-      << "\n\t requestIso      = " << objPar.requestIso
-      << "\n\t enableIso       = " << objPar.enableIso
-      << "\n\t etaRange        = " << objPar.etaRange
-      << "\n\t phiLow          = " << objPar.phiLow
-      << "\n\t phiHigh         = " << objPar.phiHigh
-      << "\n\t phiWindow1Lower = " << objPar.phiWindow1Lower
-      << "\n\t phiWindow1Upper = " << objPar.phiWindow1Upper
-      << "\n\t phiWindow2Lower = " << objPar.phiWindow2Lower
-      << "\n\t phiWindow2Lower = " << objPar.phiWindow2Lower
-      << "\n\t charge          = " << objPar.charge
-      << "\n\t qualityLUT      = " << objPar.qualityLUT
-      << "\n\t isolationLUT    = " << objPar.isolationLUT
-      << "\n\t enableMip       = " << objPar.enableMip
+      << "\n MuonTemplate::ObjectParameter : " << std::hex
+      << "\n\t ptHighThreshold = 0x " << objPar.ptHighThreshold 
+      << "\n\t ptLowThreshold  = 0x " << objPar.ptLowThreshold
+      << "\n\t requestIso      = 0x " << objPar.requestIso
+      << "\n\t enableIso       = 0x " << objPar.enableIso
+      << "\n\t etaRange        = 0x " << objPar.etaRange
+      << "\n\t phiLow          = 0x " << objPar.phiLow
+      << "\n\t phiHigh         = 0x " << objPar.phiHigh
+      << "\n\t phiWindow1Lower = 0x " << objPar.phiWindow1Lower
+      << "\n\t phiWindow1Upper = 0x " << objPar.phiWindow1Upper
+      << "\n\t phiWindow2Lower = 0x " << objPar.phiWindow2Lower
+      << "\n\t phiWindow2Lower = 0x " << objPar.phiWindow2Lower
+      << "\n\t charge          = 0x " << objPar.charge
+      << "\n\t qualityLUT      = 0x " << objPar.qualityLUT
+      << "\n\t isolationLUT    = 0x " << objPar.isolationLUT
+      << "\n\t enableMip       = 0x " << objPar.enableMip
       << std::endl;
 
     LogDebug("L1TGlobal")
       << "\n l1t::Muon : "
-      << "\n\t hwPt   = " <<  cand.hwPt()
-      << "\n\t hwEta  = " << cand.hwEta()
-      << "\n\t hwPhi  = " << cand.hwPhi()
-      << "\n\t hwCharge = " << cand.hwCharge()
-      << "\n\t hwQual = " << cand.hwQual()
-      << "\n\t hwIso  = " << cand.hwIso()
+      << "\n\t hwPt     = 0x " <<  cand.hwPt()
+      << "\n\t hwEta    = 0x " << cand.hwEta()
+      << "\n\t hwPhi    = 0x " << cand.hwPhi()
+      << "\n\t hwCharge = 0x " << cand.hwCharge()
+      << "\n\t hwQual   = 0x " << cand.hwQual()
+      << "\n\t hwIso    = 0x " << cand.hwIso() << std::dec
       << std::endl;
 
 
