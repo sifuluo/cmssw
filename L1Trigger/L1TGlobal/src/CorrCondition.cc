@@ -357,6 +357,8 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
     int etIndex1  = 0;
     double et1Phy = 0.;
     
+    int chrg0 = -1;
+    int chrg1 = -1;
 
     LogTrace("L1TGlobal")
             << "  Sub-condition 0: std::vector<SingleCombInCond> size: "
@@ -393,6 +395,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                 phiIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
                 etaIndex0 =  (candMuVec->at(bxEval,obj0Index))->hwEta();
 		etIndex0  =  (candMuVec->at(bxEval,obj0Index))->hwPt();
+		chrg0     =  (candMuVec->at(bxEval,obj0Index))->hwCharge();
 		
 		//Scales need to come from the Menu (FIX ME)
 		phi0Phy = phiIndex0 * 1.0908307824964559E-02;
@@ -495,6 +498,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                    phiIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwPhi(); //(*candMuVec)[obj0Index]->phiIndex();
                    etaIndex1 =  (candMuVec->at(bxEval,obj1Index))->hwEta();
 		   etIndex1  =  (candMuVec->at(bxEval,obj1Index))->hwPt();
+		   chrg1     =  (candMuVec->at(bxEval,obj1Index))->hwCharge();
 		   
 		   //Scales need to come from the Menu (FIX ME)
 		   phi1Phy = phiIndex1 * 1.0908307824964559E-02;
@@ -563,9 +567,10 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                         << l1GtObjectEnumToString(cndObjTypeVec[1])
                         << "] with collection indices [" << obj0Index << ", "
                         << obj1Index << "] " << " has: \n"
-			<< "     Et  value   = ["<< etIndex0  << ", " << etIndex1 <<  "]\n"
+			<< "     Et  value   = ["<< etIndex0  << ", " << etIndex1  << "]\n"
 			<< "     phi indices = ["<< phiIndex0 << ", " << phiIndex1 << "]\n"
-			<< "     eta indices = ["<< etaIndex0 << ", " << etaIndex1 << "]\n" << std::endl;
+			<< "     eta indices = ["<< etaIndex0 << ", " << etaIndex1 << "]\n" 
+			<< "     chrg        = ["<< chrg0     << ", " << chrg1     << "]\n"<< std::endl;
             }
 
 
@@ -715,10 +720,17 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	       
 	    } //end switch statment
 
+// For Muon-Muon Correlation Check the Charge Correlation if requested
+            bool chrgCorrel = true;
+	    if(cond0Categ==CondMuon && cond1Categ==CondMuon) {
+	      // Check for like-sign
+	      if(corrPar.chargeCorrelation==2 && chrg0 != chrg1 ) chrgCorrel = false;  
+	      // Check for opp-sign
+	      if(corrPar.chargeCorrelation==4 && chrg0 == chrg1 ) chrgCorrel = false;
+	    }
 
 
-
-            if (reqResult) {
+            if (reqResult & chrgCorrel) {
 
                 condResult = true;
                 (combinationsInCond()).push_back(objectsInComb);

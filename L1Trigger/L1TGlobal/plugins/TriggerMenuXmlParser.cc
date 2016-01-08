@@ -2036,13 +2036,6 @@ bool l1t::TriggerMenuXmlParser::parseMuonV2(tmeventsetup::esCondition condMu,
      for (size_t jj = 0; jj < cuts.size(); jj++)
       {
         const esCut cut = cuts.at(jj);
-        std::cout << "    cut name = " << cut.getName() << "\n";
-        std::cout << "    cut target = " << cut.getObjectType() << "\n";
-        std::cout << "    cut type = " << cut.getCutType() << "\n";
-        std::cout << "    cut min. value  index = " << cut.getMinimum().value << " " << cut.getMinimum().index << "\n";
-        std::cout << "    cut max. value  index = " << cut.getMaximum().value << " " << cut.getMaximum().index << "\n";
-        std::cout << "    cut data = " << cut.getData() << "\n";
-	
 	if(cut.getCutType() == esCutType::ChargeCorrelation) { 
 	   if( cut.getData()=="ls" )      chargeCorrelation = 2;
 	   else if( cut.getData()=="os" ) chargeCorrelation = 4;
@@ -4658,6 +4651,7 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
 
     // Storage of the correlation selection
     CorrelationTemplate::CorrelationParameter corrParameter;
+    corrParameter.chargeCorrelation = 1; //ignore charge correlation
 
 // Get the correlation Cuts on the legs
         
@@ -4665,16 +4659,24 @@ bool l1t::TriggerMenuXmlParser::parseCorrelationV2(
       for (size_t jj = 0; jj < cuts.size(); jj++)
       {
         const esCut cut = cuts.at(jj);
-/*        std::cout << "    cut name = " << cut->getName() << "\n";
-        std::cout << "    cut target = " << cut->getObjectType() << "\n";
-        std::cout << "    cut type = " << cut->getCutType() << "\n";
-        std::cout << "    cut min. value  index = " << cut->getMinimum().value << " " << cut->getMinimum().index << "\n";
-        std::cout << "    cut max. value  index = " << cut->getMaximum().value << " " << cut->getMaximum().index << "\n";
-        std::cout << "    cut data = " << cut->getData() << "\n";
-*/
-        corrParameter.corrCutType = cut.getCutType();
-	corrParameter.minCutValue = cut.getMinimum().value;
-	corrParameter.maxCutValue = cut.getMaximum().value;
+        std::cout << "    cut name = " << cut.getName() << "\n";
+        std::cout << "    cut target = " << cut.getObjectType() << "\n";
+        std::cout << "    cut type = " << cut.getCutType() << "\n";
+        std::cout << "    cut min. value  index = " << cut.getMinimum().value << " " << cut.getMinimum().index << "\n";
+        std::cout << "    cut max. value  index = " << cut.getMaximum().value << " " << cut.getMaximum().index << "\n";
+        std::cout << "    cut data = " << cut.getData() << "\n";
+
+
+	if(cut.getCutType() == esCutType::ChargeCorrelation) { 
+	   if( cut.getData()=="ls" )      corrParameter.chargeCorrelation = 2;
+	   else if( cut.getData()=="os" ) corrParameter.chargeCorrelation = 4;
+	   else corrParameter.chargeCorrelation = 1; //ignore charge correlation
+        } else {
+	  //keep the type from what the correlation is.
+          corrParameter.corrCutType = cut.getCutType();
+	  corrParameter.minCutValue = cut.getMinimum().value;
+	  corrParameter.maxCutValue = cut.getMaximum().value;
+	}  
 
       }
 
