@@ -82,7 +82,6 @@ using namespace l1t;
     int verbosity_;
 
     int bxFirst_, bxLast_; // bx range to process
-    int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
 
     std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
     std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
@@ -104,10 +103,6 @@ L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
   verbosity_(ps.getParameter<int>("verbosity")),
   bxFirst_(ps.getParameter<int>("bxFirst")),
   bxLast_(ps.getParameter<int>("bxLast")),
-  ietaMin_(-32),
-  ietaMax_(32),
-  iphiMin_(1),
-  iphiMax_(72),
   ecalToken_(bxLast_+1-bxFirst_),
   hcalToken_(bxLast_+1-bxFirst_),
   paramsCacheId_(0),
@@ -173,7 +168,7 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create input and output tower vectors for this BX
-    std::auto_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()));
+    std::auto_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()+1));
     std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>()); //this is later filled to the same size as localInTowers
 
     // loop over ECAL TPs
@@ -209,9 +204,10 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
       int ieta = hcalItr->id().ieta();
       int iphi = hcalItr->id().iphi();
+      int ver  = hcalItr->id().version();
 
-      // we don't know how to deal with HF yet, so skip this
-      if (abs(ieta)>CaloTools::kHBHEEnd) continue;
+      // check for old HF TPs
+      if (abs(ieta)>=CaloTools::kHFBegin && ver!=1) continue;
 
       int ietIn = hcalItr->SOI_compressedEt();
       int ifg = hcalItr->SOI_fineGrain();
@@ -224,7 +220,8 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if (ietIn>0)
 	LogDebug("L1TDebug") << " HCAL TP : " << ieta << ", " << iphi << ", " << ietIn << ", " << et << ", " << ietOut << std::endl;
 
-      int itow = CaloTools::caloTowerHash(ieta, iphi);
+      unsigned itow = CaloTools::caloTowerHash(ieta, iphi);
+
       localInTowers->at(itow).setHwEtHad(ietOut);// & ietOutMask);
       //      towers.at(itow).setHwFGHad(ifg);
       localInTowers->at(itow).setHwQual( localInTowers->at(itow).hwQual() | (ifg ? 0x4 : 0x0) ); //HCAL FG bit is supposed to be on bit 2
@@ -232,13 +229,13 @@ L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     // now calculate remaining tower quantities
-    for (int ieta=ietaMin_; ieta<ietaMax_+1; ieta++) {
+    for (int ieta=-1*CaloTools::kHFEnd; ieta<=CaloTools::kHFEnd; ieta++) {
 
-      for (int iphi=iphiMin_; iphi<iphiMax_+1; iphi++) {
+      for (int iphi=0; iphi<=CaloTools::kHBHENrPhi; iphi++) {
 
 	if(!CaloTools::isValidIEtaIPhi(ieta,iphi)) continue;
 
-	int itow = CaloTools::caloTowerHash(ieta, iphi);
+	unsigned itow = CaloTools::caloTowerHash(ieta, iphi);
 
 	// get ECAL/HCAL raw numbers
 	int ietEcal = localInTowers->at(itow).hwEtEm();
