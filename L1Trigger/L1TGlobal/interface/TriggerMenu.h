@@ -27,6 +27,8 @@
 // user include files
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
@@ -37,6 +39,7 @@
 // forward declarations
 class GtCondition;
 class L1GtAlgorithm;
+class L1TGlobalScales;
 
 // class declaration
 class TriggerMenu
@@ -189,6 +192,14 @@ public:
 
     void setGtAlgorithmAliasMap(const l1t::AlgorithmMap&);
 
+
+   /// get the scales
+    inline const l1t::L1TGlobalScales& gtScales() const {
+        return m_gtScales;
+    }
+    
+    void setGtScales(const l1t::L1TGlobalScales&);
+
 /*
     /// get / set the technical trigger map
     inline const l1t::AlgorithmMap& gtTechnicalTriggerMap() const {
@@ -244,6 +255,9 @@ private:
 
     /// map containing the technical triggers
 //    l1t::AlgorithmMap m_technicalTriggerMap;
+
+    // class containing the scales from the L1 Menu XML
+    l1t::L1TGlobalScales m_gtScales;
 
 
 };

@@ -320,6 +320,11 @@ void TriggerMenu::setGtScaleDbKey(const std::string& scaleKey) {
     m_scaleDbKey = scaleKey;
 }
 
+// set menu associated scale key
+void TriggerMenu::setGtScales(const l1t::L1TGlobalScales& scales) {
+    m_gtScales = scales;
+}
+
 // get / set the vectors containing the conditions
 void TriggerMenu::setVecMuonTemplate(
         const std::vector<std::vector<MuonTemplate> >& vecMuonTempl) {

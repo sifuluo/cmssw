@@ -298,7 +298,6 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
     // error handler for xml-parser
     m_xmlErrHandler = 0;
 
-
    // LogTrace("TriggerMenuXmlParser") << "\nOpening XML-File V2: \n  " << defXmlFile << std::endl;
 
   LogDebug("TriggerMenuXmlParser") << "\nOpening XML-File V2: \n  " << defXmlFile << std::endl;
@@ -318,8 +317,14 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
 
   const std::map<long, esAlgorithm>& algoMap = menu->getAlgorithmMap();
   const std::map<long, esCondition>& condMap = menu->getConditionMap();
-//  const std::map<std::string, esScale*>& scaleMap = menu->getScaleMap();
+  const std::map<std::string, esScale>& scaleMap = menu->getScaleMap();
 
+  // parse the scales
+  m_gtScales.setScalesName( menu->getScaleSetName() );
+  parseScales(scaleMap);
+
+
+  //loop over the algorithms
   for (std::map<long, esAlgorithm>::const_iterator cit = algoMap.begin();
        cit != algoMap.end(); cit++)
   {
@@ -1576,6 +1581,125 @@ int l1t::TriggerMenuXmlParser::l1tstr2int( const std::string data ){
 
 
 /**
+ * parseScales Parse Et, Eta, and Phi Scales
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool l1t::TriggerMenuXmlParser::parseScales(std::map<std::string, tmeventsetup::esScale> scaleMap) {
+	
+    using namespace tmeventsetup;
+ 
+//  Setup ScaleParameter to hold information from parsing
+    L1TGlobalScales::ScaleParameters muScales; 
+    L1TGlobalScales::ScaleParameters egScales; 
+    L1TGlobalScales::ScaleParameters tauScales;
+    L1TGlobalScales::ScaleParameters jetScales;
+    L1TGlobalScales::ScaleParameters ettScales;
+    L1TGlobalScales::ScaleParameters etmScales;
+    L1TGlobalScales::ScaleParameters httScales;
+    L1TGlobalScales::ScaleParameters htmScales; 
+ 
+// Start by parsing the Scale Map
+    for (std::map<std::string, esScale>::const_iterator cit = scaleMap.begin();
+       cit != scaleMap.end(); cit++)
+  {
+     const esScale& scale = cit->second;
+ 
+    L1TGlobalScales::ScaleParameters *scaleParam;
+    if      (scale.getObjectType() == esObjectType::Muon)   scaleParam = &muScales;
+    else if (scale.getObjectType() == esObjectType::Egamma) scaleParam = &egScales;
+    else if (scale.getObjectType() == esObjectType::Tau)    scaleParam = &tauScales;
+    else if (scale.getObjectType() == esObjectType::Jet)    scaleParam = &jetScales;
+    else if (scale.getObjectType() == esObjectType::ETT)    scaleParam = &ettScales;
+    else if (scale.getObjectType() == esObjectType::ETM)    scaleParam = &etmScales;
+    else if (scale.getObjectType() == esObjectType::HTT)    scaleParam = &httScales;
+    else if (scale.getObjectType() == esObjectType::HTM)    scaleParam = &htmScales;
+    else scaleParam = 0;
+    
+    if(scaleParam != 0) {	
+        switch(scale.getScaleType()) {
+	    case esScaleType::EtScale: {
+	        scaleParam->etMin  = scale.getMinimum();
+		scaleParam->etMax  = scale.getMaximum();
+		scaleParam->etStep = scale.getStep();
+		
+		//Get bin edges
+		const std::vector<esBin>* binsV = scale.getBins();
+		for(unsigned int i=0; i<binsV->size(); i++) {
+		   const esBin& bin = binsV->at(i); 
+		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
+		   scaleParam->etBins.push_back(binLimits);
+		}
+		
+		// If this is an energy sum fill dummy values for eta and phi
+		// There are no scales for these in the XML so the other case statements will not be seen....do it here.
+		if(scale.getObjectType() == esObjectType::ETT || scale.getObjectType() == esObjectType::HTT || 
+		   scale.getObjectType() == esObjectType::ETM || scale.getObjectType() == esObjectType::HTM ) {
+		   
+	           scaleParam->etaMin  = -1.;
+		   scaleParam->etaMax  = -1.;
+		   scaleParam->etaStep = -1.;		   
+		   if(scale.getObjectType() == esObjectType::ETT || scale.getObjectType() == esObjectType::HTT) {
+	              scaleParam->phiMin  = -1.;
+		      scaleParam->phiMax  = -1.;
+		      scaleParam->phiStep = -1.;		   		   
+		   }
+		}   
+	    }
+		break;
+	    case esScaleType::EtaScale: {
+	        scaleParam->etaMin  = scale.getMinimum();
+		scaleParam->etaMax  = scale.getMaximum();
+		scaleParam->etaStep = scale.getStep();
+		
+		//Get bin edges
+		const std::vector<esBin>* binsV = scale.getBins();
+		for(unsigned int i=0; i<binsV->size(); i++) {
+		   const esBin& bin = binsV->at(i); 
+		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
+		   scaleParam->etaBins.push_back(binLimits);
+		}
+	    }
+		break;
+	    case esScaleType::PhiScale: {
+	        scaleParam->phiMin  = scale.getMinimum();
+		scaleParam->phiMax  = scale.getMaximum();
+		scaleParam->phiStep = scale.getStep();
+		
+		//Get bin edges
+		const std::vector<esBin>* binsV = scale.getBins();
+		for(unsigned int i=0; i<binsV->size(); i++) {
+		   const esBin& bin = binsV->at(i); 
+		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
+		   scaleParam->phiBins.push_back(binLimits);
+		}
+	    }
+		break;				
+	    default:
+	    
+	        break;			
+	} //end switch 
+    } //end valid scale	
+  } //end loop over scaleMap
+  
+  // put the ScaleParameters into the class
+  m_gtScales.setMuonScales(muScales);
+  m_gtScales.setEGScales(egScales);
+  m_gtScales.setTauScales(tauScales);
+  m_gtScales.setJetScales(jetScales);
+  m_gtScales.setETTScales(ettScales);
+  m_gtScales.setETMScales(etmScales);
+  m_gtScales.setHTTScales(httScales);
+  m_gtScales.setHTMScales(htmScales);
+  
+ 
+    
+    return true;
+}
+
+/**
  * parseMuon Parse a muon condition and insert an entry to the conditions map
  *
  * @param node The corresponding node.
@@ -1797,19 +1921,15 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
       // Output for debugging
       LogDebug("TriggerMenuXmlParser") 
 	<< "\n      Muon PT high threshold (hex) for muon object " << cnt << " = "
-	<< std::hex << objParameter[cnt].ptHighThreshold << std::dec
-	<< "\n      etaWindow (hex) for muon object " << cnt << " = "
-	<< std::hex << objParameter[cnt].etaRange << std::dec
-	// << "\n      phiRange (hex) for muon object " << cnt << " = "
-	// << std::hex << objParameter[cnt].phiRange << std::dec
-	<< "\n      etaWindow Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].etaWindow1Lower << " / " << objParameter[cnt].etaWindow1Upper
-	<< "\n      etaWindowVeto Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].etaWindow2Lower << " / " << objParameter[cnt].etaWindow2Upper
-	<< "\n      phiWindow Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
-	<< "\n      phiWindowVeto Lower / Upper for muon object " << cnt << " = "
-	<< objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
+	<< std::hex << objParameter[cnt].ptHighThreshold 
+	<< "\n      etaWindow Lower / Upper for muon object " << cnt << " = 0x"
+	<< objParameter[cnt].etaWindow1Lower << " / 0x" << objParameter[cnt].etaWindow1Upper
+	<< "\n      etaWindowVeto Lower / Upper for muon object " << cnt << " = 0x"
+	<< objParameter[cnt].etaWindow2Lower << " / 0x" << objParameter[cnt].etaWindow2Upper
+	<< "\n      phiWindow Lower / Upper for muon object " << cnt << " = 0x"
+	<< objParameter[cnt].phiWindow1Lower << " / 0x" << objParameter[cnt].phiWindow1Upper
+	<< "\n      phiWindowVeto Lower / Upper for muon object " << cnt << " = 0x"
+	<< objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper << std::dec
 	<< std::endl;
 
       cnt++;
@@ -2656,19 +2776,15 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
       // Output for debugging
       LogDebug("TriggerMenuXmlParser") 
 	<< "\n      Calo ET high threshold (hex) for calo object " << cnt << " = "
-	<< std::hex << objParameter[cnt].etLowThreshold << std::dec
-	<< "\n      etaWindow (hex) for calo object " << cnt << " = "
-	<< std::hex << objParameter[cnt].etaRange << std::dec
-	<< "\n      phiRange (hex) for calo object " << cnt << " = "
-	<< std::hex << objParameter[cnt].phiRange << std::dec
-	<< "\n      etaWindow Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].etaWindow1Lower << " / " << objParameter[cnt].etaWindow1Upper
-	<< "\n      etaWindowVeto Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].etaWindow2Lower << " / " << objParameter[cnt].etaWindow2Upper
-	<< "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
-	<< "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
+	<< std::hex << objParameter[cnt].etLowThreshold 
+	<< "\n      etaWindow Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].etaWindow1Lower << " / 0x" << objParameter[cnt].etaWindow1Upper
+	<< "\n      etaWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].etaWindow2Lower << " / 0x" << objParameter[cnt].etaWindow2Upper
+	<< "\n      phiWindow Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].phiWindow1Lower << " / 0x" << objParameter[cnt].phiWindow1Upper
+	<< "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper << std::dec
 	<< std::endl;
 
       cnt++;
@@ -3049,23 +3165,19 @@ bool l1t::TriggerMenuXmlParser::parseCaloV2(tmeventsetup::esCondition condCalo,
       // Output for debugging
       LogDebug("TriggerMenuXmlParser") 
 	<< "\n      Calo ET high thresholds (hex) for calo object " << caloObjType << " " << cnt << " = "
-	<< std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold << std::dec
-	<< "\n      etaWindow (hex) for calo object " << cnt << " = "
-	<< std::hex << objParameter[cnt].etaRange << std::dec
-	<< "\n      phiRange (hex) for calo object " << cnt << " = "
-	<< std::hex << objParameter[cnt].phiRange << std::dec
-	<< "\n      etaWindow Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].etaWindow1Lower << " / " << objParameter[cnt].etaWindow1Upper
-	<< "\n      etaWindowVeto Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].etaWindow2Lower << " / " << objParameter[cnt].etaWindow2Upper
-	<< "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
-	<< "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-	<< objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
-	<< "\n      Isolation LUT for calo object " << cnt << " = "
+	<< std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold 
+	<< "\n      etaWindow Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].etaWindow1Lower << " / 0x" << objParameter[cnt].etaWindow1Upper
+	<< "\n      etaWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].etaWindow2Lower << " / 0x" << objParameter[cnt].etaWindow2Upper
+	<< "\n      phiWindow Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].phiWindow1Lower << " / 0x" << objParameter[cnt].phiWindow1Upper
+	<< "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper
+	<< "\n      Isolation LUT for calo object " << cnt << " = 0x"
 	<< objParameter[cnt].isolationLUT
-	<< "\n      Quality LUT for calo object " << cnt << " = "
-	<< objParameter[cnt].qualityLUT
+	<< "\n      Quality LUT for calo object " << cnt << " = 0x"
+	<< objParameter[cnt].qualityLUT << std::dec
 	<< std::endl;
 
       cnt++;
@@ -3326,23 +3438,19 @@ bool l1t::TriggerMenuXmlParser::parseCaloCorr(const tmeventsetup::esObject* corr
    // Output for debugging
    LogDebug("TriggerMenuXmlParser") 
      << "\n      Calo ET high threshold (hex) for calo object " << caloObjType << " "  << " = "
-     << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etHighThreshold << std::dec
-     << "\n      etaWindow (hex) for calo object "  << " = "
-     << std::hex << objParameter[0].etaRange << std::dec
-     << "\n      phiRange (hex) for calo object "  << " = "
-     << std::hex << objParameter[0].phiRange << std::dec
-     << "\n      etaWindow Lower / Upper for calo object "  << " = "
-     << objParameter[0].etaWindow1Lower << " / " << objParameter[0].etaWindow1Upper
-     << "\n      etaWindowVeto Lower / Upper for calo object "  << " = "
-     << objParameter[0].etaWindow2Lower << " / " << objParameter[0].etaWindow2Upper
-     << "\n      phiWindow Lower / Upper for calo object "  << " = "
-     << objParameter[0].phiWindow1Lower << " / " << objParameter[0].phiWindow1Upper
-     << "\n      phiWindowVeto Lower / Upper for calo object "  << " = "
-     << objParameter[0].phiWindow2Lower << " / " << objParameter[0].phiWindow2Upper
-     << "\n      Isolation LUT for calo object "  << " = "
+     << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etHighThreshold 
+     << "\n      etaWindow Lower / Upper for calo object "  << " = 0x"
+     << objParameter[0].etaWindow1Lower << " / 0x" << objParameter[0].etaWindow1Upper
+     << "\n      etaWindowVeto Lower / Upper for calo object "  << " = 0x"
+     << objParameter[0].etaWindow2Lower << " / 0x" << objParameter[0].etaWindow2Upper
+     << "\n      phiWindow Lower / Upper for calo object "  << " = 0x"
+     << objParameter[0].phiWindow1Lower << " / 0x" << objParameter[0].phiWindow1Upper
+     << "\n      phiWindowVeto Lower / Upper for calo object "  << " = 0x"
+     << objParameter[0].phiWindow2Lower << " / 0x" << objParameter[0].phiWindow2Upper
+     << "\n      Isolation LUT for calo object "  << " = 0x"
      << objParameter[0].isolationLUT
-     << "\n      Quality LUT for calo object "  << " = "
-     << objParameter[0].qualityLUT
+     << "\n      Quality LUT for calo object "  << " = 0x"
+     << objParameter[0].qualityLUT << std::dec
      << std::endl;
 
 
@@ -3525,11 +3633,11 @@ bool l1t::TriggerMenuXmlParser::parseEnergySum(l1t::EnergySumsCondition condEner
     // Output for debugging
     LogDebug("TriggerMenuXmlParser") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
-      << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold <<std::dec
-      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-      << objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
-      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-      << objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
+      << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold << std::hex 
+      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = 0x"
+      << objParameter[cnt].phiWindow1Lower << " / 0x" << objParameter[cnt].phiWindow1Upper
+      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+      << objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper <<std::dec
       << std::endl;
 
 
@@ -3828,11 +3936,11 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumV2(tmeventsetup::esCondition condE
     // Output for debugging
     LogDebug("TriggerMenuXmlParser") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
-      << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold << std::dec
-      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-      << objParameter[cnt].phiWindow1Lower << " / " << objParameter[cnt].phiWindow1Upper
-      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-      << objParameter[cnt].phiWindow2Lower << " / " << objParameter[cnt].phiWindow2Upper
+      << std::hex << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold 
+      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = 0x"
+      << objParameter[cnt].phiWindow1Lower << " / 0x" << objParameter[cnt].phiWindow1Upper
+      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+      << objParameter[cnt].phiWindow2Lower << " / 0x" << objParameter[cnt].phiWindow2Upper << std::dec
       << std::endl;
 
       cnt++;
@@ -4028,11 +4136,11 @@ bool l1t::TriggerMenuXmlParser::parseEnergySumCorr(const tmeventsetup::esObject*
     // Output for debugging
     LogDebug("TriggerMenuXmlParser") 
       << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
-      << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etLowThreshold << std::dec
-      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
-      << objParameter[0].phiWindow1Lower << " / " << objParameter[0].phiWindow1Upper
-      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
-      << objParameter[0].phiWindow2Lower << " / " << objParameter[0].phiWindow2Upper
+      << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etLowThreshold 
+      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = 0x"
+      << objParameter[0].phiWindow1Lower << " / 0x" << objParameter[0].phiWindow1Upper
+      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = 0x"
+      << objParameter[0].phiWindow2Lower << " / 0x" << objParameter[0].phiWindow2Upper << std::dec
       << std::endl;
 
     

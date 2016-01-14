@@ -41,6 +41,8 @@
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
+
 #include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 
 #include "tmEventSetup/tmEventSetup.hh"
@@ -146,6 +148,11 @@ public:
     /// menu associated scale key
     inline const std::string& gtScaleDbKey() const {
         return m_scaleDbKey;
+    }
+
+    /// menu associated scales
+    inline const L1TGlobalScales& gtScales() const {
+        return m_gtScales;
     }
 
     void setGtScaleDbKey(const std::string&);
@@ -394,6 +401,12 @@ private:
     int l1t2int( l1t::RelativeBx );
     int l1tstr2int( const std::string data );
 
+
+    /// parse scales
+/*     bool parseScale(tmeventsetup::esScale scale); */
+//    bool parseScales( tmeventsetup::esScale scale);
+	bool parseScales(std::map<std::string, tmeventsetup::esScale> scaleMap);
+ 
     /// parse a muon condition
 /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
 /*             const std::string& name, unsigned int chipNr = 0, */
@@ -581,6 +594,9 @@ private:
 
     /// map containing the technical triggers
 //    AlgorithmMap m_technicalTriggerMap;
+
+    // class containing the scales from the L1 Menu XML
+    L1TGlobalScales m_gtScales;
 
 };
 

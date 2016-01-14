@@ -227,14 +227,15 @@ boost::shared_ptr<TriggerMenu> l1t::TriggerMenuXmlProducer::produceGtTriggerMenu
     pL1uGtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
     pL1uGtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
     pL1uGtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
+    pL1uGtTriggerMenu->setGtScales(gtXmlParser.gtScales());
 
     pL1uGtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
     pL1uGtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
 //    pL1uGtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
     
     //Dump what we have
-    int verbose=2;
-    pL1uGtTriggerMenu->print(std::cout,verbose);
+    // int verbose = 2
+    // pL1uGtTriggerMenu->print(std::cout,verbose);
 
     //LogDebug("L1TGlobalConfig")
     //<< "\n\nReturning L1 Trigger Menu!"

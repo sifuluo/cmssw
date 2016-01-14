@@ -455,6 +455,9 @@ void l1t::GtBoard::runGTL(
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
+    const L1TGlobalScales& gtScales = m_l1GtMenu->gtScales();
+    const std::string scaleSetName = gtScales.getScalesName();
+    LogDebug("L1TGlobal") << " L1 Menu Scales -- Set Name: " << scaleSetName << std::endl;
 
     // Reset AlgBlk for this bx
      m_uGtAlgBlk.reset();
