@@ -19,13 +19,13 @@ MicroGMTCancelOutUnit::initialise(L1TMuonGlobalParams* microGMTParams) {
     m_boNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->bONegMatchQualLUTPath(), microGMTParams->bONegMatchQualLUTMaxDR(), cancel_t::omtf_bmtf_neg, fwVersion);
     m_foPosMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fOPosMatchQualLUTPath(), microGMTParams->fOPosMatchQualLUTMaxDR(), cancel_t::omtf_emtf_pos, fwVersion);
     m_foNegMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fONegMatchQualLUTPath(), microGMTParams->fONegMatchQualLUTMaxDR(), cancel_t::omtf_emtf_neg, fwVersion);
-    m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), microGMTParams->brlSingleMatchQualLUTMaxDR(), cancel_t::bmtf_bmtf, fwVersion);
+    //m_brlSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->brlSingleMatchQualLUTPath(), microGMTParams->brlSingleMatchQualLUTMaxDR(), cancel_t::bmtf_bmtf, fwVersion);
     m_ovlPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlPosSingleMatchQualLUTPath(), microGMTParams->ovlPosSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_pos, fwVersion);
     m_ovlNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->ovlNegSingleMatchQualLUTPath(), microGMTParams->ovlNegSingleMatchQualLUTMaxDR(), cancel_t::omtf_omtf_neg, fwVersion);
     m_fwdPosSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdPosSingleMatchQualLUTPath(), microGMTParams->fwdPosSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_pos, fwVersion);
     m_fwdNegSingleMatchQualLUT = l1t::MicroGMTMatchQualLUTFactory::create(microGMTParams->fwdNegSingleMatchQualLUTPath(), microGMTParams->fwdNegSingleMatchQualLUTMaxDR(), cancel_t::emtf_emtf_neg, fwVersion);
 
-    m_lutDict[tftype::bmtf+tftype::bmtf*10] = m_brlSingleMatchQualLUT;
+    //m_lutDict[tftype::bmtf+tftype::bmtf*10] = m_brlSingleMatchQualLUT;
     m_lutDict[tftype::omtf_neg+tftype::bmtf*10] = m_boNegMatchQualLUT;
     m_lutDict[tftype::omtf_pos+tftype::bmtf*10] = m_boPosMatchQualLUT;
     m_lutDict[tftype::omtf_pos+tftype::omtf_pos*10] = m_ovlPosSingleMatchQualLUT;
