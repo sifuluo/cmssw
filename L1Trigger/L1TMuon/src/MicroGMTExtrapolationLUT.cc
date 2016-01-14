@@ -1,9 +1,13 @@
 #include "../interface/MicroGMTExtrapolationLUT.h"
 
-l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fname) : MicroGMTLUT(), m_etaRedInWidth(6), m_ptRedInWidth(6)
+l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fname, const int type) : MicroGMTLUT(), m_etaRedInWidth(6), m_ptRedInWidth(6)
 {
   m_totalInWidth = m_ptRedInWidth + m_etaRedInWidth;
-  m_outWidth = 4;
+  if (type == MicroGMTConfiguration::ETA_OUT) {
+    m_outWidth = 4;
+  } else {
+    m_outWidth = 3;
+  }
 
   m_ptRedMask = (1 << m_ptRedInWidth) - 1;
   m_etaRedMask = ((1 << m_etaRedInWidth) - 1) << m_ptRedInWidth;

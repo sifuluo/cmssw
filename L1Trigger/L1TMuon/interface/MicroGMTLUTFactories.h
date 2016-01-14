@@ -39,7 +39,7 @@ namespace l1t {
 
       typedef std::shared_ptr<MicroGMTExtrapolationLUT> ReturnType;
 
-      static ReturnType create(const std::string& filename, const int fwVersion);
+      static ReturnType create(const std::string& filename, const int type, const int fwVersion);
   };
 
   class MicroGMTCaloIndexSelectionLUTFactory {

@@ -2,7 +2,7 @@
 
 l1t::MicroGMTCaloIndexSelectionLUT::MicroGMTCaloIndexSelectionLUT (const std::string& fname, int type) : MicroGMTLUT()
 {
-  if (type == 0) {
+  if (type == MicroGMTConfiguration::ETA) {
     m_angleInWidth = 9;
     m_inputs.push_back(MicroGMTConfiguration::ETA);
   } else {
