@@ -12,7 +12,7 @@ l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fnam
   m_ptRedMask = (1 << m_ptRedInWidth) - 1;
   m_etaRedMask = ((1 << m_etaRedInWidth) - 1) << m_ptRedInWidth;
   
-  m_inputs.push_back(MicroGMTConfiguration::ETA);
+  m_inputs.push_back(MicroGMTConfiguration::ETA_COARSE);
   m_inputs.push_back(MicroGMTConfiguration::PT);
 
   if (fname != std::string("")) {
