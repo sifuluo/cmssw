@@ -1,7 +1,7 @@
 #include "../interface/MicroGMTMatchQualLUT.h"
 #include "TMath.h"
 
-l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, cancel_t cancelType) : MicroGMTLUT(), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(4), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_cancelType(cancelType)
+l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const double maxDR, cancel_t cancelType) : MicroGMTLUT(), m_dEtaRedMask(0), m_dPhiRedMask(0), m_dEtaRedInWidth(4), m_dPhiRedInWidth(3), m_etaScale(0), m_phiScale(0), m_maxDR(maxDR), m_cancelType(cancelType)
 {
   m_totalInWidth = m_dPhiRedInWidth + m_dEtaRedInWidth;
   m_outWidth = 1;
@@ -34,7 +34,7 @@ l1t::MicroGMTMatchQualLUT::lookup(int dEtaRed, int dPhiRed) const
 
   double dR = std::sqrt(dEta*dEta + dPhi*dPhi);
 
-  int retVal = dR < 0.1 ? 1 : 0;
+  int retVal = dR < m_maxDR ? 1 : 0;
   // should we need customisation for the different track finder cancellations:
   // switch (m_cancelType) {
   //   case bmtf_bmtf:
