@@ -178,7 +178,87 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
 void
 MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInternalMuon>>& coll1, std::vector<std::shared_ptr<GMTInternalMuon>>& coll2)
 {
-  // not entirely clear how to do.. just a hook for now
+  if (coll1.size() == 0 || coll2.size() == 0) {
+    return;
+  }
+  // Address based cancel out is implemented for BMTF only
+  if ((*coll1.begin())->trackFinderType() == tftype::bmtf && (*coll2.begin())->trackFinderType() == tftype::bmtf) {
+    for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
+      std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
+      int wheel_w1 = trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kWheel];
+      std::vector<int> stations_w1;
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
+      stations_w1.push_back(trkAddr_w1[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
+      std::cout << "Track address 1: wheel: " << wheel_w1 << ", stations1234: 0x" << hex << stations_w1[0] << stations_w1[1] << stations_w1[2] << stations_w1[3] << dec << std::endl;
+
+      for (auto mu_w2 = coll2.begin(); mu_w2 != coll2.end(); ++mu_w2) {
+        std::map<int, int> trkAddr_w2 = (*mu_w2)->origin().trackAddress();
+        int wheel_w2 = trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kWheel];
+        std::vector<int> stations_w2;
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat1]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat2]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat3]);
+        stations_w2.push_back(trkAddr_w2[l1t::RegionalMuonCand::bmtfAddress::kStat4]);
+        std::cout << "Track address 2: wheel: " << wheel_w2 << ", stations1234: 0x" << hex << stations_w2[0] << stations_w2[1] << stations_w2[2] << stations_w2[3] << dec << std::endl;
+
+        int nMatchedStations = 0;
+        // search for duplicates in stations 2-4
+        for (int i = 1; i < 4; ++i) {
+          if (wheel_w1 == wheel_w2) { // both tracks have the same reference wheel on the same detector side
+            if ((stations_w1[i] == 0x0 && stations_w2[i] == 0x2) ||
+                (stations_w1[i] == 0x1 && stations_w2[i] == 0x3) ||
+                (stations_w1[i] == 0x4 && stations_w2[i] == 0x0) ||
+                (stations_w1[i] == 0x5 && stations_w2[i] == 0x1) ||
+                (stations_w1[i] == 0x8 && stations_w2[i] == 0xA) ||
+                (stations_w1[i] == 0x9 && stations_w2[i] == 0xB) ||
+                (stations_w1[i] == 0xC && stations_w2[i] == 0x8) ||
+                (stations_w1[i] == 0xD && stations_w2[i] == 0x9))
+            {
+              ++nMatchedStations;
+            }
+          } else if (wheel_w1 * wheel_w2 == -1) { // both tracks are on either side of the central wheel (+1 and -1)
+            if ((stations_w1[i] == 0x8 && stations_w2[i] == 0xA) ||
+                (stations_w1[i] == 0x9 && stations_w2[i] == 0xB) ||
+                (stations_w1[i] == 0xC && stations_w2[i] == 0x8) ||
+                (stations_w1[i] == 0xD && stations_w2[i] == 0x9))
+            {
+              ++nMatchedStations;
+            }
+          } else if (wheel_w1 * wheel_w2 > 0) {
+            if (abs(wheel_w1) == abs(wheel_w2) - 1) { // track 2 is one wheel higher than track 1 on the same detector side
+              if ((stations_w1[i] == 0x8 && stations_w2[i] == 0x2) ||
+                  (stations_w1[i] == 0x9 && stations_w2[i] == 0x3) ||
+                  (stations_w1[i] == 0xC && stations_w2[i] == 0x0) ||
+                  (stations_w1[i] == 0xD && stations_w2[i] == 0x1))
+              {
+                ++nMatchedStations;
+              }
+            } else if (abs(wheel_w1) == abs(wheel_w2) + 1) { // track 2 is one wheel lower than track 1 on the same detector side
+              if ((stations_w1[i] == 0x0 && stations_w2[i] == 0xA) ||
+                  (stations_w1[i] == 0x1 && stations_w2[i] == 0xB) ||
+                  (stations_w1[i] == 0x4 && stations_w2[i] == 0x8) ||
+                  (stations_w1[i] == 0x5 && stations_w2[i] == 0x9))
+              {
+                ++nMatchedStations;
+              }
+            }
+          }
+        }
+        std::cout << "Shared hits found: " << nMatchedStations << std::endl;
+        if (nMatchedStations > 0) {
+          if ((*mu_w1)->origin().hwQual() > (*mu_w2)->origin().hwQual()) {
+            (*mu_w2)->setHwCancelBit(1);
+          } else {
+            (*mu_w1)->setHwCancelBit(1);
+          }
+        }
+      }
+    }
+  } else {
+    edm::LogError("Cancel out not implemented") << "Address based cancel out is currently only implemented for the barrel track finder.";
+  }
 }
 
 } // namespace l1t
