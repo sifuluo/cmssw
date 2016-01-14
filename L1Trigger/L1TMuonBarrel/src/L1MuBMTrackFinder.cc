@@ -216,7 +216,6 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
             l1t::RegionalMuonCand rmc;
 
-            int eta_value = -1000;
             if(cand->hwEta()>-33 || cand->hwEta()<32 )
                 rmc.setHwEta(eta_map[cand->hwEta()]);
             else
@@ -235,8 +234,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
             rmc.setTrackSubAddress(l1t::RegionalMuonCand::kStat4, abs_add_4);
 
             rmc.setHwPhi(cand->hwPhi());
-            rmc.setHwEta(eta_value);
-            rmc.setHwSign(cand->hwSign());
+            rmc.setHwSign(cand->hwSign() == 1 ? 0 : 1 );
             rmc.setHwSignValid(cand->hwSignValid());
             rmc.setHwQual(cand->hwQual());
             rmc.setTFIdentifiers(cand->spid().sector(),l1t::tftype::bmtf);
@@ -289,7 +287,7 @@ void L1MuBMTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
                 rmc.setHwEta(eta_map[(*iter)->hwEta()]);
         else
             rmc.setHwEta(-1000);
-        rmc.setHwSign((*iter)->hwSign());
+        rmc.setHwSign((*iter)->hwSign() == 1 ? 0 : 1);
         rmc.setHwSignValid((*iter)->hwSignValid());
         rmc.setHwQual((*iter)->hwQual());
         rmc.setTFIdentifiers((*iter)->spid().sector(),l1t::tftype::bmtf);
