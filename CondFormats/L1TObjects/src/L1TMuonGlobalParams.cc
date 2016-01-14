@@ -11,7 +11,7 @@ void L1TMuonGlobalParams::print(std::ostream& out) const {
   out << " Rel isolation checkMem LUT path: "        << this->relIsoCheckMemLUTPath() << std::endl;
   out << " Index selMem phi LUT path: "              << this->idxSelMemPhiLUTPath() << std::endl;
   out << " Index selMem eta LUT path: "              << this->idxSelMemEtaLUTPath() << std::endl;
-  out << " Barrel Single MatchQual LUT path: "       << this->brlSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->brlSingleMatchQualLUTMaxDR() << std::endl;
+  //out << " Barrel Single MatchQual LUT path: "       << this->brlSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->brlSingleMatchQualLUTMaxDR() << std::endl;
   out << " Forward pos MatchQual LUT path: "         << this->fwdPosSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fwdPosSingleMatchQualLUTMaxDR() << std::endl;
   out << " Forward neg MatchQual LUT path: "         << this->fwdNegSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fwdNegSingleMatchQualLUTMaxDR() << std::endl;
   out << " Overlap pos MatchQual LUT path: "         << this->ovlPosSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->ovlPosSingleMatchQualLUTMaxDR() << std::endl;
