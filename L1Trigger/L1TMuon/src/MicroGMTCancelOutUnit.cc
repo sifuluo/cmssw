@@ -163,7 +163,8 @@ MicroGMTCancelOutUnit::getCoordinateCancelBits(std::vector<std::shared_ptr<GMTIn
       int dEta = std::abs((*mu_w1)->hwEta() - (*mu_w2)->hwEta());
       // check first if the delta is within the LSBs that the LUT takes, otherwise the distance
       // is greater than what we want to cancel -> 15(int) is max => 15*0.01 = 0.15 (rad)
-      if (dEta < 15 && dPhi < 15) {
+      // LUT takes 4 LSB for dEta and 3 LSB for dPhi
+      if (dEta < 16 && dPhi < 8) {
         int match = matchLUT->lookup(dEta & dEtaMask, dPhi & dPhiMask);
         if((*mu_w1)->hwPt() < (*mu_w2)->hwPt() && match == 1) {
           (*mu_w2)->setHwCancelBit(1);
