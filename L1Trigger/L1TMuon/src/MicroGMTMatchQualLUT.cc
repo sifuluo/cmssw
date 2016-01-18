@@ -6,11 +6,11 @@ l1t::MicroGMTMatchQualLUT::MicroGMTMatchQualLUT (const std::string& fname, const
   m_totalInWidth = m_dPhiRedInWidth + m_dEtaRedInWidth;
   m_outWidth = 1;
 
-  m_dEtaRedMask = (1 << m_dEtaRedInWidth) - 1;
-  m_dPhiRedMask = ((1 << m_dPhiRedInWidth) - 1) << m_dEtaRedInWidth;
+  m_dPhiRedMask = (1 << m_dPhiRedInWidth) - 1;
+  m_dEtaRedMask = ((1 << m_dEtaRedInWidth) - 1) << m_dPhiRedInWidth;
 
-  m_inputs.push_back(MicroGMTConfiguration::DELTA_PHI_RED);
   m_inputs.push_back(MicroGMTConfiguration::DELTA_ETA_RED);
+  m_inputs.push_back(MicroGMTConfiguration::DELTA_PHI_RED);
 
   m_phiScale = 2*TMath::Pi()/576.0;
   m_etaScale = 0.010875;
@@ -64,14 +64,14 @@ l1t::MicroGMTMatchQualLUT::hashInput(int dEtaRed, int dPhiRed) const
 {
 
   int result = 0;
-  result += dEtaRed;
-  result += dPhiRed << m_dEtaRedInWidth;
+  result += dPhiRed;
+  result += dEtaRed << m_dPhiRedInWidth;
   return result;
 }
 
 void
 l1t::MicroGMTMatchQualLUT::unHashInput(int input, int& dEtaRed, int& dPhiRed) const
 {
-  dEtaRed = input & m_dEtaRedMask;
-  dPhiRed = (input & m_dPhiRedMask) >> m_dEtaRedInWidth;
+  dPhiRed = input & m_dPhiRedMask;
+  dEtaRed = (input & m_dEtaRedMask) >> m_dPhiRedInWidth;
 }
