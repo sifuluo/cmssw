@@ -127,6 +127,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
 
   m_params.setEgPUSType(conf.getParameter<std::string>("egPUSType"));
 
+  m_params.setEgIsolationType(conf.getParameter<std::string>("egIsolationType"));
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<LUT> egIsoLUT( new LUT(egIsoLUTStream) );
@@ -180,6 +181,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
   std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(*tauCalibrationLUT);
+
+  edm::FileInPath tauCompressLUTFile = conf.getParameter<edm::FileInPath>("tauCompressLUTFile");
+  std::ifstream tauCompressLUTStream(tauCompressLUTFile.fullPath());
+  std::shared_ptr<LUT> tauCompressLUT( new LUT(tauCompressLUTStream) );
+  m_params.setTauCompressLUT(*tauCompressLUT);
 
   edm::FileInPath tauEtToHFRingEtLUTFile = conf.getParameter<edm::FileInPath>("tauEtToHFRingEtLUTFile");
   std::ifstream tauEtToHFRingEtLUTStream(tauEtToHFRingEtLUTFile.fullPath());
