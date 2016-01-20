@@ -241,10 +241,10 @@ void OMTFSorter::sortProcessor(const std::vector<OMTFProcessor::resultsMap> & pr
     std::bitset<17> bits(myCand.hits);
     int ipt = myCand.pt+1;
     if(ipt>31) ipt=31;
-    candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0);//MicroGMT has 0.5 GeV pt bins
+    candidate.setHwPt(RPCConst::ptFromIpt(ipt)*2.0 + 1);//MicroGMT has 0.5 GeV step size, with lower bin edge  (uGMT_pt_code - 1)*step_size
     candidate.setHwEta(myCand.eta);//eta scale set during input making in OMTFInputmaker
     candidate.setHwPhi(myCand.phi);
-    candidate.setHwSign(myCand.charge+1*(myCand.charge<0));
+    candidate.setHwSign(1-1*(myCand.charge>0)); //Charge convention for uGMT is charge = (-1)^iCharge
     ///Quality is set to number of leayers hit.
     ///DT bending and position hit is counted as one.
     ///thus we subtract 1 for each DT station hit.
