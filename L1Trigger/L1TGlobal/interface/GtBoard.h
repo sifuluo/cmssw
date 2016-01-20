@@ -18,10 +18,10 @@
 
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+//#include "DataFormats/L1TGlobal/interface/L1TGlobalReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+//#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 #include "L1Trigger/L1TGlobal/interface/AlgorithmEvaluation.h"
 
 // Trigger Objects
@@ -66,7 +66,10 @@ public:
     /// receive data from Global Muon Trigger
     void receiveCaloObjectData(
         edm::Event&,
-        const edm::InputTag&, 
+	const edm::EDGetTokenT<BXVector<l1t::EGamma>>&,
+	const edm::EDGetTokenT<BXVector<l1t::Tau>>&,
+	const edm::EDGetTokenT<BXVector<l1t::Jet>>&,
+	const edm::EDGetTokenT<BXVector<l1t::EtSum>>&,
         const bool receiveEG, const int nrL1EG,
 	const bool receiveTau, const int nrL1Tau,	
 	const bool receiveJet, const int nrL1Jet,
@@ -74,9 +77,13 @@ public:
 
     void receiveMuonObjectData(
         edm::Event&,
-        const edm::InputTag&, 
+        const edm::EDGetTokenT<BXVector<l1t::Muon> >&, 
         const bool receiveMu, const int nrL1Mu);
 
+    void receiveExternalData(
+        edm::Event&,
+        const edm::EDGetTokenT<BXVector<GlobalExtBlk> >&, 
+        const bool receiveExt);
 
     /// initialize the class (mainly reserve)
     void init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet, 
@@ -96,6 +103,11 @@ public:
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
         const int iBxInEvent,
+        const int totalBxInEvent,
+        const unsigned int numberPhysTriggers,
+        const std::vector<int>& prescaleFactorsAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskAlgoTrig,
+	const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked );
 
@@ -117,6 +129,7 @@ public:
     void reset();
     void resetMu();
     void resetCalo();
+    void resetExternal();
 
     /// print received Muon dataWord
     void printGmtData(const int iBxInEvent) const;
@@ -164,7 +177,11 @@ public:
         return m_candL1EtSum;
     }
 
-
+    /// pointer to Tau data list
+    inline const BXVector<const GlobalExtBlk*>* getCandL1External() const
+    {
+        return m_candL1External;
+    }
 
 /*  Drop individual EtSums for Now
     /// pointer to ETM data list
@@ -226,6 +243,7 @@ private:
     BXVector<const l1t::L1Candidate*>* m_candL1Tau;
     BXVector<const l1t::L1Candidate*>* m_candL1Jet;
     BXVector<const l1t::EtSum*>* m_candL1EtSum;
+    BXVector<const GlobalExtBlk*>* m_candL1External;
     
 //    BXVector<const l1t::EtSum*>* m_candETM;
 //    BXVector<const l1t::EtSum*>* m_candETT;
@@ -241,9 +259,14 @@ private:
     GlobalAlgBlk m_uGtAlgBlk;
     GlobalExtBlk m_uGtExtBlk;
 
-  // cache  of maps
-  std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
-  
+    // cache  of maps
+    std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
+
+    /// prescale counters: NumberPhysTriggers counters per bunch cross in event
+    std::vector<std::vector<int> > m_prescaleCounterAlgoTrig;
+
+    bool m_firstEv;
+    bool m_firstEvLumiSegment;
 
 private:
 
@@ -255,6 +278,8 @@ private:
     bool m_algInitialOr;
     bool m_algPrescaledOr;
     bool m_algFinalOr;
+    bool m_algFinalOrVeto;
+    bool m_algFinalOrPreVeto;
     
     // Counter for number of events seen by this board
     unsigned int m_boardEventCount;

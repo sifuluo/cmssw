@@ -7,13 +7,14 @@ namespace l1t {
       GTCollections::~GTCollections()
       {
 
+        event_.put(muons_, "GT");
 	event_.put(egammas_, "GT");
 	event_.put(etsums_, "GT");
 	event_.put(jets_, "GT");
 	event_.put(taus_, "GT");
 	
-	event_.put(algBlk_);
-	event_.put(extBlk_); 
+	event_.put(algBlk_,"GT");
+	event_.put(extBlk_,"GT"); 
 
       }
    }
