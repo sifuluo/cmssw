@@ -315,8 +315,8 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
 
-  const std::map<long, esAlgorithm>& algoMap = menu->getAlgorithmMap();
-  const std::map<long, esCondition>& condMap = menu->getConditionMap();
+  const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
+  const std::map<std::string, esCondition>& condMap = menu->getConditionMap();
   const std::map<std::string, esScale>& scaleMap = menu->getScaleMap();
 
   // parse the scales
@@ -325,7 +325,7 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
 
 
   //loop over the algorithms
-  for (std::map<long, esAlgorithm>::const_iterator cit = algoMap.begin();
+  for (std::map<std::string, esAlgorithm>::const_iterator cit = algoMap.begin();
        cit != algoMap.end(); cit++)
   {
     //condition chip (artifact)  TO DO: Update
@@ -343,8 +343,8 @@ void l1t::TriggerMenuXmlParser::parseXmlFileV2(const std::string& defXmlFile) {
     {
       const std::string& token = rpn_vec.at(ii);
       if (isGate(token)) continue;
-      long hash = getHash(token);
-      const esCondition& condition = condMap.find(hash)->second;
+//      long hash = getHash(token);
+      const esCondition& condition = condMap.find(token)->second;
      
       //check to see if this condtion already exists
       if ((m_conditionMap[chipNr]).count(condition.getName()) == 0) {
@@ -1626,9 +1626,9 @@ bool l1t::TriggerMenuXmlParser::parseScales(std::map<std::string, tmeventsetup::
 		scaleParam->etStep = scale.getStep();
 		
 		//Get bin edges
-		const std::vector<esBin>* binsV = scale.getBins();
-		for(unsigned int i=0; i<binsV->size(); i++) {
-		   const esBin& bin = binsV->at(i); 
+		const std::vector<esBin> binsV = scale.getBins();
+		for(unsigned int i=0; i<binsV.size(); i++) {
+		   const esBin& bin = binsV.at(i); 
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
 		   scaleParam->etBins.push_back(binLimits);
 		}
@@ -1655,9 +1655,9 @@ bool l1t::TriggerMenuXmlParser::parseScales(std::map<std::string, tmeventsetup::
 		scaleParam->etaStep = scale.getStep();
 		
 		//Get bin edges
-		const std::vector<esBin>* binsV = scale.getBins();
-		for(unsigned int i=0; i<binsV->size(); i++) {
-		   const esBin& bin = binsV->at(i); 
+		const std::vector<esBin> binsV = scale.getBins();
+		for(unsigned int i=0; i<binsV.size(); i++) {
+		   const esBin& bin = binsV.at(i); 
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
 		   scaleParam->etaBins.push_back(binLimits);
 		}
@@ -1669,9 +1669,9 @@ bool l1t::TriggerMenuXmlParser::parseScales(std::map<std::string, tmeventsetup::
 		scaleParam->phiStep = scale.getStep();
 		
 		//Get bin edges
-		const std::vector<esBin>* binsV = scale.getBins();
-		for(unsigned int i=0; i<binsV->size(); i++) {
-		   const esBin& bin = binsV->at(i); 
+		const std::vector<esBin> binsV = scale.getBins();
+		for(unsigned int i=0; i<binsV.size(); i++) {
+		   const esBin& bin = binsV.at(i); 
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
 		   scaleParam->phiBins.push_back(binLimits);
 		}

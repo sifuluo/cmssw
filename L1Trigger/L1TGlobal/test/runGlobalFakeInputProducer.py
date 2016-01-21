@@ -190,7 +190,7 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.
 process.TriggerMenuXml.newGrammar = cms.bool(newXML)
 if(newXML):
    print "Using new XML Grammar "
-   process.TriggerMenuXml.DefXmlFile = 'test-dist-mass.xml' 
+   process.TriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25nsStage1_v7_uGT.xml' 
    #process.TriggerMenuXml.DefXmlFile = 'EGTest.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
@@ -210,7 +210,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		jetInputTag   = cms.InputTag("gtInput"),
 		etsumInputTag = cms.InputTag("gtInput"),
 		uGtAlgInputTag = cms.InputTag("simGlobalStage2Digis"),
-		uGtExtInputTag = cms.InputTag("simGlobalStage2Digis"),
+		uGtExtInputTag = cms.InputTag("gtInput"),
 		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(0),
 		maxBx          = cms.int32(0),
