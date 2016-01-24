@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esCondition_hh
-#define tmEventSetup_esCondition_hh
+#ifndef tmEventSetup_L1TUtmCondition_hh
+#define tmEventSetup_L1TUtmCondition_hh
 
 /*====================================================================*
  * declarations
@@ -76,5 +76,5 @@ class L1TUtmCondition
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esCondition_hh
+#endif // tmEventSetup_L1TUtmCondition_hh
 /* eof */

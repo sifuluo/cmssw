@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esObject_hh
-#define tmEventSetup_esObject_hh
+#ifndef tmEventSetup_L1TUtmObject_hh
+#define tmEventSetup_L1TUtmObject_hh
 
 /*====================================================================*
  * declarations
@@ -107,5 +107,5 @@ class L1TUtmObject
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esObject_hh
+#endif // tmEventSetup_L1TUtmObject_hh
 /* eof */

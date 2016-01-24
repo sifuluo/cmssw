@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esAlgorithm_hh
-#define tmEventSetup_esAlgorithm_hh
+#ifndef tmEventSetup_L1TUtmAlgorithm_hh
+#define tmEventSetup_L1TUtmAlgorithm_hh
 
 /*====================================================================*
  * declarations
@@ -80,5 +80,5 @@ class L1TUtmAlgorithm
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esAlgorithm_hh
+#endif // tmEventSetup_L1TUtmAlgorithm_hh
 /* eof */

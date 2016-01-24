@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esCut_hh
-#define tmEventSetup_esCut_hh
+#ifndef tmEventSetup_L1TUtmCut_hh
+#define tmEventSetup_L1TUtmCut_hh
 
 /*====================================================================*
  * declarations
@@ -118,5 +118,5 @@ class L1TUtmCut
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esCut_hh
+#endif // tmEventSetup_L1TUtmCut_hh
 /* eof */

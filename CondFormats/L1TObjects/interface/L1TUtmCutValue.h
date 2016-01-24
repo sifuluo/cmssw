@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esCutValue_hh
-#define tmEventSetup_esCutValue_hh
+#ifndef tmEventSetup_L1TUtmCutValue_hh
+#define tmEventSetup_L1TUtmCutValue_hh
 
 /*====================================================================*
  * declarations
@@ -45,5 +45,5 @@ struct L1TUtmCutValue
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esCutValue_hh
+#endif // tmEventSetup_L1TUtmCutValue_hh
 /* eof */
