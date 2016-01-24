@@ -10,8 +10,8 @@
 /** @file */
 /** @todo nope */
 
-#ifndef tmEventSetup_esTriggerMenu_hh
-#define tmEventSetup_esTriggerMenu_hh
+#ifndef tmEventSetup_L1TUtmTriggerMenu_hh
+#define tmEventSetup_L1TUtmTriggerMenu_hh
 
 /*====================================================================*
  * declarations
@@ -169,5 +169,5 @@ class L1TUtmTriggerMenu
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esTriggerMenu_hh
+#endif // tmEventSetup_L1TUtmTriggerMenu_hh
 /* eof */

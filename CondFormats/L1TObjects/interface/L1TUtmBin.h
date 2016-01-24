@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esBin_hh
-#define tmEventSetup_esBin_hh
+#ifndef tmEventSetup_L1TUtmBin_hh
+#define tmEventSetup_L1TUtmBin_hh
 
 /*====================================================================*
  * declarations
@@ -56,5 +56,5 @@ class L1TUtmBin
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esBin_hh
+#endif // tmEventSetup_L1TUtmBin_hh
 /* eof */

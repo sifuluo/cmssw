@@ -9,8 +9,8 @@
 
 /** @todo nope */
 
-#ifndef tmEventSetup_esScale_hh
-#define tmEventSetup_esScale_hh
+#ifndef tmEventSetup_L1TUtmScale_hh
+#define tmEventSetup_L1TUtmScale_hh
 
 /*====================================================================*
  * declarations
@@ -85,5 +85,5 @@ class L1TUtmScale
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_esScale_hh
+#endif // tmEventSetup_L1TUtmScale_hh
 /* eof */
