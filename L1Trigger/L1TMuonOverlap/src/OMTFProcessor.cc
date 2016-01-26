@@ -249,7 +249,7 @@ const std::vector<OMTFProcessor::resultsMap> & OMTFProcessor::processInput(unsig
     ///Number of reference hits to be checked. 
     ///Value read from XML configuration
     unsigned int nTestedRefHits = OMTFConfiguration::nTestRefHits;
-    for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::nRefHits;++iRefHit){
+    for(unsigned int iRefHit=0;iRefHit<OMTFConfiguration::nRefHits;++iRefHit){         
       if(!refHitsBits[iRefHit]) continue;
       if(nTestedRefHits--==0) break;
       const RefHitDef & aRefHitDef = OMTFConfiguration::refHitsDefs[iProcessor][iRefHit];
