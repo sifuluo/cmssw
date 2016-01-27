@@ -206,6 +206,9 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
            // bx in EG data
            for(int i = egData->getFirstBX(); i <= egData->getLastBX(); ++i) {
   
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over EG in this bx
               for(std::vector<l1t::EGamma>::const_iterator eg = egData->begin(i); eg != egData->end(i); ++eg) {
 
@@ -234,7 +237,10 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
         } else {
            // bx in tau data
            for(int i = tauData->getFirstBX(); i <= tauData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over tau in this bx
               for(std::vector<l1t::Tau>::const_iterator tau = tauData->begin(i); tau != tauData->end(i); ++tau) {
 
@@ -263,7 +269,10 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
         } else {
            // bx in jet data
            for(int i = jetData->getFirstBX(); i <= jetData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over jet in this bx
               for(std::vector<l1t::Jet>::const_iterator jet = jetData->begin(i); jet != jetData->end(i); ++jet) {
 
@@ -292,6 +301,9 @@ void l1t::GtBoard::receiveCaloObjectData(edm::Event& iEvent,
 	} else {
 
            for(int i = etSumData->getFirstBX(); i <= etSumData->getLastBX(); ++i) {
+  
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
 
               //Loop over jet in this bx
               for(std::vector<l1t::EtSum>::const_iterator etsum = etSumData->begin(i); etsum != etSumData->end(i); ++etsum) {
@@ -360,7 +372,10 @@ void l1t::GtBoard::receiveMuonObjectData(edm::Event& iEvent,
         } else {
            // bx in muon data
            for(int i = muonData->getFirstBX(); i <= muonData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over Muons in this bx
               for(std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
 
@@ -410,7 +425,10 @@ void l1t::GtBoard::receiveExternalData(edm::Event& iEvent,
         } else {
            // bx in muon data
            for(int i = extData->getFirstBX(); i <= extData->getLastBX(); ++i) {
-  
+    
+	     // Prevent from pushing back bx that is outside of allowed range
+	     if( i < m_bxFirst_ || i > m_bxLast_ ) continue;
+
               //Loop over ext in this bx
               for(std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
 
