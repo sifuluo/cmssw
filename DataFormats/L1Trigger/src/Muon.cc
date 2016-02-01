@@ -5,6 +5,7 @@ l1t::Muon::Muon()
   : L1Candidate(math::PtEtaPhiMLorentzVector{0., 0., 0., 0.}, 0., 0., 0., 0, 0),
     hwCharge_(0),
     hwChargeValid_(0),
+    tfMuonIndex_(-1),
     hwTag_(0),
     debug_(false),
     hwIsoSum_(0),
@@ -23,6 +24,7 @@ l1t::Muon::Muon( const LorentzVector& p4,
     int charge,
     int chargeValid,
     int iso,
+    int tfMuonIndex,
     int tag,
     bool debug,
     int isoSum,
@@ -32,6 +34,7 @@ l1t::Muon::Muon( const LorentzVector& p4,
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
+    tfMuonIndex_(tfMuonIndex),
     hwTag_(tag),
     debug_(debug),
     hwIsoSum_(isoSum),
@@ -50,6 +53,7 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     int charge,
     int chargeValid,
     int iso,
+    int tfMuonIndex,
     int tag,
     bool debug,
     int isoSum,
@@ -59,6 +63,7 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
   : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
+    tfMuonIndex_(tfMuonIndex),
     hwTag_(tag),
     debug_(debug),
     hwIsoSum_(isoSum),
@@ -90,6 +95,12 @@ void
 l1t::Muon::setHwTag(int tag)
 {
   hwTag_ = tag;
+}
+
+void 
+l1t::Muon::setTfMuonIndex(int index)
+{
+  tfMuonIndex_ = index;
 }
 
 void 
@@ -138,6 +149,12 @@ int
 l1t::Muon::hwTag() const
 {
   return hwTag_;
+}
+
+int 
+l1t::Muon::tfMuonIndex() const
+{
+  return tfMuonIndex_;
 }
 
 int 
