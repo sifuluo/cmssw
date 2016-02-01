@@ -654,10 +654,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 // ******  Board Maps Need to be redone....hard code for now ******
     // loop over blocks in the GT DAQ record receiving data, count them if they are active
     // all board type are defined in CondFormats/L1TObjects/L1GtFwd
-    // enum L1GtBoardType { GTFE, FDL, PSB, GMT, TCS, TIM };
     // &
     // set the active flag for each object type received from GMT and GCT
-    // all objects in the GT system are defined in enum L1GtObject from
+    // all objects in the GT system are defined in enum L1TGtObject from
     // DataFormats/L1Trigger/GtProducerReadoutSetupFwd
 
     //
