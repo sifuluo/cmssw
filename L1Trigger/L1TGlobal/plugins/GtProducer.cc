@@ -34,7 +34,9 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+//GTO #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
+
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
@@ -175,7 +177,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
 
     if( m_produceL1GtObjectMapRecord ) {
-      produces<L1GlobalTriggerObjectMapRecord>();
+      produces<L1TGtObjectMapRecord>(); //GTO
     }
 
 
@@ -709,9 +711,9 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
     std::auto_ptr<GlobalExtBlkBxCollection> uGtExtRecord( new GlobalExtBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
-    // * produce the L1GlobalTriggerObjectMapRecord
-    std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
-        new L1GlobalTriggerObjectMapRecord() );
+    // * produce the L1TGtObjectMapRecord  GTO
+    std::auto_ptr<L1TGtObjectMapRecord> gtObjectMapRecord(
+        new L1TGtObjectMapRecord() );
 
 
     // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
@@ -943,10 +945,10 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         myCoutStream.str("");
         myCoutStream.clear();
 /*
-        const std::vector<L1GlobalTriggerObjectMap> objMapVec =
+        const std::vector<L1TGtObjectMap> objMapVec =  //GTO
             gtObjectMapRecord->gtObjectMap();
 
-        for (std::vector<L1GlobalTriggerObjectMap>::const_iterator
+        for (std::vector<L1TGtObjectMap>::const_iterator
                 it = objMapVec.begin(); it != objMapVec.end(); ++it) {
 
             (*it).print(myCoutStream);
