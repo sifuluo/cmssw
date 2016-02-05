@@ -469,6 +469,12 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
+  cout << "HLTL1Seed::dumpTriggerFilterObjectWithRefs"<< endl;
+  cout << "HLTL1Seed::fillterproduct." << endl;
+  std::cout << "\tfilterproduct.l1tjetIds().size() = " << filterproduct.l1tjetIds().size() << endl;
+  std::cout << "\tfilterproduct.l1tjetRefs().size() = " << filterproduct.l1tjetRefs().size() << endl;
+
+
   LogTrace("HLTL1TSeed") << " \n\n" << endl;
 
 }
@@ -913,8 +919,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
   
         l1t::JetBxCollection::const_iterator iter;
         for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
-  	l1t::JetRef myref(jets, *itObj);
-  	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+
+  	  l1t::JetRef myref(jets, *itObj);
+  	  filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+
         }
       }
     }
@@ -1054,6 +1062,10 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     //
     //    }
 
+    cout << "HLTL1Seed::seedsL1TriggerObjectMaps "<< endl;
+    cout << "HLTL1Seed::fillterproduct." << endl;
+    std::cout << "\tfilterproduct.l1tjetIds().size() = " << filterproduct.l1tjetIds().size() << endl;
+    std::cout << "\tfilterproduct.l1tjetRefs().size() = " << filterproduct.l1tjetRefs().size() << endl;
 
     LogTrace("HLTL1TSeed")
     << "\nHLTL1Seed:seedsL1TriggerObjectMaps returning " << seedsResult << endl << endl;

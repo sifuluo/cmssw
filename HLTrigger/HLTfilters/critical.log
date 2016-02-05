@@ -1,0 +1,281 @@
+%MSG-i Geometry:  (NoModuleName) CSCGeometryESModule() 27-Jan-2016 02:26:27 CET  pre-events
+Label '' looking for alignment labels ''.
+%MSG
+%MSG-i Geometry:  (NoModuleName) CSCGeometryESModule() 27-Jan-2016 02:26:27 CET  pre-events
+Label 'idealForDigi' IGNORING alignment labels 'fakeForIdeal'.
+%MSG
+%MSG-i HCAL:  (NoModuleName) 27-Jan-2016 02:26:27 CET pre-events
+CaloTowerTopologyEP::CaloTowerTopologyEP
+%MSG
+%MSG-i Geometry:  (NoModuleName) DTGeometryESModule() 27-Jan-2016 02:26:27 CET  pre-events
+Label '' looking for alignment labels ''.
+%MSG
+%MSG-i Geometry:  (NoModuleName) DTGeometryESModule() 27-Jan-2016 02:26:27 CET  pre-events
+Label 'idealForDigi' IGNORING alignment labels 'fakeForIdeal'.
+%MSG
+%MSG-i Alignments:  (NoModuleName) FakeAlignmentProducer()  27-Jan-2016 02:26:27 CET pre-events
+Providing data with label 'fakeForIdeal'.
+%MSG
+%MSG-i SiPixelQualityESProducer::SiPixelQualityESProducer:  (NoModuleName)  27-Jan-2016 02:26:37 CET pre-events
+
+%MSG
+%MSG-i SiStripBackPlaneCorrectionDepESProducer:  (NoModuleName)  27-Jan-2016 02:26:37 CET pre-events
+ctor
+%MSG
+%MSG-i SiStripLorentzAngleDepESProducer:  (NoModuleName)  27-Jan-2016 02:26:37 CET pre-events
+ctor
+%MSG
+%MSG-i SiStripQualityESProducer:  (NoModuleName) 27-Jan-2016 02:26:37 CET  pre-events
+ctor
+%MSG
+%MSG-i SiStripDetInfoFileReader:  (NoModuleName) 27-Jan-2016 02:26:37 CET  pre-events
+filePath /afs/cern.ch/work/r/rekovic/private/relaeses/CMSSW_8_0_0_pre4/src/CalibTracker/SiStripCommon/data/SiStripDetInfo.dat
+%MSG
+%MSG-i SiStripDetInfoFileReader::SiStripDetInfoFileReader - END of file reached:  (NoModuleName) 27-Jan-2016 02:26:38 CET pre-events
+
+%MSG
+%MSG-i Geometry:  (NoModuleName) TrackerDigiGeometryESModule()  27-Jan-2016 02:26:38 CET pre-events
+Label 'idealForDigi' IGNORING alignment labels 'fakeForIdeal'.
+%MSG
+%MSG-i Geometry:  (NoModuleName) TrackerDigiGeometryESModule()  27-Jan-2016 02:26:38 CET pre-events
+Label '' looking for alignment labels ''.
+%MSG
+%MSG-i TRACKER:  (NoModuleName) 27-Jan-2016 02:26:38 CET pre-events
+TrackerTopologyEP::TrackerTopologyEP
+%MSG
+%MSG-i L1TGlobal:  (NoModuleName) 27-Jan-2016 02:26:38 CET pre-events
+
+
+L1 Trigger Menu: 
+
+  def.xml file: 
+    /afs/cern.ch/work/r/rekovic/private/relaeses/CMSSW_8_0_0_pre4/src/L1Trigger/L1TGlobal/data/Luminosity/startup/L1Menu_Collisions2015_25nsStage1_v6_uGT_v3.xml
+
+  vme.xml file: 
+    
+
+
+%MSG
+%MSG-i HCAL:  (NoModuleName) 27-Jan-2016 02:26:38 CET pre-events
+HcalHardcodeCalibrations::HcalHardcodeCalibrations->...
+%MSG
+%MSG-i CondDBESSource:  (NoModuleName) 27-Jan-2016 02:26:38 CET pre-events
+Replacing tag "L1Menu_Collisions2015_25nsStage1_v5" for record "L1GtTriggerMenuRcd" and label "" with tag L1Menu_Collisions2015_25nsStage1_v5@[frontier://FrontierProd/CMS_CONDITIONS]"; from CondDBESSource::fillTagCollectionFromDB
+%MSG
+27-Jan-2016 02:26:40 CET  Initiating request to open file root://eoscms.cern.ch//eos/cms/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root
+%MSG-i XrdAdaptorInternal:  file_open 27-Jan-2016 02:26:41 CET pre-events
+Xrootd server at p05614920c84527.cern.ch:1095 did not provide a sitename.  Monitoring may be incomplete.
+%MSG
+%MSG-i XrdAdaptorInternal:  file_open 27-Jan-2016 02:26:41 CET pre-events
+Reading from new server p05614920c84527.cern.ch:1095 at site cern.ch
+%MSG
+%MSG-i XrdFileInfo:  file_open 27-Jan-2016 02:26:41 CET pre-events
+Opened root://eoscms.cern.ch//eos/cms/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root
+%MSG
+%MSG-i XrdFileInfo:  file_open 27-Jan-2016 02:26:41 CET pre-events
+Active sources: p05614920c84527.cern.ch:1095, 
+%MSG
+Time since last check 2; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 260
+Finished timer after 21
+Time since last check 25; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 21
+Finished timer after 28
+Time since last check 53; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 24
+Finished timer after 19
+27-Jan-2016 02:26:41 CET  Successfully opened file root://eoscms.cern.ch//eos/cms/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root
+Time since last check 798; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 22
+Finished timer after 19
+Time since last check 849; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 21
+Finished timer after 1
+Time since last check 852; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 17
+Finished timer after 1
+Time since last check 854; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 14
+Finished timer after 0
+Time since last check 855; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 12
+Finished timer after 0
+Time since last check 857; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 10
+Finished timer after 0
+Time since last check 859; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 8
+Finished timer after 1
+Time since last check 863; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 7
+Finished timer after 0
+Time since last check 864; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 6
+Finished timer after 0
+Time since last check 866; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 5
+Finished timer after 0
+Time since last check 867; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 4
+Finished timer after 0
+Time since last check 870; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 3
+Finished timer after 0
+Time since last check 872; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 2
+Finished timer after 0
+Time since last check 873; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 1
+Finished timer after 0
+Time since last check 885; last check 574514; now 574514; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 0
+Finished timer after 359
+[0] Time for readv: 359 (sub-readv requests: 1)
+Time since last check 1253; last check 574514; now 574515; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 19
+Finished timer after 1
+Time since last check 1255; last check 574514; now 574515; next check 574519
+Reading from p05614920c84527.cern.ch:1095, quality 18
+Finished timer after 0
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+ The MixingModule was run in the Standard mode.
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+ using given Parameter 'useCurrentProcessOnly' =0
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PCaloHits with InputTag= g4SimHits:CastorFI, label will be g4SimHitsCastorFI
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PCaloHits with InputTag= g4SimHits:EcalHitsEB, label will be g4SimHitsEcalHitsEB
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PCaloHits with InputTag= g4SimHits:EcalHitsEE, label will be g4SimHitsEcalHitsEE
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PCaloHits with InputTag= g4SimHits:EcalHitsES, label will be g4SimHitsEcalHitsES
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PCaloHits with InputTag= g4SimHits:HcalHits, label will be g4SimHitsHcalHits
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PCaloHits with InputTag= g4SimHits:ZDCHITS, label will be g4SimHitsZDCHITS
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix HepMCProducts with InputTag= generatorSmeared, label will be generatorSmeared
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:MuonCSCHits, label will be g4SimHitsMuonCSCHits
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:MuonDTHits, label will be g4SimHitsMuonDTHits
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:MuonRPCHits, label will be g4SimHitsMuonRPCHits
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsPixelBarrelHighTof, label will be g4SimHitsTrackerHitsPixelBarrelHighTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsPixelBarrelLowTof, label will be g4SimHitsTrackerHitsPixelBarrelLowTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsPixelEndcapHighTof, label will be g4SimHitsTrackerHitsPixelEndcapHighTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsPixelEndcapLowTof, label will be g4SimHitsTrackerHitsPixelEndcapLowTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTECHighTof, label will be g4SimHitsTrackerHitsTECHighTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTECLowTof, label will be g4SimHitsTrackerHitsTECLowTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTIBHighTof, label will be g4SimHitsTrackerHitsTIBHighTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTIBLowTof, label will be g4SimHitsTrackerHitsTIBLowTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTIDHighTof, label will be g4SimHitsTrackerHitsTIDHighTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTIDLowTof, label will be g4SimHitsTrackerHitsTIDLowTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTOBHighTof, label will be g4SimHitsTrackerHitsTOBHighTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix PSimHits with InputTag= g4SimHits:TrackerHitsTOBLowTof, label will be g4SimHitsTrackerHitsTOBLowTof
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix SimTracks with InputTag= g4SimHits, label will be g4SimHits
+%MSG
+%MSG-i MixingModule:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Will mix SimVertexs with InputTag g4SimHits, label will be g4SimHits
+%MSG
+%MSG-i HcalDigitizer:  MixingModule:mix@ctor 27-Jan-2016 02:26:42 CET pre-events
+Set scale for HB towers
+%MSG
+%MSG-i PixelDigitizer :  MixingModule:mix@ctor 27-Jan-2016 02:26:43 CET  pre-events
+Enter the Pixel Digitizer
+%MSG
+%MSG-i PixelDigitizer :  MixingModule:mix@ctor 27-Jan-2016 02:26:43 CET  pre-events
+The PixelDigitizer inefficiency configuration is read from the database.
+
+%MSG
+%MSG-i PixelDigitizer :  MixingModule:mix@ctor 27-Jan-2016 02:26:43 CET  pre-events
+SiPixelDigitizerAlgorithm constructedConfiguration parameters:Threshold/Gain = threshold in electron FPix = 3000threshold in electron BPix = 3500threshold in electron BPix Layer1 = 3500 135 255 The delta cut-off is set to 0.03 pix-inefficiency 1
+%MSG
+%MSG-i PixelDigitizer :  MixingModule:mix@ctor 27-Jan-2016 02:26:43 CET  pre-events
+Enter the Pixel Digitizer
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+Constructing a CSCGasCollisions:
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+gas density = 0.0021416 g/cm3
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+max eloss per collision allowed = 100 keV (for higher elosses, hits should have been simulated.)
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+ionization threshold = 14.95 eV
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+effective work function = 34 eV
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+cluster extent = 10 micrometres
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+dump gas collision and simhit information? 0
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+save gas collision information? -NOT YET IMPLEMENTED- 0
+%MSG
+%MSG-i CSCGasCollisions:  CSCDigiProducer:simMuonCSCDigis@ctor  27-Jan-2016 02:26:43 CET pre-events
+: reading /cvmfs/cms.cern.ch/slc6_amd64_gcc493/cms/cmssw/CMSSW_8_0_0_pre4/src/SimMuon/CSCDigitizer/data/collisions.dat
+%MSG
+%MSG-i PileupInformation:  PileupInformation:addPileupInfo@ctor  27-Jan-2016 02:26:43 CET pre-events
+Setting up PileupInformation
+%MSG
+%MSG-i PileupInformation:  PileupInformation:addPileupInfo@ctor  27-Jan-2016 02:26:43 CET pre-events
+Vertex distance cut set to 0.003 mm
+%MSG
+%MSG-i PileupInformation:  PileupInformation:addPileupInfo@ctor  27-Jan-2016 02:26:43 CET pre-events
+Volume radius set to 1200 mm
+%MSG
+%MSG-i PileupInformation:  PileupInformation:addPileupInfo@ctor  27-Jan-2016 02:26:43 CET pre-events
+Volume Z      set to 3000 mm
+%MSG
+%MSG-i PileupInformation:  PileupInformation:addPileupInfo@ctor  27-Jan-2016 02:26:43 CET pre-events
+Lower pT Threshold set to 0.1 GeV
+%MSG
+%MSG-i PileupInformation:  PileupInformation:addPileupInfo@ctor  27-Jan-2016 02:26:43 CET pre-events
+Upper pT Threshold set to 0.5 GeV
+%MSG
+%MSG-i CSCGasCollisions:  AfterModConstruction 27-Jan-2016 02:26:45 CET  pre-events
+Destructing a CSCGasCollisions
+%MSG
