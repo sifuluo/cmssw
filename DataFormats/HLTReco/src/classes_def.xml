@@ -55,8 +55,8 @@
   <class name="trigger::TriggerEvent" ClassVersion="11">
    <version ClassVersion="11" checksum="3351458717"/>
   </class>
-  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="13">
-   <version ClassVersion="13" checksum="1672519577"/>
+  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="16">
+   <version ClassVersion="16" checksum="1673531968"/>
   </class>
   <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
   <class name="trigger::TriggerEventWithRefs" ClassVersion="19">
