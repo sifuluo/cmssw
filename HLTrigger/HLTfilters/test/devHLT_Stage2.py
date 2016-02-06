@@ -17,8 +17,10 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger = cms.Service("MessageLogger",
             destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
             detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            debugModules = cms.untracked.vstring( 'hltL1T' )
+            debugModules = cms.untracked.vstring( 'hltL1T', 'hltTriggerSummaryRAW' )
 )
+
+#process.MessageLogger.categories.append('TriggerSummaryAnalyzerAOD')
 #process.MessageLogger.cerr.FwkReport.reportEvery = 10 # only report every 10th event start
 #process.MessageLogger.cerr_stats.threshold = 'INFO' # also info in statistics
 process.load('Configuration.EventContent.EventContent_cff')
@@ -33,7 +35,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
@@ -107,7 +109,14 @@ process.hltL1T = cms.EDFilter( "HLTL1TSeed",
 #    L1TechTriggerSeeding = cms.bool( False )
 )
 
-process.HLTTesting  = cms.Sequence( process.hltL1T )
+process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    processName = cms.string( "@" )
+)
+process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
+    processName = cms.string( "@" )
+)
+
+process.HLTTesting  = cms.Sequence( process.hltL1T + process.hltTriggerSummaryRAW )
 
 
 # Other statements
@@ -131,7 +140,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.debug_step)
+process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.debug_step,process.dump_step)
 #process.schedule.extend(process.HLTSchedule)
 #process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
 process.schedule.extend([process.endjob_step])
