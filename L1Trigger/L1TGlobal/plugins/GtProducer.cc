@@ -34,7 +34,6 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
-//GTO #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1TGlobal/interface/L1TGtObjectMapRecord.h"
 
 #include "L1Trigger/L1TGlobal/interface/TriggerMenu.h"
@@ -51,14 +50,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
-/* //These are old but we might be able to reuse when these go into for upgrade
-#include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-*/
 
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -177,7 +168,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
 
     if( m_produceL1GtObjectMapRecord ) {
-      produces<L1TGtObjectMapRecord>(); //GTO
+      produces<L1TGtObjectMapRecord>(); 
     }
 
 
@@ -711,7 +702,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
     std::auto_ptr<GlobalExtBlkBxCollection> uGtExtRecord( new GlobalExtBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
-    // * produce the L1TGtObjectMapRecord  GTO
+    // * produce the L1TGtObjectMapRecord  
     std::auto_ptr<L1TGtObjectMapRecord> gtObjectMapRecord(
         new L1TGtObjectMapRecord() );
 
@@ -945,7 +936,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         myCoutStream.str("");
         myCoutStream.clear();
 /*
-        const std::vector<L1TGtObjectMap> objMapVec =  //GTO
+        const std::vector<L1TGtObjectMap> objMapVec =  
             gtObjectMapRecord->gtObjectMap();
 
         for (std::vector<L1TGtObjectMap>::const_iterator
