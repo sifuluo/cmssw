@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/traits.h"
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace trigger
 {
@@ -93,9 +92,12 @@ namespace trigger
 
     /// setters - to build EDProduct
     void addFilterObject(const edm::InputTag& filterTag, const TriggerFilterObjectWithRefs& tfowr) {
-      std::cout << "TriggerEventWithRefs::addFilterObjects(   )" << endl;
-      std::cout << "TriggerEventWithRefs:: tfowr.l1tjetIds().size() = " << tfowr.l1tjetIds().size() << endl;
-      std::cout << "TriggerEventWithRefs:: tfowr.l1tjetRefs().size() = " << tfowr.l1tjetRefs().size() << endl;
+
+      LogTrace("TriggerEventWithRefs")
+       << "TriggerEventWithRefs::addFilterObject(const edm::InputTag& filterTag, const TriggerFilterObjectWithRefs& tfowr)"
+       << "\n\ttfowr.l1tjetIds().size() = " << tfowr.l1tjetIds().size() 
+       << "\n\ttfowr.l1tjetRefs().size() = " << tfowr.l1tjetRefs().size() << endl;
+
       filterObjects_.push_back(
         TriggerFilterObject(filterTag, 
 			    addObjects(tfowr.photonIds(),tfowr.photonRefs()),

@@ -2,7 +2,6 @@
 #include <list>
 #include <vector>
 #include <algorithm>
-#include <iostream>
 #include <sstream>
 #include <cassert>
 
@@ -332,7 +331,7 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
 {
 
   LogDebug("HLTL1TSeed") 
-  << "\nHLTL1TSeed::hltFilter "
+  << "\nHLTL1TSeed::dumpTriggerFilterObjectWithRefs "
   << "\n  Dump TriggerFilterObjectWithRefs\n" << endl;
   
   vector<l1t::MuonRef> seedsL1Mu;
@@ -469,14 +468,19 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
     << "\t" << "phi =  " << obj->phi();  //<< "\t" << "BX = " << obj->bx();
   }
 
+
+  LogTrace("HLTL1TSeed")
+   << "HLTL1Seed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWithRefs & filterproduct)"
+   << "\n\tfilterproduct.l1tjetIds().size() = " << filterproduct.l1tjetIds().size() 
+   << "\n\tfilterproduct.l1tjetRefs().size() = " << filterproduct.l1tjetRefs().size() << endl;
+
+
   LogTrace("HLTL1TSeed") << " \n\n" << endl;
 
 }
 
 // seeding is done via L1 trigger object maps, considering the objects which fired in L1
-bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
-        trigger::TriggerFilterObjectWithRefs & filterproduct
-        ) {
+bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct) {
 
 
     // define index lists for all particle types
@@ -788,7 +792,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                         // should not arrive here
 
                         LogDebug("HLTL1TSeed")
-                        << "\n    HLTL1TSeed::hltFilter "
+                        << "\n    HLTL1TSeed::seedsL1TriggerObjectMaps "
                         << "\n      Unknown object of type " << objTypeVal
                         << " and index " << (*itObject) << " in the seed list."
                         << std::endl;
@@ -911,10 +915,30 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
   	<< endl;	
       } else {
   
+        //LogTrace("HLTL1TSeed")
+        //<< "\tJetBxCollection:  size =  " << jets->size() << endl;
+        //<< "\tJetBxCollection: BX=-1 size =  " << jets->size(-1) 
+        //<< "\tJetBxCollection: BX= 0 size =  " << jets->size(0) 
+        //<< "\tJetBxCollection: BX= 1 size =  " << jets->size(1) << endl;
+        LogTrace("HLTL1TSeed")
+        << "\n\tJetBxCollection:  getFirstBX() = " << jets->getFirstBX() 
+        << "\n\tJetBxCollection:  getLastBX() = " << jets->getLastBX() << endl;
+
         l1t::JetBxCollection::const_iterator iter;
+        for (iter = jets->begin(0); iter != jets->end(0); ++iter){
+
+          l1t::JetRef myref(jets, jets->key(iter));
+          LogTrace("HLTL1TSeed")
+          << "\tJetBxCollection:  jets->key(iter) = " << jets->key(iter) << endl;
+
+        }
+
         for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
-  	l1t::JetRef myref(jets, *itObj);
-  	filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+
+  	  l1t::JetRef myref(jets, *itObj);
+  	  //l1t::JetRef myref(NULL);
+  	  filterproduct.addObject(trigger::TriggerL1Jet, myref); 
+
         }
       }
     }
@@ -1054,6 +1078,14 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     //
     //    }
 
+    LogTrace("HLTL1TSeed")
+     << "HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct)"
+     << "\n\tfilterproduct.l1tjetIds().size() = " << filterproduct.l1tjetIds().size()
+     << "\n\tfilterproduct.l1tjetRefs().size() = " << filterproduct.l1tjetRefs().size() << endl;
+    //trigger::VRl1tjet jetRefs;
+    //for (size_t i = 0; i<filterproduct.l1tjetRefs().size();) {
+     //filterproduct.getObjects(i,jetRefs);
+    //}
 
     LogTrace("HLTL1TSeed")
     << "\nHLTL1Seed:seedsL1TriggerObjectMaps returning " << seedsResult << endl << endl;

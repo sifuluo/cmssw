@@ -54,7 +54,6 @@
 #include <vector>
 
 #include<typeinfo>
-#include<iostream>
 
 namespace trigger
 {
@@ -74,11 +73,11 @@ namespace trigger
   typedef std::vector<l1extra::L1EtMissParticleRef>         VRl1etmiss; //deprecate
   typedef std::vector<l1extra::L1HFRingsRef>                VRl1hfrings; //deprecate
 
-  typedef l1t::MuonVectorRef                                VRl1tmuon;
-  typedef l1t::EGammaVectorRef                              VRl1tegamma;
-  typedef l1t::JetVectorRef                                 VRl1tjet;
-  typedef l1t::TauVectorRef                                 VRl1ttau;
-  typedef l1t::EtSumVectorRef                               VRl1tetsum;
+  typedef std::vector<l1t::MuonRef>                         VRl1tmuon;
+  typedef std::vector<l1t::EGammaRef>                       VRl1tegamma;
+  typedef std::vector<l1t::JetRef>                          VRl1tjet;
+  typedef std::vector<l1t::TauRef>                          VRl1ttau;
+  typedef std::vector<l1t::EtSumRef>                        VRl1tetsum;
 
   typedef std::vector<reco::PFJetRef>                       VRpfjet;
   typedef std::vector<reco::PFTauRef>                       VRpftau;
@@ -373,8 +372,6 @@ namespace trigger
     size_type addObjects (const Vids& ids, const VRl1tmuon& refs) {
       LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
       LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tmuon& refs):" << std::endl;
-      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
       assert(ids.size()==refs.size());
       l1tmuonIds_.insert(l1tmuonIds_.end(),ids.begin(),ids.end());
       l1tmuonRefs_.insert(l1tmuonRefs_.end(),refs.begin(),refs.end());
@@ -383,8 +380,6 @@ namespace trigger
     size_type addObjects (const Vids& ids, const VRl1tegamma& refs) {
       LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tegamma& refs):" << std::endl;
       LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tegamma& refs):" << std::endl;
-      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
       //assert(ids.size()==refs.size());
       l1tegammaIds_.insert(l1tegammaIds_.end(),ids.begin(),ids.end());
       l1tegammaRefs_.insert(l1tegammaRefs_.end(),refs.begin(),refs.end());
@@ -393,8 +388,6 @@ namespace trigger
     size_type addObjects (const Vids& ids, const VRl1tjet& refs) {
       LogTrace("TriggerRefsCollections") << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tjet& refs):" << std::endl;
       LogTrace("TriggerRefsCollections") << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
-      std::cout << "TriggerRefsCollections::addObjects (const Vids& ids, const VRl1tjet& refs):" << std::endl;
-      std::cout << "\tids.size() = " << ids.size() << " and refs.size() = " << refs.size() << std::endl;
       //assert(ids.size()==refs.size());
       l1tjetIds_.insert(l1tjetIds_.end(),ids.begin(),ids.end());
       l1tjetRefs_.insert(l1tjetRefs_.end(),refs.begin(),refs.end());

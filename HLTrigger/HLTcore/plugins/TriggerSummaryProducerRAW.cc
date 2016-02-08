@@ -21,7 +21,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
-#include<vector>
+#include <vector>
+#include <iostream>
 
 //
 // constructors and destructor
@@ -111,6 +112,24 @@ TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)
        << " L/" << fobs[ifob]->l1ttauSize()
        << " M/" << fobs[ifob]->l1tetsumSize()
        << endl;
+
+     LogTrace("TriggerSummaryProducerRaw")
+      << "TriggerSummaryProducerRAW::produce(edm::Event& iEvent, const edm::EventSetup&)" 
+      << "\n\tfobs[ifob]->1tjetIds().size() = " << fobs[ifob]->l1tjetIds().size() 
+      << "\n\tfobs[ifob]->1tjetRefs().size() = " << fobs[ifob]->l1tjetRefs().size();
+
+
+     LogTrace("TriggerSummaryProducerRaw")
+       << "\n\tThese are collection tags:" << endl;
+
+     const std::vector<std::string>& tags = fobs[ifob]->getCollectionTagsAsStrings();
+
+     for (size_t i=0;i<tags.size();i++) {
+
+        LogTrace("TriggerSummaryProducerRaw")
+          << "\t\ttag = " << tags[i] << endl;
+
+     }
      product->addFilterObject(tag,*fobs[ifob]);
    }
 
