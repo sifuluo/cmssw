@@ -17,6 +17,13 @@ def L1TTurnOffUnpackStage2GtAndGmt(process):
         process.L1TRawToDigi.remove(getattr(process,b))
     return process
 
+# Unpack Stage-2 GT and GMT
+def L1TTurnOffUnpackStage2(process):
+    cutlist=['gtStage2Digis','gmtStage2Digis','caloStage2Digis']
+    for b in cutlist:
+        process.L1TRawToDigi.remove(getattr(process,b))
+    return process
+
 def L1TTurnOffOutputModule(process):
     print "L1T INFO:  removing output module if found."
     # print process.schedule    
