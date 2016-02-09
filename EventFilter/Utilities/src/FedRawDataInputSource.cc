@@ -66,7 +66,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   fileNames_(pset.getUntrackedParameter<std::vector<std::string>> ("fileNames",std::vector<std::string>())),
   fileListMode_(pset.getUntrackedParameter<bool> ("fileListMode", false)),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
-  fuOutputDir_(std::string()),
+  fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
   eventID_(),
   processHistoryID_(),
@@ -81,15 +81,15 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                         << std::endl << (eventChunkSize_/1048576)
                                         << " MB on host " << thishost;
 
-  long autoRunNumber = -1;
+  int autoRunNumber = -1;
   if (fileListMode_)  {
     autoRunNumber = initFileList();
-    if (autoRunNumber<0)
-      throw cms::Exception("FedRawDataInputSource::FedRawDataInputSource") << "Run number not found from filename";
-    //override run number
-    runNumber_ = (edm::RunNumber_t)autoRunNumber;
-    edm::Service<evf::EvFDaqDirector>()->overrideRunNumber((unsigned int)autoRunNumber);
+    if (autoRunNumber>=0 && edm::RunNumber_t(autoRunNumber)!=runNumber_)
+    edm::LogWarning("FedRawDataInputSource") << "Run number from filename" << autoRunNumber
+                                          << "not same as DaqDirector parameter:"<< runNumber_
+                                          << ". Run number from filename is not yet supported."<< std::endl;
   }
+  //TODO: set runNumber with autoRunNumber if not -1
 
   processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
   setNewRun();
@@ -217,8 +217,6 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<bool> ("verifyAdler32", true)->setComment("Verify event Adler32 checksum with FRDv3 or v4");
   desc.addUntracked<bool> ("verifyChecksum", true)->setComment("Verify event CRC-32C checksum of FRDv5 or higher");
   desc.addUntracked<bool> ("useL1EventID", false)->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
-  desc.addUntracked<bool> ("fileListMode", false)->setComment("Use fileNames parameter to directly specify raw files to open");
-  desc.addUntracked<std::vector<std::string>> ("fileNames", std::vector<std::string>())->setComment("file list used when fileListMode is enabled");
   desc.setAllowAnything();
   descriptions.add("source", desc);
 }
@@ -227,9 +225,6 @@ bool FedRawDataInputSource::checkNextEvent()
 {
   if (!startedSupervisorThread_)
   {
-    //late init of directory variable
-    fuOutputDir_=edm::Service<evf::EvFDaqDirector>()->baseRunDir();
-
     //this thread opens new files and dispatches reading to worker readers
     //threadInit_.store(false,std::memory_order_release);
     std::unique_lock<std::mutex> lk(startupLock_);
@@ -1336,7 +1331,7 @@ std::pair<bool,unsigned int> FedRawDataInputSource::getEventReport(unsigned int 
     return std::pair<bool,unsigned int>(false,0);
 }
 
-long FedRawDataInputSource::initFileList()
+int FedRawDataInputSource::initFileList()
 {
   std::sort(fileNames_.begin(),fileNames_.end(),
             [](std::string a, std::string b) {
@@ -1352,8 +1347,7 @@ long FedRawDataInputSource::initFileList()
     if (fileStem.find("run")==0) {
       std::string runStr = fileStem.substr(3,end-3);
       try {
-        //get long to support test run numbers < 2^32
-        long rval = boost::lexical_cast<long>(runStr);
+        int rval = boost::lexical_cast<int>(runStr);
         edm::LogInfo("FedRawDataInputSource") << "Autodetected run number in fileListMode -: "<< rval;
         return rval;
       }
