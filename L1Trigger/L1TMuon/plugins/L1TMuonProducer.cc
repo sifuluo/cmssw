@@ -268,7 +268,7 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (mu->hwPt() > 0) {
         math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
         int iso = mu->hwAbsIso() + (mu->hwRelIso() << 1);
-        Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), iso, 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+        Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), iso, -1, 0, true, mu->hwIsoSum(), mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
         if (mu->hwSignValid()) {
           outMu.setCharge(1 - 2 * mu->hwSign());
         } else {
@@ -292,7 +292,7 @@ L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 bool
 L1TMuonProducer::compareMuons(const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu1,
                                     const std::shared_ptr<MicroGMTConfiguration::InterMuon>& mu2) {
-  return (mu1->hwWins() > mu2->hwWins());
+  return (mu1->hwWins() >= mu2->hwWins());
 }
 
 void
@@ -303,11 +303,20 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
     (*mu1)->setHwWins(0);
   }
 
+  int nCancelled = 0;
   for (mu1 = muons.begin(); mu1 != muons.end(); ++mu1) {
+    int mu1CancelBit = (*mu1)->hwCancelBit();
+    nCancelled += mu1CancelBit;
     auto mu2 = mu1;
     mu2++;
     for ( ; mu2 != muons.end(); ++mu2) {
-      if ((*mu1)->hwRank() >= (*mu2)->hwRank() && (*mu1)->hwCancelBit() != 1) {
+      if (mu1CancelBit != 1 && (*mu2)->hwCancelBit() != 1) {
+        if ((*mu1)->hwRank() >= (*mu2)->hwRank()) {
+          (*mu1)->increaseWins();
+        } else {
+          (*mu2)->increaseWins();
+        }
+      } else if (mu1CancelBit != 1) {
         (*mu1)->increaseWins();
       } else if ((*mu2)->hwCancelBit() != 1) {
         (*mu2)->increaseWins();
@@ -316,11 +325,11 @@ L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, unsigned
   }
 
   size_t nMuonsBefore = muons.size();
-  mu1 = muons.begin();
-  int minWins = nMuonsBefore-nSurvivors;
+  int minWins = nMuonsBefore - nCancelled - nSurvivors;
 
   // remove all muons that were cancelled or that do not have sufficient rank
   // (reduces the container size to nSurvivors)
+  mu1 = muons.begin();
   while (mu1 != muons.end()) {
     if ((*mu1)->hwWins() < minWins || (*mu1)->hwCancelBit() == 1) {
       muons.erase(mu1);
@@ -351,7 +360,8 @@ L1TMuonProducer::addMuonsToCollections(MicroGMTConfiguration::InterMuonList& col
     interout.push_back(mu);
     math::PtEtaPhiMLorentzVector vec{(mu->hwPt()-1)*0.5, mu->hwEta()*0.010875, mu->hwGlobalPhi()*0.010908, 0.0};
     // FIXME: once we debugged the change global -> local: Change hwLocalPhi -> hwGlobalPhi to test offsets
-    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
+    // FIXME: set tfMuonIndex to actual index
+    Muon outMu{vec, mu->hwPt(), mu->hwEta(), mu->hwGlobalPhi(), mu->hwQual(), mu->hwSign(), mu->hwSignValid(), -1, -1, 0, true, -1, mu->hwDPhi(), mu->hwDEta(), mu->hwRank()};
     if (mu->hwSignValid()) {
       outMu.setCharge(1 - 2 * mu->hwSign());
     } else {
