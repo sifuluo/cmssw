@@ -45,11 +45,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TGlobalParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalParametersRcd.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -179,7 +176,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
     // initialize cached IDs
 
     //
-    m_l1GtStableParCacheID = 0ULL;
+    m_l1GtParCacheID = 0ULL;
     m_l1GtMenuCacheID = 0ULL;
 
     m_numberPhysTriggers = 0;
@@ -192,7 +189,6 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
     m_nrL1Jet = 0;
 
 
-    m_nrL1JetCounts = 0;
 
     m_ifMuEtaNumberBits = 0;
     m_ifCaloEtaNumberBits = 0;
@@ -401,88 +397,62 @@ l1t::GtProducer::~GtProducer()
 void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
-    // get / update the parameters from the EventSetup
-    // local cache & check on cacheIdentifier
-
-    unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
-
-    if (m_l1GtParCacheID != l1GtParCacheID) {
-
-        edm::ESHandle< L1GtParameters > l1GtPar;
-        evSetup.get< L1GtParametersRcd >().get( l1GtPar );
-        m_l1GtPar = l1GtPar.product();
-
-        //    total number of Bx's in the event coming from EventSetup
-        m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
-
-        //    active boards in L1 GT DAQ record and in L1 GT EVM record
-        m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
-
-        ///   length of BST message (in bytes) for L1 GT EVM record
-        m_bstLengthBytes = m_l1GtPar->gtBstLengthBytes();
-
-
-        m_l1GtParCacheID = l1GtParCacheID;
-
-    }
-
-    // negative value: emulate TotalBxInEvent as given in EventSetup
-    if (m_emulateBxInEvent < 0) {
-        m_emulateBxInEvent = m_totalBxInEvent;
-    }
-
     int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
-    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
+    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;		   
 
     int minL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - m_L1DataBxInEvent;
     int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - 1;
+
 
     // process event iEvent
     // get / update the stable parameters from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtStableParCacheID =
-            evSetup.get<L1TGlobalStableParametersRcd>().cacheIdentifier();
+    unsigned long long l1GtParCacheID =
+            evSetup.get<L1TGlobalParametersRcd>().cacheIdentifier();
 
-    if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
+    if (m_l1GtParCacheID != l1GtParCacheID) {
 
-        edm::ESHandle< GlobalStableParameters > l1GtStablePar;
-        evSetup.get< L1TGlobalStableParametersRcd >().get( l1GtStablePar );
+        edm::ESHandle< L1TGlobalParameters > l1GtStablePar;
+        evSetup.get< L1TGlobalParametersRcd >().get( l1GtStablePar );
         m_l1GtStablePar = l1GtStablePar.product();
+
+        // number of bx
+	m_totalBxInEvent = m_l1GtStablePar->gtTotalBxInEvent();
 
         // number of physics triggers
         m_numberPhysTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
 
-        // number of DAQ partitions
-        m_numberDaqPartitions = 8; // FIXME add it to stable parameters
-
         // number of objects of each type
         m_nrL1Mu = static_cast<int> (m_l1GtStablePar->gtNumberL1Mu());
-        //m_nrL1Mu = static_cast<int> (8);
+
 	
-// ***** Doe we need to change the StablePar class for generic. EG	
-        m_nrL1EG = static_cast<int> (m_l1GtStablePar->gtNumberL1NoIsoEG());
-        m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1TauJet());
+	//. EG	
+        m_nrL1EG = static_cast<int> (m_l1GtStablePar->gtNumberL1EG());
 
+	// jets
+        m_nrL1Jet = static_cast<int> (m_l1GtStablePar->gtNumberL1Jet());
 
-// ********* Do we need to change the StablePar class for generic jet?
-        m_nrL1Jet = static_cast<int> (m_l1GtStablePar->gtNumberL1CenJet());
+	// taus
+        m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1Tau());
 
-        m_nrL1JetCounts = static_cast<int> (m_l1GtStablePar->gtNumberL1JetCounts());
 
         // ... the rest of the objects are global
-
+/*
         m_ifMuEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfMuEtaNumberBits());
         m_ifCaloEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfCaloEtaNumberBits());
-
+*/
+        m_l1GtStablePar->print(std::cout);
 
         // Initialize Board
         m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent );
 
         //
-        m_l1GtStableParCacheID = l1GtStableParCacheID;
+        m_l1GtParCacheID = l1GtParCacheID;
 
     }
+
+
 
 
     // get / update the trigger menu from the EventSetup
@@ -499,16 +469,16 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         l1t::TriggerMenuParser gtParser = l1t::TriggerMenuParser();   
 
 
-	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberConditionChips());
-	gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnConditionChip());
-	gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderConditionChip());
+	gtParser.setGtNumberConditionChips(m_l1GtStablePar->gtNumberChips());
+	gtParser.setGtPinsOnConditionChip(m_l1GtStablePar->gtPinsOnChip());
+	gtParser.setGtOrderConditionChip(m_l1GtStablePar->gtOrderOfChip());
 	gtParser.setGtNumberPhysTriggers(m_l1GtStablePar->gtNumberPhysTriggers());
         
 	//Parse menu into emulator classes
 	gtParser.parseCondFormats(utml1GtMenu); 
         
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
-        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), m_l1GtStablePar->gtNumberConditionChips(),
+        m_l1GtMenu  =  new TriggerMenu(gtParser.gtTriggerMenuName(), m_l1GtStablePar->gtNumberChips(),
                         gtParser.vecMuonTemplate(),
                         gtParser.vecCaloTemplate(),
                         gtParser.vecEnergySumTemplate(),
@@ -649,8 +619,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // all board type are defined in CondFormats/L1TObjects/L1GtFwd
     // &
     // set the active flag for each object type received from GMT and GCT
-    // all objects in the GT system are defined in enum L1TGtObject from
-    // DataFormats/L1Trigger/GtProducerReadoutSetupFwd
+    // all objects in the GT system 
 
     //
     bool receiveMu = true;
@@ -689,15 +658,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
 
-/* *** No Output Record for Now
-    // produce the GtProducerReadoutRecord now, after we found how many
-    // BxInEvent the record has and how many boards are active
-    std::auto_ptr<GtProducerReadoutRecord> gtDaqReadoutRecord(
-        new GtProducerReadoutRecord(
-            m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
-
-*/
-
     // Produce the Output Records for the GT
     std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
     std::auto_ptr<GlobalExtBlkBxCollection> uGtExtRecord( new GlobalExtBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
@@ -728,88 +688,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         }
     }
     LogDebug("l1t|Global") << "HW BxCross " << bxCrossHw << std::endl;  
-
-/*  ** No Record for Now 
-    if (m_produceL1GtDaqRecord) {
-
-        for (CItBoardMaps
-                itBoard = boardMaps.begin();
-                itBoard != boardMaps.end(); ++itBoard) {
-
-            int iPosition = itBoard->gtPositionDaqRecord();
-            if (iPosition > 0) {
-
-                int iActiveBit = itBoard->gtBitDaqActiveBoards();
-                bool activeBoard = false;
-
-                if (iActiveBit >= 0) {
-                    activeBoard = m_activeBoardsGtDaq & (1 << iActiveBit);
-                }
-
-                // use board if: in the record, but not in ActiveBoardsMap (iActiveBit < 0)
-                //               in the record and ActiveBoardsMap, and active
-                if ((iActiveBit < 0) || activeBoard) {
-
-                    switch (itBoard->gtBoardType()) {
-
-                        case GTFE: {
-                                L1GtfeWord gtfeWordValue;
-
-                                gtfeWordValue.setBoardId( itBoard->gtBoardId() );
-
-                                // cast int to boost::uint16_t
-                                // there are normally 3 or 5 BxInEvent
-                                gtfeWordValue.setRecordLength(
-                                    static_cast<boost::uint16_t>(recordLength0));
-
-                                gtfeWordValue.setRecordLength1(
-                                    static_cast<boost::uint16_t>(recordLength1));
-
-                                // bunch crossing
-                                gtfeWordValue.setBxNr(bxCrossHw);
-
-                                // set the list of active boards
-                                gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
-
-                                // set alternative for number of BX per board
-                                gtfeWordValue.setAltNrBxBoard(
-                                    static_cast<boost::uint16_t> (m_alternativeNrBxBoardDaq));
-
-                                // set the TOTAL_TRIGNR as read from iEvent
-                                // TODO check again - PTC stuff
-
-                                gtfeWordValue.setTotalTriggerNr(
-                                    static_cast<boost::uint32_t>(iEvent.id().event()));
-
-                                // ** fill L1GtfeWord in GT DAQ record
-
-                                gtDaqReadoutRecord->setGtfeWord(gtfeWordValue);
-                            }
-
-                            break;
-                        case TCS: {
-                                // nothing
-                            }
-
-                            break;
-                        case TIM: {
-                                // nothing
-                            }
-
-                            break;
-                        default: {
-                                // do nothing, all blocks are given in GtBoardType enum
-                            }
-
-                            break;
-                    }
-                }
-            }
-
-        }
-
-    }
-*/
 
 
     // get the prescale factor from the configuration for now
@@ -872,8 +750,8 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             m_nrL1Mu,
             m_nrL1EG,
 	    m_nrL1Tau,
-            m_nrL1Jet,
-	    m_nrL1JetCounts  );
+            m_nrL1Jet
+	     );
 
 
         //  run FDL

@@ -272,6 +272,7 @@
   </class>
   <enum name="L1GtBoard" />
   <enum name="L1GtPsbQuad" />
+  <class name="L1TGlobalParameters"/>
   <class name="L1TUtmAlgorithm"/>
   <class name="L1TUtmBin"/>
   <class name="L1TUtmCondition"/>

@@ -41,7 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class GlobalStableParameters;
+class L1TGlobalParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
 
@@ -75,8 +75,8 @@ private:
     /// cached stuff
 
     /// stable parameters
-    const GlobalStableParameters* m_l1GtStablePar;
-    unsigned long long m_l1GtStableParCacheID;
+    const L1TGlobalParameters* m_l1GtStablePar;
+    unsigned long long m_l1GtParCacheID;
 
     // trigger menu
     const TriggerMenu* m_l1GtMenu;
@@ -97,17 +97,13 @@ private:
     int m_nrL1Jet;
 
 //  *** ??? Do we still need this?
-    int m_nrL1JetCounts;
+//    int m_nrL1JetCounts;
 
     // ... the rest of the objects are global
 
     int m_ifMuEtaNumberBits;
     int m_ifCaloEtaNumberBits;
 
-
-    /// parameters
-    const L1GtParameters* m_l1GtPar;
-    unsigned long long m_l1GtParCacheID;
 
     ///    total number of Bx's in the event coming from EventSetup
     int m_totalBxInEvent;
