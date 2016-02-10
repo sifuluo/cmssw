@@ -160,7 +160,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
     // register products
     if( m_produceL1GtDaqRecord ){
       produces<GlobalAlgBlkBxCollection>();
-      produces<GlobalExtBlkBxCollection>();
+      //blwEXT produces<GlobalExtBlkBxCollection>();
     }
 
 
@@ -660,7 +660,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // Produce the Output Records for the GT
     std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
-    std::auto_ptr<GlobalExtBlkBxCollection> uGtExtRecord( new GlobalExtBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
     // * produce the L1TGtObjectMapRecord  
     std::auto_ptr<L1TGtObjectMapRecord> gtObjectMapRecord(
@@ -781,7 +780,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 	    cms_uint64_t orbNr = iEvent.orbitNumber();
 	    int abBx = iEvent.bunchCrossing();
             m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, orbNr, abBx);
-	    m_uGtBrd->fillExtRecord(iBxInEvent, uGtExtRecord, orbNr, abBx);
         }
 
 
@@ -802,7 +800,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         
 	   /// Needs error checking that something exists at this bx.
 	   (uGtAlgRecord->at(bx,0)).print(myCoutStream); 
-	   (uGtExtRecord->at(bx,0)).print(myCoutStream);   
                 
        }
 
@@ -840,7 +837,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // register products
     if( m_produceL1GtDaqRecord ){
       iEvent.put( uGtAlgRecord );
-      iEvent.put( uGtExtRecord );
     }
 
 
