@@ -31,6 +31,7 @@ process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.l1tSummary = cms.EDAnalyzer("L1TSummary")
+process.l1tSummary.tag   = cms.string("debugging L1T");
 process.l1tSummary.egCheck   = cms.bool(True);
 process.l1tSummary.tauCheck  = cms.bool(True);
 process.l1tSummary.jetCheck  = cms.bool(True);
@@ -60,39 +61,15 @@ process.MessageLogger.categories.append('l1t|Global')
 process.MessageLogger.suppressInfo = cms.untracked.vstring('Geometry', 'AfterSource')
 
 
-# gt analyzer
-process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
-    doText = cms.untracked.bool(True),
-    dmxEGToken = cms.InputTag("None"),
-    dmxTauToken = cms.InputTag("None"),
-    dmxJetToken = cms.InputTag("None"),
-    dmxEtSumToken = cms.InputTag("None"),
-    muToken = cms.InputTag("simGmtStage2Digis"),
-    egToken = cms.InputTag("simCaloStage2Digis"),
-    tauToken = cms.InputTag("simCaloStage2Digis"),
-    jetToken = cms.InputTag("simCaloStage2Digis"),
-    etSumToken = cms.InputTag("simCaloStage2Digis"),
-    gtAlgToken = cms.InputTag("None"),
-    emulDxAlgToken = cms.InputTag("simGlobalStage2Digis"),
-    emulGtAlgToken = cms.InputTag("simGlobalStage2Digis")
-)
-
-process.l1UpgradeTree = cms.EDAnalyzer(
-    "L1UpgradeTreeProducer",
-    egToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    tauTokens = cms.untracked.VInputTag("simCaloStage2Digis"),
-    jetToken = cms.untracked.InputTag("simCaloStage2Digis"),
-    muonToken = cms.untracked.InputTag("simGmtStage2Digis"),
-    sumToken = cms.untracked.InputTag("simCaloStage2Digis",""),
-    maxL1Upgrade = cms.uint32(60)
-)
+process.bxVector = cms.EDProducer("L1TBXVectorTester")
+process.bxVector.muonToken = cms.InputTag("simGmtStage2Digis","");
 
 process.L1TSeq = cms.Sequence(   process.SimL1Emulator
 #                                   + process.dumpED
 #                                   + process.dumpES
-                                   + process.l1tSummary
-#                                   + process.l1tGlobalAnalyzer
-                                   + process.l1UpgradeTree
+                                   + process.bxVector
+                                   + process.dumpED
+#                                   + process.l1tSummary
 )
 
 process.L1TPath = cms.Path(process.L1TSeq)
