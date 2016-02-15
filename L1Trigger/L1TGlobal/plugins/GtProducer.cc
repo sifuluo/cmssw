@@ -93,16 +93,15 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
     if (m_verbosity) {
 
-        LogDebug("l1t|Global") << std::endl;
 
-        LogTrace("l1t|Global")
+        LogTrace("GtProducer")
                 << "\nInput tag for muon collection from GMT:         " << m_muInputTag
                 << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
 		<< "\nInput tag for external conditions     :         " << m_extInputTag
                 << std::endl;
 
 
-        LogTrace("l1t|Global")
+        LogTrace("GtProducer")
                 << "\nProduce the L1 GT DAQ readout record:           " << m_produceL1GtDaqRecord
                 << "\nProduce the L1 GT Object Map record:            " << m_produceL1GtObjectMapRecord
                 << " \n"
@@ -346,7 +345,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 	    }
 	  }
 	  else{
-	    LogTrace("l1t|Global")
+	    LogTrace("GtProducer")
 	      << "\nPrescale file has algo bit: " << algoBit
 	      << "\nThis is larger than the number of triggers: " << m_numberPhysTriggers
 	      << "\nSomething is wrong. Ignoring."
@@ -357,7 +356,7 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
     }
     else {
-      LogTrace("l1t|Global")
+      LogTrace("GtProducer")
 	<< "\nCould not find file: " << m_prescalesFile
 	<< "\nFilling the prescale vectors with prescale 1"
 	<< "\nSetting prescale set to 1"
@@ -442,7 +441,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_ifMuEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfMuEtaNumberBits());
         m_ifCaloEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfCaloEtaNumberBits());
 */
-        m_l1GtStablePar->print(std::cout);
+        //m_l1GtStablePar->print(std::cout);
 
         // Initialize Board
         m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent );
@@ -680,13 +679,13 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         bxCrossHw = 0; // Bx number too large, set to 0!
         if (m_verbosity) {
 
-            LogDebug("l1t|Global")
+            LogDebug("GtProducer")
                 << "\nBunch cross number [hex] = " << std::hex << bxCross
                 << "\n  larger than 12 bits. Set to 0! \n" << std::dec
                 << std::endl;
         }
     }
-    LogDebug("l1t|Global") << "HW BxCross " << bxCrossHw << std::endl;  
+    LogDebug("GtProducer") << "HW BxCross " << bxCrossHw << std::endl;  
 
 
     // get the prescale factor from the configuration for now
@@ -697,7 +696,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     if( m_prescaleSet<=0 ) pfAlgoSetIndex = 0;
 
     if( pfAlgoSetIndex > (*m_prescaleFactorsAlgoTrig).size()-1 ){
-      LogTrace("l1t|Global")
+      LogTrace("GtProducer")
 	<< "\nAttempting to access prescale algo set: " << m_prescaleSet
 	<< "\nNumber of prescale algo sets available: " << (*m_prescaleFactorsAlgoTrig).size()
 	<< "Setting former to latter."
@@ -711,7 +710,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     const std::vector<unsigned int>& triggerMaskAlgoTrig = *m_triggerMaskAlgoTrig;
     const std::vector<unsigned int>& triggerMaskVetoAlgoTrig = *m_triggerMaskVetoAlgoTrig;
 
-    LogDebug("l1t|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
+    LogDebug("GtProducer") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
 
 
 // Load the calorimeter input onto the uGt Board
@@ -737,7 +736,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             ++iBxInEvent) {
 
         //  run GTL
-        LogDebug("l1t|Global")
+        LogDebug("GtProducer")
          << "\nGtProducer : running GTL  for bx = " << iBxInEvent << "\n"
          << std::endl;
 
@@ -754,7 +753,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 
         //  run FDL
-        LogDebug("l1t|Global")
+        LogDebug("GtProducer")
           << "\nGtProducer : running FDL for bx = " << iBxInEvent << "\n"
           << std::endl;
 
@@ -803,7 +802,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                 
        }
 
-        LogTrace("l1t|Global")
+        LogTrace("GtProducer")
         << "\n The following L1 GT DAQ readout record was produced:\n"
         << myCoutStream.str() << "\n"
         << std::endl;
@@ -822,7 +821,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         }
 
 
-        LogDebug("l1t|Global")
+        LogDebug("GtProducer")
         << "Test gtObjectMapRecord in GtProducer \n\n" << myCoutStream.str() << "\n\n"
         << std::endl;
 
