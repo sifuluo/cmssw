@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
 #process = cms.Process('L1SEQS',eras.Run2_25ns)
-process = cms.Process('HLT',eras.Run2_2016)
+process = cms.Process('L1SEQS',eras.Run2_2016)
 
 
 # import of standard configurations
@@ -33,14 +33,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #    debugModules = cms.untracked.vstring('*'))
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-            destinations = cms.untracked.vstring( 'detailedInfo', 'critical'),
-            detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG')),
-            #debugModules = cms.untracked.vstring( 'hltL1TSeed' )
-            debugModules = cms.untracked.vstring( 'hltL1TSeed', 'hltTriggerSummaryRAW' )
-)
-
-#
 # LOCAL CONDITIONS NEEDED FOR RE-EMULATION OF GT
 #
 
@@ -78,10 +70,25 @@ process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     AlgorithmTriggersUnmasked = cms.bool(True),
 )
 
+process.HLTL1UnpackerSequence = cms.Sequence(
+ process.hltGtStage2Digis +
+ process.hltCaloStage2Digis +
+ process.hltGmtStage2Digis +
+ process.hltGtStage2ObjectMap
+)
+
+#
+# END HLT UNPACKER SEQUENCE FOR STAGE 2
+#
+
+#
+# BEGIN L1T SEEDS EXAMPLE FOR STAGE 2
+#
+
 
 process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 OR L1_SingleEG10 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
-    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 AND L1_SingleEG10" ),
+    SaveTags             = cms.bool( True ),
     L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
     L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
     L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
@@ -91,32 +98,14 @@ process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     L1EtSumInputTag      = cms.InputTag("hltCaloStage2Digis"),
 )
 
-
-#process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    #processName = cms.string( "@" )
-#)
-process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
-)
-
-
-
-process.HLTL1UnpackerSequence = cms.Sequence(
- process.hltGtStage2Digis +
- process.hltCaloStage2Digis +
- process.hltGmtStage2Digis +
- process.hltGtStage2ObjectMap)
-
-#
-# END HLT UNPACKER SEQUENCE FOR STAGE 2
-#
-
 # HLT testing sequence
 process.HLTTesting  = cms.Sequence( 
-    process.hltL1TSeed + 
-    process.hltTriggerSummaryRAW 
+    process.hltL1TSeed 
 )
 
+#
+# END L1T SEEDS EXAMPLE FOR STAGE 2
+#
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -199,6 +188,7 @@ process.load('L1Trigger.L1TCommon.l1tSummaryStage2HltDigis_cfi')
 
 process.debug_step = cms.Path(
     process.dumpES + 
+#    process.dumpES + 
     process.dumpED +
     process.l1tSummaryStage2SimDigis +
     process.l1tSummaryStage2HltDigis
