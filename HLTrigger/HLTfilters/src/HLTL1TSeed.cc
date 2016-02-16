@@ -514,22 +514,25 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       << "\n\tAlgorithms in L1TriggerObjectMapRecord and GT results ( emulated | initial | prescaled | final ) " << endl;
 
       LogTrace("HLTL1TSeed") 
-      << "\n\tmap" << std::setw(40) << "algoName" << "\t (emul|ini|pre|fin)" << endl;
+      << "\n\tmap" <<"\tAlgoBit" << std::setw(40) << "algoName" << "\t (emul|ini|pre|fin)" << endl;
 
       LogTrace("HLTL1TSeed")
       << "---------------------------------------------------------------------------------------------------------------------";
 
       for (size_t imap =0; imap < objMaps.size(); imap++) {
 
-        int bit = objMaps[imap].algoBitNumber();
+        int bit = objMaps[imap].algoBitNumber();   //  same as bit from L1T Menu
 
         int emulDecision = objMaps[imap].algoGtlResult();
+
+        // For bx=0 , get 0th AlgoBlock, so in BXvector at(bx=0,i=0)
         int initDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionInitial(bit);
         int presDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionPreScaled(bit);
         int finlDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
 
         LogTrace("HLTL1TSeed")
         << "\t" << std::setw(3) << imap 
+        << "\tbit = " << std::setw(3) << bit 
         << std::setw(40) << objMaps[imap].algoName() 
         << "\t (  " << emulDecision << " | " << initDecision << " | " << presDecision << " | " << finlDecision << " ) ";
         
