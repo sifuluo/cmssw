@@ -70,6 +70,9 @@ process.hltGmtStage2Digis = cms.EDProducer(
     FedIds = cms.vint32(1402),
 )
 
+# 
+# EMULATOR
+#
 process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     GmtInputTag = cms.InputTag("hltGmtStage2Digis"),
     ExtInputTag = cms.InputTag("hltGtStage2Digis"), # (external conditions are not emulated, use unpacked)
@@ -78,12 +81,15 @@ process.hltGtStage2ObjectMap = cms.EDProducer("L1TGlobalProducer",
     AlgorithmTriggersUnmasked = cms.bool(True),
 )
 
-
+#
+# SEEDING
+#
 process.hltL1TSeed = cms.EDFilter( "HLTL1TSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleS1Jet36 OR L1_SingleEG10 OR L1_ETT40 OR L1_ETM30 OR L1_HTT100" ),
     saveTags = cms.bool( True ),
     L1ObjectMapInputTag  = cms.InputTag("hltGtStage2ObjectMap"),
-    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"),
+    L1GlobalInputTag     = cms.InputTag("hltGtStage2Digis"), # emulated 
+    #L1GlobalInputTag     = cms.InputTag("simGtStage2Digis"), # unpacked RAW
     L1MuonInputTag       = cms.InputTag("hltGmtStage2Digis"),
     L1EGammaInputTag     = cms.InputTag("hltCaloStage2Digis"),
     L1JetInputTag        = cms.InputTag("hltCaloStage2Digis"),
