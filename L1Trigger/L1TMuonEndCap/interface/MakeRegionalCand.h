@@ -98,9 +98,9 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
 			case(15): iQual = 8;break;
 			case(14): iQual = 4;break;
 			case(13): iQual = 4;break;
-			case(12): iQual = 0;break;
+			case(12): iQual = 4;break;
 			case(11): iQual = 4;break;
-			default: iQual = 0;break;
+			default: iQual = 4;break;
 		}
 	
 	}
@@ -114,7 +114,7 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
 			case(11): iQual = 12;break;
 			case(10): iQual = 8;break;
 			case(7): iQual = 8;break;
-			default: iQual = 0;break;
+			default: iQual = 4;break;
 		}
 	
 	}
