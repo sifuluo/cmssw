@@ -100,7 +100,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
-      set Custom = " "
+      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TGRun"
       set L1REPACK = L1REPACK:Full
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
@@ -124,7 +124,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun2
       set Era  = $EraRun2pp
-      set Custom = " "
+      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TGRun"
       set L1REPACK = L1REPACK:Full
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
@@ -148,7 +148,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
       set Era  = $EraRun2pp
-      set Custom = " "
+      set Custom = "HLTrigger/Configuration/CustomConfigs.L1TGRun"
       set L1REPACK = L1REPACK:Full
     else if ( $table == PRef ) then
       set XL1T = $XL1TPP3
