@@ -507,21 +507,6 @@ template <typename T> std::string l1t::TriggerMenuParser::l1t2string( T data ){
   ss << data;
   return ss.str();
 }
-std::string l1t::TriggerMenuParser::l1tDateTime2string( l1t::DateTime date ){
-  std::stringstream ss;
-  ss << std::setfill('0');
-  ss << std::setw(4) << date.year() << "-" << std::setw(2) << date.month() << "-" << std::setw(2) << date.day() << "T";
-  ss << std::setw(2) << date.hours() << ":" << std::setw(2) << date.minutes() << ":" << std::setw(2) << date.seconds();
-  //ss << data;
-  return ss.str();
-}
-int l1t::TriggerMenuParser::l1t2int( l1t::RelativeBx data ){  //l1t::RelativeBx
-  std::stringstream ss;
-  ss << data;
-  int value;
-  ss >> value;
-  return value;
-}
 int l1t::TriggerMenuParser::l1tstr2int( const std::string data ){ 
   std::stringstream ss;
   ss << data;
