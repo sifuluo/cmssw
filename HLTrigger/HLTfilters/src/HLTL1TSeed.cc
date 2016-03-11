@@ -474,7 +474,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     std::list<int> listJetCounts;
 
-    // get handle to uGT
+    // get handle to unpacked GT
     edm::Handle<GlobalAlgBlkBxCollection> uGtAlgoBlocks;
     iEvent.getByToken(m_l1GlobalToken, uGtAlgoBlocks);
 
@@ -499,7 +499,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       return false;
     }
 
-    // get handle to object maps (one object map per algorithm)
+    // get handle to object maps from emulator (one object map per algorithm)
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
@@ -541,6 +541,19 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         int presDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionPreScaled(bit);
         int finlDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
 
+        if(emulDecision != initDecision) {
+
+          edm::LogError("HLTL1TSeed") 
+          << "L1T decision (emulated vs. unpacked) is not consistent:"
+          << "\n\tbit = " << std::setw(3) << bit 
+          << std::setw(40) << objMaps[imap].algoName() 
+          << "\t emulated decision = " << emulDecision << "\t unpacked inital decision = " << initDecision
+          << "\nThis should not happen. Include the L1TGtEmulCompare module in the sequence."<< endl;
+
+        }
+        
+
+
         LogTrace("HLTL1TSeed")
         << "\t" << std::setw(3) << imap 
         << "\tbit = " << std::setw(3) << bit 
@@ -566,7 +579,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     }
 
-    // Update m_l1AlgoLogicParser and store results for algOpTokens 
+    // Update m_l1AlgoLogicParser and store emulator results for algOpTokens 
     //
     for (size_t i = 0; i < algOpTokenVector.size(); ++i) {
 
@@ -583,12 +596,18 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         }
         else {
 
-          (algOpTokenVector[i]).tokenResult = objMap->algoGtlResult();
+          //(algOpTokenVector[i]).tokenResult = objMap->algoGtlResult();
+
+          int bit = objMap->algoBitNumber();
+          bool finalAlgoDecision = (uGtAlgoBlocks->at(0,0)).getAlgoDecisionFinal(bit);
+          (algOpTokenVector[i]).tokenResult = finalAlgoDecision;
 
         }
 
     }
 
+    // Filter decision 
+    //
     bool seedsResult = m_l1AlgoLogicParser.expressionResult();
 
     if (m_isDebugEnabled ) {
@@ -631,20 +650,20 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       int  algoSeedBitNumber = objMap->algoBitNumber();
       bool algoSeedResult    = objMap->algoGtlResult();
 
-      // uGtAlgoBlock has decisions initial, prescaled, and final
-      bool algoSeedRsultMaskAndPresc = uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedBitNumber); 
+      // unpacked GT results: uGtAlgoBlock has decisions initial, prescaled, and final after masks
+      bool algoSeedResultMaskAndPresc = uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedBitNumber); 
 
       LogTrace("HLTL1TSeed") 
-      << "\n\tAlgo seed " << algoSeedName << " result emulated (initial) | final = " << algoSeedResult  << " | " << algoSeedRsultMaskAndPresc << endl;
+      << "\n\tAlgo seed " << algoSeedName << " result emulated (initial) | final = " << algoSeedResult  << " | " << algoSeedResultMaskAndPresc << endl;
 
+      /// Unpacked GT result of algorithm is false after masks and prescales  - no seeds
+      /// ////////////////////////////////////////////////////////////////////////////////
+      if(!algoSeedResultMaskAndPresc) continue;
 
-      // algorithm result is false - no seeds
-      /// ///////////////////////////////////////////////////////////////
-      if ( !algoSeedResult) continue;
-
-      /// algorithm result is false after masks and prescales  - no seeds
-      /// ///////////////////////////////////////////////////////////////
-      if(!algoSeedRsultMaskAndPresc) continue;
+      /// Emulated GT result of algorithm is false - no seeds - but still save the event
+      //  This should not happen if the emulated and unpacked GT are consistent
+      /// ////////////////////////////////////////////////////////////////////////////////
+      if(!algoSeedResult) continue; 
 
       const std::vector<L1GtLogicParser::OperandToken>& opTokenVecObjMap = objMap->operandTokenVector();
       const std::vector<ObjectTypeInCond>&  condObjTypeVec = objMap->objectTypeVector();
