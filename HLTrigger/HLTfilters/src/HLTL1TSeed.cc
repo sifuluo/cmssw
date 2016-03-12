@@ -543,16 +543,15 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
         if(emulDecision != initDecision) {
 
-          edm::LogError("HLTL1TSeed") 
-          << "L1T decision (emulated vs. unpacked) is not consistent:"
+          edm::LogWarning("HLTL1TSeed") 
+          << "L1T decision (emulated vs. unpacked initial) is not the same:"
           << "\n\tbit = " << std::setw(3) << bit 
           << std::setw(40) << objMaps[imap].algoName() 
-          << "\t emulated decision = " << emulDecision << "\t unpacked inital decision = " << initDecision
+          << "\t emulated decision = " << emulDecision << "\t unpacked initial decision = " << initDecision
           << "\nThis should not happen. Include the L1TGtEmulCompare module in the sequence."<< endl;
 
         }
         
-
 
         LogTrace("HLTL1TSeed")
         << "\t" << std::setw(3) << imap 
@@ -654,7 +653,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       bool algoSeedResultMaskAndPresc = uGtAlgoBlocks->at(0,0).getAlgoDecisionFinal(algoSeedBitNumber); 
 
       LogTrace("HLTL1TSeed") 
-      << "\n\tAlgo seed " << algoSeedName << " result emulated (initial) | final = " << algoSeedResult  << " | " << algoSeedResultMaskAndPresc << endl;
+      << "\n\tAlgo seed " << algoSeedName << " result emulated | final = " << algoSeedResult  << " | " << algoSeedResultMaskAndPresc << endl;
 
       /// Unpacked GT result of algorithm is false after masks and prescales  - no seeds
       /// ////////////////////////////////////////////////////////////////////////////////
