@@ -97,7 +97,6 @@ HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // #
   // # by convention, "L1GlobalDecision" logical expression means global decision
   desc.add<string>("L1SeedsLogicalExpression","");
-  desc.add<bool>("SaveTags",true);
   desc.add<edm::InputTag>("L1ObjectMapInputTag",edm::InputTag("hltGtStage2ObjectMap"));
   desc.add<edm::InputTag>("L1GlobalInputTag",edm::InputTag("hltGtStage2Digis"));
   desc.add<edm::InputTag>("L1MuonInputTag",edm::InputTag("hltGmtStage2Digis"));
@@ -456,6 +455,12 @@ void HLTL1TSeed::dumpTriggerFilterObjectWithRefs(trigger::TriggerFilterObjectWit
 bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         trigger::TriggerFilterObjectWithRefs & filterproduct
         ) {
+    
+    // Description of seeding:
+    // Two GT objects are obtained from the Event: (1) the unpacked GT and (2) the emulated GT.
+    // Return value of the function is the score of logical expression evaluation based on (1).
+    // Seeding for any indvidual l1_algo is performed if TRUE both in (1) and (2).
+    // Seed objects are identified (only available) from ObjectMaps created in (2).
 
 
     // define index lists for all particle types
