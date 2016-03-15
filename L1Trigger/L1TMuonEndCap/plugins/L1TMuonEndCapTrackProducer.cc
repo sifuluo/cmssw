@@ -249,7 +249,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		int sector = -1;
 		bool ME13 = false;
 		int me1address = 0, me2address = 0, CombAddress = 0, mode = 0;
-		int ebx = 20, sebx = 20;
+		int ebx = 20, sebx = 20, phis[4] = {-99999,-99999,-99999,-99999};
 
 		for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
 
@@ -273,7 +273,9 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 				ts.push_back(A->Theta());
 				sector = (A->TP().detId<CSCDetId>().endcap() -1)*6 + A->TP().detId<CSCDetId>().triggerSector() - 1;
 				//std::cout<<"Q: "<<A->Quality()<<", keywire: "<<A->Wire()<<", strip: "<<A->Strip()<<std::endl;
-
+				
+				phis[station-1] = A->Phi();
+				
 				switch(station){
 					case 1: mode |= 8;break;
 					case 2: mode |= 4;break;
@@ -321,6 +323,26 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		//FoundTracks->push_back(tempTrack);
 
 		CombAddress = (me2address<<4) | me1address;
+
+		 int amodes[6] = {12,10,9,5,6,3};
+         int dphis[6] = {phis[1] - phis[0],phis[2] - phis[0], phis[3] - phis[0],phis[3] - phis[1], phis[2] - phis[1],phis[3] - phis[2]};
+         int emuCharge = 0;
+
+         for(int am=5;am>-1;am--){
+
+         		 //if(mode & amodes[am])
+         		//		 dPhi[charge][am]->Fill(dphis[am]);
+
+         		 if(mode & amodes[am]){
+
+         				 if(dphis[am] > 0)
+         						 emuCharge = 1;
+         				 else
+         						 emuCharge = -1;
+
+         		 }
+
+         }
 
 
 		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
