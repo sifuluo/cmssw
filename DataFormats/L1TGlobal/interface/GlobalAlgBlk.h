@@ -23,13 +23,13 @@
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-//#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
 
 
 class GlobalAlgBlk;
 typedef BXVector<GlobalAlgBlk> GlobalAlgBlkBxCollection;
+  
 
 // class interface
 
@@ -49,6 +49,7 @@ public:
 
 
 public:
+    const static unsigned int maxPhysicsTriggers = 512;
 
     /// set simple members
     void setOrbitNr(int orbNr)      { m_orbitNr        = orbNr; }

@@ -15,6 +15,7 @@
 // system include files
 #include <vector>
 #include <string>
+#include <map>
 #include <iosfwd>
 
 // class declaration
@@ -65,9 +66,27 @@ public:
     inline void setETMScales(ScaleParameters& scales) { m_etmScales = scales; }
     inline void setHTMScales(ScaleParameters& scales) { m_htmScales = scales; }
     
+    virtual void setLUT_CalMuEta(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_CalMuPhi(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_DeltaEta(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_DeltaPhi(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_Pt(std::string lutName, std::vector<long long> lut);
+    virtual void setLUT_Cosh(std::string lutName, std::vector<long long> lut); 
+    virtual void setLUT_Cos(std::string lutName, std::vector<long long> lut);
+    
     inline void setScalesName(std::string name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const; 
+
+    long long getLUT_CalMuEta(std::string lutName, int element) const;
+    long long getLUT_CalMuPhi(std::string lutName, int element) const;
+    long long getLUT_DeltaEta(std::string lutName, int element) const;
+    long long getLUT_DeltaPhi(std::string lutName, int element) const;
+    long long getLUT_Pt(std::string lutName, int element) const;
+    long long getLUT_Cosh(std::string lutName, int element) const;
+    long long getLUT_Cos(std::string lutName, int element) const;
     
+    virtual void dumpAllLUTs(std::ostream& myCout) const;
+    virtual void dumpLUT(std::ostream& myCout, int LUTtype, std::string name) const;
     virtual void print(std::ostream& myCout) const;
     virtual void printScale(ScaleParameters scale, std::ostream& myCout) const;
 
@@ -89,6 +108,15 @@ private:
    ScaleParameters m_httScales;
    ScaleParameters m_etmScales;
    ScaleParameters m_htmScales; 
+   
+   //LUTs
+   std::map<std::string, std::vector<long long> > m_lut_CalMuEta;
+   std::map<std::string, std::vector<long long> > m_lut_CalMuPhi;
+   std::map<std::string, std::vector<long long> > m_lut_DeltaEta;
+   std::map<std::string, std::vector<long long> > m_lut_DeltaPhi;
+   std::map<std::string, std::vector<long long> > m_lut_Pt;
+   std::map<std::string, std::vector<long long> > m_lut_Cosh;
+   std::map<std::string, std::vector<long long> > m_lut_Cos;
             
 };
 

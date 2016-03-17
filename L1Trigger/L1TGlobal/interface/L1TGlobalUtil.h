@@ -1,5 +1,5 @@
-#ifndef L1TGlobalUtil_h
-#define L1TGlobalUtil_h
+#ifndef L1Trigger_L1TGlobal_L1TGlobalUtil_h
+#define L1Trigger_L1TGlobal_L1TGlobalUtil_h
 
 /**
  * \class L1TGlobalUtil

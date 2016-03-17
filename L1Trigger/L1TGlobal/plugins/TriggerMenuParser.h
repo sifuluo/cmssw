@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
@@ -33,7 +32,6 @@
 
 #include "L1Trigger/L1TGlobal/interface/L1TGlobalScales.h"
 
-#include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 #include "tmEventSetup/esTriggerMenu.hh"
@@ -42,11 +40,10 @@
 #include "tmEventSetup/esObject.hh"
 #include "tmEventSetup/esCut.hh"
 #include "tmEventSetup/esScale.hh"
-//#include "tmGrammar/Algorithm.hh"
 
 // forward declarations
 class GtCondition;
-class L1GtAlgorithm;
+class GtAlgorithm;
 
 namespace l1t {
 
@@ -286,11 +283,9 @@ private:
     bool insertConditionIntoMap(GtCondition& cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
-    bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
+    bool insertAlgorithmIntoMap(const GtAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
-    std::string l1tDateTime2string( l1t::DateTime );
-    int l1t2int( l1t::RelativeBx );
     int l1tstr2int( const std::string data );
 
 
@@ -346,6 +341,29 @@ private:
     //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
     bool parseAlgorithm( tmeventsetup::esAlgorithm algorithm,
             unsigned int chipNr = 0 );
+
+    // Parse LUT for Cal Mu Eta
+    void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, std::string obj2);
+
+
+    // Parse LUT for Cal Mu Phi
+    void parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, std::string obj2);
+
+    // Parse LUT for Cal Mu Pt
+    void parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+                std::string obj1, unsigned int prec);
+
+    // Parse LUT for Delta Eta and Cosh
+    void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+            std::string obj1, std::string obj2, 
+	    unsigned int prec1, unsigned int prec2) ;
+
+    // Parse LUT for Delta Eta and Cosh
+    void parseDeltaPhi_Cos_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, 
+            std::string obj1, std::string obj2, 
+	    unsigned int prec1, unsigned int prec2) ;
 
 
 private:
