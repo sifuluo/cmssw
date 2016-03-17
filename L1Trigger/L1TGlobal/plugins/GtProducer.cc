@@ -809,7 +809,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
         myCoutStream.str("");
         myCoutStream.clear();
-/*
+
         const std::vector<L1TGtObjectMap> objMapVec =  
             gtObjectMapRecord->gtObjectMap();
 
@@ -827,7 +827,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
         myCoutStream.str("");
         myCoutStream.clear();
-*/
     }
 
 
