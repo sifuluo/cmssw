@@ -497,7 +497,10 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
 
         (const_cast<TriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
-
+        
+	//int printV = 2;
+        //m_l1GtMenu->print(std::cout, printV);
+	
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
 
