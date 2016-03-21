@@ -22,6 +22,8 @@
 // system include files
 #include <string>
 #include <vector>
+#include<iostream>
+#include<fstream>
 
 #include <boost/cstdint.hpp>
 
@@ -39,18 +41,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class GlobalStableParameters;
+class L1TGlobalParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
 
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 
+class TriggerMenu;
+
 // class declaration
 
 namespace l1t {
 
-class GtProducer : public edm::EDProducer
+  class GtProducer : public edm::EDProducer
 {
 
 public:
@@ -71,8 +75,12 @@ private:
     /// cached stuff
 
     /// stable parameters
-    const GlobalStableParameters* m_l1GtStablePar;
-    unsigned long long m_l1GtStableParCacheID;
+    const L1TGlobalParameters* m_l1GtStablePar;
+    unsigned long long m_l1GtParCacheID;
+
+    // trigger menu
+    const TriggerMenu* m_l1GtMenu;
+    unsigned long long m_l1GtMenuCacheID;
 
     /// number of physics triggers
     unsigned int m_numberPhysTriggers;
@@ -89,17 +97,13 @@ private:
     int m_nrL1Jet;
 
 //  *** ??? Do we still need this?
-    int m_nrL1JetCounts;
+//    int m_nrL1JetCounts;
 
     // ... the rest of the objects are global
 
     int m_ifMuEtaNumberBits;
     int m_ifCaloEtaNumberBits;
 
-
-    /// parameters
-    const L1GtParameters* m_l1GtPar;
-    unsigned long long m_l1GtParCacheID;
 
     ///    total number of Bx's in the event coming from EventSetup
     int m_totalBxInEvent;
@@ -122,6 +126,10 @@ private:
 
 
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    std::vector<std::vector<int> > m_initialPrescaleFactorsAlgoTrig;
+
+    /// CSV file for prescales
+    std::string m_prescalesFile;
 
 
     /// trigger masks & veto masks
@@ -132,9 +140,11 @@ private:
     unsigned long long m_l1GtTmVetoAlgoCacheID;
 
 
-    std::vector<unsigned int> m_triggerMaskAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
+    std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
-    std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
+    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
 
 private:
 
@@ -147,9 +157,18 @@ private:
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;
+    edm::EDGetTokenT<BXVector<l1t::Muon>> m_muInputToken;
 
     /// input tag for calorimeter collections from GCT
     edm::InputTag m_caloInputTag;
+    edm::EDGetTokenT<BXVector<l1t::EGamma>> m_egInputToken;
+    edm::EDGetTokenT<BXVector<l1t::Tau>> m_tauInputToken;
+    edm::EDGetTokenT<BXVector<l1t::Jet>> m_jetInputToken;
+    edm::EDGetTokenT<BXVector<l1t::EtSum>> m_sumInputToken;
+
+    /// input tag for external conditions
+    edm::InputTag m_extInputTag;
+    edm::EDGetTokenT<BXVector<GlobalExtBlk>> m_extInputToken;
 
     /// logical flag to produce the L1 GT DAQ readout record
     bool m_produceL1GtDaqRecord;
@@ -175,6 +194,10 @@ private:
 
     /// length of BST record (in bytes) from parameter set
     int m_psBstLengthBytes;
+
+
+    /// prescale set used
+    unsigned int m_prescaleSet;
 
     /// run algorithm triggers
     ///     if true, unprescaled (all prescale factors 1)

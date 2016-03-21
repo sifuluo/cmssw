@@ -47,8 +47,11 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+
 
 using namespace edm;
 using namespace std;
@@ -61,6 +64,7 @@ namespace l1t {
     explicit GtRecordDump(const edm::ParameterSet&);
     virtual ~GtRecordDump(){};
     virtual void analyze(const edm::Event&, const edm::EventSetup&);  
+    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
     
     EDGetToken egToken;
     EDGetToken muToken;
@@ -86,6 +90,8 @@ namespace l1t {
     unsigned int formatJet(std::vector<l1t::Jet>::const_iterator jet);
     unsigned int formatMissET(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum);
+    std::map<std::string, std::vector<int> > m_algoSummary;
+    
     
     unsigned int m_absBx;
     int m_bxOffset;
@@ -94,12 +100,13 @@ namespace l1t {
     
     bool m_dumpTestVectors;
     bool m_dumpGTRecord;
+    bool m_dumpTriggerResults;
     int m_minBx;
     int m_maxBx;
     int m_minBxVectors;
     int m_maxBxVectors;
-
     
+    L1TGlobalUtil* m_gtUtil;
   };
 
   GtRecordDump::GtRecordDump(const edm::ParameterSet& iConfig)
@@ -116,6 +123,7 @@ namespace l1t {
       m_minBx           = iConfig.getParameter<int>("minBx");
       m_maxBx           = iConfig.getParameter<int>("maxBx");     
       m_dumpGTRecord    = iConfig.getParameter<bool>("dumpGTRecord");
+      m_dumpTriggerResults = iConfig.getParameter<bool>("dumpTrigResults");
 
       m_minBxVectors    = iConfig.getParameter<int>("minBxVec");
       m_maxBxVectors    = iConfig.getParameter<int>("maxBxVec"); 
@@ -127,7 +135,13 @@ namespace l1t {
 
       m_absBx = 0;
       m_absBx += m_bxOffset;
+
+      std::string preScaleFileName = iConfig.getParameter<std::string>("psFileName");
+      unsigned int preScColumn = iConfig.getParameter<int>("psColumn");
+
+      edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + preScaleFileName);
       
+      m_gtUtil = new L1TGlobalUtil(f1.fullPath(),preScColumn);
   }
   
   // loop over events
@@ -156,7 +170,65 @@ namespace l1t {
   Handle<BXVector<GlobalExtBlk>> uGtExt;
   iEvent.getByToken(uGtExtToken,uGtExt);   
   
+ 
 
+  
+    
+     //Fill the L1 result maps
+     m_gtUtil->retrieveL1(iEvent,evSetup,uGtAlgToken);
+
+     LogDebug("GtRecordDump") << "retrieved L1 data " << endl;
+     
+     // grab the map for the final decisions
+     const std::vector<std::pair<std::string, bool> > initialDecisions = m_gtUtil->decisionsInitial();
+     const std::vector<std::pair<std::string, bool> > prescaledDecisions = m_gtUtil->decisionsPrescaled();
+     const std::vector<std::pair<std::string, bool> > finalDecisions = m_gtUtil->decisionsFinal();
+     const std::vector<std::pair<std::string, int> >  prescales = m_gtUtil->prescales();
+     const std::vector<std::pair<std::string, bool> > masks = m_gtUtil->masks();
+     const std::vector<std::pair<std::string, bool> > vetoMasks = m_gtUtil->vetoMasks();
+
+     LogDebug("GtRecordDump") << "retrieved all event vectors " << endl;
+
+     // Dump the results
+     if(m_dumpTriggerResults) {
+       cout << "    Bit                  Algorithm Name                                      Init    PScd  Final   PS Factor     Masked    Veto " << endl;
+       cout << "================================================================================================================================" << endl;
+     }
+     for(unsigned int i=0; i<initialDecisions.size(); i++) {
+       
+       // get the name and trigger result
+       std::string name = (initialDecisions.at(i)).first;
+       bool resultInit = (initialDecisions.at(i)).second;
+       
+       //  put together our map of algorithms and counts across events      
+       if(m_algoSummary.count(name)==0) {
+         std::vector<int> tst;
+	 tst.resize(3);
+	 m_algoSummary[name]=tst;
+       }    	        
+       if (resultInit) (m_algoSummary.find(name)->second).at(0) += 1;
+
+       // get prescaled and final results (need some error checking here)
+       bool resultPre = (prescaledDecisions.at(i)).second;
+       if (resultPre) (m_algoSummary.find(name)->second).at(1) += 1;
+       bool resultFin = (finalDecisions.at(i)).second;
+       if (resultFin) (m_algoSummary.find(name)->second).at(2) += 1;
+       
+       // get the prescale and mask (needs some error checking here)
+       int prescale = (prescales.at(i)).second;
+       bool mask    = (masks.at(i)).second;
+       bool veto    = (vetoMasks.at(i)).second;
+       
+       if(m_dumpTriggerResults && name != "NULL") cout << std::dec << setfill(' ') << "   " << setw(5) << i << "   " << setw(60) << name.c_str() << "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto << endl;
+     }
+     bool finOR = m_gtUtil->getFinalOR();
+     if(m_dumpTriggerResults) {
+       cout << "                                                                                    FinalOR = " << finOR <<endl;
+       cout << "================================================================================================================================" << endl;
+     }
+  
+
+  
   if(m_dumpGTRecord) {
    
        cout << " -----------------------------------------------------  " << endl;
@@ -202,6 +274,7 @@ namespace l1t {
 		     cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
 		     cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
 		     cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;
+		     cout << "   Chrg "<< std::dec << std::setw(1) << mu->hwCharge();
 		     cout << endl;
 		     nObj++;
 		 }
@@ -289,7 +362,19 @@ namespace l1t {
 	    cout << "No EtSum Data in this event " << endl;
 	 }  
 	               
-
+      // Dump the output record
+ 	  cout << " ------ uGtExt ----------" << endl;
+	  if(uGtExt.isValid()) {
+	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
+		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
+        	     extBlk->print(std::cout);
+		} 
+	     } else {
+		 cout << "No Ext Conditions stored for this bx " << i << endl;
+	     }       
+	  } else {
+	    cout << "No uGtExt Data in this event " << endl; 
+	  }         
 
      // Dump the output record
  	  cout << " ------ uGtAlg ----------" << endl;
@@ -305,19 +390,7 @@ namespace l1t {
 	    cout << "No uGtAlg Data in this event " << endl; 
 	  }         
 
-      // Dump the output record
- 	  cout << " ------ uGtExt ----------" << endl;
-	  if(uGtExt.isValid()) {
-	     if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
-		for(std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
-        	     extBlk->print(std::cout);
-		} 
-	     } else {
-		 cout << "No Ext Conditions stored for this bx " << i << endl;
-	     }       
-	  } else {
-	    cout << "No uGtExt Data in this event " << endl; 
-	  }         
+
 
 
 
@@ -345,6 +418,28 @@ namespace l1t {
     
     
   }
+
+// ------------ method called when ending the processing of a run  ------------
+
+void 
+GtRecordDump::endRun(edm::Run const&, edm::EventSetup const&)
+{
+    // Dump the results
+     cout << "=========================== Global Trigger Summary Report  ==================================" << endl;
+     cout << "                       Algorithm Name                              Init      PScd     Final   " << endl;
+     cout << "=============================================================================================" << endl;
+     for (std::map<std::string, std::vector<int> >::const_iterator itAlgo = m_algoSummary.begin(); itAlgo != m_algoSummary.end(); itAlgo++) {       
+      
+        std::string name = itAlgo->first;
+	int initCnt = (itAlgo->second).at(0);
+	int initPre = (itAlgo->second).at(1);
+	int initFnl = (itAlgo->second).at(2);
+	if(name != "NULL") cout << std::dec << setfill(' ') <<  setw(60) << name.c_str() << setw(10) << initCnt << setw(10) << initPre << setw(10) << initFnl << endl; //<< "   " << setw(7) << resultInit << setw(7) << resultPre << setw(7) << resultFin << setw(10) << prescale << setw(11) << mask << setw(9) << veto
+     }
+     cout << "===========================================================================================================" << endl;   
+}
+
+
 
 void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile, 
                                       Handle<BXVector<l1t::Muon>> muons,

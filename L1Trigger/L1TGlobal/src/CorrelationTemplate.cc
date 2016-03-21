@@ -26,8 +26,6 @@
 // user include files
 //   base class
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-
 // forward declarations
 
 // constructors
@@ -174,13 +172,17 @@ void CorrelationTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  Correlation parameters " << "[ hex ]" <<  std::endl;
 
+    myCout << "    Cut Type:  " << m_correlationParameter.corrCutType << std::endl;
+    myCout << "    minEtaCutValue        = " << std::dec << m_correlationParameter.minEtaCutValue << std::endl;
+    myCout << "    maxEtaCutValue        = " << std::dec << m_correlationParameter.maxEtaCutValue << std::endl;
+    myCout << "    minPhiCutValue        = " << std::dec << m_correlationParameter.minPhiCutValue << std::endl;
+    myCout << "    maxPhiCutValue        = " << std::dec << m_correlationParameter.maxPhiCutValue << std::endl;
+    myCout << "    minDRCutValue         = " << std::dec << m_correlationParameter.minDRCutValue  << std::endl;
+    myCout << "    maxDRCutValue         = " << std::dec << m_correlationParameter.maxDRCutValue  << std::endl;
+    myCout << "    minMassCutValue       = " << std::dec << m_correlationParameter.minMassCutValue<< std::endl;
+    myCout << "    maxMassCutValue       = " << std::dec << m_correlationParameter.maxMassCutValue<< std::endl;
 
-    myCout << "    deltaEtaRange      = "
-    << std::hex << m_correlationParameter.deltaEtaRange << std::endl;
-    myCout << "    deltaPhiRange      = "
-    << std::hex << m_correlationParameter.deltaPhiRange << std::endl;
-    myCout << "    deltaPhiMaxbits    = "
-    << std::hex << m_correlationParameter.deltaPhiMaxbits << std::endl;
+    myCout << "    chargeCorrelation  = " << std::dec << m_correlationParameter.chargeCorrelation << std::endl;
 
     // reset to decimal output
     myCout << std::dec << std::endl;

@@ -29,7 +29,6 @@
 //   base class
 #include "L1Trigger/L1TGlobal/interface/GtCondition.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 #include "L1Trigger/L1TGlobal/interface/GtDefinitions.h"
 // forward declarations
 
@@ -67,10 +66,25 @@ public:
     /// typedef for correlation parameters
     struct CorrelationParameter
     {
-        std::string deltaEtaRange;
+	
+	//Cut values in hardware
+	long long minEtaCutValue;
+	long long maxEtaCutValue; 
 
-        std::string deltaPhiRange;
-        unsigned int deltaPhiMaxbits;
+	long long minPhiCutValue;
+	long long maxPhiCutValue; 
+
+	long long minDRCutValue;
+	long long maxDRCutValue; 
+
+	long long minMassCutValue;
+	long long maxMassCutValue; 
+
+        //Requirement on charge of legs (currently only Mu-Mu).	
+	unsigned int chargeCorrelation;
+
+	int corrCutType;
+
     };
 
 
