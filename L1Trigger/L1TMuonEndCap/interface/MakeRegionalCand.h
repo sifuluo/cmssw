@@ -91,7 +91,7 @@ l1t::RegionalMuonCand MakeRegionalCand(float pt, int phi, int theta,
 	
 	int LSB = quality & 3;
 	
-	float eta = GetGlobalEta(theta,sector);
+	float eta = fabs(GetGlobalEta(theta,sector));
 	
 	if(eta < 1.2){
 	
