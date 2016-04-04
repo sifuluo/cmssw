@@ -492,6 +492,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuImplementation(gtParser.gtTriggerMenuImplementation());
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScaleDbKey(gtParser.gtScaleDbKey());
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtScales(gtParser.gtScales());
+	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtTriggerMenuUUID(gtParser.gtTriggerMenuUUID());
 
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmMap(gtParser.gtAlgorithmMap());
 	(const_cast<TriggerMenu*>(m_l1GtMenu))->setGtAlgorithmAliasMap(gtParser.gtAlgorithmAliasMap());	        
@@ -777,11 +778,7 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
 // Fill in the DAQ Records
         if (m_produceL1GtDaqRecord) {
-
-            // These need to be defined elsewhere
-	    cms_uint64_t orbNr = iEvent.orbitNumber();
-	    int abBx = iEvent.bunchCrossing();
-            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, orbNr, abBx);
+            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, m_prescaleSet, m_l1GtMenu->gtTriggerMenuUUID());
         }
 
 
