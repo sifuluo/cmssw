@@ -30,6 +30,9 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignment.h"
 #include "L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h"
 
+// New EDM output for detailed track and hit information - AWB 01.04.16
+#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit.h"
 
 using namespace L1TMuon;
 
@@ -39,6 +42,8 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
   inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(p.getParameter<edm::InputTag>("CSCInput"));
   
   produces<l1t::RegionalMuonCandBxCollection >("EMTF");
+  produces< l1t::EMTFTrackCollection >("EMTF");
+  produces< l1t::EMTFHitCollection >("EMTF");  
 }
 
 
@@ -55,6 +60,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
   //std::auto_ptr<L1TMuon::InternalTrackCollection> FoundTracks (new L1TMuon::InternalTrackCollection);
   std::auto_ptr<l1t::RegionalMuonCandBxCollection > OutputCands (new l1t::RegionalMuonCandBxCollection);
+  std::auto_ptr<l1t::EMTFTrackCollection> OutputTracks (new l1t::EMTFTrackCollection);
+  std::auto_ptr<l1t::EMTFHitCollection> OutputHits (new l1t::EMTFHitCollection);
 
   std::vector<BTrack> PTracks[NUM_SECTORS];
 
@@ -77,6 +84,10 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
       out.push_back(TriggerPrimitive((*chamber).first,*digi));
+      l1t::EMTFHit thisHit;
+      thisHit.ImportCSCDetId( (*chamber).first );
+      thisHit.ImportCSCCorrelatedLCTDigi( *digi );
+      OutputHits->push_back( thisHit );
     }
   }
   
@@ -100,7 +111,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 
 		tester.push_back(*tp);
 
-		//if(verbose) std::cout<<"\ntrigger prim found station:"<<tp->detId<CSCDetId>().station()<<std::endl;
+		//std::cout<<"\ntrigger prim found station:"<<tp->detId<CSCDetId>().station()<<std::endl;
       }
 
      }
@@ -205,71 +216,76 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
   }
 
- ////////////////////////////////////
- /// Sorting through all sectors ////
- ///   to find 4 best muons      ////
- ////////////////////////////////////
+ ///////////////////////////////////////
+ /// Collect Muons from all sectors ////
+ ///////////////////////////////////////
 
-
- BTrack FourBest[4];//ok
  std::vector<BTrack> PTemp[NUM_SECTORS];
+ std::vector<BTrack> AllTracks;
  for (int i=0; i<NUM_SECTORS; i++) PTemp[i] = PTracks[i];
 
- int windex[4] = {-1,-1,-1,-1};
-
-
-
- for(int i=0;i<4;i++){
 
  	for(int j=0;j<36;j++){
 
 
-			if(!PTemp[j/3][j%3].phi)//no track
-				continue;
+			if(PTemp[j/3][j%3].phi)//no track
+				AllTracks.push_back(PTemp[j/3][j%3]);
 
-			if((windex[0] == j) || (windex[1] == j) || (windex[2] == j) || (windex[3] == j))//already picked
-				continue;
-
-			if(PTracks[j/3][j%3].winner.Rank() > FourBest[i].winner.Rank()){
-
-				FourBest[i] = PTemp[j/3][j%3];
-				windex[i] = j;
-
-			}
+		
 
  	}
-}
 
   ///////////////////////////////////
   /// Make Internal track if ////////
   /////// tracks are found //////////
-  ///////////////////////////////////
+  /////////////////////////////////// 
+  
+  std::vector<l1t::RegionalMuonCand> tester1;
+  std::vector<std::pair<int,l1t::RegionalMuonCand>> holder;
 
-  for(int fbest=0;fbest<4;fbest++){
+  for(unsigned int fbest=0;fbest<AllTracks.size();fbest++){
 
-  	if(FourBest[fbest].phi){
+  	if(AllTracks[fbest].phi){
 
 
 		InternalTrack tempTrack;
   		tempTrack.setType(2);
-		tempTrack.phi = FourBest[fbest].phi;
-		tempTrack.theta = FourBest[fbest].theta;
-		tempTrack.rank = FourBest[fbest].winner.Rank();
-		tempTrack.deltas = FourBest[fbest].deltas;
+		tempTrack.phi = AllTracks[fbest].phi;
+		tempTrack.theta = AllTracks[fbest].theta;
+		tempTrack.rank = AllTracks[fbest].winner.Rank();
+		tempTrack.deltas = AllTracks[fbest].deltas;
 		std::vector<int> ps, ts;
+
+		l1t::EMTFTrack thisTrack;
+		thisTrack.set_phi_loc_int ( AllTracks[fbest].phi           );
+		thisTrack.set_theta_int   ( AllTracks[fbest].theta         );
+		thisTrack.set_rank        ( AllTracks[fbest].winner.Rank() );
+		// thisTrack.set_deltas        ( AllTracks[fbest].deltas        );
 
 
 		int sector = -1;
 		bool ME13 = false;
 		int me1address = 0, me2address = 0, CombAddress = 0, mode = 0;
+		int ebx = 20, sebx = 20;
 
-		for(std::vector<ConvertedHit>::iterator A = FourBest[fbest].AHits.begin();A != FourBest[fbest].AHits.end();A++){
+		for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
 
 			if(A->Phi() != -999){
+			  
+			        l1t::EMTFHit thisHit;
+			        thisHit.ImportCSCDetId( A->TP().detId<CSCDetId>() );
 
 				int station = A->TP().detId<CSCDetId>().station();
 				int id = A->TP().getCSCData().cscID;
-				int trknm = A->TP().getCSCData().trknmb;
+				int trknm = A->TP().getCSCData().trknmb;//A->TP().getCSCData().bx
+
+				if(A->TP().getCSCData().bx < ebx){
+					sebx = ebx;
+					ebx = A->TP().getCSCData().bx;
+				}
+				else if(A->TP().getCSCData().bx < sebx){
+					sebx = A->TP().getCSCData().bx;
+				}
 
 				tempTrack.addStub(A->TP());
 				ps.push_back(A->Phi());
@@ -277,6 +293,18 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 				sector = (A->TP().detId<CSCDetId>().endcap() -1)*6 + A->TP().detId<CSCDetId>().triggerSector() - 1;
 				//std::cout<<"Q: "<<A->Quality()<<", keywire: "<<A->Wire()<<", strip: "<<A->Strip()<<std::endl;
 
+				// Could we use ImportCSCCorrelatedLCTDigi in DataFormats/L1TMuon/src/EMTFHit.cc? - AWB 04.04.16
+				thisHit.set_csc_ID      ( A->TP().getCSCData().cscID  );
+				thisHit.set_track_num   ( A->TP().getCSCData().trknmb ); 
+				thisHit.set_bx          ( A->TP().getCSCData().bx     ); 
+				thisHit.set_phi_loc_int ( A->Phi()                    );
+				thisHit.set_theta_int   ( A->Theta()                  );
+				thisHit.set_sector_GMT  ( sector                      );
+				// thisHit.set_phi_loc_rad();  // Need to implement - AWB 04.04.16
+				// thisHit.set_phi_glob_rad(); // Need to implement - AWB 04.04.16 
+				// thisHit.set_theta_rad();    // Need to implement - AWB 04.04.16
+				// thisHit.set_eta();          // Need to implement - AWB 04.04.16
+				
 				switch(station){
 					case 1: mode |= 8;break;
 					case 2: mode |= 4;break;
@@ -301,6 +329,8 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 					me1address = id<<1;//
 					me1address |= trknm-1;
 
+					thisHit.set_subsector( sub );
+
 				}
 
 				if(station == 2 && id > 3){
@@ -311,8 +341,12 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 					me2address |= trknm-1;
 
 				}
-
-
+				
+				thisTrack.set_endcap( thisHit.Endcap() );
+				thisTrack.set_sector( thisHit.Sector() );
+				
+				thisTrack.push_Hit( thisHit );
+				
 			}
 
 		}
@@ -325,21 +359,86 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 
 		CombAddress = (me2address<<4) | me1address;
 
+		// Appears that "trackaddress" (CombAdress) and "sign" (1) are switched. Fixed here. - AWB 29.03.16
+		// See L1Trigger/L1TMuonEndCap/interface/MakeRegionalCand.h
+		// l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
+		// 						 CombAddress,mode,1,sector);
+		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
+								 1,mode,CombAddress,sector);
 
-		l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,FourBest[fbest].phi,FourBest[fbest].theta,
-														         CombAddress,mode,1,sector);
         // NOTE: assuming that all candidates come from the central BX:
-        int bx = 0;
-		float theta_angle = (FourBest[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
+        //int bx = 0;
+		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
 		float eta = (-1)*log(tan(theta_angle/2));
-		if(!ME13 && fabs(eta) > 1.1)
-			OutputCands->push_back(bx, outCand);
+
+		// thisTrack.set_straightness(); // Need to figure out how to set this - AWB 04.04.16
+		thisTrack.set_quality    ( outCand.hwQual());
+		thisTrack.set_mode       ( mode            ); 
+		thisTrack.set_first_bx   ( ebx             ); 
+		thisTrack.set_second_bx  ( sebx            ); 
+		thisTrack.set_phis       ( ps              );
+		thisTrack.set_thetas     ( ts              );
+		thisTrack.set_pt         ( xmlpt*1.4       );
+		thisTrack.set_charge     ( 0               );
+		thisTrack.set_theta_rad  ( theta_angle     );
+		thisTrack.set_eta        ( eta             );
+		thisTrack.set_pt_GMT     ( outCand.hwPt()  ); 
+		thisTrack.set_phi_GMT    ( outCand.hwPhi() );
+		thisTrack.set_eta_GMT    ( outCand.hwEta() );
+		thisTrack.set_sector_GMT ( sector          );
+		// thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
+		// thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
+
+		// // Hacks to make emulator consistent with firmware, for emulator-data comparisons - AWB 29.03.16
+		// outCand.setHwQual(mode);
+		// std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+
+ 		// Standard emulator configuration - AWB 29.03.16
+		std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
+
+		if(!ME13 && fabs(eta) > 1.1) {
+		  // // Extra debugging output - AWB 29.03.16
+		  // std::cout << "Input: eBX = " << ebx << ", seBX = " << sebx << ", pt = " << xmlpt*1.4 
+		  // 	    << ", phi = " << AllTracks[fbest].phi << ", eta = " << eta 
+		  // 	    << ", theta = " << AllTracks[fbest].theta << ", sign = " << 1 
+		  // 	    << ", quality = " << mode << ", trackaddress = " << 1 
+		  // 	    << ", sector = " << sector << std::endl;
+		  // std::cout << "Output: BX = " << ebx << ", hwPt = " << outCand.hwPt() << ", hwPhi = " << outCand.hwPhi() 
+		  // 	    << ", hwEta = " << outCand.hwEta() << ", hwSign = " << outCand.hwSign() 
+		  // 	    << ", hwQual = " << outCand.hwQual() << ", link = " << outCand.link()
+		  // 	    << ", processor = " << outCand.processor() 
+		  // 	    << ", trackFinderType = " << outCand.trackFinderType() << std::endl;
+			holder.push_back(outPair);
+			thisTrack.set_isGMT( 1 );
+		}
+		OutputTracks->push_back( thisTrack );
 	}
   }
+
+// Is this the correct procedure? Do you set the range identically, regardless of where tracks are actually found?  AWB 29.03.16   
+OutputCands->setBXRange(-2,2);
+
+for(int sect=0;sect<12;sect++){
+
+	for(unsigned int h=0;h<holder.size();h++){
+	
+		int bx = holder[h].first - 6;
+		int sector = holder[h].second.processor();
+		if(holder[h].second.trackFinderType() == 3)
+			sector += 6;
+	
+		if(sector == sect){
+			OutputCands->push_back(bx,holder[h].second);
+		}
+		
+	}
+}
 
 
 //ev.put( FoundTracks, "DataITC");
 ev.put( OutputCands, "EMTF");
+ ev.put( OutputHits, "EMTF"); 
+ ev.put( OutputTracks, "EMTF");
   //std::cout<<"End Upgraded Track Finder Prducer:::::::::::::::::::::::::::\n:::::::::::::::::::::::::::::::::::::::::::::::::\n\n";
 
 }//analyzer
