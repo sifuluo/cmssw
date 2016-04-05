@@ -111,16 +111,20 @@ namespace l1t {
 	// Unpack the SP Output Data Record
 	///////////////////////////////////
 
-	SP_.set_phi_full_int   ( GetHexBits(SP1a,  0, 11) );
-	SP_.set_vc             ( GetHexBits(SP1a, 12, 12) );
+	// SP_.set_phi_local_int  ( GetHexBits(SP1a,  0, 11) ); // Until 01.04.16
+	SP_.set_phi_local_int  ( GetHexBits(SP1a,  0, 12) ); // After 01.04.16
+	SP_.set_phi_global     ( SP_.Phi_local(), (res->at(iOut)).PtrEventHeader()->Sector() );
+	// SP_.set_vc             ( GetHexBits(SP1a, 12, 12) ); // Until 01.04.16
 	SP_.set_c              ( GetHexBits(SP1a, 13, 13) );
 	SP_.set_hl             ( GetHexBits(SP1a, 14, 14) );
 
 	SP_.set_phi_GMT_int    ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
+	SP_.set_phi_GMT_global ( SP_.Phi_GMT(), (res->at(iOut)).PtrEventHeader()->Sector() );
 	mu_.setHwPhi           ( TwosCompl(8, GetHexBits(SP1b, 0, 7)) );
 	SP_.set_bc0            ( GetHexBits(SP1b, 12, 12) );
 	SP_.set_se             ( GetHexBits(SP1b, 13, 13) );
-	SP_.set_vt             ( GetHexBits(SP1b, 14, 14) );
+	/// SP_.set_vt             ( GetHexBits(SP1b, 14, 14) ); // Until 01.04.16
+	SP_.set_vc             ( GetHexBits(SP1b, 14, 14) ); // After 01.04.16
 
 	SP_.set_eta_GMT_int    ( TwosCompl(9, GetHexBits(SP1c, 0, 8)) );
 	mu_.setHwEta           ( TwosCompl(9, GetHexBits(SP1c, 0, 8)) );
@@ -128,13 +132,18 @@ namespace l1t {
 	mu_.setHwQual          ( GetHexBits(SP1c,  9, 12) );
 	SP_.set_bx             ( GetHexBits(SP1c, 13, 14) );
 
-	SP_.set_pt_int         ( GetHexBits(SP1d,  0,  8) );
-	mu_.setHwPt            ( GetHexBits(SP1d,  0,  8) );
-	SP_.set_me1_ID         ( GetHexBits(SP1d,  9, 14) );
+	SP_.set_pt_int          ( GetHexBits(SP1d,  0,   8) );
+	mu_.setHwPt             ( GetHexBits(SP1d,  0,   8) );
+	SP_.set_me1_trk_stub_num( GetHexBits(SP1d,  9,   9) );
+	SP_.set_me1_csc_id      ( GetHexBits(SP1d, 10,  13) );
+	SP_.set_me1_subsector   ( GetHexBits(SP1d, 14,  14) );
 
-	SP_.set_me2_ID         ( GetHexBits(SP2a,  0,  4) );
-	SP_.set_me3_ID         ( GetHexBits(SP2a,  5,  9) );
-	SP_.set_me4_ID         ( GetHexBits(SP2a, 10, 14) );
+	SP_.set_me2_trk_stub_num( GetHexBits(SP2a,  0, 0 ) );
+	SP_.set_me2_csc_id      ( GetHexBits(SP2a,  1, 4 ) );
+	SP_.set_me3_trk_stub_num( GetHexBits(SP2a,  5, 5 ) );
+	SP_.set_me3_csc_id      ( GetHexBits(SP2a,  6, 9 ) );
+	SP_.set_me4_trk_stub_num( GetHexBits(SP2a, 10, 10) );
+	SP_.set_me4_csc_id      ( GetHexBits(SP2a, 11, 14) );
 
 	SP_.set_me1_TBIN       ( GetHexBits(SP2b,  0,  2) );
 	SP_.set_me2_TBIN       ( GetHexBits(SP2b,  3,  5) );
@@ -144,6 +153,8 @@ namespace l1t {
 
 	SP_.set_pt_lut_address ( GetHexBits(SP2c,  0, 14, SP2d,  0, 14) );
 
+	SP_.set_mode( SP_.calc_mode() );
+
 	// SP_.set_dataword        ( uint64_t dataword );
 	// mu_.set_dataword        ( uint64_t dataword );
 
@@ -151,8 +162,9 @@ namespace l1t {
 
 	(res->at(iOut)).push_SP(SP_);
 
-	res_cand->setBXRange(0, 0);
-	res_cand->push_back(0, mu_);
+	// Is this the proper method? TBIN_num can range from 0 through 7, i.e. BX = -3 through +4. - AWB 04.04.16
+	res_cand->setBXRange(-4, 4);
+	res_cand->push_back(SP_.TBIN_num() - 3, mu_);
 
 	// int iOut_cand = res_cand->size(0) - 1;
 	// (res_cand->at(iOut_cand)).setBXRange(0, 0);
