@@ -95,25 +95,21 @@ l1t::GtProducer::GtProducer(const edm::ParameterSet& parSet) :
 
 
         LogTrace("GtProducer")
-                << "\nInput tag for muon collection from GMT:         " << m_muInputTag
-                << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
+                << "\nInput tag for muon collection from uGMT:         " << m_muInputTag
+                << "\nInput tag for calorimeter collections from Cal: " << m_caloInputTag
 		<< "\nInput tag for external conditions     :         " << m_extInputTag
                 << std::endl;
 
 
         LogTrace("GtProducer")
-                << "\nProduce the L1 GT DAQ readout record:           " << m_produceL1GtDaqRecord
-                << "\nProduce the L1 GT Object Map record:            " << m_produceL1GtObjectMapRecord
-                << " \n"
-                << "\nWrite Psb content to L1 GT DAQ Record:          " << m_writePsbL1GtDaqRecord
+                << "\nProduce the L1 uGT DAQ readout record:          " << m_produceL1GtDaqRecord
+                << "\nProduce the L1 uGT Object Map record:           " << m_produceL1GtObjectMapRecord
                 << " \n"
                 << "\nNumber of BxInEvent to be emulated:             " << m_emulateBxInEvent
                 << " \n"
                 << "\nAlternative for number of BX in GT DAQ record:   0x" << std::hex
                 << m_alternativeNrBxBoardDaq
                 << " \n"
-                << "\nLength of BST message [bytes]:                  " << m_psBstLengthBytes
-                << "\n"
                 << "\nRun algorithm triggers unprescaled:             " << m_algorithmTriggersUnprescaled
                 << "\nRun algorithm triggers unmasked (all enabled):  " << m_algorithmTriggersUnmasked
                 << "\n"
@@ -436,13 +432,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1Tau());
 
 
-        // ... the rest of the objects are global
-/*
-        m_ifMuEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfMuEtaNumberBits());
-        m_ifCaloEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfCaloEtaNumberBits());
-*/
-        //m_l1GtStablePar->print(std::cout);
-
         // Initialize Board
         m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent );
 
@@ -559,20 +548,6 @@ void l1t::GtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     m_prescaleFactorsAlgoTrig = &m_initialPrescaleFactorsAlgoTrig;
     m_triggerMaskAlgoTrig = &m_initialTriggerMaskAlgoTrig;
     m_triggerMaskVetoAlgoTrig = &m_initialTriggerMaskVetoAlgoTrig;
-
-
-    // // Used for testing
-    // for( int iL1Set=0; iL1Set<int(m_prescaleFactorsAlgoTrig->size()); iL1Set++ ){
-    //   if( m_prescaleFactorsAlgoTrig->size()>0 ){
-    // 	const std::vector<int>& testPrescaleSet = (*m_prescaleFactorsAlgoTrig).at(iL1Set);
-
-    // 	printf(" iL1Set=%4d", iL1Set);
-    // 	for( int iPrescale=0; iPrescale<int(testPrescaleSet.size()); iPrescale++ ){
-    // 	  printf(", %2d", testPrescaleSet[iPrescale]);
-    // 	}
-    // 	printf("\n");
-    //   }
-    // }
 
 
     // get / update the trigger mask from the EventSetup
