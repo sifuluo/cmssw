@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "L1Trigger/L1TMuon/interface/trigSystem.h"
+
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/dom/DOM.hpp"
