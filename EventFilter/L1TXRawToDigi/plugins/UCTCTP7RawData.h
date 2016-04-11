@@ -313,8 +313,8 @@ public:
       for(uint32_t region = 0; region < 7; region++) {
 	if(first) cout << "Region      ET   EGVeto  TauVeto HitLocation" << endl;
 	first = false;
-	cout << dec << setfill(' ') << setw(6) << region 
-	     << dec << setfill(' ') << setw(8) << getRegionET(negativeEta, region)
+	cout << dec << setfill(' ') << setw(6) << region
+	     << "  " << hex << showbase << internal << setfill('0') << setw(6) << getRegionET(negativeEta, region) << dec
 	     << "        " << getRegionEGVeto(negativeEta, region)
 	     << "        " << getRegionTauVeto(negativeEta, region)
 	     << "        " << showbase << internal << setfill('0') << setw(3) << hex << getRegionHitLocation(negativeEta, region)

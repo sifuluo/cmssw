@@ -218,9 +218,9 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     else if(absCaloEta <= 41) {
       int caloPhi = hcalTp.id().iphi();
+      int et = hcalTp.SOI_compressedEt();
+      bool fg = hcalTp.SOI_fineGrain();
       if(caloPhi <= 72) {
-	int et = hcalTp.SOI_compressedEt();
-	bool fg = hcalTp.SOI_fineGrain();
 	if(et != 0) {
 	  UCTTowerIndex t = UCTTowerIndex(caloEta, caloPhi);
 	  uint32_t featureBits = 0;
@@ -235,7 +235,7 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
       else {
-	std::cerr << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << std::endl;	
+	std::cerr << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et << std::endl;	
       }
     }
     else {
@@ -282,6 +282,50 @@ L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  uint32_t rEta = 10 - region; // UCT region is 0-6 for B/E but GCT eta goes 0-21, 0-3 -HF, 4-10 -B/E, 11-17 +B/E, 18-21 +HF
 	  if(!negativeEta) rEta = 11 + region; // Positive eta portion is offset by 11
 	  rgnCollection->push_back(L1CaloRegion((uint16_t) regionData, (unsigned) rEta, (unsigned) rPhi, (int16_t) 0));
+	  if((regionData&0x3FF)>50) {
+	    std::cout << std::dec << "Region information:"
+		      << " crate = " << crate
+		      << " card = " << card
+		      << " region = " << region
+		      << " negativeEta = " << negativeEta
+		      << " rEta = " << rEta
+		      << " rPhi = " << rPhi
+		      << " et = " << (regionData&0x3FF)
+		      << std::endl;
+	    std::cout << *regions[rgn];
+	    vector<UCTTower*> towers = regions[rgn]->getTowers();
+	    for(uint32_t twr = 0; twr < towers.size(); twr++) {
+	      std::cout << *towers[twr];
+	    }
+	    for(uint32_t twr = 0; twr < twrList.size(); twr++) {
+	      uint32_t Pt=twrList[twr]->et();               // Bits 0-8 of the 16-bit word per the interface protocol document
+	      // uint32_t EtRatio=twrList[twr]->er();          // Bits 9-11 of the 16-bit word per the interface protocol document
+	      // uint32_t Qual=twrList[twr]->miscBits();       // Bits 12-15 of the 16-bit word per the interface protocol document
+	      int Eta=twrList[twr]->caloEta();         // caloEta = 1-28 and 30-41
+	      int Phi=twrList[twr]->caloPhi();         // caloPhi = 1-72
+	      // uint32_t EtEm=twrList[twr]->getEcalET();      // This is provided as a courtesy - not available to hardware
+	      // uint32_t EtHad=twrList[twr]->getHcalET();     // This is provided as a courtesy - not available to hardware
+	      int EtaMin, EtaMax;
+	      if(negativeEta) {
+		EtaMax = -((rEta - 4) * 4 + 1);
+		EtaMin = -((rEta - 4) * 4 + 4);
+	      }
+	      else {
+		EtaMin = (rEta - 11) * 4 + 1;
+		EtaMax = (rEta - 11) * 4 + 4;
+	      }
+	      int PhiMin = g.getCaloPhiIndex(crate, card, region, 0);
+	      int PhiMax = g.getCaloPhiIndex(crate, card, region, 3);
+	      if(Eta >= EtaMin && Eta <= EtaMax && 
+		 Phi >= PhiMin && Phi <= PhiMax) {
+		std::cout << std::dec << "CaloTower List:"
+			  << " Eta = " << Eta
+			  << " Phi = " << Phi
+			  << " PT = " << Pt
+			  << std::endl;
+	      }
+	    }
+	  }	    
 	}
       }
     }
