@@ -73,12 +73,10 @@ bool UCTTower::process() {
 }
 
 bool UCTTower::processHFTower() {
-  if(hcalET > etInputMax) hcalET = etInputMax;
-  if(hcalFB > 0x3) hcalFB = 0x3;
   uint32_t calibratedET = hcalET;
   if(hfLUT != 0) {
     const std::vector< uint32_t > a = hfLUT->at((region - NRegionsInCard) * NHFEtaInRegion + iEta);
-    calibratedET = a[hcalET];
+    calibratedET = a[hcalET] & 0xFF;
   }
   uint32_t absCaloEta = abs(caloEta());
   if(absCaloEta > 29 && absCaloEta < 40) {
@@ -89,7 +87,8 @@ bool UCTTower::processHFTower() {
     // Divide by four
     calibratedET /= 4;
   }
-  towerData = calibratedET + (hcalFB << miscShift) + zeroFlagMask;
+  towerData = calibratedET | zeroFlagMask;
+  if(hcalFB > 0) towerData |= hcalFlagMask;
   return true;
 }
 
@@ -107,7 +106,7 @@ bool UCTTower::setHCALData(uint32_t hFB, uint32_t hET) {
   hcalET = hET;
   hcalFB = hFB;
   if(hET > etInputMax) {
-    std::cerr << "UCTTower::setData - ecalET too high " << hET << "; Pegged to etInputMax" << std::endl;
+    std::cerr << "UCTTower::setData - hcalET too high " << hET << "; Pegged to etInputMax" << std::endl;
     hcalET = etInputMax;
   }
   if(hFB > 0x3F) {
@@ -123,6 +122,15 @@ bool UCTTower::setHFData(uint32_t fbIn, uint32_t etIn) {
   ecalET = 0;
   hcalET = etIn; // We reuse HCAL place as HF
   hcalFB = fbIn;
+  if(etIn > etInputMax) {
+    std::cerr << "UCTTower::setData - HF ET too high " << etIn << "; Pegged to etInputMax" << std::endl;
+    hcalET = etInputMax;
+  }
+  if(fbIn > 0x3) {
+    std::cerr << "UCTTower::setData - too many HF FeatureBits " << std::hex << fbIn
+	      << "; Used only bottom 2 bits" << std::endl;
+    hcalFB &= 0x3;
+  }
   return true;
 }
 
