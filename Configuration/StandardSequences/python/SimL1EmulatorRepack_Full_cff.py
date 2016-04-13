@@ -10,7 +10,12 @@ if not (eras.stage2L1Trigger.isChosen()):
 else:
     print "L1T INFO:  L1REPACK ALL will unpack all L1T inputs, re-emulated (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."
 
-    # First, Unpack all inputs to L1:
+    #Unpack GT Stage2 
+    import EventFilter.L1TRawToDigi.gtStage2Digis_cfi 
+    unpackGtStage2 = EventFilter.L1TRawToDigi.gtStage2Digis_cfi.gtStage2Digis.clone(
+        InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
+    #Unpack all inputs to L1:
     import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
     unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
         DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
@@ -92,6 +97,6 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackDttf+unpackCsctf
+    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackDttf+unpackCsctf+unpackGtStage2
                                  +simHcalTriggerPrimitiveDigis+SimL1EmulatorCore+packCaloStage2
                                  +packGmtStage2+packGtStage2+rawDataCollector)

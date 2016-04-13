@@ -72,6 +72,7 @@ def L1TReEmulFromRAW(process):
         process.simEmtfDigis.CSCInput              = cms.InputTag("csctfDigis")
         process.simOmtfDigis.srcCSC                = cms.InputTag("csctfDigis")
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
+        process.simGtStage2Digis.ExtInputTag       = cms.InputTag("unpackGtStage2")
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
         print "L1TReEmul sequence:  "
@@ -92,6 +93,27 @@ def L1TReEmulFromRAW(process):
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
     if eras.stage2L1Trigger.isChosen():
-        process.simEmtfDigis.CSCInput           = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
-        process.simOmtfDigis.srcCSC             = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
+        process.simEmtfDigis.CSCInput              = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
+        process.simOmtfDigis.srcCSC                = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
+        process.simGtStage2Digis.ExtInputTag       = cms.InputTag("simGtExtFakeStage2Digis")
+    return process
+
+def L1TReEmulFromRAW_Data2015(process):
+    if eras.stage2L1Trigger.isChosen():
+
+        #Unpack GT Legacy 
+        import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+        unpackGtLegacy = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone(
+                DaqGtInputTag = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+        #l1GtUnpack.DaqGtInputTag = cms.InputTag("l1GtPack")
+
+        import L1Trigger.L1TGlobal.l1GtExtCondLegacyToStage2_cfi.py
+        l1GtExtCondLegacyToStage2Converter = L1Trigger.L1TGlobal.l1GtExtCondLegacyToStage2.l1GtExtCondLegacyToStage2.clone()
+        l1GtExtCondLegacyToStage2Converter.LegacyGtReadoutRecord = cms.InputTag("unpackGtLegacy")
+        process.ExtCondLegacyToStage2 = cms.Sequence( process.unpackGtLegacy + process.l1GtExtCondLegacyToStage2Converter)
+        process.ExtCondLegacyToStage2Path = cms.Path(process.ExtCondLegacyToStage2)    
+        process.schedule.append(process.ExtCondLegacyToStage2Path)
+
+        L1TReEmulFromRAW(process)
+        process.simGtStage2Digis.ExtInputTag       = cms.InputTag("l1GtExtCondLegacyToStage2Converter")
     return process
