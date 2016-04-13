@@ -102,6 +102,8 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
 															 (*tp).getCSCData().keywire, (*tp).getCSCData().strip,(*tp).getCSCData().pattern,
 															 (*tp).getCSCData().bend,(*tp).getCSCData().bx - 2,(*tp).getCSCData().mpclink,
 															 (*tp).getCSCData().bx0,(*tp).getCSCData().syncErr,(*tp).getCSCData().cscID);
+															 
+		std::cout<<"endcap = "<<tp->detId<CSCDetId>().endcap()<<", sector = "<<tp->detId<CSCDetId>().triggerSector()<<", station = "<<tp->detId<CSCDetId>().station()<<", ring = "<<tp->detId<CSCDetId>().ring()<<", strip = "<<tp->getCSCData().strip<<"\n";
 		
 		if(isData)
 			tester.push_back(*new1);
@@ -342,7 +344,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
         //int bx = 0;
 		float theta_angle = (AllTracks[fbest].theta*0.2851562 + 8.5)*(3.14159265359/180);
 		float eta = (-1)*log(tan(theta_angle/2));
-		std::pair<int,l1t::RegionalMuonCand> outPair(ebx,outCand);
+		std::pair<int,l1t::RegionalMuonCand> outPair(sebx,outCand);
 		
 		if(!ME13 && fabs(eta) > 1.1)
 			holder.push_back(outPair);
