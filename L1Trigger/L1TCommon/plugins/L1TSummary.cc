@@ -197,6 +197,7 @@ L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup)
     iEvent.getByToken(muonToken_, XTMP);
     if (XTMP.isValid()){ 
       cout << "INFO:  L1T found muon collection.\n";
+      cout << "INFO:  L1T found size at BX = 0:  " << XTMP->size(0) << "\n";
       for (int ibx = XTMP->getFirstBX(); ibx <= XTMP->getLastBX(); ++ibx) {
 	for (auto it=XTMP->begin(ibx); it!=XTMP->end(ibx); it++){      
 	  if (it->et() > 0){ 

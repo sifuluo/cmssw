@@ -2,11 +2,15 @@
 
 #include "GTCollections.h"
 
+#include <iostream>
+using namespace std;
+
 namespace l1t {
    namespace stage2 {
       GTCollections::~GTCollections()
       {
 
+	cout << "DEBUG GTCollections:  Muon Size at BX=0" << muons_->size(0) << "\n"; 
         event_.put(muons_, "Muon");
 	event_.put(egammas_, "EGamma");
 	event_.put(etsums_, "EtSum");

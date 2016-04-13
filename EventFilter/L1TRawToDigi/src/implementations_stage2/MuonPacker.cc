@@ -27,7 +27,7 @@ namespace l1t {
 
          PayloadMap payloadMap;
 
-         for (int i = muons->getFirstBX(); i <= muons->getLastBX(); ++i) {
+         for (int i = muons->getFirstBX(); i <= muons->getLastBX(); ++i) {	    
             // the first muon in every BX and every block id is 0
             for (unsigned int blkId = 1; blkId < 8; blkId += 2) {
                payloadMap[blkId].push_back(0);
@@ -36,6 +36,7 @@ namespace l1t {
 
             unsigned int blkId = 1;
             int muCtr = 1;
+	    cout << "DEBUG:  MUONS:  " << i << " size:  " << muons->size(i) << "\n";
             for (auto mu = muons->begin(i); mu != muons->end(i) && muCtr <= 8; ++mu, ++muCtr) {
                uint32_t msw = 0;
                uint32_t lsw = 0;

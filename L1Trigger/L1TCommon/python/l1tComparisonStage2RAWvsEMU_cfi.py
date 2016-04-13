@@ -18,11 +18,17 @@ l1tComparisonStage2RAWvsEMU = cms.EDAnalyzer(
     muonTagA   =  cms.InputTag("simGmtStage2Digis",""),
     algTagA    =  cms.InputTag("simGtStage2Digis",""),
 
-    # for initial module testing compared unpacked to unpacked!!!
-    egTagB     = cms.InputTag("caloStage2Digis","EGamma"),
-    tauTagB    = cms.InputTag("caloStage2Digis","Tau"),
-    jetTagB    = cms.InputTag("caloStage2Digis","Jet"),
-    sumTagB    = cms.InputTag("caloStage2Digis","EtSum"),
-    muonTagB   =  cms.InputTag("gmtStage2Digis","Muon"),
+    #egTagB     = cms.InputTag("caloStage2Digis","EGamma"),
+    #tauTagB    = cms.InputTag("caloStage2Digis","Tau"),
+    #jetTagB    = cms.InputTag("caloStage2Digis","Jet"),
+    #sumTagB    = cms.InputTag("caloStage2Digis","EtSum"),
+    #muonTagB   =  cms.InputTag("gmtStage2Digis","Muon"),
+    #algTagB    =  cms.InputTag("gtStage2Digis",""),
+
+    egTagB     = cms.InputTag("gtStage2Digis","EGamma"),
+    tauTagB    = cms.InputTag("gtStage2Digis","Tau"),
+    jetTagB    = cms.InputTag("gtStage2Digis","Jet"),
+    sumTagB    = cms.InputTag("gtStage2Digis","EtSum"),
+    muonTagB   =  cms.InputTag("gtStage2Digis","Muon"),
     algTagB    =  cms.InputTag("gtStage2Digis",""),
 )
