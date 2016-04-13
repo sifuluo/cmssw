@@ -778,7 +778,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 // Fill in the DAQ Records
         if (m_produceL1GtDaqRecord) {
-            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, m_prescaleSet, m_l1GtMenu->gtTriggerMenuUUID());
+            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, m_prescaleSet, m_l1GtMenu->gtTriggerMenuUUID(), m_l1GtMenu->gtTriggerMenuImplementation());
         }
 
 
