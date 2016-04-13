@@ -88,7 +88,8 @@ bool UCTTower::processHFTower() {
     calibratedET /= 4;
   }
   towerData = calibratedET | zeroFlagMask;
-  if(hcalFB > 0) towerData |= hcalFlagMask;
+  if((hcalFB & 0x1) == 0x1) towerData |= hcalFlagMask;
+  if((hcalFB & 0x2) == 0x2) towerData |= ecalFlagMask;
   return true;
 }
 
