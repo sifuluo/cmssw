@@ -13,16 +13,34 @@ gmtParamsSource = cms.ESSource(
 )
 
 gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
+    # prefix for uGMT keys in DB
+    uGmtDbName = cms.string('UGMT'),
+    # id for uGMT settings
+    uGmtProcessorId = cms.string('ugmt_processor'),
+
     fwVersion = cms.uint32(1),
 
-    bxMin = cms.int32(-2),
-    bxMax = cms.int32(2),
+    # get configuration from DB and ignore values in this file
+    configFromDb = cms.bool(True),
+
+    # uGMT inputs to disable
+    # disabled inputs are not used in the algo but are still in the readout
+    caloInputsDisable = cms.bool(False),
+    bmtfInputsToDisable = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # BMTF 0-11
+    omtfInputsToDisable = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # OMTF+0-5, OMTF-0-5
+    emtfInputsToDisable = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # EMTF+0-5, EMTF-0-5
+
+    # masked inputs
+    # masked inputs are not used in the algo and are not in the readout
+    caloInputsMasked = cms.bool(False),
+    maskedBmtfInputs = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # BMTF 0-11
+    maskedOmtfInputs = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # OMTF+0-5, OMTF-0-5
+    maskedEmtfInputs = cms.vuint32(0,0,0,0,0,0,0,0,0,0,0,0), # EMTF+0-5, EMTF-0-5
 
     AbsIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'AbsIsoCheckMem.txt')),
     RelIsoCheckMemLUTPath        = cms.string(os.path.join(lut_dir, 'RelIsoCheckMem.txt')),
     IdxSelMemPhiLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemPhi.txt')),
     IdxSelMemEtaLUTPath          = cms.string(os.path.join(lut_dir, 'IdxSelMemEta.txt')),
-    #BrlSingleMatchQualLUTPath    = cms.string(''),
     FwdPosSingleMatchQualLUTPath = cms.string(''),
     FwdNegSingleMatchQualLUTPath = cms.string(''),
     OvlPosSingleMatchQualLUTPath = cms.string(''),
@@ -39,7 +57,6 @@ gmtParams = cms.ESProducer('L1TMuonGlobalParamsESProducer',
     FEtaExtrapolationLUTPath     = cms.string(os.path.join(lut_dir, 'EEtaExtrapolation.txt')),
     SortRankLUTPath              = cms.string(os.path.join(lut_dir, 'SortRank.txt')),
 
-    #BrlSingleMatchQualLUTMaxDR    = cms.double(0.1),
     FwdPosSingleMatchQualLUTMaxDR = cms.double(0.1),
     FwdNegSingleMatchQualLUTMaxDR = cms.double(0.1),
     OvlPosSingleMatchQualLUTMaxDR = cms.double(0.1),
