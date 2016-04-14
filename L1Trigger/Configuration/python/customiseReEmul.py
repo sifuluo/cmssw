@@ -69,6 +69,7 @@ def L1TReEmulFromRAW(process):
         process.simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')
         process.simBmtfDigis.DTDigi_Source         = cms.InputTag("simTwinMuxDigis")
         process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag("dttfDigis")
+        process.simEmtfDigis.isData                = cms.bool(True)
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
@@ -89,4 +90,6 @@ def L1TReEmulFromRAW(process):
 
 def L1TReEmulMCFromRAW(process):
     L1TReEmulFromRAW(process)
+    if eras.stage2L1Trigger.isChosen():
+        process.simEmtfDigis.isData              = cms.bool(False)
     return process
