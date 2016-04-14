@@ -121,6 +121,12 @@ namespace L1TMuon {
     //CSC
     TriggerPrimitive(const CSCDetId&,
 		     const CSCCorrelatedLCTDigi&);
+			 
+	TriggerPrimitive(const CSCDetId& detid, int trknmb, int valid,
+									int qual, int wg, int strip, int patt, 
+									int bend, int bx, int mpclink, int bx0, 
+									int syncerr, int id);
+
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
 		     const unsigned strip,
