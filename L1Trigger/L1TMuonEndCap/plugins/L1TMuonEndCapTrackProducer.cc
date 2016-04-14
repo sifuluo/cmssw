@@ -38,6 +38,7 @@ using namespace L1TMuon;
 L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const PSet& p) {
 
   inputTokenCSC = consumes<CSCCorrelatedLCTDigiCollection>(p.getParameter<edm::InputTag>("CSCInput"));
+  isData = p.getParameter<bool>("isData");
   
   produces<l1t::RegionalMuonCandBxCollection >("EMTF");
 }
@@ -99,7 +100,19 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       {
 		//TriggerPrimitiveRef tpref(out,tp - out.cbegin());
 
-		tester.push_back(*tp);
+		
+		TriggerPrimitive *new1 = new TriggerPrimitive((*tp).detId<CSCDetId>(),(*tp).getCSCData().trknmb,(*tp).getCSCData().valid,(*tp).getCSCData().quality,
+															 (*tp).getCSCData().keywire, (*tp).getCSCData().strip,(*tp).getCSCData().pattern,
+															 (*tp).getCSCData().bend,(*tp).getCSCData().bx - 2,(*tp).getCSCData().mpclink,
+															 (*tp).getCSCData().bx0,(*tp).getCSCData().syncErr,(*tp).getCSCData().cscID);
+															 
+		std::cout<<"endcap = "<<tp->detId<CSCDetId>().endcap()<<", sector = "<<tp->detId<CSCDetId>().triggerSector()<<", station = "<<tp->detId<CSCDetId>().station()<<", ring = "<<tp->detId<CSCDetId>().ring()<<", strip = "<<tp->getCSCData().strip<<"\n";
+		
+		if(isData)
+			tester.push_back(*new1);
+		else
+			tester.push_back(*tp);	
+		
 
 		//std::cout<<"\ntrigger prim found station:"<<tp->detId<CSCDetId>().station()<<std::endl;
       }
@@ -317,6 +330,7 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 			}
 
 		}
+		
 		tempTrack.phis = ps;
 		tempTrack.thetas = ts;
 

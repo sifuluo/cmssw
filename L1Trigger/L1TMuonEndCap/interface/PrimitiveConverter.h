@@ -158,7 +158,6 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	
 		eightstrip = (eightstrip>>1);
 		patcor = (patcor>>1);
-		//if(ring == 4) eightstrip -= 512;
 	}	
 	
 	if(clctpatsign) patcor = -patcor;
@@ -310,7 +309,10 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	/////////   Converted TP's around code   //////////////
 	///////////////////////////////////////////////////////
 	
-	//if(verbose) std::cout<<"Phi = "<<fph<<" and Theta = "<<th<<std::endl;
+	
+	if(Id > 9 ){
+		Id -= 9;strip += 128;
+	}
 	
 	ConvertedHit Hit;
 

@@ -108,6 +108,28 @@ TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid,
   _csc.cscID   = digi.getCSCID();
 }
 
+/// constructor from values
+TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, int trknmb, int valid,
+									int qual, int wg, int strip, int patt, 
+									int bend, int bx, int mpclink, int bx0, 
+									int syncerr, int id):
+	_id(detid),
+	_subsystem(TriggerPrimitive::kCSC){
+	calculateCSCGlobalSector(detid,_globalsector,_subsector);
+    _csc.trknmb  = trknmb;
+    _csc.valid   = valid;
+    _csc.quality = qual;
+    _csc.keywire = wg;
+    _csc.strip   = strip;
+    _csc.pattern = patt;
+    _csc.bend    = bend;
+    _csc.bx      = bx;
+    _csc.mpclink = mpclink;
+    _csc.bx0     = bx0;
+    _csc.syncErr = syncerr;
+    _csc.cscID   = id;
+}	
+
 // constructor from RPC data
 TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
 				   const unsigned strip,
