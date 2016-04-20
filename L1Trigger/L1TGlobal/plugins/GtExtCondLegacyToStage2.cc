@@ -157,34 +157,34 @@ namespace l1t {
 	}
 
 	if( useBx==-2 ){
-	  if( pass_BptxAND ) extCond_bx_m2.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_m2.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_m2.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_m2.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+	  if( pass_BptxAND ) extCond_bx_m2.setExternalDecision(32,true);  //EXT_BPTX_plus_AND_minus.v0
+	  if( pass_BptxPlus ) extCond_bx_m2.setExternalDecision(33,true);  //EXT_BPTX_plus.v0
+	  if( pass_BptxMinus ) extCond_bx_m2.setExternalDecision(34,true); //EXT_BPTX_minus.v0
+	  if( pass_BptxOR ) extCond_bx_m2.setExternalDecision(35,true); //EXT_BPTX_plus_OR_minus.v0
 	}
 	else if( useBx==-1 ){
-	  if( pass_BptxAND ) extCond_bx_m1.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_m1.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_m1.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_m1.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+	  if( pass_BptxAND ) extCond_bx_m1.setExternalDecision(32,true);  //EXT_BPTX_plus_AND_minus.v0
+	  if( pass_BptxPlus ) extCond_bx_m1.setExternalDecision(33,true);  //EXT_BPTX_plus.v0
+	  if( pass_BptxMinus ) extCond_bx_m1.setExternalDecision(34,true); //EXT_BPTX_minus.v0
+	  if( pass_BptxOR ) extCond_bx_m1.setExternalDecision(35,true); //EXT_BPTX_plus_OR_minus.v0
 	}
 	else if( useBx==0 ){
-	  if( pass_BptxAND ) extCond_bx_0.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_0.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_0.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_0.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+	  if( pass_BptxAND ) extCond_bx_0.setExternalDecision(32,true);  //EXT_BPTX_plus_AND_minus.v0
+	  if( pass_BptxPlus ) extCond_bx_0.setExternalDecision(33,true);  //EXT_BPTX_plus.v0
+	  if( pass_BptxMinus ) extCond_bx_0.setExternalDecision(34,true); //EXT_BPTX_minus.v0
+	  if( pass_BptxOR ) extCond_bx_0.setExternalDecision(35,true); //EXT_BPTX_plus_OR_minus.v0
 	}
 	else if( useBx==1 ){
-	  if( pass_BptxAND ) extCond_bx_p1.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_p1.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_p1.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_p1.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+	  if( pass_BptxAND ) extCond_bx_p1.setExternalDecision(32,true);  //EXT_BPTX_plus_AND_minus.v0
+	  if( pass_BptxPlus ) extCond_bx_p1.setExternalDecision(33,true);  //EXT_BPTX_plus.v0
+	  if( pass_BptxMinus ) extCond_bx_p1.setExternalDecision(34,true); //EXT_BPTX_minus.v0
+	  if( pass_BptxOR ) extCond_bx_p1.setExternalDecision(35,true); //EXT_BPTX_plus_OR_minus.v0
 	}
 	else if( useBx==2 ){
-	  if( pass_BptxAND ) extCond_bx_p2.setExternalDecision(8,true);  //EXT_BPTX_plus_AND_minus.v0
-	  if( pass_BptxPlus ) extCond_bx_p2.setExternalDecision(9,true);  //EXT_BPTX_plus.v0
-	  if( pass_BptxMinus ) extCond_bx_p2.setExternalDecision(10,true); //EXT_BPTX_minus.v0
-	  if( pass_BptxOR ) extCond_bx_p2.setExternalDecision(11,true); //EXT_BPTX_plus_OR_minus.v0
+	  if( pass_BptxAND ) extCond_bx_p2.setExternalDecision(32,true);  //EXT_BPTX_plus_AND_minus.v0
+	  if( pass_BptxPlus ) extCond_bx_p2.setExternalDecision(33,true);  //EXT_BPTX_plus.v0
+	  if( pass_BptxMinus ) extCond_bx_p2.setExternalDecision(34,true); //EXT_BPTX_minus.v0
+	  if( pass_BptxOR ) extCond_bx_p2.setExternalDecision(35,true); //EXT_BPTX_plus_OR_minus.v0
 	}
       }
     }
