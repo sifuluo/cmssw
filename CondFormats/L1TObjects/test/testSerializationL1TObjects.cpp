@@ -6,8 +6,11 @@ int main()
 {
 
   testSerialization<L1TMuonOverlapParams>();  
+<<<<<<< HEAD
   testSerialization<L1TMuonBarrelParams>();  
   testSerialization<L1TMuonGlobalParams>();  
+=======
+>>>>>>> mrcarver/CFBranch800p5
   testSerialization<l1t::CaloParams>();
   testSerialization<l1t::CaloConfig>();
     testSerialization<L1CaloEcalScale>();

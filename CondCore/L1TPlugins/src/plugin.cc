@@ -210,6 +210,7 @@ REGISTER_PLUGIN(L1TCaloConfigRcd, CaloConfig);
 
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonOverlapParamsRcd.h"
+<<<<<<< HEAD
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
@@ -252,3 +253,6 @@ REGISTER_PLUGIN(L1TUtmScaleRcd, L1TUtmScale);
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 REGISTER_PLUGIN(L1TUtmTriggerMenuRcd, L1TUtmTriggerMenu);
+=======
+REGISTER_PLUGIN(L1TMuonOverlapParamsRcd, L1TMuonOverlapParams);
+>>>>>>> mrcarver/CFBranch800p5

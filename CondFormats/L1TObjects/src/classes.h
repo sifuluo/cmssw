@@ -51,6 +51,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonGlobalParams.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+<<<<<<< HEAD
 
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmBin.h"
@@ -60,6 +61,10 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmScale.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+=======
+#include "CondFormats/L1TObjects/interface/L1TMuonEndcapParams.h"
+
+>>>>>>> mrcarver/CFBranch800p5
 
 namespace CondFormats_L1TObjects {
   struct dictionary {
@@ -97,6 +102,7 @@ namespace CondFormats_L1TObjects {
 
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
+<<<<<<< HEAD
 
 
     L1TUtmAlgorithm dummy19a;
@@ -107,6 +113,11 @@ namespace CondFormats_L1TObjects {
     L1TUtmObject dummy19f;
     L1TUtmScale dummy19g;
     L1TUtmTriggerMenu dummy19h;
+=======
+	
+	L1TMuonEndcapParams dummy19;
+
+>>>>>>> mrcarver/CFBranch800p5
 
   };
 }
