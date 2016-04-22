@@ -79,6 +79,11 @@ options.register('dump',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+options.register('text',
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Print unapcker objects")
 options.register('debug',
                  True,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -268,6 +273,11 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 # object analyser
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.doText = cms.untracked.bool(options.text)
+
+
+process.caloStage2Digis.FWId            = cms.uint32( 0x1001000b )
+process.caloStage2Digis.FWOverride      = cms.bool( True )
 
 
 # Path and EndPath definitions
