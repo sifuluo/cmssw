@@ -31,7 +31,7 @@ namespace stage2 {
      unsigned int amc  = block.amc().getAMCNumber();
      unsigned int bxid = block.amc().getBX();
      //     if( (amc-1) != (bxid-1)%9 ) return true;
-     if( (amc-1) != ((bxid-1+3)%9) ) return true;   // temporary measure!
+     //     if( (amc-1) != ((bxid-1+3)%9) ) return true;   // temporary measure!
      LogDebug("L1T") << "Unpacking AMC " << amc << " for BX " << bxid;
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
@@ -89,7 +89,7 @@ namespace stage2 {
        break;
      }
 
-     LogDebug("L1T") << "ET/METx/METy: pT " << et.hwPt();
+     LogDebug("L1T") << "ET/METx/METy: pT " << et.hwPt() << " type " << et.getType();
 
      res2_->push_back(0,et);
 
@@ -112,7 +112,7 @@ namespace stage2 {
      default: break;
      }
 
-     LogDebug("L1T") << "HT/MHTx/MHTy: pT " << ht.hwPt();
+     LogDebug("L1T") << "HT/MHTx/MHTy: pT " << ht.hwPt() << " type " << ht.getType();
 
      res2_->push_back(0,ht);
 
