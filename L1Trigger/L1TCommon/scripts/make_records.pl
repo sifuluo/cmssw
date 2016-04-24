@@ -13,8 +13,8 @@ while($classname = <FILELIST>){
     chomp $classname;
     $rcdname     = "${classname}Rcd";
     print "INFO:  class: \"$classname\" --> record:  \"$rcdname\"\n";
-    open INPUT, "template.h";
-    open OUTPUT, ">CondFormats/DataFormats/interface/${classname}Rcd.h";
+    open INPUT, "L1Trigger/L1TCommon/scripts/template.h";
+    open OUTPUT, ">CondFormats/DataRecord/interface/${classname}Rcd.h";
     while(<INPUT>){
 	s/XXX/$classname/g;
 	print OUTPUT $_;
@@ -23,8 +23,8 @@ while($classname = <FILELIST>){
     close OUTPUT;
 
 
-    open INPUT, "template.cc";
-    open OUTPUT, ">CondFormats/DataFormats/src/${classname}Rcd.cc";
+    open INPUT, "L1Trigger/L1TCommon/scripts/template.cc";
+    open OUTPUT, ">CondFormats/DataRecord/src/${classname}Rcd.cc";
     while(<INPUT>){
 	s/XXX/$classname/g;
 	print OUTPUT $_;
