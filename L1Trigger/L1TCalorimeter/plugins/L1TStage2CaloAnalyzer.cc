@@ -120,6 +120,7 @@ private:
   std::map< ObjectType, TH1F* > het_;
   std::map< ObjectType, TH1F* > heta_;
   std::map< ObjectType, TH1F* > hphi_;
+  std::map< ObjectType, TH1F* > hiso_;
   std::map< ObjectType, TH1F* > hbx_;
   std::map< ObjectType, TH1F* > hem_;
   std::map< ObjectType, TH1F* > hhad_;
@@ -371,10 +372,13 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mpegs->begin(ibx); itr != mpegs->end(ibx); ++itr ) {
+
+	if (itr->hwPt()<=0) continue;
         hbx_.at(MPEG)->Fill( ibx );
 	het_.at(MPEG)->Fill( itr->hwPt() );
 	heta_.at(MPEG)->Fill( itr->hwEta() );
 	hphi_.at(MPEG)->Fill( itr->hwPhi() );
+	hiso_.at(MPEG)->Fill( itr->hwIso() );
         hetaphi_.at(MPEG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
 	text << "MP EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
@@ -397,10 +401,13 @@ L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (  !m_allBx && ibx != m_mpBx ) continue;
 
       for ( auto itr = mptaus->begin(ibx); itr != mptaus->end(ibx); ++itr ) {
+
+	if (itr->hwPt()<=0) continue;
         hbx_.at(MPTau)->Fill( ibx );
 	het_.at(MPTau)->Fill( itr->hwPt() );
 	heta_.at(MPTau)->Fill( itr->hwEta() );
 	hphi_.at(MPTau)->Fill( itr->hwPhi() );
+	hiso_.at(MPTau)->Fill( itr->hwIso() );
         hetaphi_.at(MPTau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
 	text << "MP Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;      
@@ -510,10 +517,13 @@ int njetmp=0;
       if (  !m_allBx && ibx != m_dmxBx ) continue;
 
       for ( auto itr = egs->begin(ibx); itr != egs->end(ibx); ++itr ) {
+
+	if (itr->hwPt()<=0) continue;
         hbx_.at(EG)->Fill( ibx );
 	het_.at(EG)->Fill( itr->hwPt() );
 	heta_.at(EG)->Fill( itr->hwEta() );
 	hphi_.at(EG)->Fill( itr->hwPhi() );
+	hiso_.at(EG)->Fill( itr->hwIso() );
         hetaphi_.at(EG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
 	text << "EG : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
@@ -535,10 +545,13 @@ int njetmp=0;
       if (  !m_allBx && ibx != m_dmxBx ) continue;
 
       for ( auto itr = taus->begin(ibx); itr != taus->end(ibx); ++itr ) {
+
+	if (itr->hwPt()<=0) continue;
         hbx_.at(Tau)->Fill( ibx );
 	het_.at(Tau)->Fill( itr->hwPt() );
 	heta_.at(Tau)->Fill( itr->hwEta() );
 	hphi_.at(Tau)->Fill( itr->hwPhi() );
+	hiso_.at(Tau)->Fill( itr->hwIso() );
         hetaphi_.at(Tau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
 
 	text << "Tau : " << " BX=" << ibx << " ipt=" << itr->hwPt() << " ieta=" << itr->hwEta() << " iphi=" << itr->hwPhi() << std::endl;
@@ -662,11 +675,17 @@ L1TStage2CaloAnalyzer::beginJob()
     if (*itr==EG || *itr==Jet || *itr==Tau) {// || *itr==SumMET) || *itr==SumMHT) {
       heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 227, -113.5, 113.5) ));
       hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 144, -0.5, 143.5) ));
+      if(*itr==EG || *itr==Tau){	
+	hiso_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("iso", "", 4, -1.5, 2.5) ));
+      }
       hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 227, -113.5, 113.5, 144, -0.5, 143.5) ));
     }
     else if (*itr==Tower || *itr==Cluster || *itr==MPEG || *itr==MPJet || *itr==MPTau){// || *itr==MPSum) {
       heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 83, -41.5, 41.5) ));
       hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0.5, 72.5) ));
+      if(*itr==MPEG || *itr==MPTau){
+	hiso_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("iso", "", 4, -1.5, 2.5) ));
+      }
       hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41.5, 41.5, 72, .5, 72.5) ));
     }
     else if (*itr==SumMET || *itr==SumMHT) {
