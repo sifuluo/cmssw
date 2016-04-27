@@ -5,6 +5,9 @@
 #include <string>
 
 #include "CondFormats/L1TObjects/interface/LUT.h"
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 //boost libraries
 #include <boost/lexical_cast.hpp>
@@ -22,11 +25,13 @@ class tableRow
 		void setRowColumns(const std::vector<std::string>& columns) { _columns = columns; };
 		~tableRow() {};
 		std::vector<std::string> getRow () { return _row; };
+		std::string getRowAsStr();
 		template <class varType> varType getRowValue(const std::string& col);
 	private:
 		std::vector<std::string> _row;
 		std::vector<std::string> _types;
 		std::vector<std::string> _columns;
+
 };
 
 
@@ -76,6 +81,7 @@ template <typename varType> std::vector<varType> setting::getVector(std::string 
 		throw std::runtime_error ("Wrong value format: " + _value);
 	}
 
+	edm::LogInfo ("l1t::setting::getVector") << "Returning vector with values " << this->getValueAsStr();
 	return vals;
 }
 
@@ -84,6 +90,7 @@ template <class varType> varType setting::getValue()
 	if ( _type.find("vector") != std::string::npos )
 		throw std::runtime_error("The registered type: " + _type + " is vector so you need to call the getVector method");
 	
+	edm::LogInfo ("l1t::setting::getValue") << "Returning value " << this->getValueAsStr();
 	return boost::lexical_cast<varType>(_value);
 }
 
@@ -95,6 +102,7 @@ template <class varType> varType tableRow::getRowValue(const std::string& col)
 		if (_columns.at(i).find(col) != std::string::npos)
 		{
 			found = true;
+			edm::LogInfo ("l1t::setting::getRowValue") << "Returning value " << boost::lexical_cast<varType>(_row.at(i)) <<  " from table row " << this->getRowAsStr();
 			return boost::lexical_cast<varType>(_row.at(i));
 		}
 	}
