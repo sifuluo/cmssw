@@ -16,10 +16,10 @@ void trigSystem::configureSystem(const std::string& l1HltKey, const std::string&
 {
         std::cout << "L1_HLT_key: " << l1HltKey << ", subsystem name: " << subSysName << std::endl;
         // TODO: get _sysId from JSON
-	_sysId = "ugmt";
+	//_sysId = "ugmt";
         // TODO: get processors and roles from JSON
         // loop to add all roles and processors found in the JSON
-	addProcRole("processors", "ugmt_processor");
+	//addProcRole("processors", "ugmt_processor");
 
         // TODO: get subsystem key and subsystem RS key from DB using l1HltKey
         // TODO: get clobs from subsystem keys
@@ -49,6 +49,9 @@ void trigSystem::addProcRole(const std::string& role, const std::string& process
 	_procRole[processor] = role;
 
 	_roleProcs[role].push_back(processor);
+
+	_procEnabled[processor] = true;
+
 }
 
 void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
@@ -106,6 +109,8 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 
 std::map<std::string, setting> trigSystem::getSettings(const std::string& proccessor)
 {
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
 	std::map<std::string, setting> settings;
 	std::vector<setting> vecSettings = _procSettings.at(proccessor);
 	for(auto it=vecSettings.begin(); it!=vecSettings.end(); it++)
@@ -182,6 +187,9 @@ void trigSystem::addMask(const std::string& id, const std::string& procRole)
 
 std::map<std::string, mask> trigSystem::getMasks(const std::string& proccessor)
 {
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+
 	std::map<std::string, mask> masks;
 	std::vector<mask> vecMasks= _procMasks.at(proccessor);
 	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++)
@@ -192,16 +200,43 @@ std::map<std::string, mask> trigSystem::getMasks(const std::string& proccessor)
 
 bool trigSystem::isMasked(const std::string& proccessor, const std::string& id)
 {
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+
 	bool isMasked = false;
 	std::vector<mask> vecMasks= _procMasks.at(proccessor);
-	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++) {
-		if (it->getId() == id) {
+	for(auto it=vecMasks.begin(); it!=vecMasks.end(); it++) 
+	{
+		if (it->getId() == id) 
+		{
 			isMasked = true;
 			break;
 		}
-        }
+    	}
 
 	return isMasked;
+}
+
+void trigSystem::disableDaqProc(const std::string& daqProc)
+{
+	if ( _procRole.find(daqProc) == _procRole.end() && _daqttcProcs.find(daqProc) == _daqttcProcs.end())
+		throw std::runtime_error("Cannot mask daq/processor " + daqProc + "! Not found in the system.");
+
+	if ( _procRole.find(daqProc) != _procRole.end() )
+		_procEnabled[daqProc] = false;
+	else if ( _daqttcProcs.find(daqProc) != _daqttcProcs.end() )
+	{
+		for (auto it = _daqttcProcs[daqProc].begin(); it != _daqttcProcs[daqProc].end(); it++)
+			_procEnabled[*it] = false;
+	}
+}
+
+bool trigSystem::isProcEnabled(const std::string& proccessor)
+{
+	if (!_isConfigured)
+		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
+
+	return _procEnabled[proccessor];
 }
 
 }

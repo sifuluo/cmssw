@@ -106,6 +106,9 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             std::string id = _toString(elem->getAttribute(_toDOMS("id")));
             //std::cout << "mask element node with id attribute " << id << std::endl;
             aTrigSystem.addMask(id, contextId);
+          } else if (_toString(elem->getTagName()) == "disable") {
+            std::string id = _toString(elem->getAttribute(_toDOMS("id")));
+            aTrigSystem.disableDaqProc(id);
           }
         }
       }
