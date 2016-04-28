@@ -36,7 +36,9 @@
 
 #include "L1Trigger/L1TGlobal/interface/GlobalBoard.h"
 #include "L1Trigger/L1TGlobal/interface/GlobalParamsHelper.h"
+#include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
 
+class L1TGlobalPrescalesVetos;
 class L1TGlobalParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
@@ -109,7 +111,7 @@ private:
 
 
     /// prescale factors
-    const L1GtPrescaleFactors* m_l1GtPfAlgo;
+    const l1t::PrescalesVetosHelper* m_l1GtPrescalesVetoes;
     unsigned long long m_l1GtPfAlgoCacheID;
 
 
@@ -132,8 +134,8 @@ private:
     const std::vector<unsigned int>* m_triggerMaskAlgoTrig;
     std::vector<unsigned int> m_initialTriggerMaskAlgoTrig;
 
-    const std::vector<unsigned int>* m_triggerMaskVetoAlgoTrig;
-    std::vector<unsigned int> m_initialTriggerMaskVetoAlgoTrig;
+    const std::vector<int>* m_triggerMaskVetoAlgoTrig;
+    std::vector<int> m_initialTriggerMaskVetoAlgoTrig;
 
 private:
 
