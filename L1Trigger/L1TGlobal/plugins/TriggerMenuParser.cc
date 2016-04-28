@@ -323,7 +323,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		    condition.getType() == esConditionType::MissingEt ||
 		    condition.getType() == esConditionType::MissingHt )
 		    //condition.getType() == esConditionType::MissingEt2 ||
-		    //condition.getType() == esConditionType::MinBias )
+		    //condition.getType() == esConditionType::MinBiasHFP0 ||
+		    //condition.getType() == esConditionType::MinBiasHFM0 ||
+		    //condition.getType() == esConditionType::MinBiasHFP1 ||
+		    //condition.getType() == esConditionType::MinBiasHFM1 )
 	  {
              parseEnergySum(condition,chipNr,false); 	
 
@@ -2023,9 +2026,21 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
       energySumObjType = GlobalObject::gtETM2;
       cType = TypeETM2;
     }
-    else if( condEnergySum.getType() == esConditionType::MinBias ){
-      energySumObjType = GlobalObject::gtMinBias;
-      cType = TypeMinBias;
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFP0 ){
+      energySumObjType = GlobalObject::gtMinBiasHFP0;
+      cType = TypeMinBiasHFP0;
+    }     
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFM0 ){
+      energySumObjType = GlobalObject::gtMinBiasHFM0;
+      cType = TypeMinBiasHFM0;
+    }
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFP1 ){
+      energySumObjType = GlobalObject::gtMinBiasHFP1;
+      cType = TypeMinBiasHFP1;
+    }
+    else if( condEnergySum.getType() == esConditionType::MinBiasHFM1 ){
+      energySumObjType = GlobalObject::gtMinBiasHFM1;
+      cType = TypeMinBiasHFM1;
     }  */      
     else {
       edm::LogError("TriggerMenuParser")
