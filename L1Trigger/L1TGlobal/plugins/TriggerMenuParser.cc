@@ -261,10 +261,10 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   //get the meta data
   m_triggerMenuDescription = menu->getComment();
   m_triggerMenuDate = menu->getDatetime();
-  m_triggerMenuImplementation =  0; // FIXME: ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
+  m_triggerMenuImplementation = ( getMmHashN(menu->getFirmwareUuid()) & 0xFFFFFFFF); //make sure we only have 32 bits 
   m_triggerMenuName = menu->getName();
   m_triggerMenuInterface = menu->getVersion(); //BLW: correct descriptor?
-  m_triggerMenuUUID = 0; // FIXME:  ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
+  m_triggerMenuUUID = ( getMmHashN(menu->getName()) & 0xFFFFFFFF); //make sure we only have 32 bits 
 
   const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
   const std::map<std::string, esCondition>& condMap = menu->getConditionMap();
