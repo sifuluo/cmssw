@@ -38,7 +38,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
     int32_t ex(0), ey(0), et(0);
     int32_t ex2(0), ey2(0);
-    uint32_t mb(0);
+    uint32_t mb0(0), mb1(0);
 
     for (unsigned absieta=1; absieta<CaloTools::kHFEnd; absieta++) {
 
@@ -47,8 +47,8 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       // TODO add the eta and Et thresholds
 
       int32_t ringEx(0), ringEy(0), ringEt(0);
-      int32_t ringEx2(0),ringEy2(0);
-      uint32_t ringMB(0);
+      int32_t ringEx2(0), ringEy2(0);
+      uint32_t ringMB0(0), ringMB1(0);
 
       for (int iphi=1; iphi<=CaloTools::kHBHENrPhi; iphi++) {
       
@@ -74,7 +74,7 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 	if (CaloTools::mpEta(abs(tower.hwEta()))>CaloTools::kHFBegin &&
 	    CaloTools::mpEta(abs(tower.hwEta()))<CaloTools::kHFEnd &&
 	    (tower.hwQual() & 0x4) > 0) 
-	  ringMB += 1;
+	  ringMB1 += 1;
 	
       }    
       
@@ -83,7 +83,8 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       et += ringEt;
       ex2 += ringEx2;
       ey2 += ringEy2;
-      mb += ringMB;
+      mb0 += ringMB0;
+      mb1 += ringMB1;
 
     }
 
@@ -93,6 +94,11 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     ex2 >>= 10;
     ey2 >>= 10;
 
+    // should we saturate Ex, Ey here ???
+
+    if (mb0>0xf) mb0 = 0xf;
+    if (mb1>0xf) mb1 = 0xf;
+
     math::XYZTLorentzVector p4;
 
     l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
@@ -100,14 +106,23 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEty,ey,0,0,0);
     l1t::EtSum etSumEx2(p4,l1t::EtSum::EtSumType::kTotalEtx2,ex2,0,0,0);
     l1t::EtSum etSumEy2(p4,l1t::EtSum::EtSumType::kTotalEty2,ey2,0,0,0);
-    l1t::EtSum etSumMinBias(p4,l1t::EtSum::EtSumType::kMinBias,mb,0,0,0);
+
+    l1t::EtSum::EtSumType type0 = l1t::EtSum::EtSumType::kMinBiasHFP0;
+    l1t::EtSum::EtSumType type1 = l1t::EtSum::EtSumType::kMinBiasHFP1;
+    if (etaSide<0) {
+      type0 = l1t::EtSum::EtSumType::kMinBiasHFM0;
+      type1 = l1t::EtSum::EtSumType::kMinBiasHFM1;
+    } 
+    l1t::EtSum etSumMinBias0(p4,type0,mb0,0,0,0);
+    l1t::EtSum etSumMinBias1(p4,type1,mb1,0,0,0);
 
     etsums.push_back(etSumTotalEt);
     etsums.push_back(etSumEx);
     etsums.push_back(etSumEy);
     etsums.push_back(etSumEx2);
     etsums.push_back(etSumEy2);
-    etsums.push_back(etSumMinBias);
+    etsums.push_back(etSumMinBias0);
+    etsums.push_back(etSumMinBias1);
 
   }
 
