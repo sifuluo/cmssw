@@ -811,6 +811,15 @@ float getPt(unsigned long Address)
 		forest->predictEvents(vevent,64);
 		
 		float OpT = vevent[0]->predictedValue;
+		
+		cout << "DEBUG: mode:  " << mode << " dir " << ss.str().c_str() << " num trees " << 64 << "\n";
+		cout << "DEBUG: pred val:  " << OpT << "\n";
+		cout << "DEBUG: data = ";
+		for (unsigned int i=0; i<Data.size(); i++){
+		  cout << Data[i] << ", ";
+		}
+		cout << "\n";
+
 		MpT = 1/OpT;
 
     

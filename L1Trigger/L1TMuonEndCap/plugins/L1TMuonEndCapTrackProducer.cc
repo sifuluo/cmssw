@@ -324,6 +324,8 @@ for(int SectIndex=0;SectIndex<NUM_SECTORS;SectIndex++){//perform TF on all 12 se
 		tempTrack.pt = xmlpt*1.4;
 		//FoundTracks->push_back(tempTrack);
 
+		cout << "DEBUG:  HELLO THERE!!!\n";
+
 		CombAddress = (me2address<<4) | me1address;
 
 		int charge = getCharge(phis[0],phis[1],phis[2],phis[3],mode);
