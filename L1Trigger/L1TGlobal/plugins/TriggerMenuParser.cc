@@ -2092,7 +2092,6 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
         {
           const esCut cut = cuts.at(kk); 
 	 
-	  std::cout << " Cut " << kk << " Type " << cut.getCutType() << std::endl;
 	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
 	       lowerThresholdInd = cut.getMinimum().index;
