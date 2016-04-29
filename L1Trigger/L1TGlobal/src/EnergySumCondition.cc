@@ -166,19 +166,19 @@ const bool l1t::EnergySumCondition::evaluateCondition(const int bxEval) const {
       MissingEnergy = true;
       break;      
     case gtMinBiasHFP0:
-      type = l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFP0;
+      type = l1t::EtSum::EtSumType::kMinBiasHFP0; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFP0;
       MissingEnergy = false;
       break;
     case gtMinBiasHFM0:
-      type = l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFM0;
+      type = l1t::EtSum::EtSumType::kMinBiasHFM0; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFM0;
       MissingEnergy = false;
       break;     
     case gtMinBiasHFP1:
-      type = l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFP1;
+      type = l1t::EtSum::EtSumType::kMinBiasHFP1; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFP1;
       MissingEnergy = false;
       break;     
     case gtMinBiasHFM1:
-      type = l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFM1;
+      type = l1t::EtSum::EtSumType::kMinBiasHFM1; //l1t::EtSum::EtSumType::kTotalEt;//type = l1t::EtSum::EtSumType::kMinBiasHFM1;
       MissingEnergy = false;
       break;                             
     default:

@@ -321,12 +321,12 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	  } else if(condition.getType() == esConditionType::TotalEt ||
                     condition.getType() == esConditionType::TotalHt ||
 		    condition.getType() == esConditionType::MissingEt ||
-		    condition.getType() == esConditionType::MissingHt )
+		    condition.getType() == esConditionType::MissingHt ||
 		    //condition.getType() == esConditionType::MissingEt2 ||
-		    //condition.getType() == esConditionType::MinBiasHFP0 ||
-		    //condition.getType() == esConditionType::MinBiasHFM0 ||
-		    //condition.getType() == esConditionType::MinBiasHFP1 ||
-		    //condition.getType() == esConditionType::MinBiasHFM1 )
+		    condition.getType() == esConditionType::MinBiasHFP0 ||
+		    condition.getType() == esConditionType::MinBiasHFM0 ||
+		    condition.getType() == esConditionType::MinBiasHFP1 ||
+		    condition.getType() == esConditionType::MinBiasHFM1 )
 	  {
              parseEnergySum(condition,chipNr,false); 	
 
@@ -2025,7 +2025,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 /*    else if( condEnergySum.getType() == esConditionType::MissingEt2 ){
       energySumObjType = GlobalObject::gtETM2;
       cType = TypeETM2;
-    }
+    } */
     else if( condEnergySum.getType() == esConditionType::MinBiasHFP0 ){
       energySumObjType = GlobalObject::gtMinBiasHFP0;
       cType = TypeMinBiasHFP0;
@@ -2041,7 +2041,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
     else if( condEnergySum.getType() == esConditionType::MinBiasHFM1 ){
       energySumObjType = GlobalObject::gtMinBiasHFM1;
       cType = TypeMinBiasHFM1;
-    }  */      
+    }        
     else {
       edm::LogError("TriggerMenuParser")
 	<< "Wrong type for energy-sum condition (" << type
@@ -2092,6 +2092,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
         {
           const esCut cut = cuts.at(kk); 
 	 
+	  std::cout << " Cut " << kk << " Type " << cut.getCutType() << std::endl;
 	  switch(cut.getCutType()){
 	     case esCutType::Threshold:
 	       lowerThresholdInd = cut.getMinimum().index;
@@ -2117,6 +2118,11 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 		 cntPhi++; 
 
 	       }
+	       break;
+	     
+	     case esCutType::Count:
+	       lowerThresholdInd = cut.getMinimum().index;
+	       upperThresholdInd = 0xffffff;
 	       break;
 	       
 	     default:

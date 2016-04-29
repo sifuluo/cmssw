@@ -90,6 +90,7 @@ namespace l1t {
     unsigned int formatJet(std::vector<l1t::Jet>::const_iterator jet);
     unsigned int formatMissET(std::vector<l1t::EtSum>::const_iterator etSum);
     unsigned int formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum);
+    unsigned int formatHMB(std::vector<l1t::EtSum>::const_iterator etSum);
     std::map<std::string, std::vector<int> > m_algoSummary;
     
     
@@ -334,17 +335,29 @@ namespace l1t {
 	       for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
 	            switch ( etsum->getType() ) {
 		       case l1t::EtSum::EtSumType::kMissingEt:
-			 cout << " ETM: ";
+			 cout << " ETM:  ";
 			 break; 
 		       case l1t::EtSum::EtSumType::kMissingHt:
-			 cout << " HTM: ";
+			 cout << " HTM:  ";
 			 break; 		     
 		       case l1t::EtSum::EtSumType::kTotalEt:
-			 cout << " ETT: ";
+			 cout << " ETT:  ";
 			 break; 		     
 		       case l1t::EtSum::EtSumType::kTotalHt:
-			 cout << " HTT: ";
-			 break; 		     
+			 cout << " HTT:  ";
+			 break; 
+		       case l1t::EtSum::EtSumType::kMinBiasHFP0:
+			 cout << " HFP0: ";
+			 break; 			 		     
+		       case l1t::EtSum::EtSumType::kMinBiasHFM0:
+			 cout << " HFM0: ";
+			 break; 
+		       case l1t::EtSum::EtSumType::kMinBiasHFP1:
+			 cout << " HFP1: ";
+			 break; 
+		       case l1t::EtSum::EtSumType::kMinBiasHFM1:
+			 cout << " HFM1: ";
+			 break; 
 		       default:
 		         cout << " Unknown: ";
 		         break;
@@ -522,6 +535,7 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    unsigned int HTTpackWd = 0;
    unsigned int ETMpackWd = 0;
    unsigned int HTMpackWd = 0;
+   unsigned int HMBpackWd = 0;
 
    if(etsums.isValid()){
      for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
@@ -538,13 +552,21 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     break; 		     
 	   case l1t::EtSum::EtSumType::kTotalHt:
 	     HTTpackWd = formatTotalET(etsum);
-	     break; 		     
+	     break; 	
+	   case l1t::EtSum::EtSumType::kMinBiasHFP0:
+	   case l1t::EtSum::EtSumType::kMinBiasHFM0:
+	   case l1t::EtSum::EtSumType::kMinBiasHFP1:
+	   case l1t::EtSum::EtSumType::kMinBiasHFM1:
+	     HMBpackWd |= formatHMB(etsum);
+	     break; 			     	     	     
            default:
 	     break;
 	} //end switch statement
      } //end loop over etsums
    }
 
+   // Temporary put HMB bits in upper part of Total Et Word
+   ETTpackWd |= HMBpackWd;
 
    // Fill in the words in appropriate order
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
@@ -670,6 +692,34 @@ unsigned int GtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_iterator
 
 // Pack Bits
   packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
+  
+  return packedVal;
+}
+
+unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etSum){
+
+  unsigned int packedVal = 0;
+  unsigned int shift = 0;
+  
+  switch ( etSum->getType() ) {
+      case l1t::EtSum::EtSumType::kMinBiasHFP0:
+        shift = 20;
+	break;
+      case l1t::EtSum::EtSumType::kMinBiasHFM0:
+        shift = 16;
+	break;
+      case l1t::EtSum::EtSumType::kMinBiasHFP1:
+        shift = 28;
+	break;
+      case l1t::EtSum::EtSumType::kMinBiasHFM1:
+        shift = 24;
+	break;
+      default: 
+        //shouldn't be here get out without packing anything        
+        return packedVal; //break;	
+  }
+// Pack Bits
+  packedVal |= ((etSum->hwPt()     & 0xf)   << shift); 
   
   return packedVal;
 }
