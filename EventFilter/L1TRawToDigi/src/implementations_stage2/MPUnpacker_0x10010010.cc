@@ -140,6 +140,8 @@ namespace stage2 {
        jet.setHwPhi((raw_data >> 6) & 0x7F);
        jet.setHwPt((raw_data >> 13) & 0xFFFF);
        jet.setHwQual((raw_data>>29) & 0x1 );
+
+       if (jet.hwPt()==0) continue;
          
        LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual();
 
@@ -177,6 +179,7 @@ namespace stage2 {
        eg.setHwIso((raw_data>>1) & 0x3);       
        eg.setHwQual((raw_data>>16) & 0xf );
 
+       if (eg.hwPt()==0) continue;
 	   
        LogDebug("L1T") << "Egamma: eta " << eg.hwEta() << " phi " << eg.hwPhi() << " pT " << eg.hwPt() << " qual " << eg.hwQual();
        
@@ -212,6 +215,8 @@ namespace stage2 {
        tau.setHwPt((raw_data >> 20) & 0xFFF);
        tau.setHwIso((raw_data>>1) & 0x3);       
        tau.setHwQual((raw_data>>16) & 0xf );
+
+       if (tau.hwPt()==0) continue;
        
        LogDebug("L1T") << "Tau: eta " << tau.hwEta() << " phi " << tau.hwPhi() << " pT " << tau.hwPt() << " qual " << tau.hwQual();
        
