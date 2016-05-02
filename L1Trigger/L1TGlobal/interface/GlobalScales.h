@@ -54,6 +54,18 @@ public:
 	std::vector<std::pair<double,double>> etaBins;	
 	
     };
+
+    enum GtScaleType {
+       MuScale,
+       EGScale,
+       TAUScale,
+       JETScale,
+       ETTScale,
+       ETMScale,
+       HTTScale,
+       HTMScale
+    };   
+       
      
     inline void setEGScales(ScaleParameters& scales)   { m_egScales = scales;  }
     inline void setTauScales(ScaleParameters& scales)  { m_tauScales = scales; }
@@ -86,6 +98,9 @@ public:
     inline ScaleParameters getHTTScales() const { return m_httScales; }
     inline ScaleParameters getHTMScales() const { return m_htmScales; }
 
+    std::pair<double,double>  getEtScaleBinEdges(GtScaleType scType, int bin) const;
+    std::pair<double,double> getEtaScaleBinEdges(GtScaleType scType, int bin) const;
+    std::pair<double,double> getPhiScaleBinEdges(GtScaleType scType, int bin) const;
 
     long long getLUT_CalMuEta(std::string lutName, int element) const;
     long long getLUT_CalMuPhi(std::string lutName, int element) const;

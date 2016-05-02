@@ -148,6 +148,129 @@ void l1t::GlobalScales::setLUT_Cos(std::string lutName, std::vector<long long> l
 
 }
 
+std::pair<double,double> l1t::GlobalScales::getEtScaleBinEdges(GtScaleType scType, int bin) const
+{
+
+    ScaleParameters scales;
+    switch(scType) {
+      case GtScaleType::MuScale:
+         scales = m_muScales;
+	 break;
+      case GtScaleType::EGScale:
+         scales = m_egScales;
+	 break;
+      case GtScaleType::TAUScale:
+         scales = m_tauScales;
+	 break; 
+      case GtScaleType::JETScale:
+         scales = m_jetScales;
+	 break; 
+      case GtScaleType::ETTScale:
+         scales = m_ettScales;
+	 break; 
+      case GtScaleType::ETMScale:
+         scales = m_etmScales;
+	 break; 
+      case GtScaleType::HTTScale:
+         scales = m_httScales;
+	 break; 
+      case GtScaleType::HTMScale:
+         scales = m_htmScales;
+	 break; 	 	 	 	 	          
+    }
+    
+    int scSize = scales.etBins.size();
+    if(bin >= scSize) {
+        edm::LogWarning("L1TGlobal") << " Et Bin " << bin << " exceeds maximum, setting to max bin " << scSize-1 << std::endl;
+	bin = scSize-1;
+    } else if (bin < 0) {
+        edm::LogWarning("L1TGlobal") << " Et Bin " << bin << " is negative, setting to min bin " << scSize-1 << std::endl;
+	bin = 0;
+    }
+    return scales.etBins.at(bin);
+}
+
+std::pair<double,double> l1t::GlobalScales::getEtaScaleBinEdges(GtScaleType scType, int bin) const
+{
+    ScaleParameters scales;
+    switch(scType) {
+      case GtScaleType::MuScale:
+         scales = m_muScales;
+	 break;
+      case GtScaleType::EGScale:
+         scales = m_egScales;
+	 break;
+      case GtScaleType::TAUScale:
+         scales = m_tauScales;
+	 break; 
+      case GtScaleType::JETScale:
+         scales = m_jetScales;
+	 break; 
+      case GtScaleType::ETTScale:
+         scales = m_ettScales;
+	 break; 
+      case GtScaleType::ETMScale:
+         scales = m_etmScales;
+	 break; 
+      case GtScaleType::HTTScale:
+         scales = m_httScales;
+	 break; 
+      case GtScaleType::HTMScale:
+         scales = m_htmScales;
+	 break; 	 	 	 	 	          
+    }
+
+    int scSize = scales.etaBins.size();
+    if(bin >= scSize) {
+        edm::LogWarning("L1TGlobal") << " Eta Bin " << bin << " exceeds maximum, setting to max bin " << scSize-1 << std::endl;
+	bin = scSize-1;
+    } else if (bin < 0) {
+        edm::LogWarning("L1TGlobal") << " Eta Bin " << bin << " is negative, setting to min bin " << scSize-1 << std::endl;
+	bin = 0;
+    }
+    return scales.etaBins.at(bin);
+}
+
+std::pair<double,double> l1t::GlobalScales::getPhiScaleBinEdges(GtScaleType scType, int bin) const
+{
+    ScaleParameters scales;
+    switch(scType) {
+      case GtScaleType::MuScale:
+         scales = m_muScales;
+	 break;
+      case GtScaleType::EGScale:
+         scales = m_egScales;
+	 break;
+      case GtScaleType::TAUScale:
+         scales = m_tauScales;
+	 break; 
+      case GtScaleType::JETScale:
+         scales = m_jetScales;
+	 break; 
+      case GtScaleType::ETTScale:
+         scales = m_ettScales;
+	 break; 
+      case GtScaleType::ETMScale:
+         scales = m_etmScales;
+	 break; 
+      case GtScaleType::HTTScale:
+         scales = m_httScales;
+	 break; 
+      case GtScaleType::HTMScale:
+         scales = m_htmScales;
+	 break; 	 	 	 	 	          
+    }
+    
+    int scSize = scales.phiBins.size();
+    if(bin >= scSize) {
+        edm::LogWarning("L1TGlobal") << " Phi Bin " << bin << " exceeds maximum, setting to max bin " << scSize-1 << std::endl;
+	bin = scSize-1;
+    } else if (bin < 0) {
+        edm::LogWarning("L1TGlobal") << " Phi Bin " << bin << " is negative, setting to min bin " << scSize-1 << std::endl;
+	bin = 0;
+    }
+    return scales.phiBins.at(bin);
+}
 
 long long l1t::GlobalScales::getLUT_CalMuEta(std::string lutName, int element) const
 {

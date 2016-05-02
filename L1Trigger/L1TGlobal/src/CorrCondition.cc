@@ -417,11 +417,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 //		LogDebug("L1TGlobal") << "Muon phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0  << " et " << etIndex0 << std::endl;
 		
 		// Determine Floating Pt numbers for floating point caluclation
-		std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex0);
+		std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::MuScale,phiIndex0); 
 		phi0Phy = 0.5*(binEdges.second + binEdges.first);
-		binEdges = m_gtScales->getMUScales().etaBins.at(etaBin0);
+		binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::MuScale,etaBin0);
 		eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		binEdges = m_gtScales->getMUScales().etBins.at(etIndex0);
+		binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::MuScale,etIndex0);
 		et0Phy = 0.5*(binEdges.second + binEdges.first);
 
 		LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;		
@@ -443,12 +443,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 //		    LogDebug("L1TGlobal") << "EG0 phi" << phiIndex0 << " eta " << etaIndex0 << " etaBin0 = " << etaBin0 << " et " << etIndex0 << std::endl;
 		    
 		    // Determine Floating Pt numbers for floating point caluclation
-		    std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex0);
-		    phi0Phy = 0.5*(binEdges.second + binEdges.first);					    
-		    binEdges = m_gtScales->getEGScales().etaBins.at(etaBin0);
+		    std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::EGScale,phiIndex0); 
+		    phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		    binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::EGScale,etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getEGScales().etBins.at(etIndex0);
+		    binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::EGScale,etIndex0);
 		    et0Phy = 0.5*(binEdges.second + binEdges.first);
+
 		    
 		 }
 		   break;
@@ -463,16 +464,19 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		    
 		    // Determine Floating Pt numbers for floating point caluclation
-		    std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex0);
-		    phi0Phy = 0.5*(binEdges.second + binEdges.first);			
-		    binEdges = m_gtScales->getJETScales().etaBins.at(etaBin0);
+		    std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::JETScale,phiIndex0); 
+		    phi0Phy = 0.5*(binEdges.second + binEdges.first);
+		    binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::JETScale,etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getJETScales().etBins.at(etIndex0);
+		    binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::JETScale,etIndex0);
 		    et0Phy = 0.5*(binEdges.second + binEdges.first);
+
+
 		    
 		 }
 		   break;
 		 case gtTau: {
+		    lutObj0 = "TAU";
 		    candCaloVec = m_uGtB->getCandL1Tau();
 		    phiIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwPhi();
 		    etaIndex0 =  (candCaloVec->at(bxEval,obj0Index))->hwEta();
@@ -482,13 +486,14 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
 		    
 		    // Determine Floating Pt numbers for floating point caluclation
-		    std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex0);
+		    std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::TAUScale,phiIndex0); 
 		    phi0Phy = 0.5*(binEdges.second + binEdges.first);
-		    binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin0);
+		    binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::TAUScale,etaBin0);
 		    eta0Phy = 0.5*(binEdges.second + binEdges.first);		
-		    binEdges = m_gtScales->getTAUScales().etBins.at(etIndex0);
-		    et0Phy = 0.5*(binEdges.second + binEdges.first);		    			
-		    lutObj0 = "TAU";
+		    binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::TAUScale,etIndex0);
+		    et0Phy = 0.5*(binEdges.second + binEdges.first);
+
+		    
 		 }
 	           break;
 		 default: {
@@ -568,22 +573,22 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 
                     //  Get the floating point numbers
 		    if(cndObjTypeVec[0] == gtETM ) {
-		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
+		      std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::ETMScale,phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
-		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::ETMScale,etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } else if (cndObjTypeVec[0] == gtHTM) {
-		      std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex0);
+		      std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::HTMScale,phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
-		      binEdges = m_gtScales->getHTMScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::HTMScale,etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } else if (cndObjTypeVec[0] == gtETM2) {
-		      std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex0);
+		      std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::ETMScale,phiIndex0);
 		      phi0Phy = 0.5*(binEdges.second + binEdges.first);
 		      eta0Phy = 0.; //No Eta for Energy Sums
-		      binEdges = m_gtScales->getETMScales().etBins.at(etIndex0);
+		      binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::ETMScale,etIndex0);
 		      et0Phy = 0.5*(binEdges.second + binEdges.first);
 		    } 
 
@@ -654,18 +659,19 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 //		   LogDebug("L1TGlobal") << "Muon phi" << phiIndex1 << " eta " << etaIndex1 << " etaBin1 = " << etaBin1  << " et " << etIndex1 << std::endl;
 		   
 		   // Determine Floating Pt numbers for floating point caluclation
-		   std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex1);
+		   std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::MuScale,phiIndex1); 
 		   phi1Phy = 0.5*(binEdges.second + binEdges.first);
-		   binEdges = m_gtScales->getMUScales().etaBins.at(etaBin1);
+		   binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::MuScale,etaBin1);
 		   eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-		   binEdges = m_gtScales->getMUScales().etBins.at(etIndex1);
-		   et1Phy = 0.5*(binEdges.second + binEdges.first);		
+		   binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::MuScale,etIndex1);
+		   et1Phy = 0.5*(binEdges.second + binEdges.first);
 	   
                 }
                     break;
                 case CondCalo: {
         	   switch(cndObjTypeVec[1]) {
 	             case gtEG: {
+		        lutObj1 = "EG";
 			candCaloVec = m_uGtB->getCandL1EG();
 			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
 			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
@@ -674,16 +680,18 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			if(etaBin1<0) etaBin1 = m_gtScales->getEGScales().etaBins.size() + etaBin1;
 			
 			// Determine Floating Pt numbers for floating point caluclation
-		   	std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex1);
-		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
-			binEdges = m_gtScales->getEGScales().etaBins.at(etaBin1);
+       			std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::EGScale,phiIndex1); 
+			phi1Phy = 0.5*(binEdges.second + binEdges.first);
+			binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::EGScale,etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-			binEdges = m_gtScales->getEGScales().etBins.at(etIndex1);
-			et1Phy = 0.5*(binEdges.second + binEdges.first);
-		    	lutObj1 = "EG";
+			binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::EGScale,etIndex1);
+			et1Phy = 0.5*(binEdges.second + binEdges.first);			
+			
+		    	
 		     }
 		       break;
 		     case gtJet: {
+		        lutObj1 = "JET";
 			candCaloVec = m_uGtB->getCandL1Jet();
 			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
 			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
@@ -692,16 +700,17 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			if(etaBin1<0) etaBin1 = m_gtScales->getJETScales().etaBins.size() + etaBin1;
 			
 			// Determine Floating Pt numbers for floating point caluclation
-		   	std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex1);
-		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
-			binEdges = m_gtScales->getJETScales().etaBins.at(etaBin1);
+       			std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::JETScale,phiIndex1); 
+			phi1Phy = 0.5*(binEdges.second + binEdges.first);
+			binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::JETScale,etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-			binEdges = m_gtScales->getJETScales().etBins.at(etIndex1);
+			binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::JETScale,etIndex1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);
-			lutObj1 = "JET";
+			
 		     }
 		       break;
 		     case gtTau: {
+		        lutObj1 = "TAU";
 			candCaloVec = m_uGtB->getCandL1Tau();
 			phiIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwPhi();
 			etaIndex1 =  (candCaloVec->at(bxEval,obj1Index))->hwEta();
@@ -710,13 +719,13 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 			if(etaBin1<0) etaBin1 = m_gtScales->getTAUScales().etaBins.size() + etaBin1;
 						
 			// Determine Floating Pt numbers for floating point caluclation
-		   	std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex1);
-		   	phi1Phy = 0.5*(binEdges.second + binEdges.first);			
-			binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin1);
+       			std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::TAUScale,phiIndex1); 
+			phi1Phy = 0.5*(binEdges.second + binEdges.first);
+			binEdges = m_gtScales->getEtaScaleBinEdges(GlobalScales::GtScaleType::TAUScale,etaBin1);
 			eta1Phy = 0.5*(binEdges.second + binEdges.first);		
-			binEdges = m_gtScales->getTAUScales().etBins.at(etIndex1);
+			binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::TAUScale,etIndex1);
 			et1Phy = 0.5*(binEdges.second + binEdges.first);	
-			lutObj1 = "TAU";
+			
 		     }
 	               break;
 		     default: {
@@ -802,22 +811,22 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 		       // Determine Floating Pt numbers for floating point caluclation
 		       
 		       if(cndObjTypeVec[1] == gtETM) {
-		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
+			 std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::ETMScale,phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
-			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::ETMScale,etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       } else if(cndObjTypeVec[1] == gtHTM) {
-		         std::pair<double, double> binEdges = m_gtScales->getHTMScales().phiBins.at(phiIndex1);
+			 std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::HTMScale,phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
-			 binEdges = m_gtScales->getHTMScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::HTMScale,etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       } else if(cndObjTypeVec[1] == gtETM2) {
-		         std::pair<double, double> binEdges = m_gtScales->getETMScales().phiBins.at(phiIndex1);
+			 std::pair<double, double> binEdges = m_gtScales->getPhiScaleBinEdges(GlobalScales::GtScaleType::ETMScale,phiIndex1);
 			 phi1Phy = 0.5*(binEdges.second + binEdges.first);
 			 eta1Phy = 0.; //No Eta for Energy Sums
-			 binEdges = m_gtScales->getETMScales().etBins.at(etIndex1);
+			 binEdges = m_gtScales->getEtScaleBinEdges(GlobalScales::GtScaleType::ETMScale,etIndex1);
 			 et1Phy = 0.5*(binEdges.second + binEdges.first);
 		       }
 
