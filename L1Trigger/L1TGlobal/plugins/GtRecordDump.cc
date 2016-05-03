@@ -540,7 +540,10 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    unsigned int HTTpackWd = 0;
    unsigned int ETMpackWd = 0;
    unsigned int HTMpackWd = 0;
-   unsigned int HMBpackWd = 0;
+   unsigned int HFP0packWd = 0;
+   unsigned int HFM0packWd = 0;
+   unsigned int HFP1packWd = 0;
+   unsigned int HFM1packWd = 0;
 
    if(etsums.isValid()){
      for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
@@ -559,10 +562,16 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 	     HTTpackWd = formatTotalET(etsum);
 	     break; 	
 	   case l1t::EtSum::EtSumType::kMinBiasHFP0:
+	     HFP0packWd = formatHMB(etsum);
+	     break;
 	   case l1t::EtSum::EtSumType::kMinBiasHFM0:
+	     HFM0packWd = formatHMB(etsum);
+	     break;	   
 	   case l1t::EtSum::EtSumType::kMinBiasHFP1:
+	     HFP1packWd = formatHMB(etsum);
+	     break;	   
 	   case l1t::EtSum::EtSumType::kMinBiasHFM1:
-	     HMBpackWd |= formatHMB(etsum);
+	     HFM1packWd = formatHMB(etsum);
 	     break; 			     	     	     
            default:
 	     break;
@@ -570,8 +579,11 @@ void GtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
      } //end loop over etsums
    }
 
-   // Temporary put HMB bits in upper part of Total Et Word
-   ETTpackWd |= HMBpackWd;
+   // Temporary put HMB bits in upper part of other SumEt Words
+   ETTpackWd |= HFP0packWd;
+   HTTpackWd |= HFM0packWd;
+   ETMpackWd |= HFP1packWd;
+   HTMpackWd |= HFM1packWd;
 
    // Fill in the words in appropriate order
    myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
@@ -704,25 +716,8 @@ unsigned int GtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_iterator
 unsigned int GtRecordDump::formatHMB(std::vector<l1t::EtSum>::const_iterator etSum){
 
   unsigned int packedVal = 0;
-  unsigned int shift = 0;
+  unsigned int shift = 28;
   
-  switch ( etSum->getType() ) {
-      case l1t::EtSum::EtSumType::kMinBiasHFP0:
-        shift = 20;
-	break;
-      case l1t::EtSum::EtSumType::kMinBiasHFM0:
-        shift = 16;
-	break;
-      case l1t::EtSum::EtSumType::kMinBiasHFP1:
-        shift = 28;
-	break;
-      case l1t::EtSum::EtSumType::kMinBiasHFM1:
-        shift = 24;
-	break;
-      default: 
-        //shouldn't be here get out without packing anything        
-        return packedVal; //break;	
-  }
 // Pack Bits
   packedVal |= ((etSum->hwPt()     & 0xf)   << shift); 
   
