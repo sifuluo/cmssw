@@ -96,6 +96,9 @@ l1t::LUT setting::getLUT(size_t addrWidth, size_t dataWidth, int padding, std::s
 	if ( type_.find("vector:uint") == std::string::npos )
 		throw std::runtime_error("Cannot build LUT from type: " + type_ + ". Only vector:uint is allowed.");
 
+	if ( delim.empty() )
+		delim = ",";
+	
 	std::vector<unsigned int> vec = getVector<unsigned int>(delim);
 	std::stringstream ss;
         ss << "#<header> V1 " << addrWidth << " " << dataWidth << " </header>" << std::endl;
@@ -125,11 +128,13 @@ setting& setting::operator=(const setting& aSet)
 	return *this;
 }
 
-void setting::addTableRow(const std::string& row, const std::string& delim)
+void setting::addTableRow(const std::string& row, std::string delim)
 {
 	if (type_.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot add a table row in type: " + type_ + ". Type is not table.");
 
+	if ( delim.empty() )
+		delim = std::string(",");
 	
 	std::vector<std::string> vals;
 	if ( !parse ( std::string(erSp_(row, delim)+delim).c_str(),
