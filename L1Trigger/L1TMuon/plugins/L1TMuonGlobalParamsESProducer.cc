@@ -71,143 +71,17 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
 
    L1TMuonGlobalParamsHelper m_params_helper;
 
-   // Firmware version
-   unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
-
-   // uGMT disabled inputs
-   bool disableCaloInputs = iConfig.getParameter<bool>("caloInputsDisable");
-   std::vector<unsigned> bmtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("bmtfInputsToDisable");
-   std::vector<unsigned> omtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("omtfInputsToDisable");
-   std::vector<unsigned> emtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("emtfInputsToDisable");
-
-   // masked inputs
-   bool caloInputsMasked = iConfig.getParameter<bool>("caloInputsMasked");
-   std::vector<unsigned> maskedBmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedBmtfInputs");
-   std::vector<unsigned> maskedOmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedOmtfInputs");
-   std::vector<unsigned> maskedEmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedEmtfInputs");
-
    // get configuration from DB
    if (iConfig.getParameter<bool>("configFromDb")) {
       l1t::trigSystem trgSys;
-      //trgSys.configureSystem("L1_key", iConfig.getParameter<std::string>("uGmtDbName"));
+      // These xml files are for testing the configuration from the online DB 
       trgSys.configureSystemFromFiles("UGMT_HW.xml", "ugmt_top_config_p5.xml", "TestKey1");
-      std::string procId = iConfig.getParameter<std::string>("uGmtProcessorId");
-      std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
-      std::map<std::string, l1t::mask> masks = trgSys.getMasks(procId);
-      //for (auto& it: settings) {
-      //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", type: " << it.second.getType() << ", id: " << it.second.getId() << ", value as string: [" << it.second.getValueAsStr() << "]" << std::endl;
-      //}
-      //for (auto& it: masks) {
-      //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", id: " << it.second.getId() << std::endl;
-      //}
-
-      // uGMT disabled inputs
-      disableCaloInputs = settings["caloInputsDisable"].getValue<bool>();
-      std::string bmtfInputsToDisableStr = settings["bmtfInputsToDisable"].getValueAsStr();
-      std::string omtfInputsToDisableStr = settings["omtfInputsToDisable"].getValueAsStr();
-      std::string emtfInputsToDisableStr = settings["emtfInputsToDisable"].getValueAsStr();
-      bmtfInputsToDisable.clear();
-      omtfInputsToDisable.clear();
-      emtfInputsToDisable.clear();
-      bmtfInputsToDisable.assign(12, 0);
-      omtfInputsToDisable.assign(12, 0);
-      emtfInputsToDisable.assign(12, 0);
-      stringstream ss;
-      for (unsigned i = 0; i < 12; ++i) {
-         ss.str("");
-         ss << "BMTF" << i+1;
-         if (bmtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
-            bmtfInputsToDisable[i] = 1;
-         }
-         ss.str("");
-         ss << "OMTF";
-         if (i < 6) {
-            ss << "p" << i+1;
-         } else {
-            ss << "n" << i-5;
-         }
-         if (omtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
-            omtfInputsToDisable[i] = 1;
-         }
-         ss.str("");
-         ss << "EMTF";
-         if (i < 6) {
-            ss << "p" << i+1;
-         } else {
-            ss << "n" << i-5;
-         }
-         if (emtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
-            emtfInputsToDisable[i] = 1;
-         }
-      }
-
-      // uGMT masked inputs
-      maskedBmtfInputs.clear();
-      maskedOmtfInputs.clear();
-      maskedEmtfInputs.clear();
-      maskedBmtfInputs.assign(12, 0);
-      maskedOmtfInputs.assign(12, 0);
-      maskedEmtfInputs.assign(12, 0);
-      caloInputsMasked = true;
-      ss << std::setfill('0');
-      for (unsigned i = 0; i < 28; ++i) {
-         ss.str("");
-         ss << "inputPorts.CaloL2_" << std::setw(2) << i+1;
-         // for now set as unmasked if one input is not masked
-         if (!trgSys.isMasked(procId, ss.str())) {
-            caloInputsMasked = false;
-         }
-         if (i < 12) {
-            ss.str("");
-            ss << "inputPorts.BMTF_" << std::setw(2) << i+1;
-            if (trgSys.isMasked(procId, ss.str())) {
-               maskedBmtfInputs[i] = 1;
-            }
-            ss.str("");
-            ss << "inputPorts.OMTF";
-            if (i < 6) {
-               ss << "+_" << std::setw(2) << i+1;
-            } else {
-               ss << "-_" << std::setw(2) << i-5;
-            }
-            if (trgSys.isMasked(procId, ss.str())) {
-               maskedOmtfInputs[i] = 1;
-            }
-            ss.str("");
-            ss << "inputPorts.EMTF";
-            if (i < 6) {
-               ss << "+_" << std::setw(2) << i+1;
-            } else {
-               ss << "-_" << std::setw(2) << i-5;
-            }
-            if (trgSys.isMasked(procId, ss.str())) {
-               maskedEmtfInputs[i] = 1;
-            }
-         }
-      }
-      ss << std::setfill(' ');
-
-      // LUTs from settings with address width and output width
-      m_params_helper.setAbsIsoCheckMemLUT(settings["AbsIsoCheckMem"].getLUT(5, 1));
-      m_params_helper.setRelIsoCheckMemLUT(settings["RelIsoCheckMem"].getLUT(14, 1));
-      m_params_helper.setIdxSelMemPhiLUT(settings["IdxSelMemPhi"].getLUT(10, 6));
-      m_params_helper.setIdxSelMemEtaLUT(settings["IdxSelMemEta"].getLUT(9, 5));
-      m_params_helper.setFwdPosSingleMatchQualLUT(settings["EmtfPosSingleMatchQual"].getLUT(7, 1));
-      m_params_helper.setFwdNegSingleMatchQualLUT(settings["EmtfNegSingleMatchQual"].getLUT(7, 1));
-      m_params_helper.setOvlPosSingleMatchQualLUT(settings["OmtfPosSingleMatchQual"].getLUT(7, 1));
-      m_params_helper.setOvlNegSingleMatchQualLUT(settings["OmtfNegSingleMatchQual"].getLUT(7, 1));
-      m_params_helper.setBOPosMatchQualLUT(settings["BOPosMatchQual"].getLUT(7, 1));
-      m_params_helper.setBONegMatchQualLUT(settings["BONegMatchQual"].getLUT(7, 1));
-      m_params_helper.setFOPosMatchQualLUT(settings["EOPosMatchQual"].getLUT(7, 1));
-      m_params_helper.setFONegMatchQualLUT(settings["EONegMatchQual"].getLUT(7, 1));
-      m_params_helper.setBPhiExtrapolationLUT(settings["BPhiExtrapolation"].getLUT(12, 3));
-      m_params_helper.setOPhiExtrapolationLUT(settings["OPhiExtrapolation"].getLUT(12, 3));
-      m_params_helper.setFPhiExtrapolationLUT(settings["EPhiExtrapolation"].getLUT(12, 3));
-      m_params_helper.setBEtaExtrapolationLUT(settings["BEtaExtrapolation"].getLUT(12, 4));
-      m_params_helper.setOEtaExtrapolationLUT(settings["OEtaExtrapolation"].getLUT(12, 4));
-      m_params_helper.setFEtaExtrapolationLUT(settings["EEtaExtrapolation"].getLUT(12, 4));
-      m_params_helper.setSortRankLUT(settings["SortRank"].getLUT(13, 10));
+      m_params_helper.loadFromOnline(trgSys, iConfig.getParameter<std::string>("uGmtProcessorId"));
    } else {
+      // Firmware version
+      unsigned fwVersion = iConfig.getParameter<unsigned>("fwVersion");
+      m_params_helper.setFwVersion(fwVersion);
+
       // LUTs defined from config file
       m_params_helper.setFwdPosSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdPosSingleMatchQualLUTMaxDR"));
       m_params_helper.setFwdNegSingleMatchQualLUTMaxDR(iConfig.getParameter<double>("FwdNegSingleMatchQualLUTMaxDR"));
@@ -281,84 +155,91 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
       m_params_helper.setOEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("OEtaExtrapolationLUTPath"));
       m_params_helper.setFEtaExtrapolationLUTPath     (iConfig.getParameter<std::string>("FEtaExtrapolationLUTPath"));
       m_params_helper.setSortRankLUTPath              (iConfig.getParameter<std::string>("SortRankLUTPath"));
-   }
 
-   // Firmware version
-   m_params_helper.setFwVersion(fwVersion);
+      // uGMT disabled inputs
+      bool disableCaloInputs = iConfig.getParameter<bool>("caloInputsDisable");
+      std::vector<unsigned> bmtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("bmtfInputsToDisable");
+      std::vector<unsigned> omtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("omtfInputsToDisable");
+      std::vector<unsigned> emtfInputsToDisable = iConfig.getParameter<std::vector<unsigned> >("emtfInputsToDisable");
 
-   // uGMT disabled inputs
-   if (disableCaloInputs) {
-      m_params_helper.setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
-   } else {
-      m_params_helper.setCaloInputsToDisable(std::bitset<28>());
-   }
+      if (disableCaloInputs) {
+         m_params_helper.setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
+      } else {
+         m_params_helper.setCaloInputsToDisable(std::bitset<28>());
+      }
 
-   std::bitset<12> bmtfDisables;
-   for (size_t i = 0; i < bmtfInputsToDisable.size(); ++i) {
-     bmtfDisables.set(i, bmtfInputsToDisable[i] > 0);
-   }
-   m_params_helper.setBmtfInputsToDisable(bmtfDisables);
+      std::bitset<12> bmtfDisables;
+      for (size_t i = 0; i < bmtfInputsToDisable.size(); ++i) {
+        bmtfDisables.set(i, bmtfInputsToDisable[i] > 0);
+      }
+      m_params_helper.setBmtfInputsToDisable(bmtfDisables);
 
-   std::bitset<6> omtfpDisables;
-   std::bitset<6> omtfnDisables;
-   for (size_t i = 0; i < omtfInputsToDisable.size(); ++i) {
-     if (i < 6) {
-       omtfpDisables.set(i, omtfInputsToDisable[i] > 0);
-     } else {
-       omtfnDisables.set(i-6, omtfInputsToDisable[i] > 0);
-     }
-   }
-   m_params_helper.setOmtfpInputsToDisable(omtfpDisables);
-   m_params_helper.setOmtfnInputsToDisable(omtfnDisables);
+      std::bitset<6> omtfpDisables;
+      std::bitset<6> omtfnDisables;
+      for (size_t i = 0; i < omtfInputsToDisable.size(); ++i) {
+        if (i < 6) {
+          omtfpDisables.set(i, omtfInputsToDisable[i] > 0);
+        } else {
+          omtfnDisables.set(i-6, omtfInputsToDisable[i] > 0);
+        }
+      }
+      m_params_helper.setOmtfpInputsToDisable(omtfpDisables);
+      m_params_helper.setOmtfnInputsToDisable(omtfnDisables);
 
-   std::bitset<6> emtfpDisables;
-   std::bitset<6> emtfnDisables;
-   for (size_t i = 0; i < emtfInputsToDisable.size(); ++i) {
-     if (i < 6) {
-       emtfpDisables.set(i, emtfInputsToDisable[i] > 0);
-     } else {
-       emtfnDisables.set(i-6, emtfInputsToDisable[i] > 0);
-     }
-   }
-   m_params_helper.setEmtfpInputsToDisable(emtfpDisables);
-   m_params_helper.setEmtfnInputsToDisable(emtfnDisables);
+      std::bitset<6> emtfpDisables;
+      std::bitset<6> emtfnDisables;
+      for (size_t i = 0; i < emtfInputsToDisable.size(); ++i) {
+        if (i < 6) {
+          emtfpDisables.set(i, emtfInputsToDisable[i] > 0);
+        } else {
+          emtfnDisables.set(i-6, emtfInputsToDisable[i] > 0);
+        }
+      }
+      m_params_helper.setEmtfpInputsToDisable(emtfpDisables);
+      m_params_helper.setEmtfnInputsToDisable(emtfnDisables);
 
-   // masked inputs
-   if (caloInputsMasked) {
-      m_params_helper.setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
-   } else {
-      m_params_helper.setMaskedCaloInputs(std::bitset<28>());
-   }
+      // masked inputs
+      bool caloInputsMasked = iConfig.getParameter<bool>("caloInputsMasked");
+      std::vector<unsigned> maskedBmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedBmtfInputs");
+      std::vector<unsigned> maskedOmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedOmtfInputs");
+      std::vector<unsigned> maskedEmtfInputs = iConfig.getParameter<std::vector<unsigned> >("maskedEmtfInputs");
 
-   std::bitset<12> bmtfMasked;
-   for (size_t i = 0; i < maskedBmtfInputs.size(); ++i) {
-     bmtfMasked.set(i, maskedBmtfInputs[i] > 0);
-   }
-   m_params_helper.setMaskedBmtfInputs(bmtfMasked);
+      if (caloInputsMasked) {
+         m_params_helper.setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
+      } else {
+         m_params_helper.setMaskedCaloInputs(std::bitset<28>());
+      }
 
-   std::bitset<6> omtfpMasked;
-   std::bitset<6> omtfnMasked;
-   for (size_t i = 0; i < maskedOmtfInputs.size(); ++i) {
-     if (i < 6) {
-       omtfpMasked.set(i, maskedOmtfInputs[i] > 0);
-     } else {
-       omtfnMasked.set(i-6, maskedOmtfInputs[i] > 0);
-     }
-   }
-   m_params_helper.setMaskedOmtfpInputs(omtfpMasked);
-   m_params_helper.setMaskedOmtfnInputs(omtfnMasked);
+      std::bitset<12> bmtfMasked;
+      for (size_t i = 0; i < maskedBmtfInputs.size(); ++i) {
+        bmtfMasked.set(i, maskedBmtfInputs[i] > 0);
+      }
+      m_params_helper.setMaskedBmtfInputs(bmtfMasked);
 
-   std::bitset<6> emtfpMasked;
-   std::bitset<6> emtfnMasked;
-   for (size_t i = 0; i < maskedEmtfInputs.size(); ++i) {
-     if (i < 6) {
-       emtfpMasked.set(i, maskedEmtfInputs[i] > 0);
-     } else {
-       emtfnMasked.set(i-6, maskedEmtfInputs[i] > 0);
-     }
+      std::bitset<6> omtfpMasked;
+      std::bitset<6> omtfnMasked;
+      for (size_t i = 0; i < maskedOmtfInputs.size(); ++i) {
+        if (i < 6) {
+          omtfpMasked.set(i, maskedOmtfInputs[i] > 0);
+        } else {
+          omtfnMasked.set(i-6, maskedOmtfInputs[i] > 0);
+        }
+      }
+      m_params_helper.setMaskedOmtfpInputs(omtfpMasked);
+      m_params_helper.setMaskedOmtfnInputs(omtfnMasked);
+
+      std::bitset<6> emtfpMasked;
+      std::bitset<6> emtfnMasked;
+      for (size_t i = 0; i < maskedEmtfInputs.size(); ++i) {
+        if (i < 6) {
+          emtfpMasked.set(i, maskedEmtfInputs[i] > 0);
+        } else {
+          emtfnMasked.set(i-6, maskedEmtfInputs[i] > 0);
+        }
+      }
+      m_params_helper.setMaskedEmtfpInputs(emtfpMasked);
+      m_params_helper.setMaskedEmtfnInputs(emtfnMasked);
    }
-   m_params_helper.setMaskedEmtfpInputs(emtfpMasked);
-   m_params_helper.setMaskedEmtfnInputs(emtfnMasked);
 
    m_params = (L1TMuonGlobalParams)m_params_helper;
 }
