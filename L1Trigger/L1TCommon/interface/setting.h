@@ -44,7 +44,7 @@ class setting
 		void setProcRole(const std::string& procRole) { procRole_ = procRole; };
 		void setValue(const std::string& value) {value_ = value; };
 		void setId(const std::string& id) { id_ = id; } ;
-		void addTableRow(const std::string& row, const std::string& delim=",");
+		void addTableRow(const std::string& row, std::string delim);
 		void resetTableRows() { tableRows_.clear();};
 		void setTableTypes(const std::string& types);
 		void setTableColumns(const std::string& cols);
@@ -53,7 +53,7 @@ class setting
 		std::string getType() { return type_; };
 		std::string getId() { return id_; } ;
 		template <class varType> varType getValue();
-		template <class varType> std::vector<varType> getVector(std::string delim = ",");
+		template <class varType> std::vector<varType> getVector(std::string delim);
 		std::vector<tableRow>  getTableRows() { return tableRows_; };
 		l1t::LUT getLUT(size_t addrWidth, size_t dataWidth, int padding = -1, std::string delim = ",");
 		~setting();
@@ -74,6 +74,9 @@ template <typename varType> std::vector<varType> setting::getVector(std::string 
 	if ( type_.find("vector") == std::string::npos )
 		throw std::runtime_error("The registered type: " + type_ + " is not vector so you need to call the getValue method");
 
+	if ( delim.empty() )
+		delim = std::string(",");
+	
 	std::vector<std::string> vals;
 	if ( !parse ( std::string(erSp_(value_, delim)+delim).c_str(),
 	(
