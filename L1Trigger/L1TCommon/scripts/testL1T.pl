@@ -134,7 +134,7 @@ sub test_dummy {
 #
 sub test_unpackers_dont_crash {
     #$file = "/store/data/Commissioning2016/Cosmics/RAW/v1/000/264/573/00000/5A9E5261-BDD1-E511-9102-02163E014378.root";
-    $file = "/store/data/Commissioning2016/MinimumBias/RAW/v1/000/265/655/00000/DEBEA13B-DFDC-E511-8C06-02163E012A67.root";
+    $file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
     $nevt = 200;
     if ($FAST) {$nevt = 10; }
     if ($SLOW) {$nevt = -1; }
@@ -487,6 +487,15 @@ sub main {
 	print "$ours\n";
 	print "$theirs\n";;
 	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"mc\",\"$ours\",\"$theirs\")'");
+
+	$ours = "../$DIR1/$WORK_DIR/test_2/L1Ntuple.root";
+	$theirs = "../$DIR2/$WORK_DIR/test_2/L1Ntuple.root";
+	if (! -e $ours)   { print "ERROR: could not find file $ours\n"; exit(1); }
+	if (! -e $theirs) { print "ERROR: could not find file $theirs\n"; exit(1); }
+	print "$ours\n";
+	print "$theirs\n";;
+	$status = long_command("root -b -q -x '$ENV{CMSSW_BASE}/src/L1Trigger/L1TCommon/macros/NtupleDiff.C(\"raw2016\",\"$ours\",\"$theirs\",\"l1UpgradeTree/L1UpgradeTree\",\"l1UpgradeTree/L1UpgradeTree\")'");
+
 
 	# this is a hack until L1T uGT output goes into L1TNtuple:
         system "sed -n \'/L1T menu Name/,/Final OR Count/p\' ../$DIR1/$WORK_DIR/test_0/CMSRUN.log > menu_a.txt";
