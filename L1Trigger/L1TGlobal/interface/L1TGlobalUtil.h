@@ -13,6 +13,8 @@
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 
+#include "L1Trigger/L1TGlobal/interface/PrescalesVetosHelper.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -48,10 +50,15 @@ namespace l1t {
     void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup,
 			 edm::EDGetToken gtAlgToken);
 
+    inline void setUnprescaledUnmasked(const bool unprescale, const bool unmask) {
+	m_algorithmTriggersUnprescaled = unprescale;
+	m_algorithmTriggersUnmasked = unmask;
+    }
+ 
     inline void setVerbosity(const int verbosity) {
         m_verbosity = verbosity;
     }
- 
+
     inline bool getFinalOR() {return m_finalOR;} 
     
     // get the trigger bit from the name
@@ -120,6 +127,14 @@ private:
     const L1TUtmTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
+    // prescale factors
+    const l1t::PrescalesVetosHelper* m_l1GtPrescalesVetoes;
+    unsigned long long m_l1GtPfAlgoCacheID;
+
+    // prescale or mask algo decisions
+    bool m_algorithmTriggersUnprescaled;
+    bool m_algorithmTriggersUnmasked;
+    
     // prescales and masks
     bool m_filledPrescales;
 
@@ -138,8 +153,8 @@ private:
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
     std::vector<unsigned int>  m_initialTriggerMaskAlgoTrig;
     const std::vector<unsigned int>*  m_triggerMaskAlgoTrig;
-    std::vector<unsigned int>   m_initialTriggerMaskVetoAlgoTrig;
-    const std::vector<unsigned int>*  m_triggerMaskVetoAlgoTrig;
+    std::vector<int>   m_initialTriggerMaskVetoAlgoTrig;
+    const std::vector<int>*  m_triggerMaskVetoAlgoTrig;
     
     // access to the results block from uGT 
     edm::Handle<BXVector<GlobalAlgBlk>>  m_uGtAlgBlk;

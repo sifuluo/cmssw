@@ -76,8 +76,12 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
+<<<<<<< HEAD
         #"/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
         "/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root",
+=======
+        "/store/user/puigh/L1Upgrade/GEN-SIM-DIGI-RAW-HLTDEBUG/CMSSW_7_6_0/4C462F65-9F7F-E511-972A-0026189438A9.root",
+>>>>>>> 89cd1a8... Change L1TGlobalProducer and L1TGlobalUtils to using L1TGlobalPrescalesVetosESProducer, PrescalesVetosHelper, and the event record, as opposed to the csv file
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/4C462F65-9F7F-E511-972A-0026189438A9.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/703E7EAB-9D7F-E511-B886-003048FFCBFC.root",
         #"root://xrootd.ba.infn.it//store/relval/CMSSW_7_6_0/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/76X_mcRun2_asymptotic_v11-v1/00000/8AF07AAB-9D7F-E511-B8B4-003048FFCBFC.root",
@@ -183,9 +187,21 @@ process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 process.load('L1Trigger.L1TGlobal.StableParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
+<<<<<<< HEAD
 process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_dev_v3.xml')
+<<<<<<< HEAD
 #process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2015_25nsStage1_v7_uGT.xml')
+=======
+#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_test_correlations_v2.xml')
+process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_dev_v4.xml')
+#process.TriggerMenu.L1TriggerMenuFile = cms.string('L1Menu_Collisions2016_v1a.xml')
 
+## Load prescales and masks from event record
+process.load('L1Trigger.L1TGlobal.PrescalesVetos_cff')
+>>>>>>> 89cd1a8... Change L1TGlobalProducer and L1TGlobalUtils to using L1TGlobalPrescalesVetosESProducer, PrescalesVetosHelper, and the event record, as opposed to the csv file
+
+=======
+>>>>>>> cms-l1t-offline/l1t-integration-v42.4
 #process.menuDumper = cms.EDAnalyzer("L1TUtmTriggerMenuDumper")
 
 ## Fill External conditions
@@ -209,7 +225,8 @@ process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.EtSumInputTag = cms.InputTag("gtInput")
 #process.simGtStage2Digis.Verbosity = cms.untracked.int32(1)
-
+#process.simGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(True)
+#process.simGtStage2Digis.AlgorithmTriggersUnmasked = cms.bool(True)
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -229,7 +246,9 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job ),
                 psFileName     = cms.string( "prescale_L1TGlobal.csv" ),
-                psColumn       = cms.int32(1)
+                psColumn       = cms.int32(1),
+		unprescaleL1Algos = cms.bool(False),
+                unmaskL1Algos     = cms.bool(False)
 		 )
 
 
