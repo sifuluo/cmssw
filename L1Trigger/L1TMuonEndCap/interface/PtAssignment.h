@@ -871,13 +871,13 @@ float getPt(unsigned long Address)
 		//float OpT = vevent[0]->predictedValue;
 		float OpT = event->predictedValue;
 		
-		cout << "DEBUG: mode:  " << mode_inv << " dir " << ss.str().c_str() << " num trees " << 64 << "\n";
-		cout << "DEBUG: pred val:  " << OpT << "\n";
-		cout << "DEBUG: data = ";
-		for (unsigned int i=0; i<Data.size(); i++){
-		  cout << Data[i] << ", ";
-		}
-		cout << "\n";
+		//cout << "DEBUG: mode:  " << mode_inv << " dir " << ss.str().c_str() << " num trees " << 64 << "\n";
+		//cout << "DEBUG: pred val:  " << OpT << "\n";
+		//cout << "DEBUG: data = ";
+		//for (unsigned int i=0; i<Data.size(); i++){
+		//cout << Data[i] << ", ";
+		//}
+		//cout << "\n";
 
 		MpT = 1/OpT;
 
