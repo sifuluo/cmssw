@@ -840,25 +840,33 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 
 	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInitial( iBit );
 	if( bitValue ){
-	  if( prescaleFactorsAlgoTrig.at(iBit) != 1 ){
+	  // Make sure algo bit in range, warn otherwise
+	  if( iBit < prescaleFactorsAlgoTrig.size() ){
+	    if( prescaleFactorsAlgoTrig.at(iBit) != 1 ){
+	      
+	      (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
+	      if( m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0 ){
 
-	    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
-	    if( m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0 ){
-
-	      // bit already true in algoDecisionWord, just reset counter
-	      m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
-	      temp_algPrescaledOr = true;
-	    } 
+		// bit already true in algoDecisionWord, just reset counter
+		m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) = prescaleFactorsAlgoTrig.at(iBit);
+		temp_algPrescaledOr = true;
+	      } 
+	      else {
+		
+		// change bit to false in prescaled word and final decision word
+		m_uGtAlgBlk.setAlgoDecisionInterm(iBit,false);
+		
+	      } //if Prescale counter reached zero
+	    } //if prescale factor is not 1 (ie. no prescale)
 	    else {
-
-	      // change bit to false in prescaled word and final decision word
-	      m_uGtAlgBlk.setAlgoDecisionInterm(iBit,false);
-
-	    } //if Prescale counter reached zero
-	  } //if prescale factor is not 1 (ie. no prescale)
-	  else {
 	    
-	    temp_algPrescaledOr = true;
+	      temp_algPrescaledOr = true;
+	    }
+	  } // require bit in range
+	  else{
+	    edm::LogWarning("L1TGlobal")
+	      << "\nWarning: algoBit >= prescaleFactorsAlgoTrig.size() "
+	      << std::endl;
 	  }
 	} //if algo bit is set true
       } //loop over alg bits
@@ -885,7 +893,14 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 	bool bitValue = m_uGtAlgBlk.getAlgoDecisionInterm( iBit );
 
 	if( bitValue ){
-	  bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+	  //bool isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+	  bool isMasked = false;
+	  if( iBit < triggerMaskAlgoTrig.size() ) isMasked = ( triggerMaskAlgoTrig.at(iBit) == 0 );
+	  else{
+	    edm::LogWarning("L1TGlobal")
+	      << "\nWarning: algoBit >= triggerMaskAlgoTrig.size() "
+	      << std::endl;
+	  }
 
 	  bool passMask = ( bitValue && !isMasked );
 
