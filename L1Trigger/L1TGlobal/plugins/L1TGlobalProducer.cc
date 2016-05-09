@@ -830,6 +830,26 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
 
     if( m_produceL1GtObjectMapRecord ){
+      auto omap = gtObjectMapRecord->gtObjectMap();
+      cout << "OMAP size:  " << omap.size() << "\n";
+      for (auto imap =omap.begin(); imap != omap.end(); imap++){
+	cout << "algoName:  " << imap->algoName() << "\n";
+	auto comb = imap->combinationVector();
+	cout << "combination vector size:  " << comb.size() << "\n";
+	for (auto icomb=comb.begin(); icomb!=comb.end(); icomb++){
+	  cout << " - size:  " << icomb->size() << "\n";
+	  unsigned maxsize = 0;
+	  for (auto iicomb=icomb->begin(); iicomb!=icomb->end(); iicomb++){
+	    unsigned csize = iicomb->size();
+	    //cout << "  - size:  " << csize << "\n";
+	    if (csize > maxsize) maxsize = csize;
+	    //for (auto iiicomb=iicomb->begin(); iiicomb!=iicomb->end(); iiicomb++){
+	    //cout << "   - index:  " << *iiicomb << "\n";
+	    //}	    
+	  }
+	  cout << " - max size of nested vector:  " << maxsize << "\n";
+	}
+      } 
       iEvent.put( gtObjectMapRecord );
     }
 
