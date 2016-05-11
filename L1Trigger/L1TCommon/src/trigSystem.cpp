@@ -21,7 +21,7 @@ void trigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const st
 
         // read configuration xml files
         _xmlRdr.readDOMFromFile(topCfgFile);
-        _xmlRdr.buildGlobalDoc(key);
+        _xmlRdr.buildGlobalDoc(key, topCfgFile);
         _xmlRdr.readContexts(key, sysId_, *this);
 
         isConfigured_ = true;
@@ -50,7 +50,7 @@ void trigSystem::addProcCrate(const std::string& processor, const std::string& c
 	daqttcProcs_[crate].push_back(processor);
 }
 
-void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
+void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim)
 {
 	//std::cout << "Adding setting: " << id << std::endl;
 	bool applyOnRole, foundRoleProc(false);
@@ -76,7 +76,7 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 	if (!applyOnRole)
 	{
 		if (!checkIdExistsAndSetSetting_(procSettings_[procRole], id, value, procRole))
-			procSettings_[procRole].push_back(setting(type, id, value, procRole));
+			procSettings_[procRole].push_back(setting(type, id, value, procRole, delim));
 
 	}
 	else
@@ -95,10 +95,10 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 					}					
 				}
 				if (!settingAlreadyExist)
-					procSettings_.at(*it).push_back(setting(type, id, value, procRole));
+					procSettings_.at(*it).push_back(setting(type, id, value, procRole, delim));
 			}
 			else
-				procSettings_[*it].push_back(setting(type, id, value, procRole));
+				procSettings_[*it].push_back(setting(type, id, value, procRole, delim));
 		}
 
 	}
