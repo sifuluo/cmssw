@@ -119,21 +119,22 @@ def L1TReEmulFromRAW(process):
         #    process.SimL1Emulator.remove(getattr(process,b))
         # TwinMux
         process.simTwinMuxDigis.RPC_Source         = cms.InputTag('muonRPCDigis')
-        process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('bmtfDigis')
-        process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
+        #process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('bmtfDigis')
+        #process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
         # BMTF
-        process.simBmtfDigis.DTDigi_Source         = cms.InputTag('bmtfDigis')
-        process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag('bmtfDigis')
+        process.simBmtfDigis.DTDigi_Source         = cms.InputTag('bmtfDigis:PhiDigis')
+        process.simBmtfDigis.DTDigi_Theta_Source   = cms.InputTag('bmtfDigis:TheDigis')
         # OMTF
         process.simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')
         process.simOmtfDigis.srcCSC                = cms.InputTag('csctfDigis')
-        process.simOmtfDigis.srcDTPh               = cms.InputTag('bmtfDigis')
-        process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis')
+        process.simOmtfDigis.srcDTPh               = cms.InputTag('bmtfDigis:PhiDigis')
+        process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis:TheDigis')
         # EMTF
         process.simEmtfDigis.CSCInput              = cms.InputTag('csctfDigis')
         # Calo Layer1
         process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
         process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
+        process.simGtStage2Digis.ExtInputTag       = cms.InputTag('gtStage2Digis')
         process.L1TReEmulPath = cms.Path(process.L1TReEmul)    
         process.schedule.append(process.L1TReEmulPath)
         print "L1TReEmulPath sequence:  "
