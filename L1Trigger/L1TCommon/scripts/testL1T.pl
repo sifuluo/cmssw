@@ -291,6 +291,63 @@ sub test_reemul {
 
 }
 
+sub test_reemul_2016 {
+    $file = "/store/data/Run2016A/ZeroBias1/RAW/v1/000/271/336/00000/00963A5A-BF0A-E611-A657-02163E0141FB.root";
+    $nevt = 100;
+    if ($FAST) {$nevt = 10; }
+    if ($SLOW) {$nevt = 1000; }
+
+    if (! $RECYCLE){
+	$status = long_command("cmsDriver.py L1TEST $PYTHON_OPT -s RAW2DIGI --era=Run2_2016 --customise=L1Trigger/Configuration/customiseReEmul.L1TReEmulFromRAW --customise=L1Trigger/L1TNtuples/customiseL1Ntuple.L1NtupleEMU --customise=L1Trigger/Configuration/customiseUtils.L1TTurnOffUnpackStage2GtGmtAndCalo $COND_DATA_2016 -n $nevt --data --no_exec --no_output --filein=$file --geometry=Extended2016,Extended2016Reco --customise=L1Trigger/Configuration/customiseReEmul.L1TEventSetupForHF1x1TPs --customise=L1Trigger/Configuration/customiseUtils.L1TGlobalSimDigisSummary --customise=L1Trigger/Configuration/customiseUtils.L1TAddInfoOutput >& CMSDRIVER.log");
+
+	print "INFO: status of cmsDriver call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+	$status = long_command("$CMSRUN >& CMSRUN.log");
+	print "INFO: status of cmsRun call is $status\n";
+	if ($status){
+	    print "ERROR: abnormal status returned: $status\n";
+	    return;
+	}
+    }
+
+    $SUCCESS = 0;
+    open INPUT,"root -b -q -x ../../L1Trigger/L1TCommon/macros/CheckL1Ntuple.C |";
+    while (<INPUT>){
+	print $_;
+	if (/SUCCESS/){	$SUCCESS = 1; }    
+    }
+    close INPUT;
+
+    if (! $SUCCESS){ 
+	print "ERROR:  L1Ntuple did not contain sufficient Calo and Muon candidates for success.\n";
+	return;
+    }
+    
+    #print "INFO: parsing the following menu summary:\n";
+    #system "grep 'L1T menu Name' -A 250 CMSRUN.log";
+
+    @TRIGGERS = ("L1_SingleMu5","L1_SingleEG5","L1_SingleJet52");
+    foreach $trig (@TRIGGERS) {	
+	open INPUT,"grep 'L1T menu Name' -A 250 CMSRUN.log | grep $trig |";
+	$FIRED = 0;
+	while (<INPUT>){
+	    #chomp; print "LINE:  $_\n";
+	    /$trig\W+(\w+)/;
+	    print "INFO:  $trig fired $1 times\n";
+	    if ($1 > 0){ $FIRED = 1; }
+	}
+	if (! $FIRED){
+	    print "ERROR:  $trig did not fire.\n";
+	    return;
+	}
+    }
+    system "touch SUCCESS";
+
+}
+
 sub test_mc_prod {
     $nevt = 50;
     if ($FAST) {$nevt = 5; }
@@ -354,6 +411,7 @@ sub run_job {
 	case 2 {test_unpack_2016_data; }
 	case 3 {test_pack_unpack_is_unity; }
 	case 4 {test_unpackers_dont_crash; }
+	case 5 {test_reemul_2016;}
 	else   {test_dummy; }
     }
     my $job_time = time() - $start_time;
