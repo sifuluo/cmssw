@@ -127,8 +127,8 @@ def L1TReEmulFromRAW(process):
         # OMTF
         process.simOmtfDigis.srcRPC                = cms.InputTag('muonRPCDigis')
         process.simOmtfDigis.srcCSC                = cms.InputTag('csctfDigis')
-        process.simOmtfDigis.srcDTPh               = cms.InputTag('bmtfDigis:PhiDigis')
-        process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis:TheDigis')
+        #process.simOmtfDigis.srcDTPh               = cms.InputTag('bmtfDigis:PhiDigis')
+        #process.simOmtfDigis.srcDTTh               = cms.InputTag('bmtfDigis:TheDigis')
         # EMTF
         process.simEmtfDigis.CSCInput              = cms.InputTag('csctfDigis')
         # Calo Layer1
