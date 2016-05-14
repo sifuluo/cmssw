@@ -531,8 +531,8 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 			}
 		}*/
 	}
-	else
-	  std::cout << "Throwing away a hit in station " << station << ", CSC ID " << Id << ", subsector " << sub << std::endl;
+	/* else */
+	/*   std::cout << "Throwing away a hit in station " << station << ", CSC ID " << Id << ", subsector " << sub << std::endl; */
 	
 	
 	}//if sector == sectIndex
