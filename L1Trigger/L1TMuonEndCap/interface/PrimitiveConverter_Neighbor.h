@@ -8,7 +8,7 @@
 ////
 
 #include "L1Trigger/L1TMuonEndCap/interface/EmulatorClasses.h"
-#include "L1Trigger/L1TMuonEndCap/interface/PhThLUTs.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PhThLUT_Neighbor.h"
 
 
 bool neighbor(int endcap,int sector,int SectIndex,int id,int sub,int station){
@@ -16,23 +16,36 @@ bool neighbor(int endcap,int sector,int SectIndex,int id,int sub,int station){
 	bool neighbor = false;
 	
 	int CompIndex = (endcap - 1)*6 + sector - 1;
+	bool AdSector = false;
+	if((SectIndex == 0 && CompIndex == 5) || 
+	   (SectIndex == 1 && CompIndex == 0) ||
+	   (SectIndex == 2 && CompIndex == 1) ||
+	   (SectIndex == 3 && CompIndex == 2) ||
+	   (SectIndex == 4 && CompIndex == 3) ||
+	   (SectIndex == 5 && CompIndex == 4) ||
+	   (SectIndex == 6 && CompIndex == 11) || 
+	   (SectIndex == 7 && CompIndex == 6) ||
+	   (SectIndex == 8 && CompIndex == 7) ||
+	   (SectIndex == 9 && CompIndex == 8) ||
+	   (SectIndex == 10 && CompIndex == 9) ||
+	   (SectIndex == 11 && CompIndex == 10) ){AdSector = true;}
 	
-	if(CompIndex == (SectIndex - 1) && sub == 2 && station == 1 && (id == 3 || id == 6 || id == 9) )
+	if(AdSector && sub == 2 && station == 1 && (id == 3 || id == 6 || id == 9) )
 		neighbor = true;
 		
-	if(CompIndex == (SectIndex - 1) && station > 1 && (id == 3 || id == 9) )
+	if(AdSector && station > 1 && (id == 3 || id == 9) )
 		neighbor = true;
 	
 	return neighbor;
 
 }
 
-//no neighboring sectors		     
-int ph_offsetss[5][9][3] = {{{2,2,-99},{20,20,-99},{39,39,-99},{2,-99,-99},{21,-99,-99},{39,-99,-99},{4,-99,-99},{23,-99,-99},{42,-99,-99}},
-			   {{58,58,-99},{77,77,-99},{95,95,-99},{58,-99,-99},{77,-99,-99},{96,-99,-99},{61,-99,-99},{79,-99,-99},{98,-99,-99}},
-			   {{1,1,-99},{39,39,-99},{76,76,-99},{2,2,-99},{21,21,-99},{39,39,-99},{58,58,-99},{77,77,-99},{95,95,-99}},
-			   {{1,-99,-99},{39,-99,-99},{76,-99,-99},{2,2,2},{21,21,21},{39,39,39},{58,58,58},{77,77,77},{95,95,95}},
-			   {{1,-99,-99},{39,-99,-99},{76,-99,-99},{2,1,-99},{21,20,-99},{39,39,-99},{58,58,-99},{77,76,-99},{95,95,-99}}};//[station][id][phzvl look up #(-99 indicates invaled entry)]
+																																										//neighboring chambers//																																					 
+int ph_offsets_neighbor[5][10][3] = {{{39,39,-99}  ,{57,57,-99}   ,{76,76,-99}   ,{39,-99,-99} ,{58,-99,-99}  ,{76,-99,-99}  ,{41,-99,-99} ,{60,-99,-99}   ,{79,-99,-99}     ,{21,21,23}  },//not sure if 23 is done right yet
+			   						 {{95,95,-99}  ,{114,114,-99} ,{132,132,-99} ,{95,-99,-99} ,{114,-99,-99} ,{133,-99,-99} ,{98,-99,-99} ,{116,-99,-99}  ,{135,-99,-99}    ,{21,21,23}  },//not sure if 23 is done right yet
+			   						 {{38,38,-99}  ,{76,76,-99}   ,{113,113,-99} ,{39,39,-99}  ,{58,58,-99}   ,{76,76,-99}   ,{95,95,-99}  ,{114,114,-99}  ,{132,132,-99}    ,{1,21,21}  },
+			   						 {{38,-99,-99} ,{76,-99,-99}  ,{113,-99,-99} ,{39,39,39}   ,{58,58,58}    ,{76,76,76}    ,{95,95,95}   ,{114,114,114}  ,{132,132,132}    ,{1,21,21}  },
+			   						 {{38,-99,-99} ,{76,-99,-99}  ,{113,-99,-99} ,{38,38,-99}  ,{57,57,-99}   ,{76,76,-99}   ,{95,95,-99}  ,{113,113,-99}  ,{132,132,-99}    ,{1,20,20}  }};//[station][id][phzvl look up #(-99 indicates invaled entry)]
 
 
 std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int SectIndex){
@@ -62,7 +75,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	////// ME1 only ////////
 	////////////////////////
 	
-	if(station == 1)
+	if(station == 1)//is this correct? I know it starts from 1 so not quite what I intended I think.
 	{
 	
 		if(chamber%6 > 2)
@@ -78,7 +91,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if(ring == 4){Id += 9;}
 
 	//if(endcap == 1 && sector == 1)//
-	if( (SectIndex ==  (endcap - 1)*6 + sector - 1 )  )//|| IsNeighbor )
+	if( (SectIndex ==  (endcap - 1)*6 + sector - 1 )  || IsNeighbor )
 	{
 	
 		
@@ -140,19 +153,39 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	////////////////////////////
 	
 	int LUTi = -999;
+	int nId = Id;
+	if(IsNeighbor){
+		
+		if(station < 2){
+		
+			nId = 9 + Id/3;
+			if(ring == 4)
+				nId ++;
+		
+		}
+		else{
+			int xx = Id;
+			if(xx > 6)
+				xx = 6;
+				
+			nId =  9 + xx/3;
+			
+		}
+		
+	}
 	switch(station)
 	{
 		case 1: 
 			switch(sub)
 			{
-				case 1: LUTi = Id - 1;break;
-				case 2: LUTi = 11 + Id;break;
+				case 1: LUTi = nId - 1;break;
+				case 2: LUTi = 15 + nId;break;
 				default:;//std::cout<<"Sub is out of range"<<std::endl;
 			}
 			break;
-		case 2: LUTi = 23 + Id;break;
-		case 3: LUTi = 32 + Id;break;
-		case 4: LUTi = 41 + Id;break;
+		case 2: LUTi = 27 + nId;break;
+		case 3: LUTi = 38 + nId;break;
+		case 4: LUTi = 49 + nId;break;
 		default:;//std::cout<<"station is out of range"<<std::endl;
 	}
 	
@@ -181,12 +214,16 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	eightstrip = 8*strip;
 	int patcor = clctpatcor;
 	
+	//std::cout<<"8strip = "<<eightstrip<<"\n";
+	
 	if(station == 1 || Id > 3){//10 Degree Chambers
 	
 		eightstrip = (eightstrip>>1);
 		patcor = (patcor>>1);
 		if(ring == 4 && strip > 127) eightstrip -= 512;
-	}	
+	}
+	
+	//std::cout<<"8strip = "<<eightstrip<<"\n";	
 	
 	if(clctpatsign) patcor = -patcor;
 	eightstrip += patcor;
@@ -206,17 +243,40 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		phLow = ph_coverage;
 	}
 	
+	int phInitIndex = Id;
+	std::cout<<"phInitIndex = "<<phInitIndex<<" and ph_tmp = "<<ph_tmp<<"\n";
 	
 	if(station == 1){
+	
+		int neighborId = C3.Id()/3;
+		int subId = sub;
+		if(IsNeighbor ){
+	
+			subId = 1;
+			phInitIndex = 12 + neighborId;
+			if(ring == 4)
+				phInitIndex++;
+	
+		}
 		
-		fph = PhInit[SectIndex][sub-1][Id - 1] + ph_tmp;
+		
+		fph = Ph_Init_Neighbor[SectIndex][subId-1][phInitIndex - 1] + ph_tmp;
+		std::cout<<"ph init = "<<Ph_Init_Neighbor[SectIndex][subId-1][phInitIndex - 1]<<", index = "<<phInitIndex<<", neighborId = "<<neighborId<<", Id = "<<Id<<"\n";
 	}
 	else{
+	
+		int neighborId = Id/3;
+		if(neighborId > 2)
+			neighborId = 2;
 		
-		fph = PhInit[SectIndex][station][Id - 1] + ph_tmp;
+		if(IsNeighbor)
+			phInitIndex = 9 + neighborId;
+		
+		fph = Ph_Init_Neighbor[SectIndex][station][phInitIndex - 1] + ph_tmp;
 	}
 	
-	ph_hit = phLow + phShift + (PhDisp[SectIndex][LUTi]>>1);
+	//std::cout<<"pl = "<<phLow<<", ps = "<<phShift<<", ph disp = "<<Ph_Disp_Neighbor[SectIndex][LUTi]<<", >>1 = "<<(Ph_Disp_Neighbor[SectIndex][LUTi]>>1)<<", LUTi = "<<LUTi<<"\n";
+	ph_hit = phLow + phShift + (Ph_Disp_Neighbor[SectIndex][LUTi]>>1);
 	
 	////////////////////////
 	////Theta Conversion////
@@ -225,52 +285,90 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	int index = -999;
 	int th_corr = -999;	
 	
+	int idl = Id;
+	
 	if(station == 1){
 	
-		int idl = Id;
-		//if(Id < 4)//
-		//	idl += 9;
 		
-		th_tmp = St1ThLUT[sub-1][SectIndex][idl -1][wire];
-		//if(verbose) std::cout<<"\n\nth_tmpr = "<<th_tmp<<"\n\n";
+		int neighborId = Id/3;
+		int subId = sub;
+		if(IsNeighbor){
+	
+			subId = 1;
+			idl = 12 + neighborId;
+			if(ring == 4)
+				idl++;
+	
+		}
+		
+		
+		
+		th_tmp = Th_LUT_St1_Neighbor[subId-1][SectIndex][idl -1][wire];
+		//std::cout<<"\n\nth_tmpr = "<<th_tmp<<"\n\n";
 	}
 	else{
-		th_tmp = ThLUT[station-2][SectIndex][Id-1][wire];
+	
+		int neighborId = Id/3;
+		if(neighborId > 2)
+			neighborId = 2;
+		
+		if(IsNeighbor)
+			idl = 9 + neighborId;
+		
+		th_tmp = Th_LUT_St234_Neighbor[station-2][SectIndex][idl-1][wire];
 		//if(verbose) std::cout<<"\n\nth_tmpr = "<<th_tmp<<"\n\n";
 	}
 	
 	
-	th = th_tmp + ThInit[SectIndex][LUTi];
-	//if(verbose) std::cout<<"ThInit = "<<ThInit[SectIndex][LUTi]<<"\n";
+	th = th_tmp + Th_Init_Neighbor[SectIndex][LUTi];
+	int rth = th;
+	//std::cout<<"Th_Init_Neighbor[ = "<<Th_Init_Neighbor[SectIndex][LUTi]<<"\n";
 	
 	if(station == 1 && (ring == 1 || ring == 4) /*&& endcap == 1*/){
 	
 		index = (wire>>4)*32 + (eightstrip>>4);
 		
-		if(Id > 3){
-			th_corr = THCORR[sub-1][SectIndex][Id-10][index];
+		int corrIndex = Id;
+		//std::cout<<"corrIndex = "<<corrIndex<<"\n";
+		if(corrIndex > 3)
+			corrIndex -= 9;
+			
+		//std::cout<<"corrIndex = "<<corrIndex<<"\n";
+			
+		if(IsNeighbor && ring == 4)
+			corrIndex++;
+			
+		//std::cout<<"corrIndex = "<<corrIndex<<"\n";
+		
+		//if(Id > 3){
+		//	th_corr = Th_Corr_Neighbor[sub-1][SectIndex][Id-10][index];
 			//if(verbose) std::cout<<"\n\nth_corr = "<<th_corr<<"\n\n";
-		}
-		else{
-			th_corr = THCORR[sub-1][SectIndex][Id-1][index];
-			//if(verbose) std::cout<<"\n\nth_corr = "<<th_corr<<"\n\n";
-		}
+		//}
+		//else{
+			th_corr = Th_Corr_Neighbor[sub-1][SectIndex][corrIndex-1][index];
+		//	std::cout<<"\n\nth_corr["<<sub-1<<"]["<<SectIndex<<"]["<<corrIndex-1<<"] = "<<th_corr<<"\n\n";
+		//}
 		
 		
 		if(ph_reverse) th_corr = -th_corr;
 		
+		//std::cout<<"th_tmp = "<<th_tmp<<"\n";
 		
 		th_tmp += th_corr;                  //add correction to th_tmp
+		//std::cout<<"th_tmp = "<<th_tmp<<"\n";
+		if(th_tmp < 0)
+			th_tmp = 0;
 		th_tmp &= 0x3f;                     //keep only lowest 6 bits
-		
+		//std::cout<<"th_tmp = "<<th_tmp<<"\n";
+		//std::cout<<"coverage = "<<th_coverage<<"\n";
 		
 		if(th_tmp < th_coverage){
 		
 			//if(ring == 1){LUTi += 9;}  //change because new Verilog3 sp_tf treats ME11b with LUT's of ME11a
 			
-			th = th_tmp + ThInit[SectIndex][LUTi];
+			th = th_tmp + Th_Init_Neighbor[SectIndex][LUTi];
 		}
-		else{th = -999;}
+		else{th = rth;}//was -999
  
 	}
 	
@@ -325,16 +423,19 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if((phzvl & 2) && (Id > 3) && (station < 3)){pz=1;zonecontribution.push_back(3);}
 	
 	
+	int phOffIndex = Id;
+	if(IsNeighbor)
+		phOffIndex = 10;
 	
 	//applying ph_offsets
 	if(sub == 1){
-		zhit = ph_hit + ph_offsetss[station-1][Id-1][pz];
-		//std::cout<<"\nph_hit = "<<ph_hit<<" and ph_offsetss["<<station-1<<"]["<<Id-1<<"]["<<pz<<"] = "<<ph_offsetss[station-1][Id-1][pz]<<"\n";
+		zhit = ph_hit + ph_offsets_neighbor[station-1][phOffIndex-1][pz];
+		//std::cout<<"\nph_hit = "<<ph_hit<<" and ph_offsets_neighbor["<<station-1<<"]["<<phOffIndex-1<<"]["<<pz<<"] = "<<ph_offsets_neighbor[station-1][phOffIndex-1][pz]<<"\n";
 	}
 	else{
 			
-		zhit = ph_hit + ph_offsetss[station][Id-1][pz];
-		//std::cout<<"\nph_hit = "<<ph_hit<<" and ph_offsetss["<<station<<"]["<<Id-1<<"]["<<pz<<"] = "<<ph_offsetss[station][Id-1][pz]<<"\n";
+		zhit = ph_hit + ph_offsets_neighbor[station][phOffIndex-1][pz];
+		//std::cout<<"ph_hit = "<<ph_hit<<" and ph_offsets_neighbor["<<station<<"]["<<phOffIndex-1<<"]["<<pz<<"] = "<<ph_offsets_neighbor[station][phOffIndex-1][pz]<<"\n";
 	}
 	
 	
@@ -347,8 +448,10 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	///////////////////////////////////////////////////////
 	
 	
-	//if(ring == 4){
-		std::cout<<"phi = "<<fph<<", theta = "<<th<<", ph_hit = "<<ph_hit<<", station = "<<station<<", ring = "<<ring<<", id = "<<Id<<", sector "<<SectIndex<<",sub = "<<sub<<", strip = "<<strip<<", wire = "<<wire<<"\n";
+	//if(SectIndex == 8){
+		std::cout<<"phi = "<<fph<<", theta = "<<th<<", ph_hit = "<<ph_hit<<",zhit = "<<zhit<<", station = "<<station<<", ring = "<<ring<<", id = "<<Id<<", sector "<<SectIndex<<",sub = "<<sub<<", strip = "<<strip<<", wire = "<<wire<<", IsNeighbor = "<<IsNeighbor<<"\n";
+	
+		//std::cout<<BX-3<<" "<<endcap<<" "<<sector<<" "<<sub<<" "<<station<<" 1 "<<quality<<" "<<pattern<<" "<<wire<<" "<<C3.Id()<<" 0 "<<strip<<"\n";
 	//}
 	
 	/* if(station != 1) */
@@ -359,11 +462,17 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 
 	
 	ConvertedHit Hit;
+	
+	int in = 0;
+	if(IsNeighbor)
+		in = 1;
 
 	Hit.SetValues(fph,th,ph_hit,phzvl,station,sub,Id,quality,pattern,wire,strip,BX);
 	Hit.SetTP(C3);
 	Hit.SetZhit(zhit);
 	Hit.SetZoneContribution(zonecontribution);
+	Hit.SetSectorIndex(SectIndex);
+	Hit.SetNeighbor(in);
 
 	if(Hit.Theta() != -999 && Hit.Phi() > 0){//if theta is valid
 		ConvHits.push_back(Hit);
