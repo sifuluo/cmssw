@@ -256,17 +256,13 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
 	
 	int rank = (Mout.Winners()[zone][winner].Rank()<<1);
 	
-	//if(rank) std::cout<<"rank = "<<rank<<", vstat = "<<vstat<<"\n";
 	
 	///here we separate stations 3 and 4////
 	if(vstat & 8){rank |= 1;}else{rank &= 0x7e;}//if station 4 add to rank, else keep everythign and zero the bit which indicates station 4 is present
-	//if(rank) std::cout<<"rank = "<<rank<<", vstat = "<<vstat<<"\n";
 	if(vstat & 4){rank |= 2;}else{rank &= 0x7d;}//if station 3 add to rank, else keep everythign and zero the bit which indicates station 3 is present
-	//if(rank) std::cout<<"rank = "<<rank<<", vstat = "<<vstat<<"\n";
 	if(vstat & 2){rank |= 8;}else{rank &= 0x77;}//if station 2 add to rank, else keep everythign and zero the bit which indicates station 2 is present
-	//if(rank) std::cout<<"rank = "<<rank<<", vstat = "<<vstat<<"\n";
 	if(vstat & 1){rank |= 32;}else{rank &= 0x5f;}//if station 1 add to rank, else keep everythign and zero the bit which indicates station 1 is present
-	//if(rank) std::cout<<"rank = "<<rank<<", vstat = "<<vstat<<"\n";
+	
 	if(vstat == 0 || vstat == 1 || vstat == 2 || vstat == 4 || vstat == 8){rank = 0;}//removes single, and ME3--ME4 hit combinations
 	
 	DeltaOutput output;
