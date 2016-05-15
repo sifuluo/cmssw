@@ -317,7 +317,8 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if(station == 1){
 	
 	        // Needs to be set to C3.Id()/3 in the same way as phi? - AWB 14.05.16
-		int neighborId = Id/3;
+		/* // Hacky theta fix - AWB 14.05.16 */
+		/* int neighborId = Id/3; */
 
 		int subId = sub;
 
