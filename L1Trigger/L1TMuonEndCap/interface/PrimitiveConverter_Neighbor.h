@@ -158,7 +158,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		
 		if(station < 2){
 		
-			nId = 9 + Id/3;
+			nId = 12 + Id/3;
 			if(ring == 4)
 				nId ++;
 		
@@ -188,25 +188,19 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		case 4: LUTi = 49 + nId;break;
 		default:;//std::cout<<"station is out of range"<<std::endl;
 	}
-
-	// Hacky theta fix for neighbor hits: look up with adjacent sector theta LUT. - AWB 14.05.16
-	int LUTi_hack = -999;
-	switch(station)
-	{
-		case 1: 
-			switch(sub)
-			{
-				case 1: LUTi_hack = Id - 1;break;
-				case 2: LUTi_hack = 15 + Id;break;
-				default:;//std::cout<<"Sub is out of range"<<std::endl;
-			}
-			break;
-		case 2: LUTi_hack = 27 + Id;break;
-		case 3: LUTi_hack = 38 + Id;break;
-		case 4: LUTi_hack = 49 + Id;break;
-		default:;//std::cout<<"station is out of range"<<std::endl;
+	
+	if(IsNeighbor && station == 1){
+	
+		switch(sub)
+		{
+			case 1: LUTi = 15 + nId;break;
+			case 2: LUTi = nId - 1;break;
+			default:;//std::cout<<"Sub is out of range"<<std::endl;
+		}
+	
 	}
-
+	
+	
 	
 	/////////////////////////////////////
 	//////// CLCT Pattern Correc ////////
@@ -266,22 +260,21 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	//std::cout<<"phInitIndex = "<<phInitIndex<<" and ph_tmp = "<<ph_tmp<<"\n";
 	
 	if(station == 1){
-
-	        int neighborId = C3.Id()/3;
+	
+		int neighborId = C3.Id()/3;
 		int subId = sub;
 		if(IsNeighbor ){
 	
 			subId = 1;
 			phInitIndex = 12 + neighborId;
-
 			if(ring == 4)
-				phInitIndex++;
+				phInitIndex = 16;//phInitIndex++;
 	
 		}
 		
 		
 		fph = Ph_Init_Neighbor[SectIndex][subId-1][phInitIndex - 1] + ph_tmp;
-		//std::cout<<"ph init = "<<Ph_Init_Neighbor[SectIndex][sub-1][phInitIndex - 1]<<", index = "<<phInitIndex<<"\n";
+		//std::cout<<"ph init = "<<Ph_Init_Neighbor[SectIndex][subId-1][phInitIndex - 1]<<", index = "<<phInitIndex<<", neighborId = "<<neighborId<<", Id = "<<Id<<"\n";
 	}
 	else{
 	
@@ -306,72 +299,61 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	int th_corr = -999;	
 	
 	int idl = Id;
-
-	// Hacky theta fix - AWB 14.05.16
-	int SectIndex_hack = SectIndex;
-	if(IsNeighbor){
-	  if (SectIndex < 6) SectIndex_hack = (SectIndex > 0) ? SectIndex-1 :  5; 
-	  else               SectIndex_hack = (SectIndex > 6) ? SectIndex-1 : 11; 
-	}
 	
 	if(station == 1){
 	
-	        // Needs to be set to C3.Id()/3 in the same way as phi? - AWB 14.05.16
-		/* // Hacky theta fix - AWB 14.05.16 */
-		/* int neighborId = Id/3; */
-
+		
+		int neighborId = C3.Id()/3;
 		int subId = sub;
-
-		/* // Hacky theta fix - AWB 14.05.16 */
-		/* if(IsNeighbor){ */
-		  
-		/* 	subId = 1; */
-		/* 	idl = 12 + neighborId; */
-		/* 	if(ring == 4) */
-		/* 		idl++; */
+		if(IsNeighbor){
 	
-		/* } */
-
-		/* th_tmp = Th_LUT_St1_Neighbor[subId-1][SectIndex][idl -1][wire]; */
-		th_tmp = Th_LUT_St1_Neighbor[subId-1][SectIndex_hack][idl -1][wire];
-		//std::cout<<"\n\nth_tmpr = "<<th_tmp<<"\n\n";
+			subId = 1;
+			idl = 12 + neighborId;
+			if(ring == 4)
+				idl = 16;
+	
+		}
+		
+		//std::cout<<"nid = "<<neighborId<<", idl = "<<idl<<"\n";
+		
+		th_tmp = Th_LUT_St1_Neighbor[subId-1][SectIndex][idl -1][wire];
+		//std::cout<<"th_tmpr = "<<th_tmp<<"\n";
 	}
 	else{
-	
-	        /* // Hacky theta fix - AWB 14.05.16 */
-		/* int neighborId = Id/3; */
-		/* if(neighborId > 2) */
-		/* 	neighborId = 2; */
 		
-		/* if(IsNeighbor) */
-		/* 	idl = 9 + neighborId; */
 		
-		/* th_tmp = Th_LUT_St234_Neighbor[station-2][SectIndex][idl-1][wire]; */
-		th_tmp = Th_LUT_St234_Neighbor[station-2][SectIndex_hack][idl-1][wire];
+		int neighborId = Id/3;
+		if(neighborId > 2)
+			neighborId = 2;
+		
+		if(IsNeighbor)
+			idl = 9 + neighborId;
+		
+		th_tmp = Th_LUT_St234_Neighbor[station-2][SectIndex][idl-1][wire];
 		//if(verbose) std::cout<<"\n\nth_tmpr = "<<th_tmp<<"\n\n";
 	}
 	
-	
-	/* // Hacky theta fix - AWB 14.05.16 */
-	/* th = th_tmp + Th_Init_Neighbor[SectIndex][LUTi]; */
-	th = th_tmp + Th_Init_Neighbor[SectIndex_hack][LUTi_hack];
+		
+	th = th_tmp + Th_Init_Neighbor[SectIndex][LUTi];
 	int rth = th;
-	//std::cout<<"Th_Init_Neighbor[ = "<<Th_Init_Neighbor[SectIndex][LUTi]<<"\n";
+	//std::cout<<"Th_Init_Neighbor["<<SectIndex<<"]["<<LUTi<<"] = "<<Th_Init_Neighbor[SectIndex][LUTi]<<"\n";
 	
 	if(station == 1 && (ring == 1 || ring == 4) /*&& endcap == 1*/){
 	
 		index = (wire>>4)*32 + (eightstrip>>4);
 		
 		int corrIndex = Id;
+		int subId = sub;
 		//std::cout<<"corrIndex = "<<corrIndex<<"\n";
 		if(corrIndex > 3)
 			corrIndex -= 9;
 			
 		//std::cout<<"corrIndex = "<<corrIndex<<"\n";
 			
-		/* // Hacky theta fix - AWB 14.05.16 */
-		/* if(IsNeighbor && ring == 4) */
-		/* 	corrIndex++; */
+		if(IsNeighbor && ring == 4){
+			subId = 1;
+			corrIndex++;
+		}
 			
 		//std::cout<<"corrIndex = "<<corrIndex<<"\n";
 		
@@ -380,10 +362,8 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 			//if(verbose) std::cout<<"\n\nth_corr = "<<th_corr<<"\n\n";
 		//}
 		//else{
-		        /* // Hacky theta fix - AWB 14.05.16 */
-		        /* th_corr = Th_Corr_Neighbor[sub-1][SectIndex][corrIndex-1][index]; */
-			th_corr = Th_Corr_Neighbor[sub-1][SectIndex_hack][corrIndex-1][index];
-		//	std::cout<<"\n\nth_corr["<<sub-1<<"]["<<SectIndex<<"]["<<corrIndex-1<<"] = "<<th_corr<<"\n\n";
+			th_corr = Th_Corr_Neighbor[subId-1][SectIndex][corrIndex-1][index];
+			//std::cout<<"th_corr["<<subId-1<<"]["<<SectIndex<<"]["<<corrIndex-1<<"] = "<<th_corr<<"\n";
 		//}
 		
 		
@@ -402,9 +382,9 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 		if(th_tmp < th_coverage){
 		
 			//if(ring == 1){LUTi += 9;}  //change because new Verilog3 sp_tf treats ME11b with LUT's of ME11a
-		        /* // Hacky theta fix - AWB 14.05.16 */
-		        /* th = th_tmp + Th_Init_Neighbor[SectIndex][LUTi]; */
-			th = th_tmp + Th_Init_Neighbor[SectIndex_hack][LUTi_hack];
+			
+			th = th_tmp + Th_Init_Neighbor[SectIndex][LUTi];
+			//std::cout<<"th_init["<<SectIndex<<"]["<<LUTi<<"] = "<<Th_Init_Neighbor[SectIndex][LUTi]<<"\n";
 		}
 		else{th = rth;}//was -999
  
@@ -505,15 +485,6 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 	if(IsNeighbor)
 		in = 1;
 
-	/* // Printouts - AWB 14.05.16 */
-	/* if (in == 1 && station == 1 && ring == 2) std::cout << "St. 1, ring 2, neighbor theta = " << th << std::endl; */
-	/* if (in == 0 && station == 1 && ring == 2) std::cout << "St. 1, ring 2, non-neig theta = " << th << std::endl; */
-	/* if (in == 1 && station == 1 && ring == 3) std::cout << "St. 1, ring 3, neighbor theta = " << th << std::endl; */
-	/* if (in == 0 && station == 1 && ring == 3) std::cout << "St. 1, ring 3, non-neig theta = " << th << std::endl; */
-	/* if (in == 1 && station == 1 && ring == 4 && Id == 3) std::cout << "St. 1, ring 4, CSC ID 3, neighbor phi = " << fph << std::endl; */
-	/* if (in == 0 && station == 1 && ring == 4 && Id == 3) std::cout << "St. 1, ring 4, CSC ID 3, non-neig phi = " << fph << std::endl; */
-	/* if (in == 1 && station == 1 && ring == 1 && Id == 3) std::cout << "St. 1, ring 1, CSC ID 3, neighbor phi = " << fph << std::endl; */
-
 	Hit.SetValues(fph,th,ph_hit,phzvl,station,sub,Id,quality,pattern,wire,strip,BX);
 	Hit.SetTP(C3);
 	Hit.SetZhit(zhit);
@@ -531,9 +502,7 @@ std::vector<ConvertedHit> PrimConv(std::vector<TriggerPrimitive> TriggPrim, int 
 				std::cout<<" "<<*in<<" ";
 			}
 		}*/
-	}
-	/* else */
-	/*   std::cout << "Throwing away a hit in station " << station << ", CSC ID " << Id << ", subsector " << sub << std::endl; */
+	}	
 	
 	
 	}//if sector == sectIndex
