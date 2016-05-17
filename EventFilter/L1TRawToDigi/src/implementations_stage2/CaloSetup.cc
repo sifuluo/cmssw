@@ -65,6 +65,9 @@ namespace l1t {
 	       if (fw >= 0x1001000b) {
 		 mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x1001000b");
 	       }
+	       if (fw >= 0x10010010) {
+		 mp_unp = UnpackerFactory::get()->make("stage2::MPUnpacker_0x10010010");
+	       }
 	       
 
                UnpackerMap res;
