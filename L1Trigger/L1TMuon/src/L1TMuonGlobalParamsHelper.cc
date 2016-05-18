@@ -309,26 +309,26 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem& trgSys, const st
   setMaskedEmtfpInputs(emtfpMasked);
   setMaskedEmtfnInputs(emtfnMasked);
 
-  // LUTs from settings with address width and output width
-  setAbsIsoCheckMemLUT(settings["AbsIsoCheckMem"].getLUT(5, 1));
-  setRelIsoCheckMemLUT(settings["RelIsoCheckMem"].getLUT(14, 1));
-  setIdxSelMemPhiLUT(settings["IdxSelMemPhi"].getLUT(10, 6));
-  setIdxSelMemEtaLUT(settings["IdxSelMemEta"].getLUT(9, 5));
-  setFwdPosSingleMatchQualLUT(settings["EmtfPosSingleMatchQual"].getLUT(7, 1));
-  setFwdNegSingleMatchQualLUT(settings["EmtfNegSingleMatchQual"].getLUT(7, 1));
-  setOvlPosSingleMatchQualLUT(settings["OmtfPosSingleMatchQual"].getLUT(7, 1));
-  setOvlNegSingleMatchQualLUT(settings["OmtfNegSingleMatchQual"].getLUT(7, 1));
-  setBOPosMatchQualLUT(settings["BOPosMatchQual"].getLUT(7, 1));
-  setBONegMatchQualLUT(settings["BONegMatchQual"].getLUT(7, 1));
-  setFOPosMatchQualLUT(settings["EOPosMatchQual"].getLUT(7, 1));
-  setFONegMatchQualLUT(settings["EONegMatchQual"].getLUT(7, 1));
-  setBPhiExtrapolationLUT(settings["BPhiExtrapolation"].getLUT(12, 3));
-  setOPhiExtrapolationLUT(settings["OPhiExtrapolation"].getLUT(12, 3));
-  setFPhiExtrapolationLUT(settings["EPhiExtrapolation"].getLUT(12, 3));
-  setBEtaExtrapolationLUT(settings["BEtaExtrapolation"].getLUT(12, 4));
-  setOEtaExtrapolationLUT(settings["OEtaExtrapolation"].getLUT(12, 4));
-  setFEtaExtrapolationLUT(settings["EEtaExtrapolation"].getLUT(12, 4));
-  setSortRankLUT(settings["SortRank"].getLUT(13, 10));
+  // LUTs from settings with with automatic detection of address width and 31 bit output width
+  setAbsIsoCheckMemLUT(settings["AbsIsoCheckMem"].getLUT());
+  setRelIsoCheckMemLUT(settings["RelIsoCheckMem"].getLUT());
+  setIdxSelMemPhiLUT(settings["IdxSelMemPhi"].getLUT());
+  setIdxSelMemEtaLUT(settings["IdxSelMemEta"].getLUT());
+  setFwdPosSingleMatchQualLUT(settings["EmtfPosSingleMatchQual"].getLUT());
+  setFwdNegSingleMatchQualLUT(settings["EmtfNegSingleMatchQual"].getLUT());
+  setOvlPosSingleMatchQualLUT(settings["OmtfPosSingleMatchQual"].getLUT());
+  setOvlNegSingleMatchQualLUT(settings["OmtfNegSingleMatchQual"].getLUT());
+  setBOPosMatchQualLUT(settings["BOPosMatchQual"].getLUT());
+  setBONegMatchQualLUT(settings["BONegMatchQual"].getLUT());
+  setFOPosMatchQualLUT(settings["EOPosMatchQual"].getLUT());
+  setFONegMatchQualLUT(settings["EONegMatchQual"].getLUT());
+  setBPhiExtrapolationLUT(settings["BPhiExtrapolation"].getLUT());
+  setOPhiExtrapolationLUT(settings["OPhiExtrapolation"].getLUT());
+  setFPhiExtrapolationLUT(settings["EPhiExtrapolation"].getLUT());
+  setBEtaExtrapolationLUT(settings["BEtaExtrapolation"].getLUT());
+  setOEtaExtrapolationLUT(settings["OEtaExtrapolation"].getLUT());
+  setFEtaExtrapolationLUT(settings["EEtaExtrapolation"].getLUT());
+  setSortRankLUT(settings["SortRank"].getLUT());
 }
 
 
