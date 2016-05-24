@@ -139,10 +139,6 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem& trgSys, const st
     }
   }
 
-  // FIXME the fwVersion needs to be set from somewhere else
-  // Perhaps directly in the O2O ESProducer
-  setFwVersion(1);
-
   // get the settings and masks for the processor id
   std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
   std::map<std::string, l1t::mask> masks = trgSys.getMasks(procId);
@@ -152,6 +148,13 @@ void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem& trgSys, const st
   //for (auto& it: masks) {
   //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", id: " << it.second.getId() << std::endl;
   //}
+
+  // Use FW version from online config if it is found there. Otherwise set it to 1
+  unsigned fwVersion = 1;
+  if (settings.count("algoRev") > 0) {
+    fwVersion = settings["algoRev"].getValue<unsigned int>();
+  }
+  setFwVersion(fwVersion);
 
   std::stringstream ss;
   // uGMT disabled inputs
