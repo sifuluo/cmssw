@@ -48,7 +48,3 @@ void CaloParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 DEFINE_FWK_MODULE(CaloParamsWriter);
 
-
-
-
-
