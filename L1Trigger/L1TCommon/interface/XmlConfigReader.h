@@ -37,10 +37,10 @@ class XmlConfigReader {
   const XMLCh* kTagColumns;
   const XMLCh* kTagTypes;
   const XMLCh* kTagRow;
-  const XMLCh* kAttrProcessor;
+  const XMLCh* kTagProcessor;
+  const XMLCh* kTagRole;
+  const XMLCh* kTagCrate;
   const XMLCh* kAttrId;
-  const XMLCh* kAttrRole;
-  const XMLCh* kAttrCrate;
   const XMLCh* kAttrType;
   const XMLCh* kAttrDelim;
   const XMLCh* kAttrModule;
@@ -48,6 +48,7 @@ class XmlConfigReader {
 
   XmlConfigReader();
   XmlConfigReader(xercesc::DOMDocument* doc);
+  ~XmlConfigReader();
   void readDOMFromString(const std::string& str, xercesc::DOMDocument*& doc);
   void readDOMFromString(const std::string& str);
   void readDOMFromFile(const std::string& fName, xercesc::DOMDocument*& doc);
@@ -58,7 +59,7 @@ class XmlConfigReader {
   void readContext(const xercesc::DOMElement* element, const std::string& sysId, trigSystem& aTrigSystem);
   void readContexts(const std::string& key, const std::string& sysId, trigSystem& aTrigSystem);
   xercesc::DOMElement* getKeyElement(const std::string& key);
-  void buildGlobalDoc(const std::string& key);
+  void buildGlobalDoc(const std::string& key, const std::string& topPath = "");
 
  private:
 

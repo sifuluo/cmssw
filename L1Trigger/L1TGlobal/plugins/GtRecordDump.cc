@@ -141,6 +141,11 @@ namespace l1t {
 
       m_gtUtil = new L1TGlobalUtil();
       m_gtUtil->OverridePrescalesAndMasks(preScaleFileName,preScColumn);
+
+      bool unprescaleL1Algos = iConfig.getParameter<bool>("unprescaleL1Algos");
+      bool unmaskL1Algos = iConfig.getParameter<bool>("unmaskL1Algos");
+
+      m_gtUtil->setUnprescaledUnmasked(unprescaleL1Algos, unmaskL1Algos);
   }
   
   // loop over events

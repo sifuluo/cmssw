@@ -37,10 +37,10 @@ XmlConfigReader::XmlConfigReader() :
   kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
   kTagRow(        XMLString::transcode("row")),
-  kAttrProcessor( XMLString::transcode("processor")),
+  kTagProcessor(  XMLString::transcode("processor")),
+  kTagRole(       XMLString::transcode("role")),
+  kTagCrate(      XMLString::transcode("crate")),
   kAttrId(        XMLString::transcode("id")),
-  kAttrRole(      XMLString::transcode("role")),
-  kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
   kAttrDelim(     XMLString::transcode("delimiter")),
   kAttrModule(    XMLString::transcode("module")),
@@ -71,10 +71,10 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
   kTagColumns(    XMLString::transcode("columns")),
   kTagTypes(      XMLString::transcode("types")),
   kTagRow(        XMLString::transcode("row")),
-  kAttrProcessor( XMLString::transcode("processor")),
+  kTagProcessor(  XMLString::transcode("processor")),
+  kTagRole(       XMLString::transcode("role")),
+  kTagCrate(      XMLString::transcode("crate")),
   kAttrId(        XMLString::transcode("id")),
-  kAttrRole(      XMLString::transcode("role")),
-  kAttrCrate(     XMLString::transcode("crate")),
   kAttrType(      XMLString::transcode("type")),
   kAttrDelim(     XMLString::transcode("delimiter")),
   kAttrModule(    XMLString::transcode("module")),
@@ -84,6 +84,13 @@ XmlConfigReader::XmlConfigReader(DOMDocument* doc) :
  
   parser_ = nullptr; 
   doc_ = doc;
+}
+
+
+XmlConfigReader::~XmlConfigReader()
+{
+  delete parser_;
+  XMLPlatformUtils::Terminate();
 }
 
 
@@ -109,9 +116,11 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName, DOMDocument*& do
 {
   parser_->parse(fName.c_str()); 
   doc = parser_->getDocument();
+
   if (! doc) {
     edm::LogError("XmlConfigReader") << "Could not parse file " << fName << "\n";
   }
+
   assert(doc);
 }
 
@@ -120,9 +129,11 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 {
   parser_->parse(fName.c_str()); 
   doc_ = parser_->getDocument();
+
   if (! doc_) {
     edm::LogError("XmlConfigReader") << "Could not parse file " << fName << "\n";
   }
+
   assert(doc_);
 }
 
@@ -159,15 +170,36 @@ void XmlConfigReader::readHwDescription(const DOMElement* element, trigSystem& a
     return;
   }
   aTrigSystem.setSystemId(_toString(element->getAttribute(kAttrId)));
-  DOMNodeList* processors = element->getElementsByTagName(kAttrProcessor);
+  DOMNodeList* processors = element->getElementsByTagName(kTagProcessor);
   const  XMLSize_t nodeCount = processors->getLength();
 
   for (XMLSize_t xx = 0; xx < nodeCount; ++xx) {
     DOMNode* currentNode = processors->item(xx);
     if (currentNode->getNodeType() &&  currentNode->getNodeType() == DOMNode::ELEMENT_NODE) { //no null and is element 
       DOMElement* currentElement = static_cast<DOMElement*>( currentNode );
-      aTrigSystem.addProcRole(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrRole)));
-      aTrigSystem.addProcCrate(_toString(currentElement->getAttribute(kAttrId)), _toString(currentElement->getAttribute(kAttrCrate)));
+      std::string procStr = _toString(currentElement->getAttribute(kAttrId));
+
+      DOMNodeList* roles = currentElement->getElementsByTagName(kTagRole);
+      // roles of this processor (should be only one)
+      for (XMLSize_t i = 0; i < roles->getLength(); ++i) {
+        DOMNodeList* roleChilds = roles->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < roleChilds->getLength(); ++j) {
+          if (roleChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addProcRole(procStr, _toString(roleChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
+
+      DOMNodeList* crates = currentElement->getElementsByTagName(kTagCrate);
+      // crates of this processor (should be only one)
+      for (XMLSize_t i = 0; i < crates->getLength(); ++i) {
+        DOMNodeList* crateChilds = crates->item(i)->getChildNodes();
+        for (XMLSize_t j = 0; j < crateChilds->getLength(); ++j) {
+          if (crateChilds->item(j)->getNodeType() == DOMNode::TEXT_NODE) {
+            aTrigSystem.addProcCrate(procStr, _toString(crateChilds->item(j)->getNodeValue()));
+          }
+        }
+      }
     }
   }
 }
@@ -192,10 +224,10 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             // found a parameter
             std::string id = _toString(elem->getAttribute(kAttrId));
             std::string type = _toString(elem->getAttribute(kAttrType));
+            std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
             // the type table needs special treatment since it consists of child nodes
             if (type == kTypeTable) {
-              std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
               // get the columns string
               std::string columnsStr = "";
@@ -252,7 +284,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
               pruneString(value);
 
               //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
-              aTrigSystem.addSetting(type, id, value, contextId);
+              aTrigSystem.addSetting(type, id, value, contextId, delim);
             }
 
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
@@ -307,7 +339,7 @@ DOMElement* XmlConfigReader::getKeyElement(const std::string& key)
 }
 
 
-void XmlConfigReader::buildGlobalDoc(const std::string& key)
+void XmlConfigReader::buildGlobalDoc(const std::string& key, const std::string& topPath)
 {
   DOMElement* keyElement = getKeyElement(key);
   if (keyElement) {
@@ -315,6 +347,16 @@ void XmlConfigReader::buildGlobalDoc(const std::string& key)
     for (XMLSize_t i = 0; i < loadElements->getLength(); ++i) {
       DOMElement* loadElement = static_cast<DOMElement*>(loadElements->item(i));
       std::string fileName = _toString(loadElement->getAttribute(kAttrModule));
+      if (fileName.find("/") != 0) { // load element has a relative path
+        // build an absolute path with directory of top xml file
+        size_t pos;
+        std::string topDir = "";
+        pos = topPath.find_last_of("/");
+        if (pos != std::string::npos) {
+          topDir = topPath.substr(0, pos+1);
+        }
+        fileName = topDir + fileName;
+      }
       //std::cout << "loading file " << fileName << std::endl;
       DOMDocument* subDoc = nullptr;
       readDOMFromFile(fileName, subDoc);
@@ -339,8 +381,8 @@ void XmlConfigReader::appendNodesFromSubDoc(DOMNode* parentNode, DOMDocument* su
 
 void XmlConfigReader::pruneString(std::string& str)
 {
-  std::size_t alphanumBegin = str.find_first_not_of("\n ");
-  std::size_t alphanumEnd = str.find_last_not_of("\n ");
+  std::size_t alphanumBegin = str.find_first_not_of("\n\t ");
+  std::size_t alphanumEnd = str.find_last_not_of("\n\t ");
   if (alphanumBegin != std::string::npos) {
     if (alphanumEnd != std::string::npos) {
       str = str.substr(alphanumBegin, alphanumEnd - alphanumBegin + 1);
