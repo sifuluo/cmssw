@@ -863,12 +863,22 @@ float getPt(unsigned long Address)
 		//std::vector<Event*> vevent;
 		//vevent.push_back(event);
 		
+
 		//forest[mode_inv].predictEvents(vevent,64);
 		forest[mode_inv].predictEvent(event,64);
     
     
 		//float OpT = vevent[0]->predictedValue;
 		float OpT = event->predictedValue;
+		
+		//cout << "DEBUG: mode:  " << mode_inv << " dir " << ss.str().c_str() << " num trees " << 64 << "\n";
+		//cout << "DEBUG: pred val:  " << OpT << "\n";
+		//cout << "DEBUG: data = ";
+		//for (unsigned int i=0; i<Data.size(); i++){
+		//cout << Data[i] << ", ";
+		//}
+		//cout << "\n";
+
 		MpT = 1/OpT;
 
     delete event;

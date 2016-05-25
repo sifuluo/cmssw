@@ -72,10 +72,12 @@ L1TMuonGlobalParamsESProducer::L1TMuonGlobalParamsESProducer(const edm::Paramete
    L1TMuonGlobalParamsHelper m_params_helper;
 
    // get configuration from DB
-   if (iConfig.getParameter<bool>("configFromDb")) {
+   if (iConfig.getParameter<bool>("configFromXml")) {
       l1t::trigSystem trgSys;
+      edm::FileInPath hwXmlFile(iConfig.getParameter<std::string>("hwXmlFile"));
+      edm::FileInPath topCfgXmlFile(iConfig.getParameter<std::string>("topCfgXmlFile"));
       // These xml files are for testing the configuration from the online DB 
-      trgSys.configureSystemFromFiles("UGMT_HW.xml", "ugmt_top_config_p5.xml", "TestKey1");
+      trgSys.configureSystemFromFiles(hwXmlFile.fullPath(), topCfgXmlFile.fullPath(), iConfig.getParameter<std::string>("xmlCfgKey"));
 
       m_params_helper.loadFromOnline(trgSys, iConfig.getParameter<std::string>("uGmtProcessorId"));
    } else {

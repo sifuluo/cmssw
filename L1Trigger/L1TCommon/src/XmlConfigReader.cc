@@ -109,9 +109,11 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName, DOMDocument*& do
 {
   parser_->parse(fName.c_str()); 
   doc = parser_->getDocument();
+
   if (! doc) {
     edm::LogError("XmlConfigReader") << "Could not parse file " << fName << "\n";
   }
+
   assert(doc);
 }
 
@@ -120,9 +122,11 @@ void XmlConfigReader::readDOMFromFile(const std::string& fName)
 {
   parser_->parse(fName.c_str()); 
   doc_ = parser_->getDocument();
+
   if (! doc_) {
     edm::LogError("XmlConfigReader") << "Could not parse file " << fName << "\n";
   }
+
   assert(doc_);
 }
 
@@ -192,10 +196,10 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
             // found a parameter
             std::string id = _toString(elem->getAttribute(kAttrId));
             std::string type = _toString(elem->getAttribute(kAttrType));
+            std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
             // the type table needs special treatment since it consists of child nodes
             if (type == kTypeTable) {
-              std::string delim = _toString(elem->getAttribute(kAttrDelim));
 
               // get the columns string
               std::string columnsStr = "";
@@ -252,7 +256,7 @@ void XmlConfigReader::readContext(const DOMElement* element, const std::string& 
               pruneString(value);
 
               //std::cout << "param element node with id attribute " << id << " and type attribute " << type << " with value: [" << value << "]" << std::endl;
-              aTrigSystem.addSetting(type, id, value, contextId);
+              aTrigSystem.addSetting(type, id, value, contextId, delim);
             }
 
           } else if (XMLString::equals(elem->getTagName(), kTagMask)) {
@@ -307,7 +311,7 @@ DOMElement* XmlConfigReader::getKeyElement(const std::string& key)
 }
 
 
-void XmlConfigReader::buildGlobalDoc(const std::string& key)
+void XmlConfigReader::buildGlobalDoc(const std::string& key, const std::string& topPath)
 {
   DOMElement* keyElement = getKeyElement(key);
   if (keyElement) {
@@ -315,6 +319,16 @@ void XmlConfigReader::buildGlobalDoc(const std::string& key)
     for (XMLSize_t i = 0; i < loadElements->getLength(); ++i) {
       DOMElement* loadElement = static_cast<DOMElement*>(loadElements->item(i));
       std::string fileName = _toString(loadElement->getAttribute(kAttrModule));
+      if (fileName.find("/") != 0) { // load element has a relative path
+        // build an absolute path with directory of top xml file
+        size_t pos;
+        std::string topDir = "";
+        pos = topPath.find_last_of("/");
+        if (pos != std::string::npos) {
+          topDir = topPath.substr(0, pos+1);
+        }
+        fileName = topDir + fileName;
+      }
       //std::cout << "loading file " << fileName << std::endl;
       DOMDocument* subDoc = nullptr;
       readDOMFromFile(fileName, subDoc);

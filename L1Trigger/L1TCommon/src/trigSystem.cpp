@@ -21,7 +21,7 @@ void trigSystem::configureSystemFromFiles(const std::string& hwCfgFile, const st
 
         // read configuration xml files
         _xmlRdr.readDOMFromFile(topCfgFile);
-        _xmlRdr.buildGlobalDoc(key);
+        _xmlRdr.buildGlobalDoc(key, topCfgFile);
         _xmlRdr.readContexts(key, sysId_, *this);
 
         isConfigured_ = true;
@@ -36,7 +36,6 @@ void trigSystem::addProcRole(const std::string& processor, const std::string& ro
 			throw std::runtime_error ("Processor: " + processor + " already exists but with different role");
 	}	
 	
-	//std::cout << "Adding processor: " << processor << std::endl;
 	procRole_[processor] = role;
 
 	roleProcs_[role].push_back(processor);
@@ -50,9 +49,8 @@ void trigSystem::addProcCrate(const std::string& processor, const std::string& c
 	daqttcProcs_[crate].push_back(processor);
 }
 
-void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole)
+void trigSystem::addSetting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim)
 {
-	//std::cout << "Adding setting: " << id << std::endl;
 	bool applyOnRole, foundRoleProc(false);
 	for(auto it=procRole_.begin(); it!=procRole_.end(); it++)
 	{
@@ -76,7 +74,7 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 	if (!applyOnRole)
 	{
 		if (!checkIdExistsAndSetSetting_(procSettings_[procRole], id, value, procRole))
-			procSettings_[procRole].push_back(setting(type, id, value, procRole));
+			procSettings_[procRole].push_back(setting(type, id, value, procRole, delim));
 
 	}
 	else
@@ -95,10 +93,10 @@ void trigSystem::addSetting(const std::string& type, const std::string& id, cons
 					}					
 				}
 				if (!settingAlreadyExist)
-					procSettings_.at(*it).push_back(setting(type, id, value, procRole));
+					procSettings_.at(*it).push_back(setting(type, id, value, procRole, delim));
 			}
 			else
-				procSettings_[*it].push_back(setting(type, id, value, procRole));
+				procSettings_[*it].push_back(setting(type, id, value, procRole, delim));
 		}
 
 	}
@@ -201,7 +199,7 @@ bool trigSystem::checkIdExistsAndSetSetting_(std::vector<setting>& vec, const st
 			it->setTableTypes(types);
 			it->setTableColumns(columns);
 			for(auto ir=rows.begin(); ir!=rows.end(); ir++)
-				it->addTableRow(*ir, delim);
+				it->addTableRow(*ir);
 		}
 	}
 
@@ -275,6 +273,7 @@ std::map<std::string, mask> trigSystem::getMasks(const std::string& processor)
 
 bool trigSystem::isMasked(const std::string& processor, const std::string& id)
 {
+
 	if (!isConfigured_)
 		throw std::runtime_error("trigSystem is not configured yet. First call the configureSystem method");
 
