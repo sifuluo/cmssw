@@ -1,3 +1,6 @@
+#include <iomanip>
+#include <strstream>
+
 #include "L1Trigger/L1TMuon/interface/L1TMuonGlobalParamsHelper.h"
 
 L1TMuonGlobalParamsHelper::L1TMuonGlobalParamsHelper(const L1TMuonGlobalParams & p) : L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(p))
@@ -119,6 +122,292 @@ void L1TMuonGlobalParamsHelper::setEOmtfInputFlags(const int &nodeIdx, const siz
 }
 
 
+void L1TMuonGlobalParamsHelper::loadFromOnline(l1t::trigSystem& trgSys, const std::string& processorId)
+{
+  std::string procId = processorId;
+  // if the procId is an empty string use the one from the trigSystem (the uGMT only has one processor)
+  if (procId == "" ) {
+    const std::map<std::string, std::string>& procRoleMap = trgSys.getProcRole();
+    if (procRoleMap.size() != 1) {
+      if (procRoleMap.size() == 0) {
+        edm::LogError("uGMT config from online") << "No processor id found for uGMT HW configuration.";
+      } else {
+        edm::LogError("uGMT config from online") << "More than one processor id found for uGMT HW configuration.";
+      }
+    } else {
+      procId = procRoleMap.cbegin()->first;
+    }
+  }
+
+  // get the settings and masks for the processor id
+  std::map<std::string, l1t::setting> settings = trgSys.getSettings(procId);
+  std::map<std::string, l1t::mask> masks = trgSys.getMasks(procId);
+  //for (auto& it: settings) {
+  //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", type: " << it.second.getType() << ", id: " << it.second.getId() << ", value as string: [" << it.second.getValueAsStr() << "]" << std::endl;
+  //}
+  //for (auto& it: masks) {
+  //   std::cout << "Key: " << it.first << ", procRole: " << it.second.getProcRole() << ", id: " << it.second.getId() << std::endl;
+  //}
+
+  // Use FW version from online config if it is found there. Otherwise set it to 1
+  unsigned fwVersion = 1;
+  if (settings.count("algoRev") > 0) {
+    fwVersion = settings["algoRev"].getValue<unsigned int>();
+  }
+  setFwVersion(fwVersion);
+
+  std::stringstream ss;
+  // uGMT disabled inputs
+  bool disableCaloInputs = settings["caloInputsDisable"].getValue<bool>();
+  std::string bmtfInputsToDisableStr = settings["bmtfInputsToDisable"].getValueAsStr();
+  std::string omtfInputsToDisableStr = settings["omtfInputsToDisable"].getValueAsStr();
+  std::string emtfInputsToDisableStr = settings["emtfInputsToDisable"].getValueAsStr();
+  std::vector<unsigned> bmtfInputsToDisable(12, 0);
+  std::vector<unsigned> omtfInputsToDisable(12, 0);
+  std::vector<unsigned> emtfInputsToDisable(12, 0);
+  // translate the bool and the strings to the vectors
+  for (unsigned i = 0; i < 12; ++i) {
+     ss.str("");
+     ss << "BMTF" << i+1;
+     if (bmtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+        bmtfInputsToDisable[i] = 1;
+     }
+     ss.str("");
+     ss << "OMTF";
+     if (i < 6) {
+        ss << "p" << i+1;
+     } else {
+        ss << "n" << i-5;
+     }
+     if (omtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+        omtfInputsToDisable[i] = 1;
+     }
+     ss.str("");
+     ss << "EMTF";
+     if (i < 6) {
+        ss << "p" << i+1;
+     } else {
+        ss << "n" << i-5;
+     }
+     if (emtfInputsToDisableStr.find(ss.str()) != std::string::npos) {
+        emtfInputsToDisable[i] = 1;
+     }
+  }
+
+  // set the condFormats parameters for uGMT disabled inputs
+  if (disableCaloInputs) {
+     setCaloInputsToDisable(std::bitset<28>(0xFFFFFFF));
+  } else {
+     setCaloInputsToDisable(std::bitset<28>());
+  }
+
+  std::bitset<12> bmtfDisables;
+  for (size_t i = 0; i < bmtfInputsToDisable.size(); ++i) {
+    bmtfDisables.set(i, bmtfInputsToDisable[i] > 0);
+  }
+  setBmtfInputsToDisable(bmtfDisables);
+
+  std::bitset<6> omtfpDisables;
+  std::bitset<6> omtfnDisables;
+  for (size_t i = 0; i < omtfInputsToDisable.size(); ++i) {
+    if (i < 6) {
+      omtfpDisables.set(i, omtfInputsToDisable[i] > 0);
+    } else {
+      omtfnDisables.set(i-6, omtfInputsToDisable[i] > 0);
+    }
+  }
+  setOmtfpInputsToDisable(omtfpDisables);
+  setOmtfnInputsToDisable(omtfnDisables);
+
+  std::bitset<6> emtfpDisables;
+  std::bitset<6> emtfnDisables;
+  for (size_t i = 0; i < emtfInputsToDisable.size(); ++i) {
+    if (i < 6) {
+      emtfpDisables.set(i, emtfInputsToDisable[i] > 0);
+    } else {
+      emtfnDisables.set(i-6, emtfInputsToDisable[i] > 0);
+    }
+  }
+  setEmtfpInputsToDisable(emtfpDisables);
+  setEmtfnInputsToDisable(emtfnDisables);
+
+  // uGMT masked inputs
+  bool caloInputsMasked = true;
+  std::vector<unsigned> maskedBmtfInputs(12, 0);
+  std::vector<unsigned> maskedOmtfInputs(12, 0);
+  std::vector<unsigned> maskedEmtfInputs(12, 0);
+  ss << std::setfill('0');
+  // translate the bool and the strings to the vectors
+  for (unsigned i = 0; i < 28; ++i) {
+     ss.str("");
+     ss << "inputPorts.CaloL2_" << std::setw(2) << i+1;
+     // for now set as unmasked if one input is not masked
+     if (!trgSys.isMasked(procId, ss.str())) {
+        caloInputsMasked = false;
+     }
+     if (i < 12) {
+        ss.str("");
+        ss << "inputPorts.BMTF_" << std::setw(2) << i+1;
+        if (trgSys.isMasked(procId, ss.str())) {
+           maskedBmtfInputs[i] = 1;
+        }
+        ss.str("");
+        ss << "inputPorts.OMTF";
+        if (i < 6) {
+           ss << "+_" << std::setw(2) << i+1;
+        } else {
+           ss << "-_" << std::setw(2) << i-5;
+        }
+        if (trgSys.isMasked(procId, ss.str())) {
+           maskedOmtfInputs[i] = 1;
+        }
+        ss.str("");
+        ss << "inputPorts.EMTF";
+        if (i < 6) {
+           ss << "+_" << std::setw(2) << i+1;
+        } else {
+           ss << "-_" << std::setw(2) << i-5;
+        }
+        if (trgSys.isMasked(procId, ss.str())) {
+           maskedEmtfInputs[i] = 1;
+        }
+     }
+  }
+  ss << std::setfill(' ');
+
+  // set the condFormats parameters for uGMT masked inputs
+  if (caloInputsMasked) {
+     setMaskedCaloInputs(std::bitset<28>(0xFFFFFFF));
+  } else {
+     setMaskedCaloInputs(std::bitset<28>());
+  }
+
+  std::bitset<12> bmtfMasked;
+  for (size_t i = 0; i < maskedBmtfInputs.size(); ++i) {
+    bmtfMasked.set(i, maskedBmtfInputs[i] > 0);
+  }
+  setMaskedBmtfInputs(bmtfMasked);
+
+  std::bitset<6> omtfpMasked;
+  std::bitset<6> omtfnMasked;
+  for (size_t i = 0; i < maskedOmtfInputs.size(); ++i) {
+    if (i < 6) {
+      omtfpMasked.set(i, maskedOmtfInputs[i] > 0);
+    } else {
+      omtfnMasked.set(i-6, maskedOmtfInputs[i] > 0);
+    }
+  }
+  setMaskedOmtfpInputs(omtfpMasked);
+  setMaskedOmtfnInputs(omtfnMasked);
+
+  std::bitset<6> emtfpMasked;
+  std::bitset<6> emtfnMasked;
+  for (size_t i = 0; i < maskedEmtfInputs.size(); ++i) {
+    if (i < 6) {
+      emtfpMasked.set(i, maskedEmtfInputs[i] > 0);
+    } else {
+      emtfnMasked.set(i-6, maskedEmtfInputs[i] > 0);
+    }
+  }
+  setMaskedEmtfpInputs(emtfpMasked);
+  setMaskedEmtfnInputs(emtfnMasked);
+
+  // LUTs from settings with with automatic detection of address width and 31 bit output width
+  setAbsIsoCheckMemLUT(settings["AbsIsoCheckMem"].getLUT());
+  setRelIsoCheckMemLUT(settings["RelIsoCheckMem"].getLUT());
+  setIdxSelMemPhiLUT(settings["IdxSelMemPhi"].getLUT());
+  setIdxSelMemEtaLUT(settings["IdxSelMemEta"].getLUT());
+  setFwdPosSingleMatchQualLUT(settings["EmtfPosSingleMatchQual"].getLUT());
+  setFwdNegSingleMatchQualLUT(settings["EmtfNegSingleMatchQual"].getLUT());
+  setOvlPosSingleMatchQualLUT(settings["OmtfPosSingleMatchQual"].getLUT());
+  setOvlNegSingleMatchQualLUT(settings["OmtfNegSingleMatchQual"].getLUT());
+  setBOPosMatchQualLUT(settings["BOPosMatchQual"].getLUT());
+  setBONegMatchQualLUT(settings["BONegMatchQual"].getLUT());
+  setFOPosMatchQualLUT(settings["EOPosMatchQual"].getLUT());
+  setFONegMatchQualLUT(settings["EONegMatchQual"].getLUT());
+  setBPhiExtrapolationLUT(settings["BPhiExtrapolation"].getLUT());
+  setOPhiExtrapolationLUT(settings["OPhiExtrapolation"].getLUT());
+  setFPhiExtrapolationLUT(settings["EPhiExtrapolation"].getLUT());
+  setBEtaExtrapolationLUT(settings["BEtaExtrapolation"].getLUT());
+  setOEtaExtrapolationLUT(settings["OEtaExtrapolation"].getLUT());
+  setFEtaExtrapolationLUT(settings["EEtaExtrapolation"].getLUT());
+  setSortRankLUT(settings["SortRank"].getLUT());
+}
+
+
+// setters for cancel out LUT parameters
+void L1TMuonGlobalParamsHelper::setFwdPosSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fPhi)
+{
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdPosSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setFwdNegSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fPhi)
+{
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[fwdNegSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setOvlPosSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[ovlPosSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setOvlNegSingleMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(maxDR);
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fEta);
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[ovlNegSingleMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setBOPosMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[bOPosMatchQual].dparams_.push_back(maxDR);
+  pnodes_[bOPosMatchQual].dparams_.push_back(fEta);
+  pnodes_[bOPosMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[bOPosMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setBONegMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[bONegMatchQual].dparams_.push_back(maxDR);
+  pnodes_[bONegMatchQual].dparams_.push_back(fEta);
+  pnodes_[bONegMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[bONegMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setFOPosMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[fOPosMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fOPosMatchQual].dparams_.push_back(fEta);
+  pnodes_[fOPosMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[fOPosMatchQual].dparams_.push_back(fPhi);
+}
+
+
+void L1TMuonGlobalParamsHelper::setFONegMatchQualLUTMaxDR (double maxDR, double fEta, double fEtaCoarse, double fPhi)
+{
+  pnodes_[fONegMatchQual].dparams_.push_back(maxDR);
+  pnodes_[fONegMatchQual].dparams_.push_back(fEta);
+  pnodes_[fONegMatchQual].dparams_.push_back(fEtaCoarse);
+  pnodes_[fONegMatchQual].dparams_.push_back(fPhi);
+}
+
+
 void L1TMuonGlobalParamsHelper::print(std::ostream& out) const {
 
   out << "L1 MicroGMT Parameters" << std::endl;
@@ -140,8 +429,8 @@ void L1TMuonGlobalParamsHelper::print(std::ostream& out) const {
   out << " Forward neg MatchQual LUT path: "         << this->fwdNegSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fwdNegSingleMatchQualLUTMaxDR() << std::endl;
   out << " Overlap pos MatchQual LUT path: "         << this->ovlPosSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->ovlPosSingleMatchQualLUTMaxDR() << std::endl;
   out << " Overlap neg MatchQual LUT path: "         << this->ovlNegSingleMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->ovlNegSingleMatchQualLUTMaxDR() << std::endl;
-  out << " Barrel-Overlap pos MatchQual LUT path: "  << this->bOPosMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->bOPosMatchQualLUTMaxDR() << ", max dR when eta-fine bit set: " << this->bOPosMatchQualLUTMaxDREtaFine() << std::endl;
-  out << " Barrel-Overlap neg MatchQual LUT path: "  << this->bONegMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->bONegMatchQualLUTMaxDR() << ", max dR when eta-fine bit set: " << this->bONegMatchQualLUTMaxDREtaFine() << std::endl;
+  out << " Barrel-Overlap pos MatchQual LUT path: "  << this->bOPosMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->bOPosMatchQualLUTMaxDR() << ", fEta: " << this->bOPosMatchQualLUTfEta() << ", fEta when eta-fine bit isn't set: " << this->bOPosMatchQualLUTfEtaCoarse() << ", fPhi: " << this->bOPosMatchQualLUTfEta() << std::endl;
+  out << " Barrel-Overlap neg MatchQual LUT path: "  << this->bONegMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->bONegMatchQualLUTMaxDR() << ", fEta: " << this->bONegMatchQualLUTfEta() << ", fEta when eta-fine bit isn't set: " << this->bONegMatchQualLUTfEtaCoarse() << ", fPhi: " << this->bONegMatchQualLUTfPhi() << std::endl;
   out << " Forward-Overlap pos MatchQual LUT path: " << this->fOPosMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fOPosMatchQualLUTMaxDR() << std::endl;
   out << " Forward-Overlap neg MatchQual LUT path: " << this->fONegMatchQualLUTPath() << ", max dR (Used when LUT path empty): " << this->fONegMatchQualLUTMaxDR() << std::endl;
   out << " Barrel phi extrapolation LUT path: "      << this->bPhiExtrapolationLUTPath() << std::endl;
