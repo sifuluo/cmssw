@@ -69,7 +69,8 @@ process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
                                                           'uGTrs',
                                                           'uGMT',
                                                           'CALO',
-                                                          'BMTF'
+                                                          'BMTF',
+                                                          'OMTF'
                                                         )
 
 # Generate configuration data from OMDS
