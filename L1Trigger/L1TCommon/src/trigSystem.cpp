@@ -163,7 +163,7 @@ std::map<std::string, setting> trigSystem::getSettings(const std::string& proces
 		throw std::runtime_error ("Processor " + processor + " was not found in the trigSystem object list");
 
 	std::map<std::string, setting> settings;
-	std::vector<setting> vecSettings = procSettings_.at(processor);
+	const std::vector<setting>& vecSettings = procSettings_.at(processor);
 	for(auto it=vecSettings.begin(); it!=vecSettings.end(); it++)
 		settings.insert(std::pair<std::string, setting>(it->getId(), *it));
 

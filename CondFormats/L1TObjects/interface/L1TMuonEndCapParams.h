@@ -2,8 +2,8 @@
 // L1TMuonEndCapParams: parameters needed to calculte the EMTF algorithm
 //
 
-#ifndef l1t_L1TMuonendCapParams_h
-#define l1t_L1TMuonendCapParams_h
+#ifndef l1t_L1TMuonEndCapParams_h
+#define l1t_L1TMuonEndCapParams_h
 
 #include <memory>
 #include <iostream>
