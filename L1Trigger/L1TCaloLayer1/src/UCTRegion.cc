@@ -111,21 +111,27 @@ bool UCTRegion::process() {
   // Process towers and calculate total ET for the region
   uint32_t regionET = 0;
   uint32_t regionEcalET = 0;
+  bool doPegToMax = false;
+  bool doPegEMToMax = false;
   for(uint32_t twr = 0; twr < towers.size(); twr++) {
     if(!towers[twr]->process()) {
       LOG_ERROR << "Tower level processing failed. Bailing out :(" << std::endl;
       return false;
     }
     regionET += towers[twr]->et();
-    // Calculate regionEcalET 
-    regionEcalET += towers[twr]->getEcalET();
+    if(towers[twr]->et() == etInputMax) doPegToMax = true;
+    if(region < NRegionsInCard) {
+      regionEcalET += towers[twr]->getEcalET();
+      if(towers[twr]->getEcalET() == etInputMax) doPegEMToMax = true;
+    }
   }
-  if(regionET > RegionETMask) {
+  if(regionET > RegionETMask || doPegToMax) {
     LOG_ERROR << "L1TCaloLayer1::UCTRegion::Pegging RegionET" << std::endl;
     regionET = RegionETMask;
   }
-  regionSummary = (RegionETMask & regionET);
-  if(regionEcalET > RegionETMask) regionEcalET = RegionETMask;
+  if(regionEcalET > RegionETMask || doPegEMToMax) regionEcalET = RegionETMask;
+
+  uint32_t hitTowerLocation = 0;
 
   // For central regions determine extra bits
 
@@ -166,7 +172,7 @@ bool UCTRegion::process() {
       }
     }
     uint32_t hitIPhi = getHitTowerLocation(sumETIPhi);
-    uint32_t hitTowerLocation = hitIEta * nPhi + hitIPhi;
+    hitTowerLocation = hitIEta * nPhi + hitIPhi;
     // Calculate (energy deposition) active tower pattern
     bitset<4> activeTowerEtaPattern = 0;
     for(uint32_t iEta = 0; iEta < nEta; iEta++) {
@@ -193,22 +199,53 @@ bool UCTRegion::process() {
     if((regionET - regionEcalET) > maxMiscActivityLevelForEG) egVeto = true;
     if((regionET - activeTowerET) > maxMiscActivityLevelForTau) tauVeto = true;
         
+    regionSummary = (RegionETMask & regionET);
     if(egVeto) regionSummary |= RegionEGVeto;
     if(tauVeto) regionSummary |= RegionTauVeto;
 
-    regionSummary |= (hitTowerLocation << LocationShift);
+  }
 
-    // Extra bits, not in readout, but implicit from their location in data packet for full location information
+  else {
 
-    if(negativeEta) regionSummary |= NegEtaBit;  // Used top bit for +/- eta-side
-    regionSummary |= (region << RegionNoShift);  // Max region number 14, so 4 bits needed
-    regionSummary |= (card   << CardNoShift);    // Max card number is 6, so 3 bits needed
-    regionSummary |= (crate  << CrateNoShift);   // Max crate number is 2, so 2 bits needed
+    // HF Region - 8-bit ET
+
+    if(regionET <= 0xFF) 
+      regionSummary = regionET;
+    else
+      regionSummary = 0xFF;
+
+    // HF Region - hitTowerLocation - 0-3 or 0-1, i.e., Maximum of 2-bits
+    // Hit Tower Location is not close packed in region Summary for convenience
+
+    if(nPhi == 2) { // HF regions are made of 2x2 etaxphi towers
+      uint32_t towerETEta0 = towers[0]->et() + towers[1]->et();
+      uint32_t towerETEta1 = towers[2]->et() + towers[3]->et();
+      if(towerETEta1 > towerETEta0) hitTowerLocation |= 0x1;
+      uint32_t towerETPhi0 = towers[0]->et() + towers[2]->et();
+      uint32_t towerETPhi1 = towers[1]->et() + towers[3]->et();
+      if(towerETPhi1 > towerETPhi0) hitTowerLocation |= 0x2;
+    }
+    else if(nPhi == 1) { // Highest HF region only has one phi, i.e., 2x1 etaxphi
+      if(towers[1]->et() > towers[0]->et()) hitTowerLocation = 0x1;
+    }
+    else {
+      LOG_ERROR << "HF Region processing failed due to geometry error :(" << std::endl;
+      return false;
+    }
 
   }
 
+  regionSummary |= (hitTowerLocation << LocationShift);
+  
+  // Extra bits, not in readout, but implicit from their location in data packet for full location information
+  
+  if(negativeEta) regionSummary |= NegEtaBit;  // Used top bit for +/- eta-side
+  regionSummary |= (region << RegionNoShift);  // Max region number 14, so 4 bits needed
+  regionSummary |= (card   << CardNoShift);    // Max card number is 6, so 3 bits needed
+  regionSummary |= (crate  << CrateNoShift);   // Max crate number is 2, so 2 bits needed
+  
   return true;
-
+  
 }
 
 bool UCTRegion::clearEvent() {
