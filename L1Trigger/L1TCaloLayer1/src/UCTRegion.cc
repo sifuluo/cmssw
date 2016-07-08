@@ -223,7 +223,8 @@ bool UCTRegion::process() {
       towerETEta0 += towers[iPhi]->et();
       towerETEta1 += towers[nPhi+iPhi]->et();
     }
-    if(towerETEta1 > towerETEta0) hitTowerLocation |= 0x1;
+    uint32_t hitTowerEta = 0;
+    if(towerETEta1 > towerETEta0) hitTowerEta = 1;
     uint32_t towerETPhi0 = 0;
     uint32_t towerETPhi1 = 0;
     for(uint32_t iEta = 0; iEta < nEta; iEta++) {
@@ -232,8 +233,9 @@ bool UCTRegion::process() {
 	towerETPhi1 += towers[iEta*nPhi+(nPhi/2)+iPhi]->et();
       }
     }
-    if(towerETPhi1 > towerETPhi0) hitTowerLocation |= 0x4;
-
+    uint32_t hitTowerPhi = 0;
+    if(towerETPhi1 > towerETPhi0) hitTowerPhi = nPhi/2;
+    hitTowerLocation = hitTowerEta*nPhi + hitTowerPhi;
   }
 
   regionSummary |= (hitTowerLocation << LocationShift);
