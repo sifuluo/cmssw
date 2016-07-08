@@ -68,7 +68,7 @@ namespace l1tcalo {
   constexpr uint32_t CaloVHFRegionStart{12};
 
   constexpr uint32_t MaxUCTRegionsPhi{MaxCaloPhi / NPhiInRegion};
-  constexpr uint32_t MaxUCTRegionsEta{2 * (NRegionsInCard + NHFRegionsInCard)};
+  constexpr uint32_t MaxUCTRegionsEta{NRegionsInCard + NHFRegionsInCard}; // Labelled -MaxUCTRegionsEta to +MaxUCTRegionsEta skipping 0
 }
 
 typedef std::pair<int, uint32_t> UCTRegionIndex;
@@ -163,7 +163,6 @@ public:
   uint32_t getUCTRegionPhiIndex(uint32_t crate, uint32_t card);
 
   int getUCTRegionEtaIndex(bool negativeSide, uint32_t region) {
-    if(!checkRegion(region)) return 0xDEADBEEF;
     if(negativeSide) return -(region + 1);
     else return (region + 1);
   }

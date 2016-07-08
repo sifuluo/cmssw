@@ -89,7 +89,9 @@ const UCTRegion* UCTCard::getRegion(bool nE, uint32_t cEta, uint32_t cPhi) const
   uint32_t i = g.getRegion(cEta, cPhi) * 2;
   if(!nE) i++;
   if(i > regions.size()) {
-    LOG_ERROR << "UCTCard: Incorrect region requested -- bailing" << std::endl;
+    LOG_ERROR << "UCTCard: Incorrect region requested -- bailing ; (cEta, cPhi) = (" 
+	      << cEta << ", " << cPhi << ")"
+	      << std::endl;
     exit(1);
   }
   return regions[i];

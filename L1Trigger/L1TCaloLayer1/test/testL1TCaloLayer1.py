@@ -1,5 +1,6 @@
 import os
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 import EventFilter.L1TXRawToDigi.util as util
 
@@ -31,7 +32,7 @@ if len(inputFiles) is 0 :
     raise Exception('No files found for dataset %s run %d' % (options.dataStream, options.runNumber))
 print 'Ok, time to analyze'
 
-process = cms.Process("L1TCaloLayer1Test")
+process = cms.Process("L1TCaloLayer1Test", eras.Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
