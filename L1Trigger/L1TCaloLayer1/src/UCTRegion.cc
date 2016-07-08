@@ -214,24 +214,25 @@ bool UCTRegion::process() {
     else
       regionSummary = 0xFF;
 
-    // HF Region - hitTowerLocation - 0-3 or 0-1, i.e., Maximum of 2-bits
-    // Hit Tower Location is not close packed in region Summary for convenience
+    // HF Region - hitTowerLocation will be 0-3 for caloEta = 30-39 and 0-1 for caloEta = 40-41
+    // Hit Tower Location is stored in the same bits of region Summary as for central regions for convenience
 
-    if(nPhi == 2) { // HF regions are made of 2x2 etaxphi towers
-      uint32_t towerETEta0 = towers[0]->et() + towers[1]->et();
-      uint32_t towerETEta1 = towers[2]->et() + towers[3]->et();
-      if(towerETEta1 > towerETEta0) hitTowerLocation |= 0x1;
-      uint32_t towerETPhi0 = towers[0]->et() + towers[2]->et();
-      uint32_t towerETPhi1 = towers[1]->et() + towers[3]->et();
-      if(towerETPhi1 > towerETPhi0) hitTowerLocation |= 0x2;
+    uint32_t towerETEta0 = 0;
+    uint32_t towerETEta1 = 0;
+    for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
+      towerETEta0 += towers[iPhi]->et();
+      towerETEta1 += towers[nPhi+iPhi]->et();
     }
-    else if(nPhi == 1) { // Highest HF region only has one phi, i.e., 2x1 etaxphi
-      if(towers[1]->et() > towers[0]->et()) hitTowerLocation = 0x1;
+    if(towerETEta1 > towerETEta0) hitTowerLocation |= 0x1;
+    uint32_t towerETPhi0 = 0;
+    uint32_t towerETPhi1 = 0;
+    for(uint32_t iEta = 0; iEta < nEta; iEta++) {
+      for(uint32_t iPhi = 0; iPhi < nPhi/2; iPhi++) {
+	towerETPhi0 += towers[iEta*nPhi+iPhi]->et();
+	towerETPhi1 += towers[iEta*nPhi+(nPhi/2)+iPhi]->et();
+      }
     }
-    else {
-      LOG_ERROR << "HF Region processing failed due to geometry error :(" << std::endl;
-      return false;
-    }
+    if(towerETPhi1 > towerETPhi0) hitTowerLocation |= 0x4;
 
   }
 
