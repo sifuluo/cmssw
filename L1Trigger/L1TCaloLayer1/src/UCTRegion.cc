@@ -9,6 +9,7 @@ using std::string;
 
 #include "UCTRegion.hh"
 
+#include "UCTParameters.hh"
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 
@@ -21,10 +22,6 @@ using namespace l1tcalo;
 // (activityLevelShift, %) = (1, 50%), (2, 25%), (3, 12.5%), (4, 6.125%), (5, 3.0625%)
 // Cutting any tighter is rather dangerous
 // For the moment we use floating point arithmetic 
-
-const float activityFraction = 0.125;
-const float ecalActivityFraction = 0.25;
-const float miscActivityFraction = 0.25;
 
 bool vetoBit(bitset<4> etaPattern, bitset<4> phiPattern) {
 
@@ -69,12 +66,14 @@ uint32_t getHitTowerLocation(uint32_t *et) {
   return iAve;
 }
 
-UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn) :
+UCTRegion::UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, UCTParameters *parameters) :
   crate(crt),
   card(crd),
   region(rgn),
   negativeEta(ne),
-  regionSummary(0) {
+  uctParameters(parameters),
+  regionSummary(0)
+{
   UCTGeometry g;
   uint32_t nEta = g.getNEta(region);
   uint32_t nPhi = g.getNPhi(region);
@@ -139,7 +138,7 @@ bool UCTRegion::process() {
     // Identify active towers
     // Tower ET must be a decent fraction of RegionET
     bool activeTower[nEta][nPhi];
-    uint32_t activityLevel = ((uint32_t) ((float) regionET) * activityFraction);
+    uint32_t activityLevel = ((uint32_t) ((float) regionET) * uctParameters->activityFraction());
     uint32_t nActiveTowers = 0;
     uint32_t activeTowerET = 0;
     for(uint32_t iPhi = 0; iPhi < nPhi; iPhi++) {
@@ -194,8 +193,8 @@ bool UCTRegion::process() {
     bool veto = vetoBit(activeTowerEtaPattern, activeTowerPhiPattern);
     bool egVeto = veto;
     bool tauVeto = veto;
-    uint32_t maxMiscActivityLevelForEG = ((uint32_t) ((float) regionET) * ecalActivityFraction);
-    uint32_t maxMiscActivityLevelForTau = ((uint32_t) ((float) regionET) * miscActivityFraction);
+    uint32_t maxMiscActivityLevelForEG = ((uint32_t) ((float) regionET) * uctParameters->ecalActivityFraction());
+    uint32_t maxMiscActivityLevelForTau = ((uint32_t) ((float) regionET) * uctParameters->miscActivityFraction());
     if((regionET - regionEcalET) > maxMiscActivityLevelForEG) egVeto = true;
     if((regionET - activeTowerET) > maxMiscActivityLevelForTau) tauVeto = true;
         

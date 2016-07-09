@@ -6,6 +6,8 @@
 
 #include "UCTTower.hh"
 
+class UCTParameters;
+
 namespace l1tcalo {
   constexpr uint32_t RegionETMask { 0x000003FF};
   constexpr uint32_t RegionEGVeto { 0x00000400};
@@ -25,7 +27,7 @@ namespace l1tcalo {
 class UCTRegion {
 public:
 
-  UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn);
+  UCTRegion(uint32_t crt, uint32_t crd, bool ne, uint32_t rgn, UCTParameters *parameters);
 
   virtual ~UCTRegion();
 
@@ -113,6 +115,10 @@ protected:
   uint32_t card;
   uint32_t region;
   bool negativeEta;
+
+  // UCT parameters
+
+  UCTParameters *uctParameters;
 
   // Owned region level data 
 

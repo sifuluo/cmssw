@@ -32,14 +32,15 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "L1Trigger/L1TCaloLayer1/src/UCTParameters.hh"
+#include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
+#include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
+
 #include "L1Trigger/L1TCaloLayer1/src/UCTLayer1.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTCrate.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTCard.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTRegion.hh"
 #include "L1Trigger/L1TCaloLayer1/src/UCTTower.hh"
-
-#include "L1Trigger/L1TCaloLayer1/src/UCTGeometry.hh"
-#include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -96,6 +97,7 @@ private:
   bool unpackHcalMask;
   bool unpackEcalMask;
 
+  UCTParameters uctParameters;
   UCTLayer1 *layer1;
 
 };
@@ -127,11 +129,14 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig) :
   useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
   verbose(iConfig.getParameter<bool>("verbose")), 
   unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
-  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask"))
+  unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask")),
+  uctParameters(iConfig.getParameter<double>("activityFraction"), 
+		iConfig.getParameter<double>("ecalActivityFraction"), 
+		iConfig.getParameter<double>("miscActivityFraction"))
 {
   produces<CaloTowerBxCollection>();
   produces<L1CaloRegionCollection>();
-  layer1 = new UCTLayer1;
+  layer1 = new UCTLayer1(&uctParameters);
   vector<UCTCrate*> crates = layer1->getCrates();
   for(uint32_t crt = 0; crt < crates.size(); crt++) {
     vector<UCTCard*> cards = crates[crt]->getCards();
