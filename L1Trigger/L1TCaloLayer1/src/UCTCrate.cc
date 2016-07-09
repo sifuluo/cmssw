@@ -7,12 +7,12 @@
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 
-UCTCrate::UCTCrate(uint32_t crt) :
+UCTCrate::UCTCrate(uint32_t crt, UCTParameters *parameters) :
   crate(crt),
   crateSummary(0) {
   UCTGeometry g;
   for(uint32_t card = 0; card < g.getNCards(); card++) {
-    cards.push_back(new UCTCard(crate, card));
+    cards.push_back(new UCTCard(crate, card, parameters));
   }
 }
 

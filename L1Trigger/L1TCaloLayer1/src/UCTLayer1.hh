@@ -3,6 +3,7 @@
 
 #include <vector>
 
+class UCTParameters;
 class UCTCrate;
 class UCTRegion;
 class UCTTower;
@@ -12,7 +13,7 @@ class UCTTower;
 class UCTLayer1 {
 public:
 
-  UCTLayer1();
+  UCTLayer1(UCTParameters *p = nullptr);
 
   virtual ~UCTLayer1();
 
@@ -54,6 +55,8 @@ private:
   const UCTTower* getTower(int caloEtaIndex, int caloPhiIndex) const;
 
   //Private data
+
+  UCTParameters* parameters;
 
   std::vector<UCTCrate*> crates;
 
