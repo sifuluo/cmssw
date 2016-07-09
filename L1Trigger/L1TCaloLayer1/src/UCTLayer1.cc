@@ -10,16 +10,19 @@
 #include "UCTRegion.hh"
 #include "UCTTower.hh"
 
+#include "UCTParameters.hh"
 #include "UCTGeometry.hh"
 #include "UCTLogging.hh"
 
 using namespace l1tcalo;
 
-UCTLayer1::UCTLayer1() : uctSummary(0) {
+UCTLayer1::UCTLayer1(UCTParameters *p) : parameters(p), uctSummary(0) 
+{
+  if(parameters == nullptr) parameters = new UCTParameters();
   UCTGeometry g;
   crates.reserve(g.getNCrates());
   for(uint32_t crate = 0; crate < g.getNCrates(); crate++) {
-    crates.push_back(new UCTCrate(crate));
+    crates.push_back(new UCTCrate(crate, parameters));
   }
 }
 

@@ -5,12 +5,13 @@
 
 #include "UCTGeometry.hh"
 
+class UCTParameters;
 class UCTCard;
 
 class UCTCrate {
 public:
 
-  UCTCrate(uint32_t crt);
+  UCTCrate(uint32_t crt, UCTParameters *p);
 
   virtual ~UCTCrate();
 

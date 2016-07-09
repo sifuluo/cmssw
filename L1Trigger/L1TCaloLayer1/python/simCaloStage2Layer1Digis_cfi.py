@@ -17,4 +17,7 @@ simCaloStage2Layer1Digis = cms.EDProducer(
     verbose = cms.bool(False),
     unpackEcalMask = cms.bool(False),
     unpackHcalMask = cms.bool(False),
+    activityFraction = cms.double(0.125),
+    ecalActivityFraction = cms.double(0.25),
+    miscActivityFraction = cms.double(0.25),
     )
