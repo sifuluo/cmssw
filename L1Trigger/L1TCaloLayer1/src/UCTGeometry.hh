@@ -121,9 +121,6 @@ public:
   //  UCTRegionPhiIndices are 0-17
   //  UCTRegionEtaIndices are 1-7 for EB/HB+EE/HE and 8-13 for HF, 
   //   with negative values for negative eta, and zero being illegal
-  //  GCTRegionPhiIndices are the same
-  //  GCTRegionEtaIndices are 4-10 for -7 thru -1 and 11-17 for 1 thru 7
-  //  GCTRegionEtaIndices 0-3 are for -HF and 18-22 are for +HF, which are now unused!
   // We label by the pair (UCTRegionPhiIndex, UCTRegionEtaIndex)
 
   uint32_t getUCTRegionPhiIndex(int caloPhi) {
@@ -131,33 +128,12 @@ public:
     else if(caloPhi < 73) return 0;
     else return 0xDEADBEEF;
   }
-  uint32_t getGCTRegionPhiIndex(int caloPhi) {return getUCTRegionPhiIndex(caloPhi);}
-  uint32_t getGCTRegionPhiIndex(UCTRegionIndex r) {return r.second;}
 
   int getUCTRegionEtaIndex(int caloEta) {
     // Region index is same for all phi; so get for phi = 1
     uint32_t rgn = getRegion(caloEta, 1);
     if(caloEta < 0) return -(rgn+1);
     return (rgn+1);
-  }
-  uint32_t getGCTRegionEtaIndex(int caloEta) {
-    uint32_t gctEta = 0xDEADBEEF;
-    // Region index is same for all phi; so get for phi = 1
-    uint32_t region = getRegion(caloEta, 1);
-    if(caloEta > 0 && region < l1tcalo::NRegionsInCard)
-      gctEta = region + 11;
-    else if(caloEta < 0 && region < l1tcalo::NRegionsInCard)
-      gctEta = 10 - region;
-    return gctEta;
-  }
-  uint32_t getGCTRegionEtaIndex(UCTRegionIndex r) {
-    uint32_t gctEta = 0xDEADBEEF;
-    uint32_t region = std::abs(r.first)-1;
-    if(r.first > 0 && region < l1tcalo::NRegionsInCard)
-      gctEta = region + 11;
-    else if(r.first < 0 && region < l1tcalo::NRegionsInCard)
-      gctEta = 10 - region;
-    return gctEta;
   }
 
   uint32_t getUCTRegionPhiIndex(uint32_t crate, uint32_t card);
