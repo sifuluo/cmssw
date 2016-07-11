@@ -10,9 +10,3 @@ L1TMuonBarrelParams::L1TMuonBarrelParams() :
   version_=Version;
 }
 
-void L1TMuonBarrelParams::print(std::ostream& out) const {
-
-  out << "L1 BMTF Parameters" << std::endl;
-
-  out << "Firmware version: " << fwVersion_ << std::endl;
-}

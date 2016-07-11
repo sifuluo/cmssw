@@ -122,21 +122,21 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
     if( !queryResult.fillVariable( "ALGO", calol1_algo_key ) ) calol1_algo_key = "";
 
 //  No Layer2 for the moment
-//    queryResult =
-//            m_omdsReader.basicQuery( queryStrings,
-//                                     stage2Schema,
-//                                     "CALOL2_KEYS",
-//                                     "CALOL2_KEYS.ID",
-//                                     m_omdsReader.singleAttribute(calol2_conf_key)
-//                                   ) ;
-//
-//    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-//        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_KEYS.ALGO for ID="<<calol2_conf_key;
-//        throw std::runtime_error("Broken key");
-/////        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
-//    }
-//
-//    if( !queryResult.fillVariable( "ALGO", calol2_algo_key ) ) calol2_algo_key = "";
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_KEYS",
+                                     "CALOL2_KEYS.ID",
+                                     m_omdsReader.singleAttribute(calol2_conf_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_KEYS.ALGO for ID="<<calol2_conf_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "ALGO", calol2_algo_key ) ) calol2_algo_key = "";
 
 
     // Now querry the actual payloads
@@ -166,26 +166,154 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
     // remember ALGO configuration
     payloads[kCONF][calol1_algo_key.append("_L1")] = xmlPayload;
 
+    std::string calol2_demux_key, calol2_mps_common_key, calol2_mps_jet_key, calol2_mp_egamma_key, calol2_mp_sum_key, calol2_mp_tau_key;
 
-        // No CALOL2 ALGO configuration for the moment
-///    queryResult =
-///            m_omdsReader.basicQuery( queryStrings,
-///                                     stage2Schema,
-///                                     "CALOL2_ALGO",
-///                                     "CALOL2_ALGO.ID",
-///                                     m_omdsReader.singleAttribute(calol2_algo_key)
-///                                   ) ;
-///
-///    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
-///        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_algo_key;
-///        throw std::runtime_error("Broken key");
-//////        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
-///    }
-///
-///    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
-///    // remember ALGO configuration
-///    payloads[kCONF][calol2_algo_key.append("_L2")] = xmlPayload;
+    queryStrings.clear();
+    queryStrings.push_back( "DEMUX"      );
+    queryStrings.push_back( "MPS_COMMON" );
+    queryStrings.push_back( "MPS_JET"    );
+    queryStrings.push_back( "MP_EGAMMA"  );
+    queryStrings.push_back( "MP_SUM"     );
+    queryStrings.push_back( "MP_TAU"     );
 
+    // No CALOL2 ALGO configuration for the moment
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO_KEYS",
+                                     "CALOL2_ALGO_KEYS.ID",
+                                     m_omdsReader.singleAttribute(calol2_algo_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO_KEYS.{DEMUX,MPS_COMMON,MPS_JET,MP_EGAMMA,MP_SUM,MP_TAU} for ID="<<calol2_algo_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "DEMUX",      calol2_demux_key      ) ) calol2_demux_key      = "";
+    if( !queryResult.fillVariable( "MPS_COMMON", calol2_mps_common_key ) ) calol2_mps_common_key = "";
+    if( !queryResult.fillVariable( "MPS_JET",    calol2_mps_jet_key    ) ) calol2_mps_jet_key    = "";
+    if( !queryResult.fillVariable( "MP_EGAMMA",  calol2_mp_egamma_key  ) ) calol2_mp_egamma_key  = "";
+    if( !queryResult.fillVariable( "MP_SUM",     calol2_mp_sum_key     ) ) calol2_mp_sum_key     = "";
+    if( !queryResult.fillVariable( "MP_TAU",     calol2_mp_tau_key     ) ) calol2_mp_tau_key     = "";
+
+    queryStrings.clear();
+    queryStrings.push_back( "CONF" );
+
+    // query CALOL2 ALGO configuration
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO",
+                                     "CALOL2_ALGO.ID",
+                                     m_omdsReader.singleAttribute(calol2_demux_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_demux_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember ALGO configuration
+    payloads[kCONF][calol2_demux_key.append("_L2")] = xmlPayload;
+
+    // query CALOL2 ALGO configuration
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO",
+                                     "CALOL2_ALGO.ID",
+                                     m_omdsReader.singleAttribute(calol2_mps_common_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mps_common_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember ALGO configuration
+    payloads[kCONF][calol2_mps_common_key.append("_L2")] = xmlPayload;
+
+    // query CALOL2 ALGO configuration
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO",
+                                     "CALOL2_ALGO.ID",
+                                     m_omdsReader.singleAttribute(calol2_mps_jet_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mps_jet_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember ALGO configuration
+    payloads[kCONF][calol2_mps_jet_key.append("_L2")] = xmlPayload;
+
+    // query CALOL2 ALGO configuration
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO",
+                                     "CALOL2_ALGO.ID",
+                                     m_omdsReader.singleAttribute(calol2_mp_egamma_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mp_egamma_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember ALGO configuration
+    payloads[kCONF][calol2_mp_egamma_key.append("_L2")] = xmlPayload;
+
+    // query CALOL2 ALGO configuration
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO",
+                                     "CALOL2_ALGO.ID",
+                                     m_omdsReader.singleAttribute(calol2_mp_sum_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mp_sum_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember ALGO configuration
+    payloads[kCONF][calol2_mp_sum_key.append("_L2")] = xmlPayload;
+
+    // query CALOL2 ALGO configuration
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_ALGO",
+                                     "CALOL2_ALGO.ID",
+                                     m_omdsReader.singleAttribute(calol2_mp_tau_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_ALGO.CONF for ID="<<calol2_mp_tau_key;
+        throw std::runtime_error("Broken key");
+///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember ALGO configuration
+    payloads[kCONF][calol2_mp_tau_key.append("_L2")] = xmlPayload;
 
 
     // for debugging purposes dump the configs to local files

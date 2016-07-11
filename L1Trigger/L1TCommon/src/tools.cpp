@@ -11,13 +11,36 @@ void str2VecStr_(const std::string& aStr, const std::string& delim, std::vector<
                 throw std::runtime_error ("Wrong value format: " + aStr);
         }
 
-        for(auto it = aVec.begin(); it != aVec.end(); it++)
+        for(auto it = aVec.begin(); it != aVec.end(); ++it)
         {
                 while (*(it->begin()) == ' ')
                         it->erase(it->begin());
                 while (*(it->end()-1) == ' ')
             it->erase(it->end()-1);
         }
+}
+
+std::vector<std::string> str2VecStr_(const std::string& aStr, const std::string& delim)
+{
+        std::vector<std::string> aVec;
+
+        if ( !parse ( aStr.c_str(),
+        (
+                  (  (*(boost::spirit::classic::anychar_p - delim.c_str() )) [boost::spirit::classic::push_back_a ( aVec ) ] % delim.c_str() )
+        ), boost::spirit::classic::nothing_p ).full )
+        {
+                throw std::runtime_error ("Wrong value format: " + aStr);
+        }
+
+        for(auto it = aVec.begin(); it != aVec.end(); ++it)
+        {
+                while (*(it->begin()) == ' ')
+                        it->erase(it->begin());
+                while (*(it->end()-1) == ' ')
+            it->erase(it->end()-1);
+        }
+
+        return aVec;
 }
 
 unsigned int convertFromHexStringToInt(const std::string& aHexString)
