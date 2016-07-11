@@ -21,6 +21,7 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTLUTFactories.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
@@ -44,7 +45,7 @@ class L1TMuonBarrelParamsESProducer : public edm::ESProducer {
 
       ReturnType produce(const L1TMuonBarrelParamsRcd&);
    private:
-      L1TMuonBarrelParams m_params;
+      L1TMuonBarrelParamsHelper m_params;
 };
 
 //
