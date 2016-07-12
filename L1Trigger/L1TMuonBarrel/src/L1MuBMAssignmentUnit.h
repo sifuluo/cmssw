@@ -37,7 +37,6 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMLUTHandler.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
-#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "L1Trigger/L1TMuonBarrel/src/L1MuBMAddressArray.h"

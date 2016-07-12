@@ -31,6 +31,7 @@
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
+#include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 
 //              ---------------------

@@ -19,7 +19,11 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
-
+#include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
 
 class L1TMuonBarrelParams {
 public:
@@ -56,12 +60,16 @@ public:
 	 OutOfTime_Filter,
 	 Open_LUTs,
 	 EtaTrackFinder,
-	 Extrapolation_21, 
+	 Extrapolation_21,
+	 DisableNewAlgo,
 	 NUM_CONFIG_PARAMS};
 
   // after initial integration with downstream code, a small update will change:
   L1MuDTTFParameters  l1mudttfparams;
   L1MuDTTFMasks       l1mudttfmasks;
+  L1MuDTExtLut        l1mudttfextlut;
+  L1MuDTQualPatternLut l1mudttfqualplut;
+  L1MuDTEtaPatternLut  l1mudttfetaplut;
   // to this:
   //L1MuDTTFParameters & l1mudttfparams(){return l1mudttfparams_[0]; }
   //L1MuDTTFMasks &      l1mudttfmasks(){return l1mudttfmasks_[0]; }
@@ -74,7 +82,7 @@ public:
   typedef std::map< LUTID, LUTCONT > qpLUT;
   ///Eta Pattern LUT
   typedef std::map<short, L1MuDTEtaPattern, std::less<short> > etaLUT;
-  
+
   class LUTParams{
   public:
     std::vector<LUT> pta_lut_;
@@ -94,19 +102,20 @@ public:
     LUTParams() : pta_lut_(0), phi_lut_(0), pta_threshold_(6), ext_lut_(0){  }
     COND_SERIALIZABLE;
   };
-  
+
+
   ~L1TMuonBarrelParams() {}
 
-protected:
+ protected:
   unsigned version_;
   unsigned fwVersion_;
-  
+
   std::vector<Node> pnodes_;
   // std::vector here is just so we can use "blob" in DB and evade max size limitations...
   std::vector<L1MuDTTFParameters> l1mudttfparams_;
-  std::vector<L1MuDTTFMasks>      l1mudttfmasks_;  
+  std::vector<L1MuDTTFMasks>      l1mudttfmasks_;
   LUTParams lutparams_;
-  
+
   COND_SERIALIZABLE;
 };
 #endif

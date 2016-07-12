@@ -5,7 +5,6 @@
 // C++ Headers --
 //---------------
 
-#include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelParamsHelper.h"
 
 #include <vector>

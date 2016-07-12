@@ -9,4 +9,3 @@ L1TMuonBarrelParams::L1TMuonBarrelParams() :
   pnodes_[CONFIG].iparams_.resize(NUM_CONFIG_PARAMS);
   version_=Version;
 }
-
