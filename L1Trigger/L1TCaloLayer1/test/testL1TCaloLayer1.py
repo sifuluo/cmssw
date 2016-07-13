@@ -13,6 +13,7 @@ options.register('dataStream', '/ExpressPhysics/Run2015D-Express-v4/FEVT', VarPa
 options.register('inputFiles', [], VarParsing.multiplicity.list, VarParsing.varType.string, 'Manual file list input, will query DAS if empty')
 options.register('inputFileList', '', VarParsing.multiplicity.singleton, VarParsing.varType.string, 'Manual file list input, will query DAS if empty')
 options.register('useORCON', False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, 'Use ORCON for conditions.  This is necessary for very recent runs where conditions have not propogated to Frontier')
+options.register('maxEvents', 10000, VarParsing.multiplicity.singleton, VarParsing.varType.int, 'Maximum number of events to process')
 options.parseArguments()
 
 def formatLumis(lumistring, run) :
@@ -92,11 +93,11 @@ process.layer1Validator.emulRegionToken = cms.InputTag("simCaloStage2Layer1Digis
 process.layer1Validator.emulTowerToken = cms.InputTag("simCaloStage2Layer1Digis")
 process.layer1Validator.validateTowers = cms.bool(False)
 process.layer1Validator.validateRegions = cms.bool(True)
-process.layer1Validator.verbose = cms.bool(True)
+process.layer1Validator.verbose = cms.bool(False)
 
 process.load('EventFilter.RctRawToDigi.l1RctHwDigis_cfi')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(inputFiles)
@@ -112,3 +113,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.l1tCaloLayer1Digis*process.simCaloStage2Layer1Digis*process.layer1Validator) #*process.rctDigis
 
 process.e = cms.EndPath(process.out)
+
+# Get modules used
+dump_file = open("dump_file.py", "w")
+dump_file.write(process.dumpPython())
