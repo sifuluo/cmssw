@@ -103,6 +103,7 @@ public:
   uint32_t getRegion(int caloEta,int caloPhi);
   uint32_t getiEta(int caloEta);
   uint32_t getiPhi(int caloPhi);
+  bool getNegativeSide(int caloEta) {return (caloEta < 0);}
 
   bool checkCrate(uint32_t crate) {return !(crate < l1tcalo::NCrates);}
   bool checkCard(uint32_t card) {return !(card < l1tcalo::NCardsInCrate);}
@@ -152,6 +153,9 @@ public:
   UCTRegionIndex getUCTRegionIndex(bool negativeSide, uint32_t crate, uint32_t card, uint32_t region);
 
   UCTTowerIndex getUCTTowerIndex(UCTRegionIndex r, uint32_t iEta = 0, uint32_t iPhi = 0);
+
+  UCTRegionIndex getUCTRegionIndexFromL1CaloRegion(uint32_t caloRegionEta, uint32_t caloRegionPhi);
+  UCTTowerIndex getUCTTowerIndexFromL1CaloRegion(UCTRegionIndex r, uint32_t rawData);
 
   double getUCTTowerEta(int caloEta);
   double getUCTTowerPhi(int caloPhi);
