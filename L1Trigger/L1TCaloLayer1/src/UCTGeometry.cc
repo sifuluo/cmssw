@@ -220,7 +220,8 @@ UCTTowerIndex UCTGeometry::getUCTTowerIndex(UCTRegionIndex region, uint32_t iEta
     towerEta = HFEtaOffset + 1 + (regionNo - NRegionsInCard) * getNEta(regionNo) + iEta; // Ranges 30 - 42
   }  
   if(negativeSide) towerEta = -towerEta;
-  int towerPhi = 1 + regionPhi * NPhiInRegion + iPhi; // Always pretend that there are 4 phi-regions
+  int towerPhi = regionPhi * NPhiInRegion + iPhi - 1; // Always pretend that there are 4 phi-regions
+  if(towerPhi <= 0) towerPhi += 72;
   // Legal values of towerPhi = 1, 2, 5, 6, ..., 69, 70 for towerEta 30-39
   // Legal values of towerPhi = 1, 5, ..., 69 for towerEta 40-41
   return UCTTowerIndex(towerEta, towerPhi);
