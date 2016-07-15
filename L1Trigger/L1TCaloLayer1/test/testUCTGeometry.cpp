@@ -25,6 +25,23 @@ int main(int argc, char** argv) {
 	cerr << "(caloEta, caloPhi) = (" << cEta << ", " << cPhi << ") " 
 	     << "Obtained instead   " << endl;
       }
+      uint32_t rEta = 10 - rgn;
+      if((caloEta < 0) && rgn == 11) rEta = 30;
+      if((caloEta < 0) && rgn == 12) rEta = 31;
+      if(!(caloEta < 0)) rEta = 11 + rgn; // Positive eta portion is offset by 11
+      uint32_t rPhi = g.getUCTRegionPhiIndex(caloPhi);
+      UCTRegionIndex regionIndex = g.getUCTRegionIndexFromL1CaloRegion(rEta, rPhi);
+      uint32_t rawData = (eta << 12) + (phi << 14);
+      UCTTowerIndex towerIndex = g.getUCTTowerIndexFromL1CaloRegion(regionIndex, rawData);
+      cEta = towerIndex.first;
+      cPhi = towerIndex.second;
+      if(cEta != caloEta || cPhi != caloPhi) {
+	cout << "Via getUCTRegionIndex (caloEta, caloPhi) = (" << caloEta << ", " << caloPhi << ") "
+	     << "(crt,crd,rgn,eta,phi) = ("
+	     << crt << ", " << crd << ", " << rgn << ", " << eta << ", " << phi << ")" << endl; 
+	cerr << "(caloEta, caloPhi) = (" << cEta << ", " << cPhi << ") " 
+	     << "Obtained instead   " << endl;
+      }
     }
   }
   return 0;
