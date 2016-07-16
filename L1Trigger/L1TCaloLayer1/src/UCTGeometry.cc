@@ -300,7 +300,7 @@ UCTRegionIndex UCTGeometry::getUCTRegionIndexFromL1CaloRegion(uint32_t caloRegio
 }
 
 UCTTowerIndex UCTGeometry::getUCTTowerIndexFromL1CaloRegion(UCTRegionIndex r, uint32_t rawData) {
-  uint32_t iEta = (rawData >> 12) & 0x3;
-  uint32_t iPhi = (rawData >> 14) & 0x3;
+  uint32_t iEta = (rawData >> 14) & 0x3;
+  uint32_t iPhi = (rawData >> 12) & 0x3;
   return getUCTTowerIndex(r, iEta, iPhi);
 }
