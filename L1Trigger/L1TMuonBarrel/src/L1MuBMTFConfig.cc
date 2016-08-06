@@ -91,8 +91,9 @@ void L1MuBMTFConfig::setDefaultsES(const edm::EventSetup& c) {
 
   const L1TMuonBarrelParamsRcd& bmtfParamsRcd = m_es->get<L1TMuonBarrelParamsRcd>();
   bmtfParamsRcd.get(bmtfParamsHandle);
-  L1TMuonBarrelParams *bmtfParams = new L1TMuonBarrelParams();
-  bmtfParams = new L1TMuonBarrelParams(*bmtfParamsHandle.product());
+  L1TMuonBarrelParamsHelper *bmtfParams = ///new L1TMuonBarrelParams();
+///  bmtfParams = 
+new L1TMuonBarrelParamsHelper(*bmtfParamsHandle.product());
 
 
   // set min and max bunch crossing

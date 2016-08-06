@@ -51,7 +51,7 @@ using namespace std;
 //----------------
 
 L1MuBMLUTHandler::L1MuBMLUTHandler(const L1TMuonBarrelParams &l1params) {
-    l1tbmparams = &l1params;
+    l1tbmparams = new L1TMuonBarrelParamsHelper(l1params);
 }
 
 
@@ -60,6 +60,7 @@ L1MuBMLUTHandler::L1MuBMLUTHandler(const L1TMuonBarrelParams &l1params) {
 //--------------
 
 L1MuBMLUTHandler::~L1MuBMLUTHandler() {
+    delete l1tbmparams;
 }
 
 

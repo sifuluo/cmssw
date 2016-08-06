@@ -4,7 +4,7 @@
 
 namespace l1t{
 	
-setting::setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, const std::string& delim) :
+setting::setting(const std::string& type, const std::string& id, const std::string& value, const std::string& procRole, std::string *lt, const std::string& delim) :
 type_(type),
 id_(id),
 value_(value),
@@ -14,32 +14,40 @@ delim_(delim)
 	if ( delim.empty() )
 		delim_ = ",";
 
+	logText_ = lt;
+
 	setValue(value);
 }
 
-setting::setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, const std::string& delim) :
+setting::setting(const std::string& id, const std::string& columns, const std::string& types,  const std::vector<std::string>& rows, const std::string& procRole, std::string *lt, const std::string& delim) :
 type_("table"),
 id_(id),
 procRole_(procRole),
 delim_(delim)
 {
-        if ( delim.empty() )
-                delim_ = ",";
+    if ( delim.empty() )
+    	delim_ = ",";
 
-	str2VecStr_(columns, delim_, tableColumns_);
+    logText_ = lt;
+	// str2VecStr_(columns, delim_, tableColumns_);
 
-	str2VecStr_(types, delim_, tableTypes_);
+	// str2VecStr_(types, delim_, tableTypes_);
 
-	for (auto it=rows.begin(); it!=rows.end(); it++)
+	for (auto it=rows.begin(); it!=rows.end(); ++it)
 	{
-		std::vector<std::string> aRow;
-		str2VecStr_(*it, delim_, aRow);
+		// std::vector<std::string> aRow;
+		// str2VecStr_(*it, delim_, aRow);
 
-		tableRow temp(aRow);
-		temp.setTableId(id);
-		temp.setRowTypes(tableTypes_);
-		temp.setRowColumns(tableColumns_);
-		tableRows_.push_back(temp);
+		//tableRow temp(aRow);
+		//temp.setTableId(id);
+		//temp.setRowTypes(tableTypes_);
+		//temp.setRowColumns(tableColumns_);
+		tableRows_.push_back(tableRow(str2VecStr_(*it, delim_),logText_));
+		tableRows_.back().setTableId(id);
+		// tableRows_.back().setRowTypes(tableTypes_);
+		// tableRows_.back().setRowColumns(tableColumns_);
+		tableRows_.back().setRowTypes(str2VecStr_(types, delim_));
+		tableRows_.back().setRowColumns(str2VecStr_(columns, delim_));
 
 	}
 }
@@ -63,7 +71,7 @@ void setting::setValue(const std::string& value)
 			std::vector<std::string> vals;
 			str2VecStr_(value_,delim_, vals);
 			
-			for(std::vector<std::string>::iterator it=vals.begin(); it!=vals.end(); it++)
+			for(std::vector<std::string>::iterator it=vals.begin(); it!=vals.end(); ++it)
 			{
 				if ( it->find("true") != std::string::npos )
 					convString << "1, ";
@@ -131,7 +139,7 @@ setting& setting::operator=(const setting& aSet)
 	return *this;
 }
 
-void setting::addTableRow(const std::string& row)
+void setting::addTableRow(const std::string& row, const std::vector<std::string>& types, const std::vector<std::string>& columns)
 {
 	if (type_.find("table") == std::string::npos)
 		throw std::runtime_error("You cannot add a table row in type: " + type_ + ". Type is not table.");
@@ -139,37 +147,68 @@ void setting::addTableRow(const std::string& row)
 	std::vector<std::string> vals;
 	str2VecStr_(row, delim_, vals);
 
-	tableRow tempRow(vals);
-	tempRow.setRowTypes(tableTypes_);
-	tempRow.setRowColumns(tableColumns_);
-	tableRows_.push_back(tempRow);
+	// tableRow tempRow(vals);
+	// tempRow.setRowTypes(tableTypes_);
+	// tempRow.setRowColumns(tableColumns_);
+	tableRows_.push_back(tableRow(vals, logText_));
+	tableRows_.back().setRowTypes(types);
+	tableRows_.back().setRowColumns(columns);
+
 }
 
-void setting::setTableTypes(const std::string& types)
-{	
-	if (type_.find("table") == std::string::npos)
-		throw std::runtime_error("You cannot set table types in type: " + type_ + ". Type is not table.");
+// void setting::setTableTypes(const std::string& types)
+// {	
+// 	if (type_.find("table") == std::string::npos)
+// 		throw std::runtime_error("You cannot set table types in type: " + type_ + ". Type is not table.");
 	 
 
-	str2VecStr_(types, delim_, tableTypes_);
+// 	str2VecStr_(types, delim_, tableTypes_);
+// }
 
+// void setting::setTableColumns(const std::string& cols)
+// {
+// 	if (type_.find("table") == std::string::npos)
+// 		throw std::runtime_error("You cannot set table columns in type: " + type_ + ". Type is not table.");
+	
 
+// 	str2VecStr_(cols, delim_, tableColumns_);
+	
+// }
+
+tableRow::tableRow(const std::vector<std::string>& row, std::string *lt) 
+{ 
+	row_ = std::shared_ptr< std::vector<std::string> >(new std::vector<std::string>(row));
+	logText_ = lt;
 }
 
-void setting::setTableColumns(const std::string& cols)
+void tableRow::setRowColumns(const std::vector<std::string>& columns)
 {
-	if (type_.find("table") == std::string::npos)
-		throw std::runtime_error("You cannot set table columns in type: " + type_ + ". Type is not table.");
-	
+    if( columns_.get() == 0 )
+    	columns_ = std::shared_ptr< std::vector<std::string> >(new std::vector<std::string>(columns));
+    else
+        *columns_ = columns;
 
-	str2VecStr_(cols, delim_, tableColumns_);
-	
+    if( colDict_.get() == 0 )
+        colDict_ = std::shared_ptr< std::map<std::string,int> >(new std::map<std::string,int>());
+
+	colDict_->clear();
+
+	for(unsigned int i=0; i<columns.size(); i++) 
+		(*colDict_)[ columns[i] ] = i;
+}
+
+void tableRow::setRowTypes(const std::vector<std::string>& types)
+{
+	if( types_.get() == 0 )
+	  types_ = std::shared_ptr< std::vector<std::string> >(new std::vector<std::string>(types));
+	else
+	  *types_ = types;
 }
 
 std::string tableRow::getRowAsStr()
 {
 	std::ostringstream str;
-	for (auto it=row_.begin(); it!=row_.end(); it++)
+	for (auto it=row_->begin(); it!=row_->end(); ++it)
 		str << *it << " ";
 
 	return str.str();

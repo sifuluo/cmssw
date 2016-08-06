@@ -1,3 +1,6 @@
+#include <vector>
+#include <map>
+
 //boost libraries
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic.hpp>
@@ -5,6 +8,7 @@
 
 namespace l1t{
 
+std::vector<std::string> str2VecStr_(const std::string& aStr, const std::string& delim);
 void str2VecStr_(const std::string& aStr, const std::string& delim, std::vector<std::string>& aVec);
 unsigned int convertFromHexStringToInt(const std::string& aHexString);
 template <class varType> varType convertVariable(const std::string& aVar);

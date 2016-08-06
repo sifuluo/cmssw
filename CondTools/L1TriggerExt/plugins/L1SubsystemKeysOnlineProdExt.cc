@@ -48,13 +48,14 @@ L1SubsystemKeysOnlineProdExt::produce(const L1TriggerKeyExtRcd& iRecord)
 
    // Get L1TriggerKeyListExt
    L1TriggerKeyListExt keyList ;
+if( !m_forceGeneration ){
    l1t::DataWriterExt dataWriter ;
    if( !dataWriter.fillLastTriggerKeyList( keyList ) )
      {
        edm::LogError( "L1-O2O" )
 	 << "Problem getting last L1TriggerKeyListExt" ;
      }
-
+}
    // For RUN II the subsystem CondFormats for ALGO and RS are merged together -> we join ALGO and RS keys
 
 

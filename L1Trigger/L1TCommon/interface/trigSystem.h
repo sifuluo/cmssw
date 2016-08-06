@@ -33,7 +33,8 @@ class trigSystem
 		std::string systemId() { return sysId_; };
 		void setSystemId(const std::string id) { sysId_=id; };
 		void setConfigured(const bool state=true) { isConfigured_=state; };
-
+		//The setPrintAllLogs method should be called BEFORE calling the getters
+		void setPrintAllLogs () { logText_= new  std::string(); };
 	private:
 		std::map<std::string, std::string> procRole_;
 		std::map<std::string, std::vector<std::string> > roleProcs_;
@@ -44,6 +45,8 @@ class trigSystem
 
 	    bool isConfigured_; 
 		std::string sysId_;
+
+		std::string* logText_;
 
 		XmlConfigReader _xmlRdr;
 
