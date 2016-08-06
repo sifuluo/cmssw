@@ -79,15 +79,13 @@ template <typename varType> std::vector<varType> setting::getVector()
 {
 	
 	if ( type_.find("vector") == std::string::npos )
-		throw std::runtime_error("The registered type: " + type_ + " is not vector so you need to call the getValue method");
-
+		throw std::runtime_error("The registered type: " + this->type_ + " for the parameter: " + this->id_ + " is not vector so you need to call the getValue method");
+	
 	std::vector<std::string> vals;
 	str2VecStr_(value_, delim_, vals);
-
 	std::vector<varType> newVals;
 	for(auto it=vals.begin(); it!=vals.end(); it++)
 		newVals.push_back(convertVariable<varType>(*it));
-
 	if ( logText_ )
 	{
 		std::ostringstream tempStr;

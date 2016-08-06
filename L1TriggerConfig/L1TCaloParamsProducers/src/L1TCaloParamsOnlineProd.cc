@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <sstream>
 
 #include "CondTools/L1TriggerExt/interface/L1ConfigOnlineProdBaseExt.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
@@ -46,6 +47,162 @@ readCaloLayer1OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::
   paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HFScaleETBins  (conf["layer1HFScaleETBins"]  .getVector<int>());
 
+  return true;
+}
+
+bool
+readCaloLayer2OnlineSettings(l1t::CaloParamsHelper& paramsHelper, std::map<std::string, l1t::setting>& conf, std::map<std::string, l1t::mask>& ) {
+  const char * expectedParams[] = {
+    "leptonSeedThreshold",
+    "leptonTowerThreshold",
+    "pileUpTowerThreshold",
+    "jetSeedThreshold",
+    "jetMaxEta",
+    "HTMHT_maxJetEta",
+    "HT_jetThreshold",
+    "MHT_jetThreshold",
+    "jetEnergyCalibLUT",
+    "ETMET_maxTowerEta",
+    "ET_energyCalibLUT",
+    "ecalET_energyCalibLUT",
+    "METX_energyCalibLUT",
+    "METY_energyCalibLUT",
+    "egammaRelaxationThreshold",
+    "egammaMaxEta",
+    "egammaEnergyCalibLUT",
+    "egammaIsoLUT",
+    "tauMaxEta",
+    "tauEnergyCalibLUT",
+    "tauIsoLUT1",
+    "tauIsoLUT2"
+  };
+  for (const auto param : expectedParams) {
+    if ( conf.find(param) == conf.end() ) {
+      std::cerr << "Unable to locate expected CaloLayer2 parameter: " << param << " in L1 settings payload!";
+      return false;
+    }
+  }
+  // Layer 2 params specification
+  paramsHelper.setEgSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()));
+  paramsHelper.setTauSeedThreshold((conf["leptonSeedThreshold"].getValue<int>()));
+  paramsHelper.setEgNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()));
+  paramsHelper.setTauNeighbourThreshold((conf["leptonTowerThreshold"].getValue<int>()));
+  paramsHelper.setJetSeedThreshold((conf["jetSeedThreshold"].getValue<int>()));
+
+  // Currently not used // paramsHelper.setEgPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
+  // Currently not used // paramsHelper.setTauPileupTowerThresh((conf["pileUpTowerThreshold"].getValue<int>())); 
+  // Currently not used // paramsHelper.setJetMaxEta((conf["jetMaxEta"].getValue<int>()));
+  
+  std::vector<int> etSumEtaMax;
+  std::vector<int> etSumEtThresh;
+  
+  etSumEtaMax.push_back(conf["ETMET_maxTowerEta"].getValue<int>());
+  etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
+  etSumEtaMax.push_back(conf["ETMET_maxTowerEta"].getValue<int>());
+  etSumEtaMax.push_back(conf["HTMHT_maxJetEta"].getValue<int>());
+  
+  etSumEtThresh.push_back(0); // ETT tower threshold
+  etSumEtThresh.push_back(conf["HT_jetThreshold"].getValue<int>());
+  etSumEtThresh.push_back(0); // ETM tower threshold
+  etSumEtThresh.push_back(conf["MHT_jetThreshold"].getValue<int>());
+
+  for (uint i=0; i<4; ++i) {
+    paramsHelper.setEtSumEtaMax(i, etSumEtaMax.at(i));
+    paramsHelper.setEtSumEtThreshold(i, etSumEtThresh.at(i));
+  }
+
+  std::stringstream oss;
+
+  std::vector<uint32_t> jetEnergyCalibLUT = conf["jetEnergyCalibLUT"].getVector<uint32_t>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(jetEnergyCalibLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<jetEnergyCalibLUT.size(); i++) oss << i << " " << jetEnergyCalibLUT[i] << std::endl;
+
+  std::istringstream iss1( oss.str() );
+  paramsHelper.setJetCalibrationLUT( l1t::LUT( (std::istream&)iss1 ) );
+  oss.str("");
+
+  std::vector<int> etSumEttPUSLUT = conf["ET_energyCalibLUT"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEttPUSLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<etSumEttPUSLUT.size(); i++) oss << i << " " << etSumEttPUSLUT[i] << std::endl;
+
+  std::istringstream iss2( oss.str() );
+  paramsHelper.setEtSumEttPUSLUT( l1t::LUT( (std::istream&)iss2 ) );
+  oss.str("");
+
+  std::vector<int> etSumEcalSumPUTLUT = conf["ecalET_energyCalibLUT"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumEcalSumPUTLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<etSumEcalSumPUTLUT.size(); i++) oss << i << " " << etSumEcalSumPUTLUT[i] << std::endl;
+
+  std::istringstream iss3( oss.str() );
+  paramsHelper.setEtSumEcalSumPUSLUT( l1t::LUT( (std::istream&)iss3 ) );
+  oss.str("");
+
+  std::vector<int> etSumXPUSLUT = conf["METX_energyCalibLUT"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(etSumXPUSLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<etSumXPUSLUT.size(); i++) oss << i << " " << etSumXPUSLUT[i] << std::endl;
+
+  std::istringstream iss4( oss.str() );
+  paramsHelper.setEtSumXPUSLUT( l1t::LUT( (std::istream&)iss4 ) );
+  oss.str("");
+
+  paramsHelper.setEgMaxPtHOverE((conf["egammaRelaxationThreshold"].getValue<int>()));
+  paramsHelper.setEgEtaCut((conf["egammaMaxEta"].getValue<int>()));
+
+
+  std::vector<int> egCalibrationLUT = conf["egammaEnergyCalibLUT"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egCalibrationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<egCalibrationLUT.size(); i++) oss << i << " " << egCalibrationLUT[i] << std::endl;
+
+  std::istringstream iss5( oss.str() );
+  paramsHelper.setEgCalibrationLUT( l1t::LUT( (std::istream&)iss5 ) );
+  oss.str("");
+
+
+  std::vector<int> egIsolationLUT = conf["egammaIsoLUT"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(egIsolationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<egIsolationLUT.size(); i++) oss << i << " " << egIsolationLUT[i] << std::endl;
+
+  std::istringstream iss6( oss.str() );
+  paramsHelper.setEgIsolationLUT( l1t::LUT( (std::istream&)iss6 ) );
+  oss.str("");
+
+  paramsHelper.setIsoTauEtaMax((conf["tauMaxEta"].getValue<int>()));
+
+  std::vector<int> tauCalibrationLUT = conf["tauEnergyCalibLUT"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauCalibrationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<tauCalibrationLUT.size(); i++) oss << i << " " << tauCalibrationLUT[i] << std::endl;
+
+  std::istringstream iss7( oss.str() );
+  paramsHelper.setTauCalibrationLUT(l1t::LUT( (std::istream&)iss7 ));
+  oss.str("");
+
+  std::vector<int> tauIsolationLUT = conf["tauIsoLUT1"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<tauIsolationLUT.size(); i++) oss << i << " " << tauIsolationLUT[i] << std::endl;
+
+  std::istringstream iss8( oss.str() );
+  paramsHelper.setTauIsolationLUT( l1t::LUT((std::istream&)iss8 ) );
+  oss.str("");
+
+  std::vector<int> tauIsolationLUT2 = conf["tauIsoLUT2"].getVector<int>();
+  oss <<"#<header> V1 "<< ( 32 - __builtin_clz( uint32_t(tauIsolationLUT2.size()-1) ) ) <<" 32 </header> "<<std::endl; // hardcode max bits for data
+  for(unsigned int i=0; i<tauIsolationLUT2.size(); i++) oss << i << " " << tauIsolationLUT2[i] << std::endl;
+
+  std::istringstream iss9( oss.str() );
+  paramsHelper.setTauIsolationLUT2( l1t::LUT( (std::istream&)iss9 ) );
+  oss.str("");
+/*
+  std::cout << "getting layer1HCalScaleFactors" << std::endl;
+  paramsHelper.setLayer1HCalScaleFactors((conf["layer1HCalScaleFactors"].getVector<double>()));
+  std::cout << "getting layer1HFScaleFactors" << std::endl;
+  paramsHelper.setLayer1HFScaleFactors  ((conf["layer1HFScaleFactors"]  .getVector<double>()));
+  std::cout << "getting layer1ECalScaleETBins" << std::endl;
+  paramsHelper.setLayer1ECalScaleETBins(conf["layer1ECalScaleETBins"].getVector<int>());
+  std::cout << "getting layer1HCalScaleETBins" << std::endl;
+  paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
+  std::cout << "getting layer1HFScaleETBins" << std::endl;
+  paramsHelper.setLayer1HFScaleETBins  (conf["layer1HFScaleETBins"]  .getVector<int>());
+*/
   return true;
 }
 
@@ -121,6 +278,7 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
 
     if( !queryResult.fillVariable( "ALGO", calol1_algo_key ) ) calol1_algo_key = "";
 
+    queryStrings.push_back( "HW" );
 //  No Layer2 for the moment
     queryResult =
             m_omdsReader.basicQuery( queryStrings,
@@ -136,7 +294,9 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
 ///        return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams( *(baseSettings.product()) ) ) ;
     }
 
+    std::string calol2_hw_key;
     if( !queryResult.fillVariable( "ALGO", calol2_algo_key ) ) calol2_algo_key = "";
+    if( !queryResult.fillVariable( "HW",   calol2_hw_key   ) ) calol2_hw_key   = "";
 
 
     // Now querry the actual payloads
@@ -315,6 +475,22 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
     // remember ALGO configuration
     payloads[kCONF][calol2_mp_tau_key.append("_L2")] = xmlPayload;
 
+    queryResult =
+            m_omdsReader.basicQuery( queryStrings,
+                                     stage2Schema,
+                                     "CALOL2_HW",
+                                     "CALOL2_HW.ID",
+                                     m_omdsReader.singleAttribute(calol2_hw_key)
+                                   ) ;
+
+    if( queryResult.queryFailed() || queryResult.numberRows() != 1 ){
+        edm::LogError( "L1-O2O: L1TCaloParamsOnlineProd" ) << "Cannot get CALOL2_HW.CONF for ID="<<calol2_hw_key;
+        throw std::runtime_error("Broken key");
+    }
+
+    if( !queryResult.fillVariable( "CONF", xmlPayload ) ) xmlPayload = "";
+    // remember HW configuration
+    payloads[kHW][calol2_hw_key] = xmlPayload;
 
     // for debugging purposes dump the configs to local files
     for(auto &conf : payloads[kCONF]){ 
@@ -322,33 +498,53 @@ boost::shared_ptr<l1t::CaloParams> L1TCaloParamsOnlineProd::newObject(const std:
         output<<conf.second;
         output.close();
     }
+    for(auto &conf : payloads[kHW]){ 
+        std::ofstream output(std::string("/tmp/").append(conf.first.substr(0,conf.first.find("/"))).append(".xml"));
+        output<<conf.second;
+        output.close();
+    }
 
-    l1t::XmlConfigReader xmlReader;
-    xmlReader.readDOMFromString( payloads[kCONF][calol1_algo_key] ); // let's leave it like that for now as we don't have Layer2 here yet
+
+    l1t::XmlConfigReader xmlReader1;
+    xmlReader1.readDOMFromString( payloads[kCONF][calol1_algo_key] );
 
     l1t::trigSystem calol1;
     calol1.addProcRole("processors", "processors");
-    xmlReader.readRootElement( calol1, "calol1" );
+    xmlReader1.readRootElement( calol1, "calol1" );
     calol1.setConfigured();
 
     std::map<std::string, l1t::setting> calol1_conf = calol1.getSettings("processors");
     std::map<std::string, l1t::mask>    calol1_rs   ;//= calol1.getMasks   ("processors");
 
-//    Do nothing for the Calo Layer2
-//    l1t::trigSystem calol2;
-//    calol2.addProcRole("processors", "processors");
-//    xmlReader.readRootElement( calol2, "calol2" );
-//    calol2.setConfigured();
-//    // Perhaps layer 2 has to look at settings for demux and mp separately?
-//    std::map<string, l1t::setting> calol2_conf = calol2.getSettings("processors");
-//    std::map<string, l1t::mask>    calol2_rs   = calol2.getMasks   ("processors");
+    l1t::trigSystem calol2;
+//    calol2.addProcRole("processors", "MainProcessor");
 
+    l1t::XmlConfigReader xmlReader2;
+    xmlReader2.readDOMFromString( payloads[kHW].begin()->second );
+    xmlReader2.readRootElement( calol2, "calol2" );
+
+    for(auto &conf : payloads[kCONF]){ 
+        if( conf.first.find("_L2") != std::string::npos ){
+            xmlReader2.readDOMFromString( conf.second );
+            xmlReader2.readRootElement( calol2, "calol2" );
+        }
+    }
+
+//    calol2.setSystemId("calol2");
+    calol2.setConfigured();
+
+    // Perhaps layer 2 has to look at settings for demux and mp separately? // => No demux settings required
+    std::map<std::string, l1t::setting> calol2_conf = calol2.getSettings("MP1");
+    std::map<std::string, l1t::mask>    calol2_rs   ;//= calol2.getMasks   ("processors");
+    
     l1t::CaloParamsHelper m_params_helper(*(baseSettings.product()));
 
     readCaloLayer1OnlineSettings(m_params_helper, calol1_conf, calol1_rs);
+    readCaloLayer2OnlineSettings(m_params_helper, calol2_conf, calol2_rs);
 
     return boost::shared_ptr< l1t::CaloParams >( new l1t::CaloParams ( m_params_helper ) ) ;
 }
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1TCaloParamsOnlineProd);
+
