@@ -104,7 +104,7 @@ public:
 
   ~L1TMuonBarrelParams() {}
 
- protected:
+ public:
   unsigned version_;
   unsigned fwVersion_;
 

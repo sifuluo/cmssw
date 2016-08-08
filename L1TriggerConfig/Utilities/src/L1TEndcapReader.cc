@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TMuonEndcapParams.h"
+//#include "CondFormats/L1TObjects/interface/L1TMuonEndcapParams.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/CondDB/interface/Session.h"
@@ -27,7 +27,7 @@ public:
 };
 
 void L1TEndcapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
-
+/*
     edm::ESHandle<L1TMuonEndcapParams> handle1;
     evSetup.get<L1TMuonEndcapParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<L1TMuonEndcapParams> ptr1(new L1TMuonEndcapParams(*(handle1.product ())));
@@ -43,6 +43,7 @@ void L1TEndcapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& e
             cout<<"  tree ptr="<<hex<<forest.second->getTree(tr)<<dec<<endl;
         }
     }
+*/
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

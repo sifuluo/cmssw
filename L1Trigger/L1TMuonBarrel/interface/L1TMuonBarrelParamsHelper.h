@@ -24,6 +24,8 @@
 #include "L1Trigger/L1TCommon/interface/setting.h"
 #include "L1Trigger/L1TCommon/interface/mask.h"
 
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 
 typedef std::map<short, short, std::less<short> > LUT;
 
@@ -103,6 +105,10 @@ public:
   // print parameters to stream:
   void print(std::ostream&) const;
 ///  friend std::ostream& operator<<(std::ostream& o, const L1TMuonBarrelParams & p) { p.print(o); return o; }
+
+//  L1MuDTExtLut        l1mudttfextlut;
+  L1MuDTQualPatternLut l1mudttfqualplut;
+  L1MuDTEtaPatternLut  l1mudttfetaplut;
 
 private:
 	l1t::trigSystem m_trgSys;

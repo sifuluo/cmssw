@@ -45,11 +45,14 @@
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+
 class L1MuBMTrackSegEta;
 class L1MuBMTrackFinder;
 class L1MuBMTrack;
-class L1MuDTEtaPatternLut;
-class L1MuDTQualPatternLut;
+//class L1MuDTEtaPatternLut;
+//class L1MuDTQualPatternLut;
 class L1MuDTTFMasks;
 
 //              ---------------------

@@ -53,9 +53,9 @@ void L1TMuonBarrelParamsHelper::configFromPy(std::map<std::string, int>& allInts
 
 
 
-	l1mudttfparams.reset();
-	l1mudttfqualplut.load();
-	l1mudttfetaplut.load();
+	l1mudttfparams.reset();  //KK
+	l1mudttfqualplut.load(); //KK: Does it ever change or is it safe to initialize it from the release files like that? 
+	l1mudttfetaplut.load();  //KK
 
 	for( int wh=-3; wh<4; wh++ ) {
 	   int sec = 0;
