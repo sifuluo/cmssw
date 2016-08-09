@@ -130,9 +130,6 @@ namespace L1TMuon {
     //copy
     TriggerPrimitive(const TriggerPrimitive&);
 
-    // Create a copy of TP1 with wire of TP2
-    TriggerPrimitive(const TriggerPrimitive& tp1, const TriggerPrimitive& tp2);
-
     TriggerPrimitive& operator=(const TriggerPrimitive& tp);
     bool operator==(const TriggerPrimitive& tp) const;
 

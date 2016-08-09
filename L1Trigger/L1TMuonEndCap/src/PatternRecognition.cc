@@ -46,10 +46,10 @@ PatternOutput DetectPatterns(ZonesOutput Eout){
 	  patt[y].BitShift(b-15);  //////Can try and fix later before uploading to CMSSW.
 	}   
 	else if((b-15) < 127){	
-	  patt[y].BitShift(63);patt[y].BitShift(1);patt[y].BitShift(b-79);
+	  patt[y].BitShift(63);patt[y].BitShift(b-78);	
 	}	
 	else{	
-	  patt[y].BitShift(63);patt[y].BitShift(1);patt[y].BitShift(63);patt[y].BitShift(1);patt[y].BitShift(b-143);  //////
+	  patt[y].BitShift(63);patt[y].BitShift(63);patt[y].BitShift(b-141);  //////
 	} 			
 	
 	for(int yy=0;yy != 12;yy++){//loop over 8 long integers of each pattern
@@ -98,6 +98,9 @@ PatternOutput DetectPatterns(ZonesOutput Eout){
     for(int k=0;k<192;k++){//was 128
       
       int qr = ranka_t[zone][k-1], ql = ranka_t[zone][k+1], qc = ranka_t[zone][k];
+      
+      //if(qc && verbose)
+      //	std::cout<<"\n"<<k<<":qc = "<<qc<<" straight: "<<stra[zone][k]<<"  lya: "<<lya[zone][k]<<std::endl; 
       
       if(k==0){qr=0;}
       if(k==191){ql=0;}//was 127
