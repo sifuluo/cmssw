@@ -78,7 +78,7 @@ void XMLConfigReader::readLUT(l1t::LUT *lut,const L1TMuonOverlapParams & aConfig
   strStream <<"#<header> V1 "<<totalInWidth<<" "<<outWidth<<" </header> "<<std::endl;
 
   ///Fill payload string  
-  const std::vector<GoldenPattern *> & aGPs = readPatterns(aConfig);
+  readPatterns(aConfig);
 
   unsigned int in = 0;
   int out = 0;
@@ -134,7 +134,7 @@ unsigned int XMLConfigReader::getPatternsVersion() const{
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig){
+void XMLConfigReader::readPatterns(const L1TMuonOverlapParams & aConfig){
 
   aGPs.clear();
   
@@ -146,7 +146,8 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
   if(nElem<1){
     edm::LogError("critical")<<"Problem parsing XML file "<<patternsFile<<std::endl;
     edm::LogError("critical")<<"No GoldenPattern items: GP found"<<std::endl;
-    return aGPs;
+    parser->resetDocumentPool();
+    return;
   }
 
   DOMNode *aNode = 0;
@@ -158,7 +159,7 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
     aGPElement = static_cast<DOMElement *>(aNode);
 
     std::ostringstream stringStr;
-    GoldenPattern *aGP;
+    std::shared_ptr<GoldenPattern> aGP;
     for(unsigned int index = 1;index<5;++index){
       stringStr.str("");
       stringStr<<"iPt"<<index;
@@ -166,14 +167,14 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
       if(aGPElement->getAttributeNode(_toDOMS(stringStr.str().c_str()))){
 	aGP = buildGP(aGPElement, aConfig, index, iGPNumber);
 	if(aGP){	  
-	  aGPs.push_back(aGP);
+	  aGPs.push_back(std::move(aGP));
 	  iGPNumber++;
 	}
       }
       else{
 	aGP = buildGP(aGPElement, aConfig);
 	if(aGP){
-	  aGPs.push_back(aGP);
+	  aGPs.push_back(std::move(aGP));
 	  iGPNumber++;
 	}
 	break;
@@ -184,11 +185,11 @@ std::vector<GoldenPattern*> XMLConfigReader::readPatterns(const L1TMuonOverlapPa
   // Reset the documents vector pool and release all the associated memory back to the system.
   parser->resetDocumentPool();
 
-  return aGPs;
+  return;
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
-GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
+std::shared_ptr<GoldenPattern>  XMLConfigReader::buildGP(DOMElement* aGPElement,
 					 const L1TMuonOverlapParams & aConfig,
 					 unsigned int index,
 					 unsigned int aGPNumber){
@@ -220,7 +221,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
     pdf3D.assign(aConfig.nLayers(),pdf2D);
 
     Key aKey(iEta,iPt,iCharge, aGPNumber);
-    GoldenPattern *aGP = new GoldenPattern(aKey,0);
+    std::shared_ptr<GoldenPattern> aGP ( new GoldenPattern(aKey,0));
     aGP->setMeanDistPhi(meanDistPhi2D);
     aGP->setPdf(pdf3D);
     return aGP;
@@ -262,7 +263,7 @@ GoldenPattern * XMLConfigReader::buildGP(DOMElement* aGPElement,
   }
 
   Key aKey(iEta,iPt,iCharge, aGPNumber);
-  GoldenPattern *aGP = new GoldenPattern(aKey,0);
+  std::shared_ptr<GoldenPattern> aGP ( new GoldenPattern(aKey,0));
   aGP->setMeanDistPhi(meanDistPhi2D);
   aGP->setPdf(pdf3D);
 
