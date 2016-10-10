@@ -56,7 +56,7 @@ inline std::auto_ptr<L1MuDTChambPhContainer> L1TTwinMuxAlgortithm::produce(
   std::unique_ptr<L1ITMuonBarrelPrimitiveProducer> lmbpp ( new L1ITMuonBarrelPrimitiveProducer(mblt));
   std::auto_ptr<L1MuDTChambPhContainer> l1ttma = lmbpp->produce(c);
 
-  delete [] l1tmtpp;
+  delete l1tmtpp;
 
   return l1ttma;
 
