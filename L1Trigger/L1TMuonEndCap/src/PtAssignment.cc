@@ -40,6 +40,14 @@ EmtfPtAssignment::EmtfPtAssignment(const L1TMuonEndCapForest &payload):
     if( index == payload.forest_map_.end() ) continue;
 
     forest_[ mode_inv ].loadFromCondPayload( payload.forest_coll_[index->second] );
+
+///    for(int t=0; t<64; t++){
+///        emtf::Tree* tree = forest_[ mode_inv ].getTree(t);
+///        stringstream ss;
+///        ss << mode_inv << "/" << t << ".xml";
+///        tree->saveToXML( ss.str().c_str() );
+///    }
+
   }
 }
 
