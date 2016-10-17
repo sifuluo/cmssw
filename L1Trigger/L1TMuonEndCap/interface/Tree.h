@@ -1,7 +1,7 @@
 // Tree.h
 
-#ifndef ADD_TREE
-#define ADD_TREE
+#ifndef L1Trigger_L1TMuonEndCap_Tree
+#define L1Trigger_L1TMuonEndCap_Tree
 
 #include <list>
 #include "L1Trigger/L1TMuonEndCap/interface/Node.h"

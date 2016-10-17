@@ -1,7 +1,7 @@
 // Forest.h
 
-#ifndef ADD_FOREST
-#define ADD_FOREST
+#ifndef L1Trigger_L1TMuonEndCap_Forest
+#define L1Trigger_L1TMuonEndCap_Forest
 
 #include "L1Trigger/L1TMuonEndCap/interface/Tree.h"
 #include "L1Trigger/L1TMuonEndCap/interface/LossFunctions.h"
