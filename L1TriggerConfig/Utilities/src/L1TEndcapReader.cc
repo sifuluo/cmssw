@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1Trigger/L1TMuonEndCap/interface/ForestHelper.h"
+///#include "L1Trigger/L1TMuonEndCap/interface/ForestHelper.h"
 #include "CondFormats/DataRecord/interface/L1TMuonEndcapParamsRcd.h"
 //#include "CondFormats/DataRecord/interface/L1TMuonEndCapParamsRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonEndCapParams.h"
@@ -43,13 +43,13 @@ void L1TEndcapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& e
     cout<<" PhiMatchWindowSt3_ = "<<ptr1->PhiMatchWindowSt3_<<endl;
     cout<<" PhiMatchWindowSt4_ = "<<ptr1->PhiMatchWindowSt4_<<endl;
 
-    edm::ESHandle<L1TMuonEndCapForest> handle2;
-    evSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;
-    boost::shared_ptr<L1TMuonEndCapForest> ptr2(new L1TMuonEndCapForest(*(handle2.product ())));
-
-    cout<<"L1TMuonEndcapForest: "<<endl;
-    l1t::ForestHelper fhelp( ptr2.get() );
-    fhelp.print( cout );
+///    edm::ESHandle<L1TMuonEndCapForest> handle2;
+///    evSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;
+///    boost::shared_ptr<L1TMuonEndCapForest> ptr2(new L1TMuonEndCapForest(*(handle2.product ())));
+///
+///    cout<<"L1TMuonEndcapForest: "<<endl;
+///    l1t::ForestHelper fhelp( ptr2.get() );
+///    fhelp.print( cout );
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
