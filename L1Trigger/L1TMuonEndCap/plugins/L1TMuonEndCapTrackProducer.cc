@@ -378,6 +378,19 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     }
   }
 
+
+  // Find index of highest-ranked track per sector - AWB 14.09.16
+  // To mimic bug in EMTF firmware, only assign pT to the highest-ranked track
+  int highest_rank[11][13];
+  uint high_rank_index[11][13];
+  for (uint iBX = 3; iBX < 11; iBX++) {
+    for (uint iSect = 1; iSect < 13; iSect++) {
+      highest_rank[iBX][iSect] = -1;
+      high_rank_index[iBX][iSect] = 0;
+    }
+  }
+
+
   // Cancel out tracks with identical hits
   for (unsigned int i1 = 0; i1 < AllTracks_PreCancel.size(); i1++) {
     bool dup = false;
@@ -385,11 +398,25 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     int rank2 = -99;
     int i1_dup = i1;
     int i2_dup = -99;
+
+    // Find index of highest-ranked track per sector - AWB 14.09.16
+    int ebx_dup    = 20;
+    int sindex_dup = -1;
+
     for (unsigned int i2 = 0; i2 < AllTracks_PreCancel.size(); i2++) {
       if (i1 == i2) continue;
       for (std::vector<ConvertedHit>::iterator A1 = AllTracks_PreCancel[i1].AHits.begin(); A1 != AllTracks_PreCancel[i1].AHits.end(); A1++) {
 	CSCDetId D1 = A1->TP().detId<CSCDetId>();
 	TriggerPrimitive::CSCData C1 = A1->TP().getCSCData();
+
+	// Find index of highest-ranked track per sector - AWB 14.09.16
+	if ( C1.bx < ebx_dup ) ebx_dup = C1.bx;
+	if ( sindex_dup >= 0 && sindex_dup != A1->SectorIndex() ) {
+	  std::cout << "Why are there two LCTs with different SectorIndex() values in the same track?!?" << std::endl;
+	  std::cout << "sindex_dup = " << sindex_dup << ", A1->SectorIndex() = " << A1->SectorIndex() << std::endl;
+	}
+	sindex_dup = A1->SectorIndex();
+
 	for (std::vector<ConvertedHit>::iterator A2 = AllTracks_PreCancel[i2].AHits.begin(); A2 != AllTracks_PreCancel[i2].AHits.end(); A2++) {
 	  CSCDetId D2 = A2->TP().detId<CSCDetId>();
 	  TriggerPrimitive::CSCData C2 = A2->TP().getCSCData();
@@ -407,7 +434,17 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     } // End second loop over tracks
 
     // Only use ordering when ranks are equal.  Track order is not necessarily the same as FW. - AWB 21.09.16
-    if ( (!dup) || (rank1 > rank2) || (rank1 == rank2 && i1_dup < i2_dup) ) AllTracks.push_back(AllTracks_PreCancel[i1]);
+    if ( (!dup) || (rank1 > rank2) || (rank1 == rank2 && i1_dup < i2_dup) ) {
+      AllTracks.push_back(AllTracks_PreCancel[i1]);
+
+      // Find index of highest-ranked track per sector - AWB 14.09.16
+      if (AllTracks_PreCancel[i1].winner.Rank() > highest_rank[ebx_dup][sindex_dup]) {
+	// std::cout << "Highest-ranked track in sector: ebx_dup = " << ebx_dup << ", sindex_dup = " << sindex_dup << std::endl;
+	highest_rank[ebx_dup][sindex_dup] = AllTracks_PreCancel[i1].winner.Rank();
+	high_rank_index[ebx_dup][sindex_dup] = AllTracks.size() - 1;
+      }
+    }
+
   } // End first loop over tracks
 
   
@@ -644,6 +681,16 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       thisTrack.set_eta_GMT    ( outCand.hwEta() );
       
       thisTrack.ImportPtLUT    ( thisTrack.Mode(), thisTrack.Pt_LUT_addr() );
+
+      
+      // To mimic bug in EMTF firmware, only assign pT to the highest-ranked track - AWB 14.09.16
+      // std::cout << "Candidate for cancellation: ebx = " << ebx << ", thisTrack.Sector_index() = " << thisTrack.Sector_index() 
+      // 		<< ", outCand.hwEta() = " << outCand.hwEta() <<  std::endl;
+      if (fbest != high_rank_index[ebx][thisTrack.Sector_index()]) {
+	thisTrack.set_pt_GMT(0);
+	thisTrack.set_pt(-0.5);
+	outCand.setHwPt(0);
+      }
       
       // thisTrack.phi_loc_rad(); // Need to implement - AWB 04.04.16
       // thisTrack.phi_glob_rad(); // Need to implement - AWB 04.04.16
