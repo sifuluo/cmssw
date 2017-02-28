@@ -96,6 +96,8 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep *_l1L1GtObjectMap_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
         'keep *_TTStubsFromPhase2TrackerDigis_*_*',
+        'keep *_TTClusterAssociatorFromPixelDigis_*_*',
+        'keep *_TTStubAssociatorFromPixelDigis_*_*',
         'keep LumiDetails_lumiProducer_*_*',
         'keep LumiSummary_lumiProducer_*_*')
 )
