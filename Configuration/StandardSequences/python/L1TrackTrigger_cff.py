@@ -6,3 +6,5 @@ from L1Trigger.TrackTrigger.TrackTrigger_cff import *
 
 
 L1TrackTrigger=cms.Sequence(TrackTriggerClustersStubs)
+
+TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(True)
