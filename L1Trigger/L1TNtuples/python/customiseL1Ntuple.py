@@ -137,6 +137,28 @@ def L1NtupleAODEMU_MC(process):
     return process
 
 
+def L1NtupleAODRAW_MC(process):
+
+    L1NtupleRAW(process)
+    L1NtupleAOD_MC(process)
+
+    return process
+
+def L1NtupleRAWGEN_MC(process):
+
+    L1NtupleRAW(process)
+    L1NtupleGEN(process)
+
+    return process
+
+def L1NtupleAODRAWGEN_MC(process):
+
+    L1NtupleAOD_MC(process)
+    L1NtupleRAW(process)
+    L1NtupleGEN(process)
+
+    return process
+
 def L1NtupleRAWEMUGEN_MC(process):
 
     L1NtupleRAW(process)
