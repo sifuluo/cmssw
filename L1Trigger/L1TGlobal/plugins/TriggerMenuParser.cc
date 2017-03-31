@@ -364,7 +364,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	          condition.getType() == esConditionType::QuadMuonWithOverlapRemoval) {
 
              parseMuon(condition,chipNr,false);
-             parseOverlapRemoval(condition,chipNr);
+             //parseOverlapRemoval(condition,chipNr);
 
           } 
           //parse CaloWithOverlapRemoval
@@ -382,7 +382,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		  condition.getType() == esConditionType::QuadJetWithOverlapRemoval) {
 
              parseCalo(condition,chipNr,false); 
-             parseOverlapRemoval(condition,chipNr);
+             //parseOverlapRemoval(condition,chipNr);
 
           } 
           //parse CorrelationWithOverlapRemoval
@@ -393,14 +393,14 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		  condition.getType() == esConditionType::CaloEsumCorrelationWithOverlapRemoval) {
 		    
              parseCorrelation(condition,chipNr);
-             parseOverlapRemoval(condition,chipNr);
+             //parseOverlapRemoval(condition,chipNr);
 
           } 
           //parse InvariantMassWithOverlapRemoval
           else if(condition.getType() == esConditionType::InvariantMassWithOverlapRemoval) {
 
-             parseInvariantMass(condition,chipNr);
-             parseOverlapRemoval(condition,chipNr);
+             parseCorrelation(condition,chipNr);
+             //parseOverlapRemoval(condition,chipNr);
 
 	  } 
       
