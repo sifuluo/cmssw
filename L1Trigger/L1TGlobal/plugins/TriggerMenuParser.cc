@@ -351,12 +351,58 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	  {
              parseCorrelation(condition,chipNr);
 
-	  //parse Muons	 	
+	  //parse Externals	 	
 	  } else if(condition.getType() == esConditionType::Externals      )       
 	  {
              parseExternal(condition,chipNr);
 	     	    
-	  }      
+          }      
+          //parse MuonWithOverlapRemoval
+          else if(condition.getType() == esConditionType::SingleMuonWithOverlapRemoval  ||
+	          condition.getType() == esConditionType::DoubleMuonWithOverlapRemoval  ||
+	          condition.getType() == esConditionType::TripleMuonWithOverlapRemoval  ||
+	          condition.getType() == esConditionType::QuadMuonWithOverlapRemoval) {
+
+             parseMuon(condition,chipNr,false);
+             parseOverlapRemoval(condition,chipNr);
+
+          } 
+          //parse CaloWithOverlapRemoval
+          else if(condition.getType() == esConditionType::SingleEgammaWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::DoubleEgammaWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::TripleEgammaWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::QuadEgammaWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::SingleTauWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::DoubleTauWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::TripleTauWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::QuadTauWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::SingleJetWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::DoubleJetWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::TripleJetWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::QuadJetWithOverlapRemoval) {
+
+             parseCalo(condition,chipNr,false); 
+             parseOverlapRemoval(condition,chipNr);
+
+          } 
+          //parse CorrelationWithOverlapRemoval
+          else if(condition.getType() == esConditionType::MuonMuonCorrelationWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::MuonEsumCorrelationWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::CaloMuonCorrelationWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::CaloCaloCorrelationWithOverlapRemoval  ||
+		  condition.getType() == esConditionType::CaloEsumCorrelationWithOverlapRemoval) {
+		    
+             parseCorrelation(condition,chipNr);
+             parseOverlapRemoval(condition,chipNr);
+
+          } 
+          //parse InvariantMassWithOverlapRemoval
+          else if(condition.getType() == esConditionType::InvariantMassWithOverlapRemoval) {
+
+             parseInvariantMass(condition,chipNr);
+             parseOverlapRemoval(condition,chipNr);
+
+	  } 
       
       }//if condition is a new one
     }//loop over conditions
