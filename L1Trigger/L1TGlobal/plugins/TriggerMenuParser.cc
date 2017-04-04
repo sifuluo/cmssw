@@ -8,7 +8,9 @@
  *    <TODO: enter implementation details>
  *
  * \orig author: Vasile Mihai Ghete - HEPHY Vienna
- * \author: Vladimir Rekovic
+ *
+ * \new features: Vladimir Rekovic
+ *                - overlap object removal 
  *
  * $Date$
  * $Revision$
@@ -364,8 +366,13 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	          condition.getType() == esConditionType::TripleMuonWithOverlapRemoval  ||
 	          condition.getType() == esConditionType::QuadMuonWithOverlapRemoval) {
 
-             parseMuon(condition,chipNr,false);
-             //parseOverlapRemoval(condition,chipNr);
+             edm::LogError("TriggerMenuParser") << std::endl
+                << "SingleMuonWithOverlapRemoval" << std::endl
+	        << "DoubleMuonWithOverlapRemoval" << std::endl
+	        << "TripleMuonWithOverlapRemoval" << std::endl
+	        << "QuadMuonWithOverlapRemoval" << std::endl
+                << "The above conditions types WithOverlapRemoval are not implemented yet in the parser. Please remove alogrithms that use this type of condtion from L1T Menu!" << std::endl;
+             //parseMuon(condition,chipNr,false);
 
           } 
           //parse CaloWithOverlapRemoval
@@ -382,8 +389,21 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		  condition.getType() == esConditionType::TripleJetWithOverlapRemoval  ||
 		  condition.getType() == esConditionType::QuadJetWithOverlapRemoval) {
 
-             parseCalo(condition,chipNr,false); 
-             //parseOverlapRemoval(condition,chipNr);
+             edm::LogError("TriggerMenuParser") << std::endl
+                << "SingleEgammaWithOverlapRemoval" << std::endl
+	        << "DoubleEgammaWithOverlapRemoval" << std::endl
+	        << "TripleEgammaWithOverlapRemoval" << std::endl
+	        << "QuadEgammaWithOverlapRemoval" << std::endl
+	        << "SingleTauWithOverlapRemoval" << std::endl
+	        << "DoubleTauWithOverlapRemoval" << std::endl
+	        << "TripleTauWithOverlapRemoval" << std::endl
+	        << "QuadTauWithOverlapRemoval" << std::endl
+	        << "SingleJetWithOverlapRemoval" << std::endl
+	        << "DoubleJetWithOverlapRemoval" << std::endl
+	        << "TripleJetWithOverlapRemoval" << std::endl
+	        << "QuadJetWithOverlapRemoval" << std::endl
+                << "The above conditions types WithOverlapRemoval are not implemented yet in the parser. Please remove alogrithms that use this type of condtion from L1T Menu!" << std::endl;
+             //parseCalo(condition,chipNr,false); 
 
           } 
           //parse CorrelationWithOverlapRemoval
@@ -2928,10 +2948,10 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
    
 
     // create a new correlation condition
-    CorrelationWithOverlapRemovalTemplate correlationCond(name);
+    CorrelationWithOverlapRemovalTemplate correlationWORCond(name);
 
     // check that the condition does not exist already in the map
-    if ( !insertConditionIntoMap(correlationCond, chipNr)) {
+    if ( !insertConditionIntoMap(correlationWORCond, chipNr)) {
 
         edm::LogError("TriggerMenuParser")
                 << "    Error: duplicate correlation condition (" << name << ")"
@@ -2946,23 +2966,22 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
     // condition type BLW  (Do we change this to the type of correlation condition?)
     GtConditionType cType = l1t::Type2corWithOverlapRemoval;
 
-    // two objects (for sure)
-    const int nrObj = 2;
+    // three objects (for sure)
+    const int nrObj = 3;
 
     // object types and greater equal flag - filled in the loop
-    int intGEq[nrObj] = { -1, -1 };
+    int intGEq[nrObj] = { -1, -1, -1 };
     std::vector<GlobalObject> objType(nrObj);   //BLW do we want to define these as a different type?
     std::vector<GtConditionCategory> condCateg(nrObj);   //BLW do we want to change these categories
 
     // correlation flag and index in the cor*vector
     const bool corrFlag = true;
-    int corrIndexVal[nrObj] = { -1, -1 };
+    int corrIndexVal[nrObj] = { -1, -1, -1 };
 
 
     // Storage of the correlation selection
     CorrelationWithOverlapRemovalTemplate::CorrelationWithOverlapRemovalParameter corrParameter;
-    corrParameter.chargeCorrelation[0] = 1; //ignore charge correlation
-    corrParameter.chargeCorrelation[1] = 1; //ignore charge correlation
+    corrParameter.chargeCorrelation = 1; //ignore charge correlation for corr-legs
 
 // Get the correlation Cuts on the legs
       int cutType = 0;  
@@ -3011,6 +3030,26 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
 	     corrParameter.precMassCut     = cut.getMinimum().index;
 	     cutType = cutType | 0x8; 
           }
+	  if(cut.getCutType() == esCutType::OverlapRemovalDeltaEta) {
+	     //std::cout << "OverlapRemovalDeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minOverlapRemovalEtaCutValue = (long long)(minV * pow(10.,cut.getMinimum().index)); 
+	     corrParameter.maxOverlapRemovalEtaCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index)); 
+	     corrParameter.precOverlapRemovalEtaCut     = cut.getMinimum().index;	     
+	     cutType = cutType | 0x10;
+	  } else if (cut.getCutType() == esCutType::OverlapRemovalDeltaPhi) {
+	     //std::cout << "OverlapRemovalDeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minOverlapRemovalPhiCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxOverlapRemovalPhiCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precOverlapRemovalPhiCut     = cut.getMinimum().index;
+	     cutType = cutType | 0x20;
+	  } else if (cut.getCutType() == esCutType::OverlapRemovalDeltaR) {
+	     //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minOverlapRemovalDRCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxOverlapRemovalDRCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precOverlapRemovalDRCut     = cut.getMinimum().index;
+	     cutType = cutType | 0x40; 
+          }
+
 	}  
 
       }
@@ -3018,9 +3057,9 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
 
 // Get the two objects that form the legs
       const std::vector<esObject>& objects = corrCond.getObjects();
-      if(objects.size() != 2) {
+      if(objects.size() != 3) {
             edm::LogError("TriggerMenuParser")
-                    << "incorrect number of objects for the correlation condition " << name << " corrFlag " << corrFlag << std::endl;
+                    << "incorrect number of objects for the correlation condition with overlap removal " << name << " corrFlag " << corrFlag << std::endl;
             return false;      
       }
       
@@ -3172,23 +3211,25 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
     
 
    // fill the correlation condition
-    correlationCond.setCondType(cType);
-    correlationCond.setObjectType(objType);
-    correlationCond.setCondGEq(gEq);
-    correlationCond.setCondChipNr(chipNr);
+    correlationWORCond.setCondType(cType);
+    correlationWORCond.setObjectType(objType);
+    correlationWORCond.setCondGEq(gEq);
+    correlationWORCond.setCondChipNr(chipNr);
 
-    correlationCond.setCond0Category(condCateg[0]);
-    correlationCond.setCond1Category(condCateg[1]);
+    correlationWORCond.setCond0Category(condCateg[0]);
+    correlationWORCond.setCond1Category(condCateg[1]);
+    correlationWORCond.setCond2Category(condCateg[2]);
 
-    correlationCond.setCond0Index(corrIndexVal[0]);
-    correlationCond.setCond1Index(corrIndexVal[1]);
+    correlationWORCond.setCond0Index(corrIndexVal[0]);
+    correlationWORCond.setCond1Index(corrIndexVal[1]);
+    correlationWORCond.setCond2Index(corrIndexVal[2]);
 
-    correlationCond.setCorrelationParameter(corrParameter);
+    correlationWORCond.setCorrelationWithOverlapRemovalParameter(corrParameter);
 
     if (edm::isDebugEnabled() ) {
 
         std::ostringstream myCoutStream;
-        correlationCond.print(myCoutStream);
+        correlationWORCond.print(myCoutStream);
         LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n"
                 << std::endl;
 
@@ -3197,7 +3238,7 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
     // insert condition into the map
     // condition is not duplicate, check was done at the beginning
 
-    (m_vecCorrelationTemplate[chipNr]).push_back(correlationCond);
+    (m_vecCorrelationWithOverlapRemovalTemplate[chipNr]).push_back(correlationWORCond);
     
     
     //
