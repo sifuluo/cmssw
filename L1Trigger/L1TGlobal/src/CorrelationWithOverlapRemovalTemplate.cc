@@ -35,7 +35,7 @@ CorrelationWithOverlapRemovalTemplate::CorrelationWithOverlapRemovalTemplate()
         : GlobalCondition()
 {
 
-    m_condCategory = l1t::CondCorrelation;
+    m_condCategory = l1t::CondCorrelationWithOverlapRemoval;
     m_condType = l1t::Type2cor;
     m_condChipNr = -1;
 
@@ -60,7 +60,7 @@ CorrelationWithOverlapRemovalTemplate::CorrelationWithOverlapRemovalTemplate(con
         : GlobalCondition(cName)
 {
 
-    m_condCategory = l1t::CondCorrelation;
+    m_condCategory = l1t::CondCorrelationWithOverlapRemoval;
     m_condType = l1t::Type2cor;
     m_condChipNr = -1;
 
@@ -192,23 +192,30 @@ void CorrelationWithOverlapRemovalTemplate::print(std::ostream& myCout) const
 
     myCout << "\n  CorrelationWithOverlapRemoval parameters " << "[ hex ]" <<  std::endl;
 
-    for (int i=0;i<2;i++) {
-    myCout << "    Cut Type["<<i<<"]:  " << m_correlationParameter.corrCutType[i] << std::endl;
-    myCout << "    minEtaCutValue["<<i<<"]        = " << std::dec << m_correlationParameter.minEtaCutValue[i] << std::endl;
-    myCout << "    maxEtaCutValue["<<i<<"]        = " << std::dec << m_correlationParameter.maxEtaCutValue[i] << std::endl;
-    myCout << "    precEtaCut["<<i<<"]            = " << std::dec << m_correlationParameter.precEtaCut[i]     << std::endl;
-    myCout << "    minPhiCutValue["<<i<<"]        = " << std::dec << m_correlationParameter.minPhiCutValue[i] << std::endl;
-    myCout << "    maxPhiCutValue["<<i<<"]        = " << std::dec << m_correlationParameter.maxPhiCutValue[i] << std::endl;
-    myCout << "    precPhiCut["<<i<<"]            = " << std::dec << m_correlationParameter.precPhiCut[i]     << std::endl;
-    myCout << "    minDRCutValue["<<i<<"]         = " << std::dec << m_correlationParameter.minDRCutValue[i]  << std::endl;
-    myCout << "    maxDRCutValue["<<i<<"]         = " << std::dec << m_correlationParameter.maxDRCutValue[i]  << std::endl;
-    myCout << "    precDRCut["<<i<<"]             = " << std::dec << m_correlationParameter.precDRCut[i]      << std::endl;
-    myCout << "    minMassCutValue["<<i<<"]       = " << std::dec << m_correlationParameter.minMassCutValue[i]<< std::endl;
-    myCout << "    maxMassCutValue["<<i<<"]       = " << std::dec << m_correlationParameter.maxMassCutValue[i]<< std::endl;
-    myCout << "    precMassCut["<<i<<"]           = " << std::dec << m_correlationParameter.precMassCut[i]    << std::endl;
+    myCout << "    Cut Type:  " << m_correlationParameter.corrCutType << std::endl;
+    myCout << "    minEtaCutValue        = " << std::dec << m_correlationParameter.minEtaCutValue << std::endl;
+    myCout << "    maxEtaCutValue        = " << std::dec << m_correlationParameter.maxEtaCutValue << std::endl;
+    myCout << "    precEtaCut            = " << std::dec << m_correlationParameter.precEtaCut     << std::endl;
+    myCout << "    minPhiCutValue        = " << std::dec << m_correlationParameter.minPhiCutValue << std::endl;
+    myCout << "    maxPhiCutValue        = " << std::dec << m_correlationParameter.maxPhiCutValue << std::endl;
+    myCout << "    precPhiCut            = " << std::dec << m_correlationParameter.precPhiCut     << std::endl;
+    myCout << "    minDRCutValue         = " << std::dec << m_correlationParameter.minDRCutValue  << std::endl;
+    myCout << "    maxDRCutValue         = " << std::dec << m_correlationParameter.maxDRCutValue  << std::endl;
+    myCout << "    precDRCut             = " << std::dec << m_correlationParameter.precDRCut      << std::endl;
+    myCout << "    minMassCutValue       = " << std::dec << m_correlationParameter.minMassCutValue<< std::endl;
+    myCout << "    maxMassCutValue       = " << std::dec << m_correlationParameter.maxMassCutValue<< std::endl;
+    myCout << "    precMassCut           = " << std::dec << m_correlationParameter.precMassCut    << std::endl;
+    myCout << "    minOverlapRemovalEtaCutValue        = " << std::dec << m_correlationParameter.minOverlapRemovalEtaCutValue << std::endl;
+    myCout << "    maxOverlapRemovalEtaCutValue        = " << std::dec << m_correlationParameter.maxOverlapRemovalEtaCutValue << std::endl;
+    myCout << "    precOverlapRemovalEtaCut            = " << std::dec << m_correlationParameter.precOverlapRemovalEtaCut     << std::endl;
+    myCout << "    minOverlapRemovalPhiCutValue        = " << std::dec << m_correlationParameter.minOverlapRemovalPhiCutValue << std::endl;
+    myCout << "    maxOverlapRemovalPhiCutValue        = " << std::dec << m_correlationParameter.maxOverlapRemovalPhiCutValue << std::endl;
+    myCout << "    precOverlapRemovalPhiCut            = " << std::dec << m_correlationParameter.precOverlapRemovalPhiCut     << std::endl;
+    myCout << "    minOverlapRemovalDRCutValue         = " << std::dec << m_correlationParameter.minOverlapRemovalDRCutValue  << std::endl;
+    myCout << "    maxOverlapRemovalDRCutValue         = " << std::dec << m_correlationParameter.maxOverlapRemovalDRCutValue  << std::endl;
+    myCout << "    precOverlapRemovalDRCut             = " << std::dec << m_correlationParameter.precOverlapRemovalDRCut      << std::endl;
  
-    myCout << "    chargeCorrelation["<<i<<"]  = " << std::dec << m_correlationParameter.chargeCorrelation[i] << std::endl;
-    }
+    myCout << "    chargeCorrelation  = " << std::dec << m_correlationParameter.chargeCorrelation << std::endl;
 
     // reset to decimal output
     myCout << std::dec << std::endl;

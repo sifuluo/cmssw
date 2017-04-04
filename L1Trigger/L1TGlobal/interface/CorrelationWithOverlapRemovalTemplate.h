@@ -68,27 +68,38 @@ public:
     {
 	
 	// Cut values in hardware
-        // One for correlation legs, one for overlap removal
-	long long minEtaCutValue[2];
-	long long maxEtaCutValue[2]; 
-	unsigned int precEtaCut[2];
+	long long minEtaCutValue;
+	long long maxEtaCutValue; 
+	unsigned int precEtaCut;
 
-	long long minPhiCutValue[2];
-	long long maxPhiCutValue[2]; 
-	unsigned int precPhiCut[2];
+	long long minPhiCutValue;
+	long long maxPhiCutValue; 
+	unsigned int precPhiCut;
 
-	long long minDRCutValue[2];
-	long long maxDRCutValue[2];
-	unsigned int precDRCut[2]; 
+	long long minDRCutValue;
+	long long maxDRCutValue;
+	unsigned int precDRCut; 
 
-	long long minMassCutValue[2];
-	long long maxMassCutValue[2];
-	unsigned int precMassCut[2]; 
+	long long minMassCutValue;
+	long long maxMassCutValue;
+	unsigned int precMassCut; 
+
+	long long minOverlapRemovalEtaCutValue;
+	long long maxOverlapRemovalEtaCutValue; 
+	unsigned int precOverlapRemovalEtaCut;
+
+	long long minOverlapRemovalPhiCutValue;
+	long long maxOverlapRemovalPhiCutValue; 
+	unsigned int precOverlapRemovalPhiCut;
+
+	long long minOverlapRemovalDRCutValue;
+	long long maxOverlapRemovalDRCutValue;
+	unsigned int precOverlapRemovalDRCut; 
 
         //Requirement on charge of legs (currently only Mu-Mu).	
-	unsigned int chargeCorrelation[2];
+	unsigned int chargeCorrelation;
 
-	int corrCutType[2];
+	int corrCutType;
 
     };
 
