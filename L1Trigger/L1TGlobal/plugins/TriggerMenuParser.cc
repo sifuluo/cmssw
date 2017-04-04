@@ -7,7 +7,8 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
+ * \orig author: Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Vladimir Rekovic
  *
  * $Date$
  * $Revision$
@@ -390,19 +391,12 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 		  condition.getType() == esConditionType::MuonEsumCorrelationWithOverlapRemoval  ||
 		  condition.getType() == esConditionType::CaloMuonCorrelationWithOverlapRemoval  ||
 		  condition.getType() == esConditionType::CaloCaloCorrelationWithOverlapRemoval  ||
-		  condition.getType() == esConditionType::CaloEsumCorrelationWithOverlapRemoval) {
+		  condition.getType() == esConditionType::CaloEsumCorrelationWithOverlapRemoval  || 
+                  condition.getType() == esConditionType::InvariantMassWithOverlapRemoval) {
 		    
-             parseCorrelation(condition,chipNr);
-             //parseOverlapRemoval(condition,chipNr);
+             parseCorrelationWithOverlapRemoval(condition,chipNr);
 
           } 
-          //parse InvariantMassWithOverlapRemoval
-          else if(condition.getType() == esConditionType::InvariantMassWithOverlapRemoval) {
-
-             parseCorrelation(condition,chipNr);
-             //parseOverlapRemoval(condition,chipNr);
-
-	  } 
       
       }//if condition is a new one
     }//loop over conditions
@@ -2740,6 +2734,317 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 	  // This is potentially a place to slim down the code.  Note: We currently evaluate the
 	  // conditions every time, so even if we put the condition in the vector once, we would 
 	  // still evaluate it multiple times.  This is a place for optimization.
+          {
+	   	                  
+              parseMuonCorr(&object,chipNr);
+	      corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;	     
+	      
+          } else {
+	     LogDebug("TriggerMenuParser") << "Not Adding Correlation Muon Condition to Map...looking for the condition in Muon Cor Vector" << std::endl;
+	     bool found = false;
+	     int index = 0;
+	     while(!found && index<(int)((m_corMuonTemplate[chipNr]).size()) ) {
+	         if( (m_corMuonTemplate[chipNr]).at(index).condName() == object.getName() ) {
+		    LogDebug("TriggerMenuParser") << "Found condition " << object.getName() << " in vector at index " << index << std::endl;
+		    found = true;
+		 } else {
+		    index++;		 
+		 }
+	     }	  
+	     if(found) {
+	        corrIndexVal[jj] = index;
+	     } else {
+	       edm::LogError("TriggerMenuParser") << "FAILURE: Condition " << object.getName() << " is in map but not in cor. vector " << std::endl;
+	     }
+	     
+	  }
+*/
+          parseMuonCorr(&object,chipNr);
+	  corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;	     
+	  
+          //Now set some flags for this subCondition
+	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
+          objType[jj] = gtMu;
+          condCateg[jj] = CondMuon;
+	  
+        } else if(object.getType() == esObjectType::Egamma ||
+	          object.getType() == esObjectType::Jet    ||
+		  object.getType() == esObjectType::Tau ) {
+	  
+	  // we have an Calo object
+          parseCaloCorr(&object,chipNr);
+	  corrIndexVal[jj] = (m_corCaloTemplate[chipNr]).size() - 1;
+
+          //Now set some flags for this subCondition
+	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
+          switch(object.getType()) {
+	     case esObjectType::Egamma: { 
+	      objType[jj] = gtEG;
+	     }
+	        break;
+	     case esObjectType::Jet: { 
+	      objType[jj] = gtJet;
+	     }
+	        break;
+	     case esObjectType::Tau: { 
+	      objType[jj] = gtTau;
+	     }
+	        break;
+	      default: {
+	      }
+	        break;	
+          }		 
+          condCateg[jj] = CondCalo;
+          	     
+          
+	  
+	  
+        } else if(object.getType() == esObjectType::ETM   ||
+	          object.getType() == esObjectType::ETMHF ||
+	          object.getType() == esObjectType::TOWERCOUNT ||
+	          object.getType() == esObjectType::HTM ) {
+	 
+	  // we have Energy Sum
+          parseEnergySumCorr(&object,chipNr);
+          corrIndexVal[jj] = (m_corEnergySumTemplate[chipNr]).size() - 1;
+
+          //Now set some flags for this subCondition
+	  intGEq[jj] = (object.getComparisonOperator() == esComparisonOperator::GE);
+          switch(object.getType()) {
+	     case esObjectType::ETM: { 
+	      objType[jj] = GlobalObject::gtETM;
+	     }
+	        break;
+	     case esObjectType::HTM: { 
+	      objType[jj] = GlobalObject::gtHTM;
+	     }
+	        break;
+	     case esObjectType::ETMHF: { 
+	      objType[jj] = GlobalObject::gtETMHF;
+	     }
+	        break;
+	     case esObjectType::TOWERCOUNT: {
+	      objType[jj] = GlobalObject::gtTowerCount;
+	     }
+	        break;
+	      default: {
+	      }
+	        break;			
+          }		 
+          condCateg[jj] = CondEnergySum;
+	  	              
+
+	} else {
+	
+          edm::LogError("TriggerMenuParser")
+                  << "Illegal Object Type " << object.getType() 
+                  << " for the correlation condition " << name << std::endl;
+          return false;	     
+
+	}  //if block on leg types
+
+      }  //loop over legs
+    
+
+    // get greater equal flag for the correlation condition
+    bool gEq = true;
+    if (intGEq[0] != intGEq[1]) {
+        edm::LogError("TriggerMenuParser")
+                << "Inconsistent GEq flags for sub-conditions "
+                << " for the correlation condition " << name << std::endl;
+        return false;
+
+    }
+    else {
+        gEq = (intGEq[0] != 0);
+
+    }
+    
+
+   // fill the correlation condition
+    correlationCond.setCondType(cType);
+    correlationCond.setObjectType(objType);
+    correlationCond.setCondGEq(gEq);
+    correlationCond.setCondChipNr(chipNr);
+
+    correlationCond.setCond0Category(condCateg[0]);
+    correlationCond.setCond1Category(condCateg[1]);
+
+    correlationCond.setCond0Index(corrIndexVal[0]);
+    correlationCond.setCond1Index(corrIndexVal[1]);
+
+    correlationCond.setCorrelationParameter(corrParameter);
+
+    if (edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        correlationCond.print(myCoutStream);
+        LogTrace("TriggerMenuParser") << myCoutStream.str() << "\n"
+                << std::endl;
+
+    }
+
+    // insert condition into the map
+    // condition is not duplicate, check was done at the beginning
+
+    (m_vecCorrelationTemplate[chipNr]).push_back(correlationCond);
+    
+    
+    //
+    return true;
+}
+
+/**
+ * parseCorrelationWithOverlapRemoval Parse a correlation condition and
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if succeeded, "false" if an error occurred.
+ *
+ */
+
+bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
+        tmeventsetup::esCondition corrCond,
+        unsigned int chipNr) {
+
+    using namespace tmeventsetup;
+
+    std::string condition = "corrWithOverlapRemoval";
+    std::string particle = "test-fix" ;
+    std::string type = l1t2string( corrCond.getType() );
+    std::string name = l1t2string( corrCond.getName() );
+
+    LogDebug("TriggerMenuParser") << " ****************************************** " << std::endl
+     << "     (in parseCorrelation) " << std::endl
+     << " condition = " << condition << std::endl
+     << " particle  = " << particle << std::endl
+     << " type      = " << type << std::endl
+     << " name      = " << name << std::endl;
+
+
+   
+
+    // create a new correlation condition
+    CorrelationWithOverlapRemovalTemplate correlationCond(name);
+
+    // check that the condition does not exist already in the map
+    if ( !insertConditionIntoMap(correlationCond, chipNr)) {
+
+        edm::LogError("TriggerMenuParser")
+                << "    Error: duplicate correlation condition (" << name << ")"
+                << std::endl;
+
+        return false;
+    }
+
+
+// Define some of the quantities to store the parased information
+
+    // condition type BLW  (Do we change this to the type of correlation condition?)
+    GtConditionType cType = l1t::Type2corWithOverlapRemoval;
+
+    // two objects (for sure)
+    const int nrObj = 2;
+
+    // object types and greater equal flag - filled in the loop
+    int intGEq[nrObj] = { -1, -1 };
+    std::vector<GlobalObject> objType(nrObj);   //BLW do we want to define these as a different type?
+    std::vector<GtConditionCategory> condCateg(nrObj);   //BLW do we want to change these categories
+
+    // correlation flag and index in the cor*vector
+    const bool corrFlag = true;
+    int corrIndexVal[nrObj] = { -1, -1 };
+
+
+    // Storage of the correlation selection
+    CorrelationWithOverlapRemovalTemplate::CorrelationWithOverlapRemovalParameter corrParameter;
+    corrParameter.chargeCorrelation[0] = 1; //ignore charge correlation
+    corrParameter.chargeCorrelation[1] = 1; //ignore charge correlation
+
+// Get the correlation Cuts on the legs
+      int cutType = 0;  
+      const std::vector<esCut>& cuts = corrCond.getCuts();      
+      for (size_t jj = 0; jj < cuts.size(); jj++)
+      {
+        const esCut cut = cuts.at(jj);
+
+	if(cut.getCutType() == esCutType::ChargeCorrelation) { 
+	   if( cut.getData()=="ls" )      corrParameter.chargeCorrelation = 2;
+	   else if( cut.getData()=="os" ) corrParameter.chargeCorrelation = 4;
+	   else corrParameter.chargeCorrelation = 1; //ignore charge correlation
+        } else {
+
+// 
+//  Unitl utm has method to calculate these, do the integer value calculation with precision.
+//
+          double minV = cut.getMinimum().value;
+	  double maxV = cut.getMaximum().value;
+	  
+	  //Scale down very large numbers out of xml
+	  if(maxV > 1.0e8) maxV = 1.0e8;
+	  
+	  if(cut.getCutType() == esCutType::DeltaEta) {
+	     //std::cout << "DeltaEta Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minEtaCutValue = (long long)(minV * pow(10.,cut.getMinimum().index)); 
+	     corrParameter.maxEtaCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index)); 
+	     corrParameter.precEtaCut     = cut.getMinimum().index;	     
+	     cutType = cutType | 0x1;
+	  } else if (cut.getCutType() == esCutType::DeltaPhi) {
+	     //std::cout << "DeltaPhi Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minPhiCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxPhiCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precPhiCut     = cut.getMinimum().index;
+	     cutType = cutType | 0x2;
+	  } else if (cut.getCutType() == esCutType::DeltaR) {
+	     //std::cout << "DeltaR Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;
+	     corrParameter.minDRCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxDRCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precDRCut     = cut.getMinimum().index;
+	     cutType = cutType | 0x4; 
+	  } else if (cut.getCutType() == esCutType::Mass) {
+	     //std::cout << "Mass Cut minV = " << minV << " Max = " << maxV << " precMin = " << cut.getMinimum().index << " precMax = " << cut.getMaximum().index << std::endl;	  
+	     corrParameter.minMassCutValue = (long long)(minV * pow(10.,cut.getMinimum().index));
+	     corrParameter.maxMassCutValue = (long long)(maxV * pow(10.,cut.getMaximum().index));
+	     corrParameter.precMassCut     = cut.getMinimum().index;
+	     cutType = cutType | 0x8; 
+          }
+	}  
+
+      }
+      corrParameter.corrCutType = cutType;
+
+// Get the two objects that form the legs
+      const std::vector<esObject>& objects = corrCond.getObjects();
+      if(objects.size() != 2) {
+            edm::LogError("TriggerMenuParser")
+                    << "incorrect number of objects for the correlation condition " << name << " corrFlag " << corrFlag << std::endl;
+            return false;      
+      }
+      
+// loop over legs      
+      for (size_t jj = 0; jj < objects.size(); jj++)
+      {
+        const esObject object = objects.at(jj);
+/*      std::cout << "      obj name = " << object->getName() << "\n";
+        std::cout << "      obj type = " << object->getType() << "\n";
+        std::cout << "      obj op = " << object->getComparisonOperator() << "\n";
+        std::cout << "      obj bx = " << object->getBxOffset() << "\n";
+*/
+
+// check the leg type
+        if(object.getType() == esObjectType::Muon) {
+	  // we have a muon  
+
+/*
+          //BLW Hold on to this code we may need to go back to it at some point.
+	  // Now we are putting ALL leg conditions into the vector (so there are duplicates)
+	  // This is potentially a place to slim down the code.  Note: We currently evaluate the
+	  // conditions every time, so even if we put the condition in the vector once, we would 
+	  // still evaluate it multiple times.  This is a place for optimization.
+          {
 	   	                  
               parseMuonCorr(&object,chipNr);
 	      corrIndexVal[jj] = (m_corMuonTemplate[chipNr]).size() - 1;	     
