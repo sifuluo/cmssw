@@ -204,6 +204,8 @@ private:
   std::vector<float>* m_allstub_matchTP_eta;   // -999 if not matched
   std::vector<float>* m_allstub_matchTP_phi;   // -999 if not matched
 
+  std::vector<int>*   m_allstub_genuine;
+
 };
 
 
@@ -338,6 +340,9 @@ void L1TrackNtupleMaker::beginJob()
   m_allstub_matchTP_eta   = new std::vector<float>;
   m_allstub_matchTP_phi   = new std::vector<float>;
 
+  m_allstub_genuine = new std::vector<int>;
+
+
   // ntuple
   eventTree = fs->make<TTree>("eventTree", "Event tree");
 
@@ -403,6 +408,8 @@ void L1TrackNtupleMaker::beginJob()
     eventTree->Branch("allstub_matchTP_pt", &m_allstub_matchTP_pt);
     eventTree->Branch("allstub_matchTP_eta", &m_allstub_matchTP_eta);
     eventTree->Branch("allstub_matchTP_phi", &m_allstub_matchTP_phi);
+
+    eventTree->Branch("allstub_genuine", &m_allstub_genuine);
   }
 
 }
@@ -485,6 +492,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_allstub_matchTP_pt->clear();
     m_allstub_matchTP_eta->clear();
     m_allstub_matchTP_phi->clear();
+
+    m_allstub_genuine->clear();
   }
 
 
@@ -625,6 +634,11 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 	m_allstub_matchTP_eta->push_back(myTP_eta);
 	m_allstub_matchTP_phi->push_back(myTP_phi);
 	
+	int tmp_stub_genuine = 0;
+	if (MCTruthTTStubHandle->isGenuine(tempStubPtr)) tmp_stub_genuine = 1;
+
+	m_allstub_genuine->push_back(tmp_stub_genuine);
+
       }
       
     }

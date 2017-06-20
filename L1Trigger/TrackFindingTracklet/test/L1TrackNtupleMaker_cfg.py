@@ -40,7 +40,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 if GEOMETRY == "D10": 
     #D10 (flat barrel)
@@ -65,7 +65,18 @@ elif GEOMETRY == "D13":
     "/store/relval/CMSSW_9_1_0_pre3/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/888282CA-682E-E711-8DB0-0025905A4964.root",
     "/store/relval/CMSSW_9_1_0_pre3/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/8A1BD86E-6A2E-E711-8DB6-0025905A4964.root",
     "/store/relval/CMSSW_9_1_0_pre3/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v1/10000/BCB8C8A5-692E-E711-BA94-0025905A612E.root",
-    )
+
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/0E9A4F45-602E-E711-916C-0CC47A7C3430.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/12249F9F-5F2E-E711-849D-0CC47A4D76C6.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/4A2589F6-622E-E711-8EB2-0025905B85CC.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/4C511711-5F2E-E711-847A-0025905B857E.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/52EA294A-602E-E711-B368-0025905B85CA.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/5ECEC385-5E2E-E711-8E82-0CC47A7C3430.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/7A367D94-5D2E-E711-A3F2-0025905B8568.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/BAABF1B9-5E2E-E711-BE64-0025905A60E4.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/EC59F295-602E-E711-BAB5-0025905A48C0.root",
+    #"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/ECC7C5F2-622E-E711-8704-0025905AA9F0.root",
+)
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('Muon10_'+GEOMETRY+'_PU0.root'), closeFileFast = cms.untracked.bool(True))
@@ -76,6 +87,9 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string('Muon10
 ############################################################
 
 # remake stubs 
+
+# ===> IMPORTANT !!! stub window tuning as is by default in CMSSW is incorrect !!! <===
+
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
 
@@ -130,8 +144,5 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        )
 process.ana = cms.Path(process.L1TrackNtuple)
 
-if GEOMETRY == "D10": 
-    process.schedule = cms.Schedule(process.TTClusterStub,process.TTTracksWithTruth,process.ana)
-else:
-    process.schedule = cms.Schedule(process.TTTracksWithTruth,process.ana)
+process.schedule = cms.Schedule(process.TTClusterStub,process.TTTracksWithTruth,process.ana)
 

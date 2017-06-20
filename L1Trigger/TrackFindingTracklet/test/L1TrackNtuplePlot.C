@@ -40,7 +40,7 @@ void makeResidualIntervalPlot( TString type, TString dir, TString variable, TH1F
 // ----------------------------------------------------------------------------------------------------------------
 
 
-void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=0, int TP_select_eventid=0, float TP_minPt=3.0, float TP_maxPt=100.0, float TP_maxEta=2.4) {
+void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=0, int TP_select_eventid=0, float TP_minPt=2.0, float TP_maxPt=100.0, float TP_maxEta=2.4) {
 
   // type:              this is the input file you want to process (minus ".root" extension)
   // TP_select_pdgid:   if non-zero, only select TPs with a given PDG ID
@@ -317,13 +317,16 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
 
   TH1F* h_tp_pt    = new TH1F("tp_pt",   ";Tracking particle p_{T} [GeV]; Tracking particles / 1.0 GeV", 100,  0,   100.0);
   TH1F* h_tp_pt_L  = new TH1F("tp_pt_L", ";Tracking particle p_{T} [GeV]; Tracking particles / 0.1 GeV",  80,  0,     8.0);
+  TH1F* h_tp_pt_LC = new TH1F("tp_pt_LC",";Tracking particle p_{T} [GeV]; Tracking particles / 0.1 GeV",  80,  0,     8.0);
   TH1F* h_tp_pt_H  = new TH1F("tp_pt_H", ";Tracking particle p_{T} [GeV]; Tracking particles / 1.0 GeV",  92,  8.0, 100.0);
   TH1F* h_tp_eta   = new TH1F("tp_eta",  ";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
   TH1F* h_tp_eta_L = new TH1F("tp_eta_L",";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
   TH1F* h_tp_eta_H = new TH1F("tp_eta_H",";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
 
+
   TH1F* h_match_tp_pt    = new TH1F("match_tp_pt",   ";Tracking particle p_{T} [GeV]; Tracking particles / 1.0 GeV", 100,  0,   100.0);
   TH1F* h_match_tp_pt_L  = new TH1F("match_tp_pt_L", ";Tracking particle p_{T} [GeV]; Tracking particles / 0.1 GeV",  80,  0,     8.0);
+  TH1F* h_match_tp_pt_LC = new TH1F("match_tp_pt_LC",";Tracking particle p_{T} [GeV]; Tracking particles / 0.1 GeV",  80,  0,     8.0);
   TH1F* h_match_tp_pt_H  = new TH1F("match_tp_pt_H", ";Tracking particle p_{T} [GeV]; Tracking particles / 0.1 GeV",  92,  8.0, 100.0);
   TH1F* h_match_tp_eta   = new TH1F("match_tp_eta",  ";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
   TH1F* h_match_tp_eta_L = new TH1F("match_tp_eta_L",";Tracking particle #eta; Tracking particles / 0.1",             50, -2.5,   2.5);
@@ -783,6 +786,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
       h_tp_pt->Fill(tp_pt->at(it));
       if (tp_pt->at(it) < 8.0) h_tp_pt_L->Fill(tp_pt->at(it));
       else h_tp_pt_H->Fill(tp_pt->at(it));
+      if (tp_pt->at(it) < 8.0 && fabs(tp_eta->at(it))<1.0) h_tp_pt_LC->Fill(tp_pt->at(it));
       
       if (tp_pt->at(it) > TP_minPt) {
 	
@@ -890,6 +894,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
       h_match_tp_pt->Fill(tp_pt->at(it));
       if (tp_pt->at(it) < 8.0) h_match_tp_pt_L->Fill(tp_pt->at(it));
       else h_match_tp_pt_H->Fill(tp_pt->at(it));
+      if (tp_pt->at(it) < 8.0 && fabs(tp_eta->at(it))<1.0) h_match_tp_pt_LC->Fill(tp_pt->at(it));
       
       if (tp_pt->at(it) > TP_minPt) {
 	h_match_tp_eta->Fill(tp_eta->at(it));
@@ -2063,6 +2068,13 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   h_eff_pt_L->GetYaxis()->SetTitle("Efficiency");
   h_eff_pt_L->Divide(h_match_tp_pt_L, h_tp_pt_L, 1.0, 1.0, "B");
 
+  h_match_tp_pt_LC->Sumw2();
+  h_tp_pt_LC->Sumw2();
+  TH1F* h_eff_pt_LC = (TH1F*) h_match_tp_pt_LC->Clone();
+  h_eff_pt_LC->SetName("eff_pt_LC");
+  h_eff_pt_LC->GetYaxis()->SetTitle("Efficiency");
+  h_eff_pt_LC->Divide(h_match_tp_pt_LC, h_tp_pt_LC, 1.0, 1.0, "B");
+
   h_match_tp_pt_H->Sumw2();
   h_tp_pt_H->Sumw2();
   TH1F* h_eff_pt_H = (TH1F*) h_match_tp_pt_H->Clone();
@@ -2130,6 +2142,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   // set the axis range
   h_eff_pt  ->SetAxisRange(0,1.1,"Y");
   h_eff_pt_L->SetAxisRange(0,1.1,"Y");
+  h_eff_pt_LC->SetAxisRange(0,1.1,"Y");
   h_eff_pt_H->SetAxisRange(0,1.1,"Y");
   h_eff_eta ->SetAxisRange(0,1.1,"Y");
   h_eff_eta_L ->SetAxisRange(0,1.1,"Y");
@@ -2157,7 +2170,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
     c.SaveAs(DIR+type+"_eff_pt_zoom.png");
   }
 
-  if (doDetailedPlots) {
+  //  if (doDetailedPlots) {
     h_eff_pt_L->Draw();
     h_eff_pt_L->Write();
     sprintf(ctxt,"p_{T} < 8 GeV");
@@ -2165,13 +2178,20 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
     c.SaveAs(DIR+type+"_eff_pt_L.eps");
     c.SaveAs(DIR+type+"_eff_pt_L.png");
     
+    h_eff_pt_LC->Draw();
+    h_eff_pt_LC->Write();
+    sprintf(ctxt,"p_{T} < 8 GeV, |#eta|<1.0");
+    mySmallText(0.45,0.5,1,ctxt);
+    c.SaveAs(DIR+type+"_eff_pt_LC.eps");
+    c.SaveAs(DIR+type+"_eff_pt_LC.png");
+    
     h_eff_pt_H->Draw();
     h_eff_pt_H->Write();
     sprintf(ctxt,"p_{T} > 8 GeV");
     mySmallText(0.45,0.5,1,ctxt);
     c.SaveAs(DIR+type+"_eff_pt_H.eps");
     c.SaveAs(DIR+type+"_eff_pt_H.png");
-  }
+    //  }
 
   h_eff_eta->Draw();
   h_eff_eta->Write();

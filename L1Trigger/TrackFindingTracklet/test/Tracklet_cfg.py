@@ -9,8 +9,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D13Reco_cff') ## this needs to match the geometry you are running on
+process.load('Configuration.Geometry.GeometryExtended2023D13_cff')     ## this needs to match the geometry you are running on
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -22,9 +22,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 # input
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 Source_Files = cms.untracked.vstring(
-    "/store/relval/CMSSW_9_0_0_pre5/RelValSingleMuPt10Extended/GEN-SIM-DIGI-RAW/90X_upgrade2023_realistic_v4_D11-v1/00000/6EAF64B8-29FE-E611-9AD8-0025905A48D8.root"
+"/store/relval/CMSSW_9_1_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/91X_upgrade2023_realistic_v1_D13-v2/10000/0E9A4F45-602E-E711-916C-0CC47A7C3430.root"
     )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
+
+
+# remake stubs 
+# ===> IMPORTANT !!! stub window tuning as is by default in CMSSW is incorrect !!! <===
+process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
+process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
 
 
 # L1 tracking
@@ -45,5 +52,5 @@ process.out = cms.OutputModule( "PoolOutputModule",
 )
 process.FEVToutput_step = cms.EndPath(process.out)
 
-process.schedule = cms.Schedule(process.TTTracksWithTruth,process.FEVToutput_step)
+process.schedule = cms.Schedule(process.TTClusterStub,process.TTTracksWithTruth,process.FEVToutput_step)
 
