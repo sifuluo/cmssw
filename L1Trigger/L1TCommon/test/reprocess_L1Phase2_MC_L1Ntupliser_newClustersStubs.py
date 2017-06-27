@@ -56,7 +56,12 @@ process.source = cms.Source("PoolSource",
     ,'root://cms-xrd-global.cern.ch///store/mc/PhaseIISpring17D/SingleNeutrino/GEN-SIM-DIGI-RAW/PU200_90X_upgrade2023_realistic_v9-v1/70000/022EE4F8-6026-E711-89A2-0242AC130002.root'
     ,'root://cms-xrd-global.cern.ch///store/mc/PhaseIISpring17D/SingleNeutrino/GEN-SIM-DIGI-RAW/PU200_90X_upgrade2023_realistic_v9-v1/70000/023B88FC-6026-E711-BB4C-0242AC130002.root'
     ,'root://cms-xrd-global.cern.ch///store/mc/PhaseIISpring17D/SingleNeutrino/GEN-SIM-DIGI-RAW/PU200_90X_upgrade2023_realistic_v9-v1/70000/026BAE30-6826-E711-9BCE-0242AC130002.root'),
-    secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+    inputCommands=cms.untracked.vstring(
+      'keep *',
+      'drop  *_TTClustersFromPhase2TrackerDigis_*_*',
+      'drop  *_TTStubsFromPhase2TrackerDigis_*_*'
+    )
 )
 
 process.options = cms.untracked.PSet(
