@@ -705,10 +705,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	    //If we are dealing with the same object type avoid the two legs
 	    // either being the same object
 	    if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
-	               obj0Index == obj1Index ) {
+		obj0Index == obj1Index &&
+		cond0bx == cond1bx) {
 
-		       LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
-		       continue;
+	      LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
+	      continue;
 	    }
 
             switch (cond1Categ) {
@@ -1232,10 +1233,15 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
                   long long cosDeltaPhiLUT = m_gtScales->getLUT_DeltaPhi_Cos(lutName,deltaPhiFW);
 		  unsigned int precCosLUT = m_gtScales->getPrec_DeltaPhi_Cos(lutName);
 
-                  long long coshDeltaEtaLUT = m_gtScales->getLUT_DeltaEta_Cosh(lutName,deltaEtaFW);
-		  unsigned int precCoshLUT = m_gtScales->getPrec_DeltaEta_Cosh(lutName);
-		  if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
-		  if (corrPar.corrCutType & 0x10) coshDeltaEtaLUT=1*pow(10,precCosLUT);
+		  long long coshDeltaEtaLUT;
+		  if (corrPar.corrCutType & 0x10) {
+		    coshDeltaEtaLUT=1*pow(10,precCosLUT);
+		  }else{
+		    coshDeltaEtaLUT = m_gtScales->getLUT_DeltaEta_Cosh(lutName,deltaEtaFW);
+		    unsigned int precCoshLUT = m_gtScales->getPrec_DeltaEta_Cosh(lutName);
+		    if(precCoshLUT - precCosLUT != 0) LogDebug("L1TGlobal") << "Warning: Cos and Cosh LUTs on different Precision" << std::endl;
+		  }
+		  // if (corrPar.corrCutType & 0x10) coshDeltaEtaLUT=1*pow(10,precCosLUT);
 
 		  std::string lutName = lutObj0;
 		  lutName += "-ET";
