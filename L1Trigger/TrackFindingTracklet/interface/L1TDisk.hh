@@ -70,9 +70,9 @@ public:
 	    if (fabs(zcrude)>30) continue;
 
 	    double phi2=D->stubs_[jSector][j].phi();
-	    
+
 	    unsigned int isPSmodule1 = stubs_[iSector][i].isPSmodule();
-	    unsigned int isPSmodule2 = stubs_[iSector][j].isPSmodule();
+	    unsigned int isPSmodule2 = D->stubs_[jSector][j].isPSmodule();
 
 	    //if (r1>60.0||r2>60.0) continue; //we only form tracklets from disk stubs in PS modules
 	    if ( !isPSmodule1 && !isPSmodule2 ) continue;

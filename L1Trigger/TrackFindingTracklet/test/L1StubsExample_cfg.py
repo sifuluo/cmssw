@@ -19,7 +19,7 @@ process = cms.Process("L1TrackNtuple")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 if flat:
 	print 'Assuming the flat tracker geometry'

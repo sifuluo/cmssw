@@ -338,7 +338,14 @@ public:
     }
     if (tmp!="Event:") {
       cout << "Expected to read 'Event:' but found:"<<tmp<<endl;
-      abort();
+      if (tmp=="") {
+	cout << "WARNING: fewer events to process than specified!" << endl;
+	return;
+      }
+      else {
+	cout << "ERROR, aborting reading file" << endl;
+	abort();
+      }
     }
     in >> eventnum_;
 

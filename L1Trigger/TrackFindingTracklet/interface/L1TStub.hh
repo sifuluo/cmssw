@@ -72,7 +72,9 @@ public:
 	<< x_ << "\t" 
 	<< y_ << "\t" 
 	<< z_ << "\t" 
-	<< bend_ << "\t" << endl; 
+	<< bend_ << "\t" 
+	<< isPSmodule_ << "\t" 
+	<< isFlipped_ << "\t" << endl; 
 
   }
   void write(ostream& out){
@@ -87,8 +89,9 @@ public:
 	<< x_ << "\t" 
 	<< y_ << "\t" 
 	<< z_ << "\t" 
-	<< bend_ << "\t" << endl; 
-	
+	<< bend_ << "\t" 
+	<< isPSmodule_ << "\t" 
+	<< isFlipped_ << "\t" << endl; 	
   }
 
   int ptsign() {
@@ -192,21 +195,25 @@ public:
   unsigned int strip() const { return strip_; }
 
   double alpha() const {
-    if (r()<57.0) return 0.0;
+    if (isPSmodule()) return 0.0;
+    int flip=1;
+    if (isFlipped()) flip=-1;
     if (z_>0.0) {
-      return ((int)strip_-480.5)*0.009/r2();
+      return ((int)strip_-480.5)*0.009*flip/r2();
     }
-    return -((int)strip_-480.5)*0.009/r2();
+    return -((int)strip_-480.5)*0.009*flip/r2();
   }
 
   double alphatruncated() const {
-    if (r()<57.0) return 0.0;
+    if (isPSmodule()) return 0.0;
+    int flip=1;
+    if (isFlipped()) flip=-1;
     int striptruncated=strip_/1;
     striptruncated*=1;
     if (z_>0.0) {
-      return (striptruncated-480.5)*0.009/r2();
+      return (striptruncated-480.5)*0.009*flip/r2();
     }
-    return -(striptruncated-480.5)*0.009/r2();
+    return -(striptruncated-480.5)*0.009*flip/r2();
   }
 
   void setXY(double x, double y){

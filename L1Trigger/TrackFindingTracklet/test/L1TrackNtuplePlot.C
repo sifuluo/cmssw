@@ -78,8 +78,10 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   int n_match_eta1p0 = 0;
 
   // counters for total track rates 
+  int ntrk_pt2 = 0;
   int ntrk_pt3 = 0;
   int ntrk_pt10 = 0;
+  int ntp_pt2 = 0;
   int ntp_pt3 = 0;
   int ntp_pt10 = 0;
 
@@ -668,6 +670,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   // ----------------------------------------------------------------------------------------------------------------
   // number of tracks per event 
 
+  TH1F* h_ntrk_pt2  = new TH1F("ntrk_pt2", ";# tracks (p_{T} > 2 GeV) / event; Events", 300, 0, 300.0);
   TH1F* h_ntrk_pt3  = new TH1F("ntrk_pt3", ";# tracks (p_{T} > 3 GeV) / event; Events", 300, 0, 300.0);
   TH1F* h_ntrk_pt10 = new TH1F("ntrk_pt10", ";# tracks (p_{T} > 10 GeV) / event; Events", 100, 0, 100.0);
 
@@ -715,6 +718,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
     // ----------------------------------------------------------------------------------------------------------------
     // track loop for total rates
 
+    int ntrkevt_pt2 = 0;
     int ntrkevt_pt3 = 0;
     int ntrkevt_pt10 = 0;
 
@@ -728,10 +732,16 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
       }
       */
 
+      if (trk_pt->at(it) > 2.0 && fabs(trk_eta->at(it))<2.5) {
+	ntrk_pt2++;
+	ntrkevt_pt2++;
+	h_trk_vspt->Fill(trk_pt->at(it));
+	//if (trk_nstub->at(it) > 3) ntrk_4stub_pt3++;
+	//if (trk_nstub->at(it) > 3 && trk_chi2->at(it) < 100.) ntrk_4stubchi2_pt3++;
+      }
       if (trk_pt->at(it) > 3.0 && fabs(trk_eta->at(it))<2.5) {
 	ntrk_pt3++;
 	ntrkevt_pt3++;
-	h_trk_vspt->Fill(trk_pt->at(it));
 	//if (trk_nstub->at(it) > 3) ntrk_4stub_pt3++;
 	//if (trk_nstub->at(it) > 3 && trk_chi2->at(it) < 100.) ntrk_4stubchi2_pt3++;
       }
@@ -743,6 +753,7 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
       }
     }
 
+    h_ntrk_pt2->Fill(ntrkevt_pt2);
     h_ntrk_pt3->Fill(ntrkevt_pt3);
     h_ntrk_pt10->Fill(ntrkevt_pt10);
 
@@ -762,10 +773,11 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
       // total track rates
       //if (tp_nstub->at(it) >= 4 && tp_nstublayer->at(it) >= 4 && fabs(tp_dxy->at(it)) < 1 && fabs(tp_eta->at(it)) < TP_maxEta) {
       if (fabs(tp_dxy->at(it)) < 1 && fabs(tp_eta->at(it)) < TP_maxEta) { //the stub requirements are applied when making the ntuples
-	if (tp_pt->at(it) > 3.0) {
-	  ntp_pt3++;
+	if (tp_pt->at(it) > 2.0) {
+	  ntp_pt2++;
 	  h_tp_vspt->Fill(tp_pt->at(it));
 	}
+	if (tp_pt->at(it) > 3.0) ntp_pt3++;
 	if (tp_pt->at(it) > 10.0) ntp_pt10++;
       }
 
@@ -1131,47 +1143,47 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
 
   TH1F* h2_resVsPt_d0 = new TH1F("resVsPt2_d0",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [cm]", 20,0,100);
 
-  TH1F* h2_resVsPt_pt_68    = new TH1F("resVsPt2_pt_68",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         20,0,100);
-  TH1F* h2_resVsPt_ptRel_68 = new TH1F("resVsPt2_ptRel_68",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 20,0,100);
-  TH1F* h2_resVsPt_z0_68    = new TH1F("resVsPt2_z0_68",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    20,0,100);
-  TH1F* h2_resVsPt_phi_68   = new TH1F("resVsPt2_phi_68",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    20,0,100);
-  TH1F* h2_resVsPt_eta_68   = new TH1F("resVsPt2_eta_68",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    20,0,100);
-  TH1F* h2_resVsPt_d0_68    = new TH1F("resVsPt2_d0_68",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   20,0,100);
+  TH1F* h2_resVsPt_pt_68    = new TH1F("resVsPt_pt_68",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         20,0,100);
+  TH1F* h2_resVsPt_ptRel_68 = new TH1F("resVsPt_ptRel_68",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 20,0,100);
+  TH1F* h2_resVsPt_z0_68    = new TH1F("resVsPt_z0_68",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    20,0,100);
+  TH1F* h2_resVsPt_phi_68   = new TH1F("resVsPt_phi_68",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    20,0,100);
+  TH1F* h2_resVsPt_eta_68   = new TH1F("resVsPt_eta_68",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    20,0,100);
+  TH1F* h2_resVsPt_d0_68    = new TH1F("resVsPt_d0_68",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   20,0,100);
 
-  TH1F* h2_resVsPt_pt_90    = new TH1F("resVsPt2_pt_90",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         20,0,100);
-  TH1F* h2_resVsPt_ptRel_90 = new TH1F("resVsPt2_ptRel_90",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 20,0,100);
-  TH1F* h2_resVsPt_z0_90    = new TH1F("resVsPt2_z0_90",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    20,0,100);
-  TH1F* h2_resVsPt_phi_90   = new TH1F("resVsPt2_phi_90",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    20,0,100);
-  TH1F* h2_resVsPt_eta_90   = new TH1F("resVsPt2_eta_90",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    20,0,100);
-  TH1F* h2_resVsPt_d0_90    = new TH1F("resVsPt2_d0_90",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   20,0,100);
+  TH1F* h2_resVsPt_pt_90    = new TH1F("resVsPt_pt_90",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         20,0,100);
+  TH1F* h2_resVsPt_ptRel_90 = new TH1F("resVsPt_ptRel_90",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 20,0,100);
+  TH1F* h2_resVsPt_z0_90    = new TH1F("resVsPt_z0_90",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    20,0,100);
+  TH1F* h2_resVsPt_phi_90   = new TH1F("resVsPt_phi_90",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    20,0,100);
+  TH1F* h2_resVsPt_eta_90   = new TH1F("resVsPt_eta_90",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    20,0,100);
+  TH1F* h2_resVsPt_d0_90    = new TH1F("resVsPt_d0_90",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   20,0,100);
 
-  TH1F* h2_resVsPt_pt_99    = new TH1F("resVsPt2_pt_99",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         20,0,100);
-  TH1F* h2_resVsPt_ptRel_99 = new TH1F("resVsPt2_ptRel_99",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 20,0,100);
-  TH1F* h2_resVsPt_z0_99    = new TH1F("resVsPt2_z0_99",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    20,0,100);
-  TH1F* h2_resVsPt_phi_99   = new TH1F("resVsPt2_phi_99",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    20,0,100);
-  TH1F* h2_resVsPt_eta_99   = new TH1F("resVsPt2_eta_99",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    20,0,100);
-  TH1F* h2_resVsPt_d0_99    = new TH1F("resVsPt2_d0_99",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   20,0,100);
+  TH1F* h2_resVsPt_pt_99    = new TH1F("resVsPt_pt_99",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         20,0,100);
+  TH1F* h2_resVsPt_ptRel_99 = new TH1F("resVsPt_ptRel_99",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 20,0,100);
+  TH1F* h2_resVsPt_z0_99    = new TH1F("resVsPt_z0_99",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    20,0,100);
+  TH1F* h2_resVsPt_phi_99   = new TH1F("resVsPt_phi_99",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    20,0,100);
+  TH1F* h2_resVsPt_eta_99   = new TH1F("resVsPt_eta_99",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    20,0,100);
+  TH1F* h2_resVsPt_d0_99    = new TH1F("resVsPt_d0_99",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   20,0,100);
 
-  TH1F* h2_resVsPt_pt_L_68    = new TH1F("resVsPt2_pt_L_68",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         10,3,8);
-  TH1F* h2_resVsPt_ptRel_L_68 = new TH1F("resVsPt2_ptRel_L_68",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 10,3,8);
-  TH1F* h2_resVsPt_z0_L_68    = new TH1F("resVsPt2_z0_L_68",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    10,3,8);
-  TH1F* h2_resVsPt_phi_L_68   = new TH1F("resVsPt2_phi_L_68",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    10,3,8);
-  TH1F* h2_resVsPt_eta_L_68   = new TH1F("resVsPt2_eta_L_68",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    10,3,8);
-  TH1F* h2_resVsPt_d0_L_68    = new TH1F("resVsPt2_d0_L_68",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   10,3,8);
+  TH1F* h2_resVsPt_pt_L_68    = new TH1F("resVsPt_pt_L_68",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         10,3,8);
+  TH1F* h2_resVsPt_ptRel_L_68 = new TH1F("resVsPt_ptRel_L_68",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 10,3,8);
+  TH1F* h2_resVsPt_z0_L_68    = new TH1F("resVsPt_z0_L_68",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    10,3,8);
+  TH1F* h2_resVsPt_phi_L_68   = new TH1F("resVsPt_phi_L_68",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    10,3,8);
+  TH1F* h2_resVsPt_eta_L_68   = new TH1F("resVsPt_eta_L_68",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    10,3,8);
+  TH1F* h2_resVsPt_d0_L_68    = new TH1F("resVsPt_d0_L_68",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   10,3,8);
 
-  TH1F* h2_resVsPt_pt_L_90    = new TH1F("resVsPt2_pt_L_90",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         10,3,8);
-  TH1F* h2_resVsPt_ptRel_L_90 = new TH1F("resVsPt2_ptRel_L_90",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 10,3,8);
-  TH1F* h2_resVsPt_z0_L_90    = new TH1F("resVsPt2_z0_L_90",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    10,3,8);
-  TH1F* h2_resVsPt_phi_L_90   = new TH1F("resVsPt2_phi_L_90",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    10,3,8);
-  TH1F* h2_resVsPt_eta_L_90   = new TH1F("resVsPt2_eta_L_90",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    10,3,8);
-  TH1F* h2_resVsPt_d0_L_90    = new TH1F("resVsPt2_d0_L_90",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   10,3,8);
+  TH1F* h2_resVsPt_pt_L_90    = new TH1F("resVsPt_pt_L_90",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         10,3,8);
+  TH1F* h2_resVsPt_ptRel_L_90 = new TH1F("resVsPt_ptRel_L_90",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 10,3,8);
+  TH1F* h2_resVsPt_z0_L_90    = new TH1F("resVsPt_z0_L_90",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    10,3,8);
+  TH1F* h2_resVsPt_phi_L_90   = new TH1F("resVsPt_phi_L_90",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    10,3,8);
+  TH1F* h2_resVsPt_eta_L_90   = new TH1F("resVsPt_eta_L_90",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    10,3,8);
+  TH1F* h2_resVsPt_d0_L_90    = new TH1F("resVsPt_d0_L_90",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   10,3,8);
 
-  TH1F* h2_resVsPt_pt_L_99    = new TH1F("resVsPt2_pt_L_99",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         10,3,8);
-  TH1F* h2_resVsPt_ptRel_L_99 = new TH1F("resVsPt2_ptRel_L_99",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 10,3,8);
-  TH1F* h2_resVsPt_z0_L_99    = new TH1F("resVsPt2_z0_L_99",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    10,3,8);
-  TH1F* h2_resVsPt_phi_L_99   = new TH1F("resVsPt2_phi_L_99",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    10,3,8);
-  TH1F* h2_resVsPt_eta_L_99   = new TH1F("resVsPt2_eta_L_99",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    10,3,8);
-  TH1F* h2_resVsPt_d0_L_99    = new TH1F("resVsPt2_d0_L_99",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   10,3,8);
+  TH1F* h2_resVsPt_pt_L_99    = new TH1F("resVsPt_pt_L_99",   ";Tracking particle p_{T} [GeV]; p_{T} resolution",         10,3,8);
+  TH1F* h2_resVsPt_ptRel_L_99 = new TH1F("resVsPt_ptRel_L_99",";Tracking particle p_{T} [GeV]; p_{T} resolution / p_{T}", 10,3,8);
+  TH1F* h2_resVsPt_z0_L_99    = new TH1F("resVsPt_z0_L_99",   ";Tracking particle p_{T} [GeV]; z_{0} resolution [cm]",    10,3,8);
+  TH1F* h2_resVsPt_phi_L_99   = new TH1F("resVsPt_phi_L_99",  ";Tracking particle p_{T} [GeV]; #phi resolution [rad]",    10,3,8);
+  TH1F* h2_resVsPt_eta_L_99   = new TH1F("resVsPt_eta_L_99",  ";Tracking particle p_{T} [GeV]; #eta resolution [rad]",    10,3,8);
+  TH1F* h2_resVsPt_d0_L_99    = new TH1F("resVsPt_d0_L_99",   ";Tracking particle p_{T} [GeV]; d_{0} resolution [rad]",   10,3,8);
 
   for (int i=0; i<nRANGE; i++) {
     // set bin content and error
@@ -1783,30 +1795,35 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   h2_resVsPt_pt_90->SetMinimum(0);
   h2_resVsPt_pt_90->SetMarkerStyle(20);
   h2_resVsPt_pt_90->Draw("p");
+  h2_resVsPt_pt_90->Write();
   c.SaveAs(DIR+type+"_resVsPt_pt_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_pt_90.png");
 
   h2_resVsPt_ptRel_90->SetMinimum(0);
   h2_resVsPt_ptRel_90->SetMarkerStyle(20);
   h2_resVsPt_ptRel_90->Draw("p");
+  h2_resVsPt_ptRel_90->Write();
   c.SaveAs(DIR+type+"_resVsPt_ptRel_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_ptRel_90.png");
 
   h2_resVsPt_z0_90->SetMinimum(0);
   h2_resVsPt_z0_90->SetMarkerStyle(20);
   h2_resVsPt_z0_90->Draw("p");
+  h2_resVsPt_z0_90->Write();
   c.SaveAs(DIR+type+"_resVsPt_z0_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_z0_90.png");
 
   h2_resVsPt_phi_90->SetMinimum(0);
   h2_resVsPt_phi_90->SetMarkerStyle(20);
   h2_resVsPt_phi_90->Draw("p");
+  h2_resVsPt_phi_90->Write();
   c.SaveAs(DIR+type+"_resVsPt_phi_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_phi_90.png");
 
   h2_resVsPt_eta_90->SetMinimum(0);
   h2_resVsPt_eta_90->SetMarkerStyle(20);
   h2_resVsPt_eta_90->Draw("p");
+  h2_resVsPt_eta_90->Write();
   c.SaveAs(DIR+type+"_resVsPt_eta_90.eps");
   c.SaveAs(DIR+type+"_resVsPt_eta_90.png");
 
@@ -2015,12 +2032,14 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   }
 
   h_match_trk_chi2->Draw();
+  h_match_trk_chi2->Write();
   sprintf(ctxt,"|eta| < 2.4");
   mySmallText(0.52,0.82,1,ctxt);
   c.SaveAs(DIR+type+"_match_trk_chi2.png");
   c.SaveAs(DIR+type+"_match_trk_chi2.eps");
     
   h_match_trk_chi2_dof->Draw();
+  h_match_trk_chi2_dof->Write();
   sprintf(ctxt,"|eta| < 2.4");
   mySmallText(0.52,0.82,1,ctxt);
   c.SaveAs(DIR+type+"_match_trk_chi2_dof.png");
@@ -2177,6 +2196,12 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
     mySmallText(0.45,0.5,1,ctxt);
     c.SaveAs(DIR+type+"_eff_pt_L.eps");
     c.SaveAs(DIR+type+"_eff_pt_L.png");
+
+    if (type.Contains("Mu")) {
+      h_eff_pt_L->GetYaxis()->SetRangeUser(0.8,1.01); // zoomed-in plot
+      c.SaveAs(DIR+type+"_eff_pt_L_zoom.eps");
+      c.SaveAs(DIR+type+"_eff_pt_L_zoom.png");
+    }
     
     h_eff_pt_LC->Draw();
     h_eff_pt_LC->Write();
@@ -2539,6 +2564,9 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   h_trk_vspt->Draw("same");
   h_tp_vspt->Draw("same");
 
+  h_trk_vspt->Write();
+  h_tp_vspt->Write();
+
   char txt[500];
   sprintf(txt,"average # tracks/event = %.1f",h_trk_vspt->GetSum());
   mySmallText(0.5,0.85,1,txt);
@@ -2635,9 +2663,11 @@ void L1TrackNtuplePlot(TString type, int TP_select_injet=0, int TP_select_pdgid=
   if (fabs(N)>0) cout << "combined efficiency for |eta| < 2.5 = " << k/N*100.0 << " +- " << 1.0/N*sqrt(k*(1.0 - k/N))*100.0 << endl << endl;
 
   // track rates
+  cout << "# TP/event (pt > 2.0) = " << (float)ntp_pt2/nevt << endl;
   cout << "# TP/event (pt > 3.0) = " << (float)ntp_pt3/nevt << endl;
   cout << "# TP/event (pt > 10.0) = " << (float)ntp_pt10/nevt << endl;
 
+  cout << "# tracks/event (pt > 2.0) = " << (float)ntrk_pt2/nevt << endl;
   cout << "# tracks/event (pt > 3.0) = " << (float)ntrk_pt3/nevt << endl;
   cout << "# tracks/event (pt > 10.0) = " << (float)ntrk_pt10/nevt << endl;
 
