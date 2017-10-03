@@ -14,7 +14,10 @@ import FWCore.ParameterSet.Config as cms
 #
 # 
 
-# Tab2013 hit matching algorithm
+# Tab2013 hit matching algorithm 
+#
+# ===>>> the stub window tuning is here the one used for the tracker TDR, this is OK for T3 tracker geometry !!!
+#
 TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_official_Phase2TrackerDigi_",
    zMatchingPS = cms.bool(True),
    zMatching2S = cms.bool(True),
@@ -28,12 +31,12 @@ TTStubAlgorithm_official_Phase2TrackerDigi_ = cms.ESProducer("TTStubAlgorithm_of
 	),
    EndcapCutSet = cms.VPSet(
         cms.PSet( EndcapCut = cms.vdouble( 0 ) ),
-        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1.5, 1.5, 2, 2, 2.5, 2.5, 3, 4, 2.5, 3, 3.5, 4, 5) ),
-        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1.5, 1.5, 2, 2, 2.5, 2.5, 3.5, 2, 2.5, 3, 3.5, 4) ),  #D1
-        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1.5, 1.5, 1.5, 2, 2, 2, 3, 3.5, 2, 2.5, 3, 3.5) ),  #D2 ...
-        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1, 1, 1.5, 2, 2, 2, 2.5, 3, 2, 2, 2.5, 3) ),
-        cms.PSet( EndcapCut = cms.vdouble( 0, 1, 1, 1, 1, 1, 1.5, 1.5, 2, 2, 2, 3, 3, 2, 2, 2.5) ),
-        )
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2, 2, 2.5, 2.5, 2.5, 3, 3.5, 4.5, 2.5, 3.5, 4, 4.5, 5.5) ), #D1
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2, 2, 2, 2.5, 2.5, 3, 3, 4, 2.5, 3, 3.5, 4.5, 5) ),         #D2 etc. 
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2, 2, 2, 2.5, 2.5, 2.5, 3.5, 4, 2.5, 3.5, 3.5, 4.5) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 2, 2, 2.5, 2.5, 3, 3.5, 2.5, 2.5, 3.5, 4) ),
+        cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 1.5, 2, 2, 2.5, 2.5, 3, 3.5, 2.5, 4.5, 4) ),
+    )
 )
 
 # CBC3 hit matching algorithm
