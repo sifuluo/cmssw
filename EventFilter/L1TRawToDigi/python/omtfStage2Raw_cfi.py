@@ -5,5 +5,4 @@ omtfStage2Raw = cms.EDProducer("OmtfPacker",
   dtPhInputLabel = cms.InputTag('omtfStage2Digis'),
   dtThInputLabel = cms.InputTag('omtfStage2Digis'),
   rpcInputLabel = cms.InputTag('omtfStage2Digis'),
-  skipRpc =  cms.bool(True)
 )
