@@ -130,7 +130,7 @@ def L1TReEmulFromRAW2016(process):
         #for b in cutlist:
         #    process.SimL1Emulator.remove(getattr(process,b))
         # TwinMux
-        process.simTwinMuxDigis.RPC_Source         = cms.InputTag('muonRPCDigis')
+        process.simTwinMuxDigis.RPC_Source         = cms.InputTag('RPCTwinMuxRawToDigi')
         process.simTwinMuxDigis.DTDigi_Source      = cms.InputTag('bmtfDigis')
         process.simTwinMuxDigis.DTThetaDigi_Source = cms.InputTag('bmtfDigis')
         # BMTF
