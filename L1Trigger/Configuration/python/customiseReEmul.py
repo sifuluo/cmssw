@@ -162,6 +162,7 @@ def L1TReEmulFromRAW(process):
     L1TReEmulFromRAW2016(process)
 
     if stage2L1Trigger_2017.isChosen():
+        process.simOmtfDigis.srcRPC                = cms.InputTag('omtfStage2Digis')
         process.simOmtfDigis.srcCSC                = cms.InputTag('omtfStage2Digis')
         process.simOmtfDigis.srcDTPh               = cms.InputTag('omtfStage2Digis')
         process.simOmtfDigis.srcDTTh               = cms.InputTag('omtfStage2Digis')
