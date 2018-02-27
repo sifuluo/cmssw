@@ -16,19 +16,19 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TMuonEndCapParamsWriter : public edm::EDAnalyzer {
+class L1TMuonEndcapWriter : public edm::EDAnalyzer {
 private:
     bool isO2Opayload;
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    explicit L1TMuonEndCapParamsWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
+    explicit L1TMuonEndcapWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    ~L1TMuonEndCapParamsWriter(void) override {}
+    ~L1TMuonEndcapWriter(void) override{}
 };
 
-void L1TMuonEndCapParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonEndcapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
     edm::ESHandle<L1TMuonEndCapParams> handle1;
 
     if( isO2Opayload )
@@ -50,5 +50,5 @@ void L1TMuonEndCapParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TMuonEndCapParamsWriter);
+DEFINE_FWK_MODULE(L1TMuonEndcapWriter);
 

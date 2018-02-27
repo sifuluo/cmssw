@@ -84,11 +84,6 @@ options.register('tagUpdate',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Comma-separated list of column-separated pairs relating type to a new tagBase")
-options.register('unsafe',
-                 '', #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Comma-separated list of systems that we do not care about anymore")
 
 options.parseArguments()
 
@@ -100,18 +95,25 @@ process.L1SubsystemKeysOnlineExt.onlineDB = cms.string( options.onlineDBConnect 
 process.L1SubsystemKeysOnlineExt.onlineAuthentication = cms.string( options.onlineDBAuth )
 
 process.load("CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff")
-from CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff import setTSCKeysDB, liftKeySafetyFor
+from CondTools.L1TriggerExt.L1ConfigTSCKeysExt_cff import setTSCKeysDB
 setTSCKeysDB( process, options.onlineDBConnect, options.onlineDBAuth )
-liftKeySafetyFor( process, options.unsafe.split(',') )
 
 process.load("CondTools.L1TriggerExt.L1TriggerKeyOnlineExt_cfi")
+#process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring(
+#                                                          'uGT',
+#                                                          'uGTrs',
+#                                                          'uGMT',
+#                                                          'CALO',
+#                                                          'BMTF',
+#                                                          'OMTF',
+#                                                          'EMTF'
+#                                                        )
 process.L1TriggerKeyOnlineExt.subsystemLabels = cms.vstring( options.subsystemLabels.split(',') )
 
 # Generate configuration data from OMDS
 process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
-from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDB, liftPayloadSafetyFor
+from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDB
 setTSCPayloadsDB( process, options.onlineDBConnect, options.onlineDBAuth, options.protoDBConnect, options.protoDBAuth )
-liftPayloadSafetyFor( process, options.unsafe.split(',') )
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt

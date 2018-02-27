@@ -8,22 +8,21 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 
-class L1TriggerKeyExtViewer : public edm::EDAnalyzer {
+class L1TriggerKeyExtReader : public edm::EDAnalyzer {
 private:
     std::string label;
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    explicit L1TriggerKeyExtViewer(const edm::ParameterSet &pset) : edm::EDAnalyzer(),
+    explicit L1TriggerKeyExtReader(const edm::ParameterSet &pset) : edm::EDAnalyzer(),
         label( pset.getParameter< std::string >( "label" ) ) {}
-
-    ~L1TriggerKeyExtViewer(void) override {}
+    ~L1TriggerKeyExtReader(void) override{}
 };
 
 #include <iostream>
 using namespace std;
 
-void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TriggerKeyExtReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TriggerKeyExt> handle1;
     evSetup.get<L1TriggerKeyExtRcd>().get( label,  handle1 ) ;
@@ -60,5 +59,5 @@ void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSe
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TriggerKeyExtViewer);
+DEFINE_FWK_MODULE(L1TriggerKeyExtReader);
 

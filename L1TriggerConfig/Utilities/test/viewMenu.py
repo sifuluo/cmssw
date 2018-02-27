@@ -50,7 +50,7 @@ else :
 process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(options.run))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
-process.l1cr = cms.EDAnalyzer("L1MenuViewer")
+process.l1cr = cms.EDAnalyzer("L1MenuReader")
 
 process.p = cms.Path(process.l1cr)
 

@@ -14,7 +14,6 @@
 
 class L1TMuonGlobalParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams> {
 private:
-    bool transactionSafe;
 public:
     std::shared_ptr<L1TMuonGlobalParams> newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) override ;
 
@@ -22,9 +21,7 @@ public:
     ~L1TMuonGlobalParamsOnlineProd(void) override{}
 };
 
-L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams>(iConfig) {
-    transactionSafe = iConfig.getParameter<bool>("transactionSafe");
-}
+L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams>(iConfig) {}
 
 std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) {
     using namespace edm::es;
@@ -35,12 +32,7 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
 
     if( objectKey.empty() ){
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "Key is empty";
-        if( transactionSafe )
-            throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Empty objectKey");
-        else {
-            edm::LogError( "L1-O2O: L1TMuonGlobalParams" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams>( *(baseSettings.product()) ) ;
-        }
+        throw std::runtime_error("Empty objectKey");
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -98,13 +90,9 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
                                                ) ["CONF"];
     } catch ( std::runtime_error &e ) {
         edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << e.what();
-        if( transactionSafe )
-            throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Broken key");
-        else {
-            edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
-        }
+        throw std::runtime_error("Broken key");
     }
+
 
     // for debugging dump the configs to local files
     {
@@ -127,47 +115,26 @@ std::shared_ptr<L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObject(co
     l1t::XmlConfigParser xmlRdr;
     l1t::TriggerSystem trgSys;
 
-    try {
-        // HW settings should always go first
-        xmlRdr.readDOMFromString( hw_payload );
-        xmlRdr.readRootElement  ( trgSys     );
+    // HW settings should always go first
+    xmlRdr.readDOMFromString( hw_payload );
+    xmlRdr.readRootElement  ( trgSys     );
 
-        // now let's parse ALGO and then RS settings 
-        for(auto &conf : algo_payloads){
-            xmlRdr.readDOMFromString( conf.second );
-            xmlRdr.readRootElement  ( trgSys      );
-        }
-        for(auto &conf : rs_payloads){
-            xmlRdr.readDOMFromString( conf.second );
-            xmlRdr.readRootElement  ( trgSys      );
-        }
-        trgSys.setConfigured();
-    } catch ( std::runtime_error &e ) {
-        edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << e.what();
-        if( transactionSafe )
-            throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Cannot parse XMLs");
-        else {
-            edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
-        }
+    // now let's parse ALGO and then RS settings 
+    for(auto &conf : algo_payloads){
+        xmlRdr.readDOMFromString( conf.second );
+        xmlRdr.readRootElement  ( trgSys      );
     }
+    for(auto &conf : rs_payloads){
+        xmlRdr.readDOMFromString( conf.second );
+        xmlRdr.readRootElement  ( trgSys      );
+    }
+    trgSys.setConfigured();
 
     L1TMuonGlobalParamsHelper m_params_helper( *(baseSettings.product()) );
-    try {
-        m_params_helper.loadFromOnline(trgSys);
-    } catch ( std::runtime_error &e ) {
-        edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << e.what();
-        if( transactionSafe )
-            throw std::runtime_error("SummaryForFunctionManager: uGMT  | Faulty  | Cannot run helper");
-        else {
-            edm::LogError( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonGlobalParams";
-            return std::make_shared< L1TMuonGlobalParams >( *(baseSettings.product()) ) ;
-        }
-    }
+    m_params_helper.loadFromOnline(trgSys);
 
     std::shared_ptr< L1TMuonGlobalParams > retval = std::make_shared< L1TMuonGlobalParams >( cast_to_L1TMuonGlobalParams(m_params_helper) );
 
-    edm::LogInfo( "L1-O2O: L1TMuonGlobalParamsOnlineProd" ) << "SummaryForFunctionManager: uGMT  | OK      | All looks good";
     return retval ;
 }
 

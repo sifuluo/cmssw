@@ -39,6 +39,7 @@ else :
     CondDB.connect = cms.string(sourceDB)
     process.l1conddb = cms.ESSource("PoolDBESSource",
        CondDB,
+       connect = cms.string(sourceDB),
        toGet   = cms.VPSet(
             cms.PSet(
                  record = cms.string('L1TMuonGlobalParamsRcd'),

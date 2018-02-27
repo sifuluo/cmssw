@@ -23,6 +23,7 @@ process.getter = cms.EDAnalyzer("EventSetupRecordDataGetter",
 
 from CondCore.CondDB.CondDB_cfi import CondDB
 CondDB.connect = cms.string('sqlite:l1config.db')
+#CondDB.connect = cms.string('oracle://cms_orcoff_prep/CMS_CONDITIONS')
 
 outputDB = cms.Service("PoolDBOutputService",
                        CondDB,
