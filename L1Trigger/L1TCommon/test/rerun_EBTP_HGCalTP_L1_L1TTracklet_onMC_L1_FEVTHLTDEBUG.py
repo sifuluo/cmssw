@@ -29,8 +29,14 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/r/rekovic/release/CMSSW_9_3_2/src/step2_DIGI_PU200_10ev.root'),
-    fileNames = cms.untracked.vstring('/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root'),
-    secondaryFileNames = cms.untracked.vstring()
+    fileNames = cms.untracked.vstring('/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00003.root'),
+    secondaryFileNames = cms.untracked.vstring(),
+    inputCommands = cms.untracked.vstring("keep *", 
+        "drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT",
+        "drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT",
+        "drop l1tEMTFHit2016s_simEmtfDigis__HLT",
+        "drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT",
+        "drop l1tEMTFTrack2016s_simEmtfDigis__HLT")
 )
 
 process.options = cms.untracked.PSet(
@@ -52,7 +58,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     #fileName = cms.untracked.string('file:step2_ZEE_PU200_1ev_rerun-L1.root'),
-    fileName = cms.untracked.string('file:test_reprocess_SMP-PhaseIIFall17D-00001_withTracklet.root'),
+    fileName = cms.untracked.string('file:test_reprocess_SMP-PhaseIIFall17D-00003_withTracklet.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
