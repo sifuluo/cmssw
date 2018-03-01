@@ -12,11 +12,11 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
    reportEvery = cms.untracked.int32(1)
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
    # Set to do test run on official Phase-2 L1T Ntuples
-   fileNames = cms.untracked.vstring('/store/mc/PhaseIISpring17D/SingleE_FlatPt-8to100/GEN-SIM-DIGI-RAW/PU200_90X_upgrade2023_realistic_v9-v1/120000/002A4121-132C-E711-87AD-008CFAFBF618.root')
+   fileNames = cms.untracked.vstring('file:/eos/cms/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root')
 )
 
 # All this stuff just runs the various EG algorithms that we are studying
@@ -27,8 +27,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2023_realistic_v9', '')
 
 # Choose a 2023 geometry!
-process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff') # Geom preferred by Phase-2 L1Trig
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 
 
@@ -71,7 +71,7 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    EcalTpEtMin = cms.untracked.double(0.5), # 500 MeV default per each Ecal TP
    EtMinForSeedHit = cms.untracked.double(1.0), # 1 GeV decault for seed hit
    debug = cms.untracked.bool(False),
-   useRecHits = cms.bool(False),
+   useRecHits = cms.untracked.bool(False),
    doBremClustering = cms.untracked.bool(True), # Should always be True when using for E/Gamma
    #ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
    ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
