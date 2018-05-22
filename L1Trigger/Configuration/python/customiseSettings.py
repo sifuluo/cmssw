@@ -1,6 +1,10 @@
 import os.path
 import FWCore.ParameterSet.Config as cms
 
+def L1TSettingsToCaloParams_2018_v1_2(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_2_cfi")
+    return process
+
 def L1TSettingsToCaloParams_2018_v1_1_ECALZS_2018MET(process):
     process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_2018MET_cfi")
     return process
@@ -79,6 +83,10 @@ def L1TSettingsToCaloStage2Params_2017_v1_8_2_updateHFSF_v7MET(process):
 
 def L1TSettingsToCaloStage2Params_2017_v1_8_4(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi")
+    return process
+
+def L1TSettingsToCaloStage2Params_2017_v1_8_4_ECALZS(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_ECAL_ZS_cfi")
     return process
 
 def L1TSettingsToCaloStage2Params_2017_v1_8_5(process):
