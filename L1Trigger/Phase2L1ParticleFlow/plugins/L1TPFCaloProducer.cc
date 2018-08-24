@@ -17,6 +17,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalTower.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -37,14 +38,16 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         std::vector<edm::EDGetTokenT<HcalTrigPrimDigiCollection>> hcalDigis_;
         edm::ESHandle<CaloTPGTranscoder> decoder_;
         std::vector<edm::EDGetTokenT<l1t::HGCalTriggerCellBxCollection>> hcalHGCTCs_;
+        std::vector<edm::EDGetTokenT<l1t::HGCalTowerBxCollection>> hcalHGCTowers_;
         double hcalHGCTCEtCut_;
+        bool hcalHGCTowersHadOnly_;
 
         l1tpf::corrector emCorrector_;
         l1tpf::corrector hcCorrector_;
         l1tpf::corrector hadCorrector_;
 
         l1tpf_calo::SingleCaloClusterer ecalClusterer_, hcalClusterer_;
-        l1tpf_calo::SimpleCaloLinker caloLinker_;
+        std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> caloLinker_;
 
         l1tpf::ParametricResolution resol_;
 
@@ -52,6 +55,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
 
         void readHcalDigis_(edm::Event &event, const edm::EventSetup&) ;
         void readHcalHGCTCs_(edm::Event &event, const edm::EventSetup &) ;
+        void readHcalHGCTowers_(edm::Event &event, const edm::EventSetup &) ;
         struct SimpleHGCTC {
             float et, eta, phi;
             SimpleHGCTC(float aet, float aeta, float aphi) : et(aet), eta(aeta), phi(aphi) {}
@@ -70,7 +74,7 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
     hadCorrector_(iConfig.getParameter<std::string>("hadCorrector"), iConfig.getParameter<double>("hadCorrectorEmfMax"), debug_),
     ecalClusterer_(iConfig.getParameter<edm::ParameterSet>("ecalClusterer")),
     hcalClusterer_(iConfig.getParameter<edm::ParameterSet>("hcalClusterer")),
-    caloLinker_(iConfig.getParameter<edm::ParameterSet>("linker"), ecalClusterer_, hcalClusterer_),
+    caloLinker_(l1tpf_calo::makeCaloLinker(iConfig.getParameter<edm::ParameterSet>("linker"), ecalClusterer_, hcalClusterer_)),
     resol_(iConfig.getParameter<edm::ParameterSet>("resol"))
 {
     produces<l1t::PFClusterCollection>("ecalCells");
@@ -104,6 +108,11 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
         hcalHGCTCs_.push_back(consumes<l1t::HGCalTriggerCellBxCollection>(tag));
     }
     if (!hcalHGCTCs_.empty()) hcalHGCTCEtCut_ = iConfig.getParameter<double>("hcalHGCTCEtMin");
+    for (auto & tag : iConfig.getParameter<std::vector<edm::InputTag>>("hcalHGCTowers")) {
+        hcalHGCTowers_.push_back(consumes<l1t::HGCalTowerBxCollection>(tag));
+    }
+    if (!hcalHGCTowers_.empty()) hcalHGCTowersHadOnly_ = iConfig.getParameter<bool>("hcalHGCTowersHadOnly");
+
 
 }
 
@@ -120,6 +129,28 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         }
     }
 
+    /// ----------------HCAL INFO-------------------
+    if (!ecalOnly_) {
+        edm::Handle<reco::CandidateView> hcals;
+        for (const auto & token : hcalCands_) {
+            iEvent.getByToken(token, hcals);
+            for (const reco::Candidate & it : *hcals) {
+                if (debug_) std::cout << "L1TPFCaloProducer: adding HCal cand input pt " << it.pt() << ", eta " << it.eta() << ", phi " << it.phi() << std::endl;
+                hcalClusterer_.add(it);
+            }
+        }
+        if (!hcalDigis_.empty()) {
+            readHcalDigis_(iEvent, iSetup);
+        }
+        if (!hcalHGCTCs_.empty()) {
+            readHcalHGCTCs_(iEvent, iSetup);
+        }
+        if (!hcalHGCTowers_.empty()) {
+            readHcalHGCTowers_(iEvent, iSetup);
+        }
+    }
+
+    /// --------------- CLUSTERING ------------------
     ecalClusterer_.run();
 
     auto ecalCellsH = iEvent.put(ecalClusterer_.fetchCells(),  "ecalCells");
@@ -148,22 +179,6 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
 
-    // / ----------------HCAL INFO-------------------
-
-    edm::Handle<reco::CandidateView> hcals;
-    for (const auto & token : hcalCands_) {
-        iEvent.getByToken(token, hcals);
-        for (const reco::Candidate & it : *hcals) {
-            if (debug_) std::cout << "L1TPFCaloProducer: adding HCal cand input pt " << it.pt() << ", eta " << it.eta() << ", phi " << it.phi() << std::endl;
-            hcalClusterer_.add(it);
-        }
-    }
-    if (!hcalDigis_.empty()) {
-        readHcalDigis_(iEvent, iSetup);
-    }
-    if (!hcalHGCTCs_.empty()) {
-        readHcalHGCTCs_(iEvent, iSetup);
-    }
     hcalClusterer_.run();
 
     auto hcalCellsH = iEvent.put(hcalClusterer_.fetchCells(),  "hcalCells");
@@ -182,18 +197,18 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto hcalClustH = iEvent.put(hcalClusterer_.fetch(hcalCellsH),  "hcalCalibrated");
  
     // Calorimeter linking
-    caloLinker_.run();
+    caloLinker_->run();
 
-    iEvent.put(caloLinker_.fetch(ecalClustH,hcalClustH),  "uncalibrated");
+    iEvent.put(caloLinker_->fetch(ecalClustH,hcalClustH),  "uncalibrated");
 
     if (hadCorrector_.valid()) {
-        caloLinker_.correct( [&](const l1tpf_calo::CombinedCluster &c) -> float { 
+        caloLinker_->correct( [&](const l1tpf_calo::CombinedCluster &c) -> float { 
                 if (debug_) std::cout << "L1TPFCaloProducer: raw linked cluster pt " << c.et << ", eta " << c.eta << ", phi " << c.phi << ", emPt " << c.ecal_et << std::endl;
                 return hadCorrector_.correctedPt(c.et, c.ecal_et, std::abs(c.eta)); 
                 } );
     }
 
-    std::unique_ptr<l1t::PFClusterCollection> clusters = caloLinker_.fetch(ecalClustH,hcalClustH);
+    std::unique_ptr<l1t::PFClusterCollection> clusters = caloLinker_->fetch(ecalClustH,hcalClustH);
     for (l1t::PFCluster & c : *clusters) {
         c.setPtError(resol_(c.pt(), std::abs(c.eta())));
         if (debug_) std::cout << "L1TPFCaloProducer: calibrated linked cluster pt " << c.pt() << ", eta " << c.eta() << ", phi " << c.phi() << ", emPt " << c.emEt() << std::endl;
@@ -202,7 +217,7 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     ecalClusterer_.clear();
     hcalClusterer_.clear();
-    caloLinker_.clear();
+    caloLinker_->clear();
 }
 
 void
@@ -258,6 +273,21 @@ L1TPFCaloProducer::readHcalHGCTCs_(edm::Event& iEvent, const edm::EventSetup& iS
 
     }
 }
+
+void
+L1TPFCaloProducer::readHcalHGCTowers_(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    edm::Handle<l1t::HGCalTowerBxCollection> hgcTowers;
+
+    for (const auto & token : hcalHGCTowers_) {
+        iEvent.getByToken(token, hgcTowers);
+        for(auto it = hgcTowers->begin(0), ed = hgcTowers->end(0); it != ed; ++it) {
+            if (debug_) std::cout << "L1TPFCaloProducer: adding HGC Tower hadEt " << it->etHad() << ", emEt " << it->etEm() << ", pt " << it->pt() << ", eta " << it->eta() << ", phi " << it->phi() << std::endl;
+            hcalClusterer_.add(it->etHad(), it->eta(), it->phi());
+            if (!hcalHGCTowersHadOnly_) ecalClusterer_.add(it->etEm(), it->eta(), it->phi());
+        }
+    }
+}
+
 
 //define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
