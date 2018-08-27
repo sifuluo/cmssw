@@ -14,6 +14,7 @@ namespace edm { class ParameterSet; }
 #include <array>
 #include <algorithm>
 #include "DataFormats/Phase2L1ParticleFlow/interface/PFCluster.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 namespace l1tpf_calo {
     class Grid {
@@ -36,14 +37,15 @@ namespace l1tpf_calo {
             std::vector<std::array<int,8>> neighbours_; // indices of the neigbours, -1 = none
     };
 
-    class Phase1Grid : public Grid {
+    class Phase1GridBase : public Grid {
         public:
-            Phase1Grid() ;
+            Phase1GridBase(int nEta, int nPhi, int ietaCoarse, int ietaVeryCoarse, const float *towerEtas) ;
+
             virtual int find_cell(float eta, float phi) const override ;
             int ifind_cell(int ieta, int iphi) const { return cell_map_[(ieta+nEta_) + 2*nEta_*(iphi-1)]; }
         protected:
-            static const int nEta_ = 41, nPhi_ = 72, ietaCoarse_ = 29, ietaVeryCoarse_ = 40;
-            static const float towerEtas_[nEta_];
+            const int nEta_, nPhi_, ietaCoarse_, ietaVeryCoarse_;
+            const float *towerEtas_;
             std::vector<int> cell_map_;
             // valid ieta, iphi (does not check for outside bounds, only for non-existence of ieta=0, iphi=0, and coarser towers at high eta)
             bool valid_ieta_iphi(int ieta, int iphi) const {
@@ -54,7 +56,21 @@ namespace l1tpf_calo {
             }
             // move by +/-1 around a cell; return icell or -1 if not available
             int imove(int ieta, int iphi, int deta, int dphi) ;
-            
+    };
+
+    class Phase1Grid : public Phase1GridBase {
+        public:
+            Phase1Grid() : Phase1GridBase(phase1_nEta_, phase1_nPhi_, phase1_ietaCoarse_, phase1_ietaVeryCoarse_, phase1_towerEtas_) {}
+        protected:
+            static const int phase1_nEta_ = 41, phase1_nPhi_ = 72, phase1_ietaCoarse_ = 29, phase1_ietaVeryCoarse_ = 40;
+            static const float phase1_towerEtas_[phase1_nEta_];
+    };
+    class Phase2Grid : public Phase1GridBase {
+        public:
+            Phase2Grid() : Phase1GridBase(phase2_nEta_, phase2_nPhi_, phase2_ietaCoarse_, phase2_ietaVeryCoarse_, phase2_towerEtas_) {}
+        protected:
+            static const int phase2_nEta_ = 48, phase2_nPhi_ = 72, phase2_ietaCoarse_ = 36, phase2_ietaVeryCoarse_ = 47;
+            static const float phase2_towerEtas_[phase2_nEta_];
     };
 
     template<typename T>
@@ -83,6 +99,19 @@ namespace l1tpf_calo {
                 return (ineigh < 0 ? empty_ : data_[ineigh]); 
             }
 
+            GridData<T> & operator=(const GridData<T> & other) {
+                assert(grid_ == other.grid_);
+                data_ = other.data_;
+                return *this;
+            }
+            GridData<T> & operator+=(const GridData<T> & other) {
+                assert(grid_ == other.grid_);
+                for (unsigned int i = 0, n = data_.size(); i < n; ++i) {
+                    data_[i] += other.data_[i];
+                }
+                return *this;
+            }
+
             // always defined
             void fill(const T &val) { std::fill(data_.begin(), data_.end(), val); }
             void zero() { fill(T()); }
@@ -96,6 +125,7 @@ namespace l1tpf_calo {
             const T        empty_;
     };
     typedef GridData<float> EtGrid;
+    typedef GridData<int> IndexGrid;
 
     struct PreCluster {
         PreCluster() : ptLocalMax(0), ptOverNeighLocalMaxSum(0) {}
@@ -108,15 +138,14 @@ namespace l1tpf_calo {
     struct Cluster {
         Cluster() : et(0), eta(0), phi(0) {}
         float et, eta, phi;
-        void clear() { et = eta = phi = 0; }
+        std::vector<std::pair<int,float>> constituents;
+        void clear() { et = eta = phi = 0; constituents.clear(); }
     };
-    typedef GridData<Cluster> ClusterGrid;
 
     struct CombinedCluster : public Cluster {
         float ecal_et, hcal_et;
-        void clear() { et = ecal_et = hcal_et = eta = phi = 0; }
+        void clear() { Cluster::clear(); ecal_et = hcal_et = 0; }
     };
-    typedef GridData<CombinedCluster> CombinedClusterGrid;
 
     const Grid * getGrid(const std::string & type) ;
 
@@ -124,26 +153,39 @@ namespace l1tpf_calo {
         public:
             SingleCaloClusterer(const edm::ParameterSet &pset) ;
             ~SingleCaloClusterer() ;
-            void clear() { rawet_.zero(); }
+            void clear() ;
             void add(const reco::Candidate &c) { add(c.pt(), c.eta(), c.phi()); }
             void add(float pt, float eta, float phi) { 
                 rawet_(eta, phi) += pt; 
             }
             void run() ; 
-            const EtGrid      & raw()      const { return rawet_; }
-            const ClusterGrid & clusters() const { return cluster_; }
+
+            /// possibly grow clusters by adding unclustered energy on the sides
+            //  note: there can be some double-counting as the same unclustered energy can go into more clusters
+            void grow() ; 
+
+            const EtGrid    & raw()      const { return rawet_; }
+            const IndexGrid & indexGrid() const { return clusterIndex_; }
+            const std::vector<Cluster> & clusters() const { return clusters_; }
+            const Cluster & cluster(int i) const { 
+                return (i == -1 || clusterIndex_[i] == -1) ? nullCluster_ : clusters_[clusterIndex_[i]]; 
+            }
+
+            /// non-const access to the energy: be careful to use it only before 'run()'
+            EtGrid & raw() { return rawet_; }
 
             // for the moment, generic interface that takes a cluster and returns the corrected pt
             template<typename Corrector>
             void correct(const Corrector & corrector) {
-                for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
-                    if (cluster_[i].et > 0) {
-                        cluster_[i].et = corrector(cluster_[i]);
-                    }
+                for (Cluster & c : clusters_) {
+                    c.et = corrector(c);
                 }
             }
 
+            std::unique_ptr<l1t::PFClusterCollection> fetchCells(bool unclusteredOnly=false, float ptMin=0.) const ;
+
             std::unique_ptr<l1t::PFClusterCollection> fetch(float ptMin=0.) const ;
+            std::unique_ptr<l1t::PFClusterCollection> fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & cells, float ptMin=0.) const ;
 
         private:
             enum EnergyShareAlgo { Fractions, /* each local maximum neighbour takes a share proportional to its value */
@@ -151,39 +193,70 @@ namespace l1tpf_calo {
                                    Greedy,    /* assing cell to the highest local maximum neighbour */
                                    Crude };   /* if there's more than one local maximum neighbour, they all take half of the value (no fp division) */
             const Grid * grid_;
-            EtGrid         rawet_;
-            PreClusterGrid  precluster_;
-            ClusterGrid    cluster_;
-            float zsEt_, seedEt_, minClusterEt_;
+            EtGrid         rawet_, unclustered_;
+            PreClusterGrid precluster_;
+            IndexGrid    clusterIndex_, cellKey_;
+            std::vector<Cluster> clusters_;
+            const Cluster nullCluster_;
+            float zsEt_, seedEt_, minClusterEt_, minEtToGrow_;
             EnergyShareAlgo energyShareAlgo_;
             bool  energyWeightedPosition_; // do the energy-weighted cluster position instead of the cell center
+
     };
 
-    class SimpleCaloLinker {
+    class SimpleCaloLinkerBase {
         public:
-            SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
-            ~SimpleCaloLinker() ;
-            void run() ; 
-            const CombinedClusterGrid & clusters() const { return cluster_; }
-            
+            SimpleCaloLinkerBase(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
+            virtual ~SimpleCaloLinkerBase() ;
+            virtual void clear() { clearBase(); }
+            virtual void run() = 0;
+            void clearBase() {
+                clusters_.clear();
+                clusterIndex_.fill(-1);
+            }
+
             // for the moment, generic interface that takes a cluster and returns the corrected pt
             template<typename Corrector>
             void correct(const Corrector & corrector) {
-                for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
-                    if (cluster_[i].et > 0) {
-                        cluster_[i].et = corrector(cluster_[i]);
-                    }
+                for (CombinedCluster & c : clusters_) {
+                    c.et = corrector(c);
                 }
             }
 
             std::unique_ptr<l1t::PFClusterCollection> fetch() const ;
-        private:
+            std::unique_ptr<l1t::PFClusterCollection> fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const ;
+
+        protected:
             const Grid * grid_;
             const SingleCaloClusterer & ecal_, & hcal_;
-            PreClusterGrid ecalToHCal_;
-            CombinedClusterGrid cluster_;
+            IndexGrid    clusterIndex_;
+            std::vector<CombinedCluster> clusters_;
             float hoeCut_, minPhotonEt_, minHadronRawEt_, minHadronEt_;
     };
+
+    class SimpleCaloLinker : public SimpleCaloLinkerBase {
+        public:
+            SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
+            ~SimpleCaloLinker() ;
+            void clear() override ;
+            void run() override ;
+        protected:
+            PreClusterGrid ecalToHCal_;
+    };
+    class FlatCaloLinker : public SimpleCaloLinkerBase {
+        public:
+            FlatCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
+            ~FlatCaloLinker() ;
+            void clear() override ;
+            void run() override ;
+        protected:
+            SingleCaloClusterer combClusterer_;
+    };
+
+    // makes a calo linker (pointer will be owned by the callee)
+    SimpleCaloLinkerBase * makeCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal);
+
+    
 
 } // namespace 
 
