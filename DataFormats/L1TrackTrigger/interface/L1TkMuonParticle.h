@@ -46,7 +46,7 @@ namespace l1t
       float getTrkIsol() const { return theIsolation; }
       float getTrkzVtx() const { return TrkzVtx_ ; }
 
-      L1MuKBMTCombinedStubRefVector getBarrelStubs() { return barrelStubs_; }
+      const L1MuKBMTCombinedStubRefVector& getBarrelStubs() const { return barrelStubs_; }
       unsigned int quality()  const {return quality_;}
 
       void setTrkPtr(const edm::Ptr< L1TTTrackType >& p) {trkPtr_ = p;}
