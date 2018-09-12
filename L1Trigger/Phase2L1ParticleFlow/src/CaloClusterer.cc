@@ -3,14 +3,19 @@
 #include <cassert>
 
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-const float l1tpf_calo::Phase1Grid::towerEtas_[l1tpf_calo::Phase1Grid::nEta_] = {0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.5,2.650,2.853,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
+const float l1tpf_calo::Phase1Grid::phase1_towerEtas_[l1tpf_calo::Phase1Grid::phase1_nEta_] = {0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.5,2.650,2.853,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
+const float l1tpf_calo::Phase2Grid::phase2_towerEtas_[l1tpf_calo::Phase2Grid::phase2_nEta_] = {0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,1.044,1.131,1.218,1.305,1.392,1.479,
+                                                                                 1.564,1.648,1.732,1.817,1.901,1.986,2.071,2.155,2.240,2.324,2.409,2.493,2.577,2.662,2.747,2.831,2.915,3.0,
+                                                                                 3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
 
-l1tpf_calo::Phase1Grid::Phase1Grid() :
-            Grid(2*((ietaCoarse_-1)*nPhi_ + (ietaVeryCoarse_-ietaCoarse_)*(nPhi_/2) + (nEta_-ietaVeryCoarse_+1) * (nPhi_/4))),
-            cell_map_(2*nEta_*nPhi_, -1)
+l1tpf_calo::Phase1GridBase::Phase1GridBase(int nEta, int nPhi, int ietaCoarse, int ietaVeryCoarse, const float *towerEtas) :
+            Grid(2*((ietaCoarse-1)*nPhi + (ietaVeryCoarse-ietaCoarse)*(nPhi/2) + (nEta-ietaVeryCoarse+1) * (nPhi/4))),
+            nEta_(nEta), nPhi_(nPhi), ietaCoarse_(ietaCoarse), ietaVeryCoarse_(ietaVeryCoarse), towerEtas_(towerEtas),
+            cell_map_(2*nEta*nPhi, -1)
 {
     int icell = 0;
     for (int ie = -nEta_; ie <= nEta_; ++ie) {
@@ -52,8 +57,9 @@ l1tpf_calo::Phase1Grid::Phase1Grid() :
     //}
 }
 
-int l1tpf_calo::Phase1Grid::find_cell(float eta, float phi) const {
+int l1tpf_calo::Phase1GridBase::find_cell(float eta, float phi) const {
     int ieta = (eta != 0) ? std::distance(towerEtas_, std::lower_bound(towerEtas_, towerEtas_+nEta_, std::abs(eta))) : 1;
+    if (ieta == nEta_) return -1; // outside bounds
     assert(ieta > 0 && ieta < nEta_);
     if (ieta > nEta_) ieta = nEta_;
     if (eta < 0) ieta = -ieta;
@@ -82,7 +88,7 @@ int l1tpf_calo::Phase1Grid::find_cell(float eta, float phi) const {
     return icell;
 }
 
-int l1tpf_calo::Phase1Grid::imove(int ieta, int iphi, int deta, int dphi) {
+int l1tpf_calo::Phase1GridBase::imove(int ieta, int iphi, int deta, int dphi) {
     int ie = ieta, iph = iphi;
     switch (deta) {
         case -1: ie = (ie == -nEta_ ? 0 : (ie == +1 ? -1 : ie-1)); break;
@@ -109,18 +115,25 @@ int l1tpf_calo::Phase1Grid::imove(int ieta, int iphi, int deta, int dphi) {
 const l1tpf_calo::Grid * l1tpf_calo::getGrid(const std::string & type) 
 {
     static Phase1Grid _phase1Grid;
+    static Phase2Grid _phase2Grid;
     if (type == "phase1") return & _phase1Grid;
+    else if (type == "phase2") return & _phase2Grid;
     else throw cms::Exception("Configuration") << "Unsupported grid type '" << type  << "'\n";
 }
 
 l1tpf_calo::SingleCaloClusterer::SingleCaloClusterer(const edm::ParameterSet &pset) :
     grid_(getGrid(pset.getParameter<std::string>("grid"))),
     rawet_(*grid_),
+    unclustered_(*grid_),
     precluster_(*grid_),
-    cluster_(*grid_),
+    clusterIndex_(*grid_),
+    cellKey_(*grid_),
+    clusters_(),
+    nullCluster_(),
     zsEt_(pset.getParameter<double>("zsEt")),
     seedEt_(pset.getParameter<double>("seedEt")),
     minClusterEt_(pset.getParameter<double>("minClusterEt")),
+    minEtToGrow_(pset.existsAs<double>("minEtToGrow") ? pset.getParameter<double>("minEtToGrow") : -1),
     energyWeightedPosition_(pset.getParameter<bool>("energyWeightedPosition"))
 {
     std::string energyShareAlgo = pset.getParameter<std::string>("energyShareAlgo");
@@ -135,13 +148,24 @@ l1tpf_calo::SingleCaloClusterer::~SingleCaloClusterer()
 {
 }
 
+void l1tpf_calo::SingleCaloClusterer::clear() {
+    rawet_.zero();
+    clusters_.clear();
+    clusterIndex_.fill(-1);
+}
+
 void l1tpf_calo::SingleCaloClusterer::run() 
 {
     unsigned int i, ncells = grid_->size();
 
-    // kill zeros
+    // kill zeros. count non-zeros, for linking later
+    cellKey_.fill(-1); int key = 0;
     for (i = 0; i < ncells; ++i) {
-        if (rawet_[i] < zsEt_) rawet_[i] = 0;
+        if (rawet_[i] < zsEt_) {
+            rawet_[i] = 0;
+        } else {
+            cellKey_[i] = key++;
+        }
     }
 
     precluster_.clear();
@@ -203,14 +227,18 @@ void l1tpf_calo::SingleCaloClusterer::run()
         }
     }
 
-    cluster_.clear();
+    clusterIndex_.fill(-1); clusters_.clear();
+    unclustered_ = rawet_;
     // cluster: at each localMax cell, take itself plus the weighted contributions of the neighbours
+    Cluster cluster;
     for (i = 0; i < ncells; ++i) {
         if (precluster_[i].ptLocalMax > 0) {
             float myet = rawet_[i];
             float tot  = myet;
             float avg_eta = 0;
             float avg_phi = 0;
+            cluster.clear();
+            cluster.constituents.emplace_back(i, 1.0);
             for (int ineigh = 0; ineigh < 8; ++ineigh) {
                 int ineighcell = grid_->neighbour(i, ineigh);
                 if (ineighcell == -1) continue; // skip dummy cells
@@ -221,46 +249,107 @@ void l1tpf_calo::SingleCaloClusterer::run()
                     case Greedy:    fracet = (myet == precluster_.neigh(i,ineigh).ptOverNeighLocalMaxSum ? rawet_.neigh(i,ineigh) : 0); break;
                     case Crude:     fracet = precluster_.neigh(i,ineigh).ptOverNeighLocalMaxSum; break;
                 }
+                if (fracet == 0) continue;
                 tot  += fracet;
+                cluster.constituents.emplace_back(ineighcell, fracet/rawet_.neigh(i,ineigh));
                 if (energyWeightedPosition_) {
                     avg_eta += fracet * (grid_->eta(ineighcell) - grid_->eta(i));
                     avg_phi += fracet * deltaPhi(grid_->phi(ineighcell), grid_->phi(i));
                 }
             }
             if (tot > minClusterEt_) {
-                cluster_[i].et  = tot;
+                cluster.et  = tot;
+                unclustered_[i] = 0;
+                for (int ineigh = 0; ineigh < 8; ++ineigh) {
+                    int ineighcell = grid_->neighbour(i, ineigh);
+                    if (ineighcell == -1) continue; // skip dummy cells
+                    unclustered_[ineighcell] = 0;
+                }
                 if (energyWeightedPosition_) {
-                    cluster_[i].eta = grid_->eta(i) + avg_eta / tot;
-                    cluster_[i].phi = grid_->phi(i) + avg_phi / tot;
+                    cluster.eta = grid_->eta(i) + avg_eta / tot;
+                    cluster.phi = grid_->phi(i) + avg_phi / tot;
                     // wrap around phi
-                    if (cluster_[i].phi >  M_PI) cluster_[i].phi -= 2*M_PI;
-                    if (cluster_[i].phi < -M_PI) cluster_[i].phi += 2*M_PI;
+                    if (cluster.phi >  M_PI) cluster.phi -= 2*M_PI;
+                    if (cluster.phi < -M_PI) cluster.phi += 2*M_PI;
                 } else {
-                    cluster_[i].eta = grid_->eta(i);
-                    cluster_[i].phi = grid_->phi(i);
+                    cluster.eta = grid_->eta(i);
+                    cluster.phi = grid_->phi(i);
+                }
+                clusterIndex_[i] = clusters_.size(); clusters_.push_back(cluster);
+            }
+        }
+    }
+    if (minEtToGrow_ > 0) grow();
+}
+
+void l1tpf_calo::SingleCaloClusterer::grow() {
+    int selneighs[4] = { 1, 3, 4, 6} ; // -eta, -phi, +phi, +eta
+    std::vector<int> toreset;
+    for (Cluster & cluster : clusters_) {
+        if (cluster.et > minEtToGrow_) {
+            int i = cluster.constituents.front().first;
+            for (int side = 0; side < 4; ++side) {
+                int neigh = grid_->neighbour(i, selneighs[side]);
+                if (neigh == -1) continue;
+                for (int in = 0; in < 8; ++in) {
+                    int n2 = grid_->neighbour(neigh, in);
+                    if (n2 == -1) continue;
+                    cluster.et += unclustered_[n2];
+                    if (unclustered_[n2]) {
+                        cluster.constituents.emplace_back(n2, 1.0);
+                        toreset.push_back(n2);
+                    }
                 }
             }
         }
     }
+    for (int i : toreset) unclustered_[i] = 0;
+}
 
-
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetchCells(bool unclusteredOnly, float ptMin) const {
+    auto ret = std::make_unique<l1t::PFClusterCollection>();
+    const EtGrid & src = (unclusteredOnly ? unclustered_ : rawet_);
+    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
+        if (src[i] <= ptMin) continue;
+        if ((unclusteredOnly == false) && (ptMin == 0)) {
+            assert(cellKey_[i] == int(ret->size()));
+        }
+        ret->emplace_back(src[i], grid_->eta(i), grid_->phi(i));  
+        ret->back().setHwEta(grid_->ieta(i));
+        ret->back().setHwPhi(grid_->iphi(i));
+    }
+    return ret;
 }
 
 std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch(float ptMin) const {
     auto ret = std::make_unique<l1t::PFClusterCollection>();
-    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
-        if (cluster_[i].et > ptMin) {
-            ret->emplace_back(cluster_[i].et, cluster_[i].eta, cluster_[i].phi);  
+    for (const Cluster & cluster : clusters_) {
+        if (cluster.et > ptMin) {
+            ret->emplace_back(cluster.et, cluster.eta, cluster.phi);  
         }
     }
     return ret;
 }
 
-l1tpf_calo::SimpleCaloLinker::SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) :
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & cells, float ptMin) const {
+    auto ret = std::make_unique<l1t::PFClusterCollection>();
+    for (const Cluster & cluster : clusters_) {
+        if (cluster.et > ptMin) {
+            ret->emplace_back(cluster.et, cluster.eta, cluster.phi);
+            for (auto & pair : cluster.constituents) {
+                edm::Ptr<l1t::PFCluster> ref(cells, cellKey_[pair.first]);
+                ret->back().addConstituent(ref, pair.second);
+            }
+        }
+    }
+    return ret;
+}
+
+l1tpf_calo::SimpleCaloLinkerBase::SimpleCaloLinkerBase(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) :
     grid_(getGrid(pset.getParameter<std::string>("grid"))),
     ecal_(ecal), hcal_(hcal),
-    ecalToHCal_(*grid_),
-    cluster_(*grid_),
+    clusterIndex_(*grid_),
+    clusters_(),
     hoeCut_(pset.getParameter<double>("hoeCut")),
     minPhotonEt_(pset.getParameter<double>("minPhotonEt")),
     minHadronRawEt_(pset.getParameter<double>("minHadronRawEt")),
@@ -270,8 +359,54 @@ l1tpf_calo::SimpleCaloLinker::SimpleCaloLinker(const edm::ParameterSet &pset, co
     if (grid_ != & hcal.raw().grid()) throw cms::Exception("LogicError", "Inconsistent grid between hcal and linker\n");
 }
 
+l1tpf_calo::SimpleCaloLinkerBase::~SimpleCaloLinkerBase() 
+{
+}
+
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetch() const {
+    edm::OrphanHandle<l1t::PFClusterCollection> ecal, hcal;
+    return fetch(ecal, hcal);
+}
+
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const {
+    bool setRefs = (ecal.isValid() && hcal.isValid());
+    auto ret = std::make_unique<l1t::PFClusterCollection>();
+    for (const CombinedCluster & cluster : clusters_) {
+        if (cluster.et > 0) {
+            bool photon = (cluster.hcal_et < hoeCut_* cluster.ecal_et);
+            if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
+                ret->emplace_back(cluster.et, cluster.eta, cluster.phi, 
+                        cluster.ecal_et > 0 ? std::max(cluster.et-cluster.ecal_et,0.f)/cluster.ecal_et : -1,
+                        photon); 
+                if (setRefs) {
+                    for (auto & pair : cluster.constituents) {
+                        assert(pair.first != 0);
+                        if (pair.first > 0) { // 1+hcal index
+                            ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first-1), pair.second);
+                        } else { // -1-ecal index
+                            ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(ecal, -pair.first+1), pair.second);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+l1tpf_calo::SimpleCaloLinker::SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) :
+    SimpleCaloLinkerBase(pset,ecal,hcal),
+    ecalToHCal_(*grid_)
+{
+}
+
 l1tpf_calo::SimpleCaloLinker::~SimpleCaloLinker() 
 {
+}
+
+void l1tpf_calo::SimpleCaloLinker::clear() {
+    clearBase();
+    ecalToHCal_.clear();
 }
 
 void l1tpf_calo::SimpleCaloLinker::run() 
@@ -279,45 +414,52 @@ void l1tpf_calo::SimpleCaloLinker::run()
     unsigned int i, ncells = grid_->size();
 
     const EtGrid & hraw = hcal_.raw();
-    const ClusterGrid & ecals = ecal_.clusters();
-    const ClusterGrid & hcals = hcal_.clusters();
+    const IndexGrid & ecals = ecal_.indexGrid();
+    const IndexGrid & hcals = hcal_.indexGrid();
 
     // for each ECal cluster, get the corresponding HCal cluster and the sum of the neighbour HCal clusters
     ecalToHCal_.clear();
     for (i = 0; i < ncells; ++i) {
-        if (ecals[i].et > 0) {
-            if (hcals[i].et > 0) {
-                ecalToHCal_[i].ptLocalMax = hcals[i].et;
+        if (ecals[i] >= 0) {
+            if (hcals[i] >= 0) {
+                ecalToHCal_[i].ptLocalMax = hcal_.cluster(i).et;
             } else {
                 float tot = 0;
                 for (int ineigh = 0; ineigh < 8; ++ineigh) {
-                    tot += hcals.neigh(i,ineigh).et;
+                    tot += hcal_.cluster(grid_->neighbour(i, ineigh)).et;
                 }
-                ecalToHCal_[i].ptOverNeighLocalMaxSum = tot ? ecals[i].et/tot : 0;
+                ecalToHCal_[i].ptOverNeighLocalMaxSum = tot ? ecal_.cluster(i).et/tot : 0;
             }
         }
     }
 
-    cluster_.clear();
+    clusterIndex_.fill(-1);
+    clusters_.clear();
+    CombinedCluster cluster;
     // promote HCal clusters to final clusters
     for (i = 0; i < ncells; ++i) {
-        if (hcals[i].et > 0) {
+        if (hcals[i] >= 0) {
+            const Cluster & hcal = hcal_.cluster(i); 
+            cluster.clear();
+            cluster.constituents.emplace_back(+i+1, 1);
             if (ecalToHCal_[i].ptLocalMax > 0) {
                 // direct linking is easy
-                if (ecals[i].et + hcals[i].et > minHadronRawEt_) {
-                    cluster_[i].ecal_et = ecals[i].et;
-                    cluster_[i].hcal_et = hcals[i].et;
-                    cluster_[i].et = cluster_[i].ecal_et + cluster_[i].hcal_et;
-                    float wecal = cluster_[i].ecal_et/cluster_[i].et, whcal = 1.0 - wecal;
-                    cluster_[i].eta = ecals[i].eta * wecal + hcals[i].eta * whcal;
-                    cluster_[i].phi = ecals[i].phi * wecal + hcals[i].phi * whcal;
+                const Cluster & ecal = ecal_.cluster(i);
+                if (ecal.et + hcal.et > minHadronRawEt_) {
+                    cluster.ecal_et = ecal.et;
+                    cluster.hcal_et = hcal.et;
+                    cluster.et = cluster.ecal_et + cluster.hcal_et;
+                    float wecal = cluster.ecal_et/cluster.et, whcal = 1.0 - wecal;
+                    cluster.eta = ecal.eta * wecal + hcal.eta * whcal;
+                    cluster.phi = ecal.phi * wecal + hcal.phi * whcal;
                     // wrap around phi
-                    if (cluster_[i].phi >  M_PI) cluster_[i].phi -= 2*M_PI;
-                    if (cluster_[i].phi < -M_PI) cluster_[i].phi += 2*M_PI;
+                    if (cluster.phi >  M_PI) cluster.phi -= 2*M_PI;
+                    if (cluster.phi < -M_PI) cluster.phi += 2*M_PI;
+                    cluster.constituents.emplace_back(-i-1, 1);
                 }
             } else {
                 // sidewas linking is more annonying
-                float myet = hcals[i].et;
+                float myet = hcal.et;
                 float etot = 0;
                 float avg_eta = 0;
                 float avg_phi = 0;
@@ -325,52 +467,107 @@ void l1tpf_calo::SimpleCaloLinker::run()
                     int ineighcell = grid_->neighbour(i, ineigh);
                     if (ineighcell == -1) continue; // skip dummy cells
                     float fracet = myet * ecalToHCal_.neigh(i,ineigh).ptOverNeighLocalMaxSum;
+                    if (fracet == 0) continue;
                     etot  += fracet;
                     avg_eta += fracet * (grid_->eta(ineighcell) - grid_->eta(i));
                     avg_phi += fracet * deltaPhi(grid_->phi(ineighcell), grid_->phi(i));
+                    cluster.constituents.emplace_back(-i-1, fracet / ecal_.cluster(ineighcell).et);
                 }
                 if (myet + etot > minHadronRawEt_) {
-                    cluster_[i].hcal_et = hcals[i].et;
-                    cluster_[i].ecal_et = etot;
-                    cluster_[i].et  = myet + etot;
-                    cluster_[i].eta = hcals[i].eta + avg_eta / cluster_[i].et;
-                    cluster_[i].phi = hcals[i].phi + avg_phi / cluster_[i].et;
+                    cluster.hcal_et = hcal.et;
+                    cluster.ecal_et = etot;
+                    cluster.et  = myet + etot;
+                    cluster.eta = hcal.eta + avg_eta / cluster.et;
+                    cluster.phi = hcal.phi + avg_phi / cluster.et;
                     // wrap around phi
-                    if (cluster_[i].phi >  M_PI) cluster_[i].phi -= 2*M_PI;
-                    if (cluster_[i].phi < -M_PI) cluster_[i].phi += 2*M_PI;
+                    if (cluster.phi >  M_PI) cluster.phi -= 2*M_PI;
+                    if (cluster.phi < -M_PI) cluster.phi += 2*M_PI;
                 }
+            }
+            if (cluster.et > 0) {
+                clusterIndex_[i] = clusters_.size(); clusters_.push_back(cluster);
             }
         }
     }
 
     // promote Unlinked ECal clusters to final clusters
     for (i = 0; i < ncells; ++i) {
-        if (ecals[i].et > 0 && ecalToHCal_[i].ptLocalMax == 0 && ecalToHCal_[i].ptOverNeighLocalMaxSum == 0) {
-            // direct linking is easy
-            cluster_[i].ecal_et = ecals[i].et;
-            cluster_[i].hcal_et = hraw[i];
-            cluster_[i].et = cluster_[i].ecal_et + cluster_[i].hcal_et;
-            cluster_[i].eta = ecals[i].eta;
-            cluster_[i].phi = ecals[i].phi;
-            // no need to wrap around phi
+        if (ecals[i] >= 0 && ecalToHCal_[i].ptLocalMax == 0 && ecalToHCal_[i].ptOverNeighLocalMaxSum == 0) {
+            cluster.clear();
+            const Cluster & ecal = ecal_.cluster(i); 
+            cluster.ecal_et = ecal.et;
+            cluster.hcal_et = hraw[i];
+            cluster.et = cluster.ecal_et + cluster.hcal_et;
+            cluster.eta = ecal.eta;
+            cluster.phi = ecal.phi;
+            cluster.constituents.emplace_back(-i-1, 1);
+            clusterIndex_[i] = clusters_.size(); clusters_.push_back(cluster);
         }
     }
  
 }
 
 
+l1tpf_calo::FlatCaloLinker::FlatCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) :
+    SimpleCaloLinkerBase(pset,ecal,hcal),
+    combClusterer_(pset)
+{
+}
 
-std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinker::fetch() const {
-    auto ret = std::make_unique<l1t::PFClusterCollection>();
-    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
-        if (cluster_[i].et > 0) {
-            bool photon = (cluster_[i].hcal_et < hoeCut_* cluster_[i].ecal_et);
-            if (cluster_[i].et > (photon ? minPhotonEt_ : minHadronEt_)) {
-                ret->emplace_back(cluster_[i].et, cluster_[i].eta, cluster_[i].phi, 
-                        cluster_[i].ecal_et > 0 ? std::max(cluster_[i].et-cluster_[i].ecal_et,0.f)/cluster_[i].ecal_et : -1,
-                        photon);  
+l1tpf_calo::FlatCaloLinker::~FlatCaloLinker() 
+{
+}
+
+void l1tpf_calo::FlatCaloLinker::clear() {
+    clearBase();
+    combClusterer_.clear();
+}
+
+void l1tpf_calo::FlatCaloLinker::run() 
+{
+    combClusterer_.clear();
+
+    const EtGrid & hraw = hcal_.raw();
+    const EtGrid & eraw = ecal_.raw();
+    combClusterer_.raw() =  eraw;
+    combClusterer_.raw() += hraw;
+
+    combClusterer_.run();
+    clusterIndex_ = combClusterer_.indexGrid();
+    const std::vector<Cluster> & clustersSrc = combClusterer_.clusters();
+    unsigned int nclust = clustersSrc.size();
+    clusters_.resize(nclust);
+    for (unsigned int ic = 0; ic < nclust; ++ic) {
+        const Cluster & src = clustersSrc[ic];
+        CombinedCluster & dst  = clusters_[ic];
+        dst.et = src.et;
+        dst.eta = src.eta;
+        dst.phi = src.phi;
+        dst.ecal_et = 0;
+        dst.hcal_et = 0;
+        for (auto & pair : src.constituents) {
+            if (eraw[pair.first]) {
+                dst.ecal_et += pair.second * eraw[pair.first];
+                dst.constituents.emplace_back(-pair.first-1, pair.second);
+            } 
+            if (hraw[pair.first]) {
+                dst.hcal_et += pair.second * hraw[pair.first];
+                dst.constituents.emplace_back(+pair.first+1, pair.second);
             }
         }
     }
-    return ret;
 }
+
+l1tpf_calo::SimpleCaloLinkerBase * l1tpf_calo::makeCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) {
+    const std::string & algo = pset.getParameter<std::string>("algo");
+    if (algo == "simple") {
+        return new l1tpf_calo::SimpleCaloLinker(pset,ecal,hcal);
+    } else if (algo == "flat") {
+        return new l1tpf_calo::FlatCaloLinker(pset,ecal,hcal);
+    } else {
+        throw cms::Exception("Configuration") << "Unsupported linker algo '" << algo << "'\n";
+    }
+}
+
+
+
