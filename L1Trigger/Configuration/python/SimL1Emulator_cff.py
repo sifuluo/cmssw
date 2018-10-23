@@ -66,6 +66,17 @@ _phase2_siml1emulator += hgcalTriggerPrimitives
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
 
+
+# ########################################################################
+# Customisation for the phase2_ecal era. Includes the ecalEB TPs
+# ########################################################################
+from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitiveDigis_cff import *
+_phase2_siml1emulator_ebtp = SimL1Emulator.copy()
+_phase2_siml1emulator_ebtp += simEcalEBTriggerPrimitiveDigis
+
+from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
+phase2_ecal.toReplaceWith( SimL1Emulator , _phase2_siml1emulator_ebtp )
+
 # If PreMixing, don't run these modules during first step
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
@@ -85,14 +96,6 @@ from L1Trigger.VertexFinder.VertexProducer_cff import *
 
 phase2_SimL1Emulator += VertexProducer
 
-# Kalman Barrel MTF
-# ########################################################################
-from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
-from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
-
-phase2_SimL1Emulator += simKBmtfStubs
-phase2_SimL1Emulator += simKBmtfDigis
-
 # Barrel EGamma
 # ########################################################################
 from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
@@ -101,6 +104,11 @@ phase2_SimL1Emulator += l1EGammaCrystalsProducer
 from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import * 
 phase2_SimL1Emulator += l1EGammaEEProducer
 
+# Barrel L1Tk + Stub
+# ########################################################################
+from L1Trigger.L1TTrackMatch.L1TTrackerPlusStubs_cfi import *
+l1KBmtfStubMatchedMuons = l1StubMatchedMuons.clone()
+phase2_SimL1Emulator += l1KBmtfStubMatchedMuons 
 
 # Tk + StandaloneObj
 # (include L1TkPrimaryVertex)
@@ -165,6 +173,14 @@ l1PFJets = cms.Sequence( ak4L1Calo + ak4L1TK + ak4L1TKV + ak4L1PF + ak4L1Puppi
                         + ak4L1TightTK + ak4L1TightTKV)
 
 phase2_SimL1Emulator += l1PFJets
+
+# PFTaus(HPS)
+# ########################################################################
+from L1Trigger.Phase2L1Taus.L1PFTauProducer_cff import L1PFTauProducer
+l1pfTauProducer = L1PFTauProducer.clone()
+l1pfTauProducer.L1PFObjects = cms.InputTag("l1pfProducer","PF")
+l1pfTauProducer.L1Neutrals = cms.InputTag("l1pfProducer")
+phase2_SimL1Emulator += l1pfTauProducer
 
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1Emulator , phase2_SimL1Emulator)
