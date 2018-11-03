@@ -42,8 +42,12 @@ class TauMapper{
 	void deltaRStrip();
 	void deltaZ();
 
+	void setMinPi0Pt(double min_pi0pt_in){
+	  m_minpi0pt = min_pi0pt_in;
+	}
 	void setSeedChargedHadron(l1t::PFCandidate in){
 	  seedCH = in;
+	  sumChargedIso = 0;
 	  seedHadronSet = true;
 	  buildStripGrid();
 	};
@@ -100,8 +104,11 @@ class TauMapper{
 	l1t::PFCandidate prong3;
 
 	float sumChargedIso;
+	float sumEGIso;
 	float strip_pt;
 	float strip_eta;
+	float strip_phi;
+	double m_minpi0pt;
 };
 
 #endif
