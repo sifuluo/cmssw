@@ -43,28 +43,14 @@ process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
 
 
-
 # --------------------------------------------------------------------------------------------
 #
-# ----    Produce the L1EGCrystal clusters (code of Sasha Savin)
+# ----    Produce the L1EGCrystal clusters using Emulator
 
-process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
-   EtminForStore = cms.double(0.),
-   EcalTpEtMin = cms.untracked.double(0.5), # 500 MeV default per each Ecal TP
-   EtMinForSeedHit = cms.untracked.double(1.0), # 1 GeV decault for seed hit
-   debug = cms.untracked.bool(False),
-   useRecHits = cms.untracked.bool(False),
-   doBremClustering = cms.untracked.bool(True), # Should always be True when using for E/Gamma
-   #ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
-   ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
-   #ecalTPEB = cms.InputTag("EcalTPSorterProducer","EcalTPsTopPerRegion","L1AlgoTest"),
-   ecalRecHitEB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),
-   hcalRecHit = cms.InputTag("hbhereco"),
-   hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
-   useTowerMap = cms.untracked.bool(False)
-)
 
-process.pL1EG = cms.Path( process.L1EGammaCrystalsProducer )
+process.load('L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi')
+
+process.pL1EG = cms.Path( process.L1EGammaClusterEmuProducer )
 
 
 
@@ -73,7 +59,7 @@ process.Out = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "l1egCrystalTest.root" ),
     fastCloning = cms.untracked.bool( False ),
     outputCommands = cms.untracked.vstring(
-                    "keep *_L1EGammaCrystalsProducer_*_*",
+                    "keep *_L1EGammaClusterEmuProducer_*_*",
                     "keep *_TriggerResults_*_*",
                     "keep *_simHcalTriggerPrimitiveDigis_*_*",
                     "keep *_EcalEBTrigPrimProducer_*_*"
