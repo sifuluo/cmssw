@@ -80,7 +80,8 @@ if (stage2L1Trigger.isChosen() or phase2_trigger.isChosen()):
 
 #
 #
-    SimL1TMuon = cms.Sequence(SimL1TMuonCommon + simTwinMuxDigis + simBmtfDigis + simKBmtfStubs + simKBmtfDigis + simEmtfDigis + simOmtfDigis + simGmtCaloSumDigis + simGmtStage2Digis)
+    #SimL1TMuon = cms.Sequence(SimL1TMuonCommon + simTwinMuxDigis + simBmtfDigis + simKBmtfStubs + simKBmtfDigis + simEmtfDigis + simOmtfDigis + simGmtCaloSumDigis + simGmtStage2Digis)
+    SimL1TMuon = cms.Sequence(SimL1TMuonCommon + simTwinMuxDigis + simBmtfDigis + simKBmtfStubs + simKBmtfDigis + simGmtCaloSumDigis + simGmtStage2Digis) # temp remove simEmtfDigis + simOmtfDigis
 
     from L1Trigger.ME0Trigger.me0TriggerPseudoDigis_cff import *
     from L1Trigger.L1TMuon.simDisplacedGmtStage2Digis_cfi import *
