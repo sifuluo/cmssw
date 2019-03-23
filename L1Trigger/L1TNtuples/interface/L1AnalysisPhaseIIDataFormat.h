@@ -65,6 +65,12 @@ namespace L1Analysis
       jetPUDonutEt2.clear();
       jetPUDonutEt3.clear();
 
+      nCaloJets = 0;
+      caloJetEt.clear();
+      caloJetEta.clear();
+      caloJetPhi.clear();
+      caloJetBx.clear();
+
       nGlobalMuons = 0;
       globalMuonPt.clear();
       globalMuonEta.clear();
@@ -94,6 +100,7 @@ namespace L1Analysis
       standaloneMuonQual.clear();
       standaloneMuonBx.clear();
       standaloneMuonRegion.clear();
+      standaloneMuonDXY.clear();
 
 
 
@@ -114,7 +121,8 @@ namespace L1Analysis
       EGzVtx.clear();
       EGHwQual.clear();      
       EGHGC.clear();
-      EGPassesID.clear();
+      EGPassesLooseTrackID.clear();
+      EGPassesPhotonID.clear();
 
       nTkElectrons = 0;
       tkElectronEt.clear();
@@ -129,7 +137,8 @@ namespace L1Analysis
       tkElectronEGRefEta.clear();
       tkElectronEGRefPhi.clear();
       tkElectronHGC.clear();
-      tkElectronPassesID.clear();
+      tkElectronPassesLooseTrackID.clear();
+      tkElectronPassesPhotonID.clear();
 
 
 
@@ -146,7 +155,8 @@ namespace L1Analysis
       tkElectronLooseEGRefEta.clear();
       tkElectronLooseEGRefPhi.clear();
       tkElectronLooseHGC.clear();
-      tkElectronLoosePassesID.clear();         
+      tkElectronLoosePassesLooseTrackID.clear();         
+      tkElectronLoosePassesPhotonID.clear();
 
       nTkPhotons = 0;
       tkPhotonEt.clear();
@@ -154,13 +164,15 @@ namespace L1Analysis
       tkPhotonPhi.clear();
       tkPhotonBx.clear();
       tkPhotonTrkIso.clear();
+      tkPhotonTrkIsoPV.clear();
       tkPhotonzVtx.clear();
       tkPhotonHwQual.clear();
       tkPhotonEGRefPt.clear();
       tkPhotonEGRefEta.clear();
       tkPhotonEGRefPhi.clear();
       tkPhotonHGC.clear();
-      tkPhotonPassesID.clear();
+      tkPhotonPassesLooseTrackID.clear();
+      tkPhotonPassesPhotonID.clear();
 
       // TkTaus
       nTkTau = 0;
@@ -169,7 +181,23 @@ namespace L1Analysis
       tkTauPhi.clear();
       tkTauBx.clear();
       tkTauTrkIso.clear();
-      tkTauzVtx.clear();
+//      tkTauzVtx.clear();
+
+      nCaloTkTau = 0;
+      caloTkTauEt.clear();
+      caloTkTauEta.clear();
+      caloTkTauPhi.clear();
+      caloTkTauBx.clear();
+      caloTkTauTrkIso.clear();
+//      caloTkTauzVtx.clear();
+
+      nTkEGTau = 0;
+      tkEGTauEt.clear();
+      tkEGTauEta.clear();
+      tkEGTauPhi.clear();
+      tkEGTauBx.clear();
+      tkEGTauTrkIso.clear();
+//      tkEGTauzVtx.clear();
 
       // TkJets
       nTrackerJets = 0;
@@ -194,7 +222,7 @@ namespace L1Analysis
       tkGlbMuonChg.clear();
       tkGlbMuonTrkIso.clear();
       tkGlbMuonBx.clear();
-      tkGlbMuonQuality.clear();
+      tkGlbMuonQual.clear();
       tkGlbMuonzVtx.clear();
       tkGlbMuonMuRefPt.clear();
       tkGlbMuonTrkRefPt.clear();
@@ -210,7 +238,7 @@ namespace L1Analysis
       tkMuonChg.clear();
       tkMuonTrkIso.clear();
       tkMuonBx.clear();
-      tkMuonQuality.clear();
+      tkMuonQual.clear();
       tkMuonzVtx.clear();
       tkMuonMuRefPt.clear();
       tkMuonTrkRefPt.clear();
@@ -228,9 +256,8 @@ namespace L1Analysis
       tkMuonStubsChg.clear();
       tkMuonStubsTrkIso.clear();
       tkMuonStubsBx.clear();
-      tkMuonStubsQuality.clear();
+      tkMuonStubsQual.clear();
       tkMuonStubszVtx.clear();
-      tkMuonStubsRegion.clear();
       tkMuonStubsBarrelStubs.clear();
       tkMuonStubsRegion.clear();
 
@@ -256,6 +283,15 @@ namespace L1Analysis
       puppiJetzVtx.clear();
       puppiJetEtUnCorr.clear();
 
+/*      nPuppiJetForMETs = 0;
+      puppiJetForMETEt.clear();
+      puppiJetForMETEta.clear();
+      puppiJetForMETPhi.clear();
+      puppiJetForMETBx.clear();
+      puppiJetForMETzVtx.clear();
+      puppiJetForMETEtUnCorr.clear();
+*/
+
       puppiMETEt=0;
       puppiMETPhi=0;
       puppiHT.clear();
@@ -268,6 +304,7 @@ namespace L1Analysis
       pfMuonEta.clear();
       pfMuonPhi.clear();
       pfMuonzVtx.clear();
+      pfMuonChg.clear();
 
       nPFCands = 0;
       pfCandId.clear();
@@ -275,6 +312,7 @@ namespace L1Analysis
       pfCandEta.clear();
       pfCandPhi.clear();
       pfCandzVtx.clear();
+      pfCandChg.clear();
 
       nPFTaus = 0; 
       pfTauEt.clear();
@@ -285,21 +323,22 @@ namespace L1Analysis
       pfTauIsoFlag.clear();
       pfTauRelIsoFlag.clear();
       pfTauPassesMediumIso.clear();
+      pfTauChg.clear();
 
     }
  
-    float z0Puppi;
-    float z0VertexTDR;
+    double z0Puppi;
+    double z0VertexTDR;
     unsigned short int nVertices;
-    std::vector<float>z0Vertices;  
+    std::vector<double>z0Vertices;  
     unsigned short int nL1TkPVs;
-    std::vector<float>  z0L1TkPV;
-    std::vector<float>  sumL1TkPV;
+    std::vector<double>  z0L1TkPV;
+    std::vector<double>  sumL1TkPV;
  
     unsigned short int nTaus;
-    std::vector<float> tauEt;
-    std::vector<float> tauEta;
-    std::vector<float> tauPhi;
+    std::vector<double> tauEt;
+    std::vector<double> tauEta;
+    std::vector<double> tauPhi;
     std::vector<short int> tauIEt;
     std::vector<short int> tauIEta;
     std::vector<short int> tauIPhi;
@@ -315,9 +354,9 @@ namespace L1Analysis
     std::vector<short int> tauHwQual;
 
     unsigned short int nJets;
-    std::vector<float> jetEt;
-    std::vector<float> jetEta;
-    std::vector<float> jetPhi;
+    std::vector<double> jetEt;
+    std::vector<double> jetEta;
+    std::vector<double> jetPhi;
     std::vector<short int> jetIEt;
     std::vector<short int> jetIEta;
     std::vector<short int> jetIPhi;
@@ -332,12 +371,20 @@ namespace L1Analysis
     std::vector<short int> jetPUDonutEt2;
     std::vector<short int> jetPUDonutEt3;
 
+
+    unsigned short int nCaloJets;
+    std::vector<double> caloJetEt;
+    std::vector<double> caloJetEta;
+    std::vector<double> caloJetPhi;
+    std::vector<short int> caloJetBx;
+
+
     unsigned short int nGlobalMuons;
-    std::vector<float>   globalMuonPt;
-    std::vector<float>   globalMuonEta;
-    std::vector<float>   globalMuonPhi;
-    std::vector<float>   globalMuonEtaAtVtx;
-    std::vector<float>   globalMuonPhiAtVtx;
+    std::vector<double>   globalMuonPt;
+    std::vector<double>   globalMuonEta;
+    std::vector<double>   globalMuonPhi;
+    std::vector<double>   globalMuonEtaAtVtx;
+    std::vector<double>   globalMuonPhiAtVtx;
     std::vector<short int>   globalMuonIEt;
     std::vector<short int>   globalMuonIEta;
     std::vector<short int>   globalMuonIPhi;
@@ -353,23 +400,24 @@ namespace L1Analysis
 
 
     unsigned short int nStandaloneMuons;
-    std::vector<float>   standaloneMuonPt;
-    std::vector<float>   standaloneMuonPt2;
-    std::vector<float>   standaloneMuonEta;
-    std::vector<float>   standaloneMuonPhi;
+    std::vector<double>   standaloneMuonPt;
+    std::vector<double>   standaloneMuonPt2;
+    std::vector<double>   standaloneMuonEta;
+    std::vector<double>   standaloneMuonPhi;
     std::vector<short int>      standaloneMuonChg;
     std::vector<unsigned short int> standaloneMuonQual;
+    std::vector<double> standaloneMuonDXY;
     std::vector<short int>      standaloneMuonBx;
     std::vector<unsigned int>     standaloneMuonRegion;
 
 
     unsigned short int nSums;
     std::vector<short int> sumType;
-    std::vector<float> sumEt;
-    std::vector<float> sumPhi;
+    std::vector<double> sumEt;
+    std::vector<double> sumPhi;
     std::vector<short int> sumIEt;
     std::vector<short int> sumIPhi;
-    std::vector<float> sumBx;
+    std::vector<double> sumBx;
 
  
     unsigned int nEG;
@@ -380,8 +428,9 @@ namespace L1Analysis
     std::vector<double> EGIso;
     std::vector<double> EGzVtx;
     std::vector<int>    EGHwQual;
-    std::vector<bool> EGHGC;
-    std::vector<bool>   EGPassesID;
+    std::vector<unsigned int> EGHGC;
+    std::vector<unsigned int>   EGPassesLooseTrackID;
+    std::vector<unsigned int>   EGPassesPhotonID;
 
     unsigned int nTkElectrons;
     std::vector<double> tkElectronEt;
@@ -395,8 +444,9 @@ namespace L1Analysis
     std::vector<double>   tkElectronEGRefPt;
     std::vector<double>   tkElectronEGRefEta;
     std::vector<double>   tkElectronEGRefPhi;
-    std::vector<bool> tkElectronHGC;
-    std::vector<bool> tkElectronPassesID;
+    std::vector<unsigned int> tkElectronHGC;
+    std::vector<unsigned int> tkElectronPassesLooseTrackID;
+    std::vector<unsigned int> tkElectronPassesPhotonID;
 
     unsigned int nTkElectronsLoose;
     std::vector<double> tkElectronLooseEt;
@@ -410,8 +460,9 @@ namespace L1Analysis
     std::vector<double>   tkElectronLooseEGRefPt;
     std::vector<double>   tkElectronLooseEGRefEta;
     std::vector<double>   tkElectronLooseEGRefPhi;
-    std::vector<bool> tkElectronLooseHGC;
-    std::vector<bool> tkElectronLoosePassesID;
+    std::vector<unsigned int> tkElectronLooseHGC;
+    std::vector<unsigned int> tkElectronLoosePassesLooseTrackID;
+    std::vector<unsigned int> tkElectronLoosePassesPhotonID;
 
     unsigned int nTkPhotons;
     std::vector<double> tkPhotonEt;
@@ -419,13 +470,15 @@ namespace L1Analysis
     std::vector<double> tkPhotonPhi;
     std::vector<int>    tkPhotonBx;
     std::vector<double> tkPhotonTrkIso;
+    std::vector<double> tkPhotonTrkIsoPV;
     std::vector<double> tkPhotonzVtx;
     std::vector<double> tkPhotonHwQual;
     std::vector<double>   tkPhotonEGRefPt;
     std::vector<double>   tkPhotonEGRefEta;
     std::vector<double>   tkPhotonEGRefPhi;
-    std::vector<bool> tkPhotonHGC;
-    std::vector<bool> tkPhotonPassesID;
+    std::vector<unsigned int> tkPhotonHGC;
+    std::vector<unsigned int> tkPhotonPassesLooseTrackID;
+    std::vector<unsigned int> tkPhotonPassesPhotonID;
 
 
     unsigned int nTkTau;
@@ -434,7 +487,24 @@ namespace L1Analysis
     std::vector<double> tkTauPhi;
     std::vector<int>    tkTauBx;
     std::vector<double> tkTauTrkIso;
-    std::vector<double> tkTauzVtx;
+//    std::vector<double> tkTauzVtx;
+
+    unsigned int nCaloTkTau;
+    std::vector<double> caloTkTauEt;
+    std::vector<double> caloTkTauEta;
+    std::vector<double> caloTkTauPhi;
+    std::vector<int>    caloTkTauBx;
+    std::vector<double> caloTkTauTrkIso;
+//    std::vector<double> caloTkTauzVtx;
+
+    unsigned int nTkEGTau;
+    std::vector<double> tkEGTauEt;
+    std::vector<double> tkEGTauEta;
+    std::vector<double> tkEGTauPhi;
+    std::vector<int>    tkEGTauBx;
+    std::vector<double> tkEGTauTrkIso;
+//    std::vector<double> tkEGTauzVtx;
+
 
     unsigned int nTrackerJets;
     std::vector<double> trackerJetEt;
@@ -458,7 +528,7 @@ namespace L1Analysis
     std::vector<unsigned int> tkGlbMuonIso;
     std::vector<double> tkGlbMuonTrkIso;
     std::vector<int>      tkGlbMuonBx;
-    std::vector<unsigned int>      tkGlbMuonQuality;
+    std::vector<unsigned int>      tkGlbMuonQual;
     std::vector<double>   tkGlbMuonzVtx;
     std::vector<double> tkGlbMuonMuRefPt;
     std::vector<double> tkGlbMuonTrkRefPt;
@@ -478,7 +548,7 @@ namespace L1Analysis
     std::vector<unsigned int> tkMuonMip;
     std::vector<unsigned int> tkMuonRPC;
     std::vector<int>      tkMuonBx;
-    std::vector<unsigned int>      tkMuonQuality;
+    std::vector<unsigned int>      tkMuonQual;
     std::vector<double>   tkMuonzVtx;
     std::vector<double> tkMuonMuRefPt;
     std::vector<double> tkMuonTrkRefPt;
@@ -494,13 +564,9 @@ namespace L1Analysis
     std::vector<double>   tkMuonStubsEta;
     std::vector<double>   tkMuonStubsPhi;
     std::vector<int>      tkMuonStubsChg;
-    std::vector<unsigned int> tkMuonStubsIso;
-    std::vector<double> tkMuonStubsTrkIso;
-    std::vector<unsigned int> tkMuonStubsFwd;
-    std::vector<unsigned int> tkMuonStubsMip;
-    std::vector<unsigned int> tkMuonStubsRPC;
     std::vector<int>      tkMuonStubsBx;
-    std::vector<unsigned int>      tkMuonStubsQuality;
+    std::vector<double>   tkMuonStubsTrkIso;
+    std::vector<unsigned int>      tkMuonStubsQual;
     std::vector<double>   tkMuonStubszVtx;
     std::vector<double>   tkMuonStubsBarrelStubs;
     std::vector<unsigned int>   tkMuonStubsRegion;
@@ -524,6 +590,17 @@ namespace L1Analysis
     std::vector<int>    puppiJetBx;
     std::vector<double> puppiJetzVtx;
     std::vector<double> puppiJetEtUnCorr;
+
+/*
+    unsigned int nPuppiJetForMETs;
+    std::vector<double> puppiJetForMETEt;
+    std::vector<double> puppiJetForMETEta;
+    std::vector<double> puppiJetForMETPhi;
+    std::vector<int>    puppiJetForMETBx;
+    std::vector<double> puppiJetForMETzVtx;
+    std::vector<double> puppiJetForMETEtUnCorr;
+*/
+
 
     double puppiMETEt;
     double puppiMETPhi;
@@ -556,7 +633,7 @@ namespace L1Analysis
     std::vector<double> pfTauChargedIso;
     std::vector<unsigned int> pfTauIsoFlag;
     std::vector<unsigned int> pfTauRelIsoFlag;
-    std::vector<bool> pfTauPassesMediumIso;
+    std::vector<unsigned int> pfTauPassesMediumIso;
     std::vector<int> pfTauChg;
 
 

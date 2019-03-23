@@ -52,10 +52,15 @@ Implementation:
 #include "DataFormats/L1TrackTrigger/interface/L1TkElectronParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticleFwd.h"
+
+#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkTauParticleFwd.h"
+
+#include "DataFormats/L1TrackTrigger/interface/L1TrkTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkEGTauParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1CaloTkTauParticle.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
@@ -64,7 +69,9 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1TVertex/interface/Vertex.h"
 
-#include "DataFormats/JetReco/interface/PFJet.h"
+//#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Phase2L1ParticleFlow/interface/PFJet.h"
+
 #include "DataFormats/L1Trigger/interface/L1PFTau.h"
 #include "DataFormats/Phase2L1ParticleFlow/interface/PFCandidate.h"
 
@@ -110,6 +117,8 @@ class L1PhaseIITreeProducer : public edm::EDAnalyzer {
                 edm::EDGetTokenT<l1t::EtSumBxCollection> sumToken_;
                 edm::EDGetTokenT<l1t::MuonBxCollection> muonToken_;
 
+                edm::EDGetTokenT<l1t::JetBxCollection> caloJetToken_;
+
                 edm::EDGetTokenT<l1t::EGammaBxCollection>  egToken_;
                 edm::EDGetTokenT<l1t::L1TkElectronParticleCollection>  tkEGToken_;
                 edm::EDGetTokenT<l1t::L1TkElectronParticleCollection>  tkEGLooseToken_;
@@ -125,15 +134,19 @@ class L1PhaseIITreeProducer : public edm::EDAnalyzer {
                 edm::EDGetTokenT<l1t::L1TkMuonParticleCollection> TkMuonStubsTokenBMTF_;
                 edm::EDGetTokenT<l1t::L1TkMuonParticleCollection> TkMuonStubsTokenEMTF_;
 
-                edm::EDGetTokenT<l1t::L1TkTauParticleCollection> tkTauToken_;
                 edm::EDGetTokenT<l1t::L1TkJetParticleCollection> tkTrackerJetToken_;
                 edm::EDGetTokenT<l1t::L1TkEtMissParticleCollection> tkMetToken_;
+
+                edm::EDGetTokenT<l1t::L1TrkTauParticleCollection> tkTauToken_;
+                edm::EDGetTokenT<l1t::L1TkEGTauParticleCollection> tkEGTauToken_;
+                edm::EDGetTokenT<l1t::L1CaloTkTauParticleCollection> caloTkTauToken_;
 
                 std::vector< edm::EDGetTokenT<l1t::L1TkHTMissParticleCollection> > tkMhtToken_;
 
                 edm::EDGetTokenT<l1t::L1TkJetParticleCollection> tkCaloJetToken_;
 
-                edm::EDGetTokenT<std::vector<reco::PFJet>> ak4L1PF_;
+                edm::EDGetTokenT<std::vector<l1t::PFJet>> ak4L1PF_;
+//                edm::EDGetTokenT<std::vector<l1t::PFJet>> ak4L1PFForMET_;
 
                 edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonKalman_;
                 edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonOverlap_;
@@ -156,6 +169,8 @@ L1PhaseIITreeProducer::L1PhaseIITreeProducer(const edm::ParameterSet& iConfig){
         jetToken_ = consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("jetToken"));
         sumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("sumToken"));
         muonToken_ = consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonToken"));
+
+        caloJetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<edm::InputTag>("caloJetToken"));
 
         egToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("egTokenBarrel"));
         egTokenHGC_ = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("egTokenHGC"));
@@ -180,7 +195,9 @@ L1PhaseIITreeProducer::L1PhaseIITreeProducer(const edm::ParameterSet& iConfig){
         TkMuonStubsTokenBMTF_ = consumes<l1t::L1TkMuonParticleCollection>(iConfig.getParameter<edm::InputTag>("TkMuonStubsTokenBMTF"));
         TkMuonStubsTokenEMTF_ = consumes<l1t::L1TkMuonParticleCollection>(iConfig.getParameter<edm::InputTag>("TkMuonStubsTokenEMTF"));
 
-        tkTauToken_ = consumes<l1t::L1TkTauParticleCollection>(iConfig.getParameter<edm::InputTag>("tkTauToken"));
+        tkTauToken_ = consumes<l1t::L1TrkTauParticleCollection>(iConfig.getParameter<edm::InputTag>("tkTauToken"));
+        caloTkTauToken_ = consumes<l1t::L1CaloTkTauParticleCollection>(iConfig.getParameter<edm::InputTag>("caloTkTauToken"));
+        tkEGTauToken_ = consumes<l1t::L1TkEGTauParticleCollection>(iConfig.getParameter<edm::InputTag>("tkEGTauToken"));
 
         tkTrackerJetToken_ = consumes<l1t::L1TkJetParticleCollection>(iConfig.getParameter<edm::InputTag>("tkTrackerJetToken"));
         tkMetToken_ = consumes<l1t::L1TkEtMissParticleCollection>(iConfig.getParameter<edm::InputTag>("tkMetToken"));
@@ -194,7 +211,8 @@ L1PhaseIITreeProducer::L1PhaseIITreeProducer(const edm::ParameterSet& iConfig){
 
         tkCaloJetToken_ = consumes<l1t::L1TkJetParticleCollection>(iConfig.getParameter<edm::InputTag>("tkCaloJetToken"));
 
-        ak4L1PF_ = consumes<std::vector<reco::PFJet> > (iConfig.getParameter<edm::InputTag>("ak4L1PF"));
+        ak4L1PF_ = consumes<std::vector<l1t::PFJet> > (iConfig.getParameter<edm::InputTag>("ak4L1PF"));
+//        ak4L1PFForMET_ = consumes<std::vector<l1t::PFJet> > (iConfig.getParameter<edm::InputTag>("ak4L1PFForMET"));
 
         muonKalman_ = consumes<l1t::RegionalMuonCandBxCollection> (iConfig.getParameter<edm::InputTag>("muonKalman"));
         muonOverlap_ = consumes<l1t::RegionalMuonCandBxCollection> (iConfig.getParameter<edm::InputTag>("muonOverlap"));
@@ -264,9 +282,12 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         edm::Handle<l1t::RegionalMuonCandBxCollection> muonsEndcap;
         iEvent.getByToken(muonEndcap_,muonsEndcap);
 
-
-        edm::Handle<l1t::L1TkTauParticleCollection> tkTau;
+        edm::Handle<l1t::L1TrkTauParticleCollection> tkTau;
         iEvent.getByToken(tkTauToken_, tkTau);
+        edm::Handle<l1t::L1CaloTkTauParticleCollection> caloTkTau;
+        iEvent.getByToken(caloTkTauToken_, caloTkTau);
+        edm::Handle<l1t::L1TkEGTauParticleCollection> tkEGTau;
+        iEvent.getByToken(tkEGTauToken_, tkEGTau);
 
         edm::Handle<l1t::L1PFTauCollection> l1PFTau;
         iEvent.getByToken(L1PFTauToken_,l1PFTau);
@@ -279,6 +300,9 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         iEvent.getByToken(jetToken_,  jet);
         iEvent.getByToken(sumToken_, sums);
 
+        edm::Handle<l1t::JetBxCollection> caloJet;
+        iEvent.getByToken(caloJetToken_,  caloJet);
+
         edm::Handle<l1t::L1TkJetParticleCollection> tkTrackerJet;
         edm::Handle<l1t::L1TkJetParticleCollection> tkCaloJet;
         edm::Handle<l1t::L1TkEtMissParticleCollection> tkMets;
@@ -289,8 +313,11 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         iEvent.getByToken(tkMetToken_, tkMets);
         //iEvent.getByToken(tkMhtToken_, tkMhts);
 
-        edm::Handle<std::vector<reco::PFJet>> ak4L1PFs;
+        edm::Handle<std::vector<l1t::PFJet>> ak4L1PFs;
         iEvent.getByToken(ak4L1PF_,ak4L1PFs);
+//        edm::Handle<std::vector<l1t::PFJet>> ak4L1PFForMETs;
+//        iEvent.getByToken(ak4L1PFForMET_,ak4L1PFForMETs);
+
         edm::Handle< std::vector<reco::PFMET> > l1PFMet;
         iEvent.getByToken(l1PFMet_, l1PFMet);
 
@@ -327,6 +354,13 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         } else {
                 edm::LogWarning("MissingProduct") << "L1Upgrade Jets not found. Branch will not be filled" << std::endl;
         }
+
+        if (caloJet.isValid()){
+                l1Extra->SetCaloJet(caloJet, maxL1Extra_);
+        } else {
+                edm::LogWarning("MissingProduct") << "L1Upgrade caloJets not found. Branch will not be filled" << std::endl;
+        }
+
 
         if (sums.isValid()){ 
                 l1Extra->SetSum(sums, maxL1Extra_);  
@@ -415,9 +449,19 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 }
 
         if (tkTau.isValid()){
-                l1Extra->SetTkTau(tkTau, maxL1Extra_);
+                l1Extra->SetTrkTau(tkTau, maxL1Extra_);
         } else {
-                edm::LogWarning("MissingProduct") << "L1PhaseII TkTau not found. Branch will not be filled" << std::endl;
+                edm::LogWarning("MissingProduct") << "L1PhaseII TrkTau not found. Branch will not be filled" << std::endl;
+        }
+        if (caloTkTau.isValid()){
+                l1Extra->SetCaloTkTau(caloTkTau, maxL1Extra_);
+        } else {
+                edm::LogWarning("MissingProduct") << "L1PhaseII caloTkTau not found. Branch will not be filled" << std::endl;
+        }
+        if (tkEGTau.isValid()){
+                l1Extra->SetTkEGTau(tkEGTau, maxL1Extra_);
+        } else {
+                edm::LogWarning("MissingProduct") << "L1PhaseII TkEGTau not found. Branch will not be filled" << std::endl;
         }
 
         if (tkTrackerJet.isValid()){
@@ -481,6 +525,14 @@ L1PhaseIITreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         } else {
                 edm::LogWarning("MissingProduct") << "L1PhaseII PFJets not found. Branch will not be filled" << std::endl;
         }
+
+/*        if (ak4L1PFForMETs.isValid()){
+                l1Extra->SetPFJetForMET(ak4L1PFForMETs, maxL1Extra_);
+        } else {
+                edm::LogWarning("MissingProduct") << "L1PhaseII PFJetForMETs not found. Branch will not be filled" << std::endl;
+        }
+*/
+
 
         if(l1PFMet.isValid()){
                 l1Extra->SetL1METPF(l1PFMet);
