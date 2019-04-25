@@ -150,6 +150,9 @@ struct maxzbin {
       float TRK_PTMIN;      // [GeV]
       float TRK_ETAMAX;     // [rad]
       int nPSMin;
+       double minTrkJetpT=5.;
+       int LowpTJetMinTrackMultiplicity=2;
+       int HighpTJetMinTrackMultiplicity=3;
       //virtual void beginRun(Run const&, EventSetup const&) override;
       //virtual void endRun(Run const&, EventSetup const&) override;
       //virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
@@ -183,6 +186,10 @@ trackToken(consumes< vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getPar
       TRK_PTMIN=(float)iConfig.getParameter<double>("TRK_PTMIN");
       TRK_ETAMAX=(float)iConfig.getParameter<double>("TRK_ETAMAX");      
       nPSMin=(int)iConfig.getParameter<int>("nPSStubsMin");
+      minTrkJetpT=iConfig.getParameter<double>("minTrkJetpT");
+      LowpTJetMinTrackMultiplicity=(int)iConfig.getParameter<int>("LowpTJetMinTrackMultiplicity");
+      HighpTJetMinTrackMultiplicity=(int)iConfig.getParameter<int>("HighpTJetMinTrackMultiplicity");
+
       zstep = 2.0 * maxz / Zbins;
 }
 
@@ -338,6 +345,7 @@ TwoLayerJets::produce(Event& iEvent, const EventSetup& iSetup)
 	}
         //free(mzb.clusters);
 	iEvent.put( std::move(L1TwoLayerJets), "L1TwoLayerJets");
+	delete[] mzb.clusters;
 	}
 }
 void TwoLayerJets::L2_cluster(vector< Ptr< L1TTTrackType > > L1TrackPtrs, vector<int>ttrk, vector<int>tdtrk,vector<int>ttdtrk,maxzbin &mzb){
@@ -594,9 +602,9 @@ for(phibin = 0; phibin < nphibins; ++phibin)delete [] L1clusters[phibin];
           //sum up all pTs in this zbin to find ht.
     float ht = 0;
     for(int k = 0; k < nclust; ++k){
-                        if(L2cluster[k].pTtot>50 && L2cluster[k].numtracks<2)continue;
-                        if(L2cluster[k].pTtot>100 && L2cluster[k].numtracks<=4)continue;
-                        if(L2cluster[k].pTtot>5){
+                        if(L2cluster[k].pTtot>50 && L2cluster[k].numtracks<LowpTJetMinTrackMultiplicity)continue;
+                        if(L2cluster[k].pTtot>100 && L2cluster[k].numtracks<HighpTJetMinTrackMultiplicity)continue;
+                        if(L2cluster[k].pTtot>minTrkJetpT){
       			ht += L2cluster[k].pTtot;
                 }
 	}
@@ -632,7 +640,8 @@ for(phibin = 0; phibin < nphibins; ++phibin)delete [] L1clusters[phibin];
     //for(int zbin = 0; zbin < Zbins-1; ++zbin)free(all_zbins[zbin].clusters);
     //for(int k = 0; k < mzb.nclust; ++k)std::cout<<"L2 Eta, Phi "<<mzb.clusters[k].eta<<", "<<mzb.clusters[k].phi<<", "<<mzb.clusters[k].pTtot<<std::endl;
     for(int zbin = 0; zbin < Zbins-1; ++zbin){
-      delete[] all_zbins[zbin].clusters;
+       if(zbin==mzb.znum)continue;
+       delete[] all_zbins[zbin].clusters;
     }
 }
 
