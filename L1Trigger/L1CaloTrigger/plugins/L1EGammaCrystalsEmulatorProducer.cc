@@ -273,14 +273,6 @@ float get_calibration(float pt, float eta){
    }
 }
 
-float mydeltarv2(float eta1, float eta2, float phi1, float phi2){
-   float deta2=(eta1-eta2)*(eta1-eta2);
-   float dphi=(phi1-phi2);
-   while (dphi>3.14) dphi=dphi-6.28;
-   while (dphi<-3.14) dphi=dphi+6.28;
-   return sqrt(deta2+dphi*dphi);
-}
-
 float getEta_fromL2LinkCardTowerCrystal(int link, int card, int tower, int crystal){
     int etaID=5*(17*((link/4)%2)+(tower%17))+crystal%5;
     float size_cell=2*1.4841/(5*34);
@@ -378,18 +370,6 @@ int getCrystalIDInTower(int etaID, int phiID){
    return int(5*(phiID%5)+(etaID%5));
 }
 
-int getTowerInFullDetector_etaID(float eta){
-   float size_cell=2*1.4841/(34);
-   int etaID=int((eta+1.4841)/size_cell);
-   return etaID;
-}
-
-int getTowerInFullDetector_phiID(float phi){
-   float size_cell=2*3.14159/(72);
-   int phiID=int((phi+3.14159)/size_cell);
-   return phiID;
-}
-
 int get_towerEta_fromCardTowerInCard(int card, int towerincard){
    return 17*(card%2)+towerincard%17;
 }
@@ -439,30 +419,6 @@ int getPhiMax_card(int card){
 
 int getPhiMin_card(int card){
     int phimin=(card/2)*4*5;
-    return phimin;
-}
-
-int getEtaMaxTower_card(int card){
-    int etamax=0;
-    if (card%2==0) etamax=17-1; // First eta half. 5 crystals in eta in 1 tower.
-    else etamax=34-1;
-    return etamax;
-}
-
-int getEtaMinTower_card(int card){
-    int etamin=0;
-    if (card%2==0) etamin=0; // First eta half. 5 crystals in eta in 1 tower.
-    else etamin=17;
-    return etamin;
-}
-
-int getPhiMaxTower_card(int card){
-    int phimax=(card+1)*4-1;
-    return phimax;
-}
-
-int getPhiMinTower_card(int card){
-    int phimin=card*4;
     return phimin;
 }
 
