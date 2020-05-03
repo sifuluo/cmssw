@@ -395,6 +395,12 @@ private:
   std::vector<int>*   m_KBMTF_muon_phiAtVertex;
   std::vector<float>* m_KBMTF_muon_d0;
   std::vector<int>*   m_KBMTF_muon_c;
+
+  // Sifu variables
+  std::vector<float>* m_cscRecHit_phi;
+  std::vector<float>* m_cscRecHit_eta;
+  std::vector<bool>* m_cscRecHit_matched;
+
 };
 
 
@@ -720,6 +726,14 @@ void L1TrackNtupleMaker::beginJob()
 
   //muon block end
 
+  //Sifu block
+
+  m_cscRecHit_phi = new std::vector<float>;
+  m_cscRecHit_eta = new std::vector<float>;
+  m_cscRecHit_matched = new std::vector<bool>;
+
+  //End of Sifu block
+
   m_allstub_x = new std::vector<float>;
   m_allstub_y = new std::vector<float>;
   m_allstub_z = new std::vector<float>;
@@ -909,6 +923,12 @@ void L1TrackNtupleMaker::beginJob()
     eventTree->Branch("jet_loosematchtrk_sumpt", &m_jet_loosematchtrk_sumpt);
   }
 
+  if (true) { // placeholder for settings of Sifu block
+    eventTree->Branch("cscRecHit_phi", &m_cscRecHit_phi);
+    eventTree->Branch("cscRecHit_eta", &m_cscRecHit_eta);
+    eventTree->Branch("cscRecHit_matched", &m_cscRecHit_matched);
+  }
+
   // cout << endl<<"****** end begin job" <<endl;
 }
 
@@ -1076,6 +1096,12 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_KBMTF_muon_positionAngle->clear();
     m_KBMTF_muon_d0->clear();
     m_KBMTF_muon_c->clear();
+  }
+
+  if (true) { //placeholder for settings of Sifu block
+    m_cscRecHit_phi->clear();
+    m_cscRecHit_eta->clear();
+    m_cscRecHit_matched->clear();
   }
   // cout << endl<<"****** finished initialize" <<endl;
 
@@ -1781,6 +1807,22 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         m_matchmuon_quality->push_back(-999);
       }
       // cout << endl<<"****** checkpoint 3" <<endl;
+
+      // Sifu Blocks
+      // match.cscRecHits().bestCSCSegment(0);
+      auto RHM = match.cscRecHits();
+      // CSCRecHitMatcher csc_rechits = match.cscRecHits(); // It is not copyable, so this line would not be functioning
+      // unsigned nCSCSegments = match.cscRecHits().nCSCSegments();
+      // cout << "******" <<endl;
+      // cout << "****** iterator = " << nCSCSegments <<endl;
+      // for (unsigned iseg = 0; iseg < nCSCSegments; ++iseg) {
+      //   const CSCSegment cscseg = match.cscRecHits().bestCSCSegment(0);
+      //   GlobalPoint CSC = match.cscRecHits().globalPoint(cscseg);
+      //   m_cscRecHit_phi->push_back(CSC.phi());
+      //   m_cscRecHit_eta->push_back(CSC.eta());
+      //   m_cscRecHit_matched->push_back(match.cscRecHits().isCSCSegmentMatched(cscseg));
+      // }
+
     }
     else{
       m_matchmuon_pt->push_back(-999.);
