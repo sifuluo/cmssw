@@ -57,6 +57,10 @@
 // PHYSICS TOOLS
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+////////////////
+//// PHYSICS TOOLS
+#include "GEMCode/GEMValidation/interface/SimTrackMatchManager.h"
+//
 ///////////////
 // ROOT HEADERS
 #include <TROOT.h>
@@ -72,6 +76,29 @@
 #include <memory>
 #include <string>
 #include <iostream>
+
+//////////////
+// additional Sven STD headers
+#include <fstream>
+#include <cmath>
+#include <vector>
+#include <iomanip>
+#include <set>
+#include <sstream>
+#include <bitset>
+
+//////////////
+// additional Sven muon headers
+#include "DataFormats/L1Trigger/interface/Muon.h"
+#include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
+#include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
+
+//additional KBMTF headers
+#include "DataFormats/L1TMuon/interface/L1MuKBMTrack.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 //////////////
 // NAMESPACES
@@ -122,6 +149,9 @@ private:
 
   bool SaveTracklet;    // save some tracklet-dedicated variables, turned off by default
 
+  //additional muon stuff
+  bool SaveMuons;	//save muons in addition
+
 
   edm::InputTag L1TrackInputTag;        // L1 track collection
   edm::InputTag MCTruthTrackInputTag;   // MC truth collection
@@ -131,6 +161,18 @@ private:
   edm::InputTag TrackingParticleInputTag;
   edm::InputTag TrackingVertexInputTag;
   edm::InputTag GenJetInputTag;
+
+  //begin sven stuff for muons
+  std::string getFloatPointDataWord(const l1t::RegionalMuonCand& l1mu) const;
+  std::string getGlobalPhi(const l1t::RegionalMuonCand& l1mu) const;
+
+  edm::EDGetToken m_emtfToken;
+  edm::EDGetToken m_bmtfToken;
+  edm::EDGetToken m_omtfToken;
+  edm::EDGetToken m_kbmtfToken;
+  //end sven stuff for muons
+
+  edm::ParameterSet simTrackCfg; //unknown origin
 
   edm::EDGetTokenT< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > ttClusterToken_;
   edm::EDGetTokenT< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > > ttStubToken_;
@@ -145,11 +187,61 @@ private:
 
   edm::EDGetTokenT< std::vector<reco::GenJet> > GenJetToken_;
 
+  //Sven-tokens
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleInput_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexInput_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackInput_;
+
+  edm::EDGetTokenT<edm::PSimHitContainer> gemSimHitInput_;
+  edm::EDGetTokenT<edm::PSimHitContainer> cscSimHitInput_;
+  edm::EDGetTokenT<edm::PSimHitContainer> rpcSimHitInput_;
+  edm::EDGetTokenT<edm::PSimHitContainer> me0SimHitInput_;
+  edm::EDGetTokenT<edm::PSimHitContainer> dtSimHitInput_;
+
+  edm::EDGetTokenT<GEMDigiCollection> gemDigiInput_;
+  edm::EDGetTokenT<GEMPadDigiCollection> gemPadDigiInput_;
+  edm::EDGetTokenT<GEMCoPadDigiCollection> gemCoPadDigiInput_;
+  edm::EDGetTokenT<GEMRecHitCollection> gemRecHitInput_;
+
+  edm::EDGetTokenT<ME0DigiPreRecoCollection> me0DigiInput_;
+  edm::EDGetTokenT<ME0RecHitCollection> me0RecHitInput_;
+  edm::EDGetTokenT<ME0SegmentCollection> me0SegmentInput_;
+
+  edm::EDGetTokenT<CSCComparatorDigiCollection> cscComparatorDigiInput_;
+  edm::EDGetTokenT<CSCWireDigiCollection> cscWireDigiInput_;
+  edm::EDGetTokenT<CSCCLCTDigiCollection> clctInputs_;
+  edm::EDGetTokenT<CSCALCTDigiCollection> alctInputs_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> lctInputs_;
+  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> mplctInputs_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> cscRecHit2DInput_;
+  edm::EDGetTokenT<CSCSegmentCollection> cscSegmentInput_;
+
+  edm::EDGetTokenT<DTDigiCollection> dtDigiInput_;
+  edm::EDGetTokenT<DTLocalTriggerCollection> dtStubInput_;
+  edm::EDGetTokenT<DTRecHitCollection> dtRecHit1DPairInput_;
+  edm::EDGetTokenT<DTRecSegment2DCollection> dtRecSegment2DInput_;
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtRecSegment4DInput_;
+
+  edm::EDGetTokenT<RPCDigiCollection> rpcDigiInput_;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitInput_;
+
+  edm::EDGetTokenT<l1t::EMTFTrackCollection> emtfTrackInputLabel_;
+  edm::EDGetTokenT<BXVector<l1t::RegionalMuonCand>> regMuonCandInputLabel_;
+  edm::EDGetTokenT<BXVector<l1t::Muon>> gmtInputLabel_;
+
+  //edm::EDGetTokenT<L1TTTrackCollectionType> trackInputLabel_;
+  //edm::EDGetTokenT<l1t::L1TkMuonParticleCollection> trackMuonInputLabel_;
+
+  edm::EDGetTokenT<reco::TrackExtraCollection> recoTrackExtraInputLabel_;
+  edm::EDGetTokenT<reco::TrackCollection> recoTrackInputLabel_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> recoChargedCandidateInputLabel_;
+
+  //KBMTF token
+  edm::EDGetTokenT<L1MuKBMTrack> KBMTFinputLabel_;
+
 
   //-----------------------------------------------------------------------------------------------
   // tree & branches for mini-ntuple
-
-  bool available_; // ROOT file for histograms is open.
 
   TTree* eventTree;
 
@@ -157,6 +249,7 @@ private:
   std::vector<float>* m_trk_pt;
   std::vector<float>* m_trk_eta;
   std::vector<float>* m_trk_phi;
+  std::vector<int>*   m_trk_charge;
   std::vector<float>* m_trk_d0;   // (filled if L1Tk_nPar==5, else 999)
   std::vector<float>* m_trk_z0;
   std::vector<float>* m_trk_chi2;
@@ -208,6 +301,7 @@ private:
   std::vector<float>* m_matchtrk_chi2;
   std::vector<float>* m_matchtrk_bendchi2;
   std::vector<int>*   m_matchtrk_nstub;
+  std::vector<bool>*  m_matchtrk_charge;
   std::vector<int>*   m_matchtrk_lhits;
   std::vector<int>*   m_matchtrk_dhits;
   std::vector<int>*   m_matchtrk_seed;
@@ -260,6 +354,47 @@ private:
   std::vector<float>* m_jet_matchtrk_sumpt;
   std::vector<float>* m_jet_loosematchtrk_sumpt;
 
+  // sven muon variables
+  std::vector<int>*   m_EMTF_muon_n;
+  std::vector<float>* m_EMTF_muon_pt;
+  std::vector<float>* m_EMTF_muon_eta;
+  std::vector<float>* m_EMTF_muon_phi;
+  std::vector<int>*   m_EMTF_muon_c;
+
+  std::vector<int>*   m_OMTF_muon_n;
+  std::vector<float>* m_OMTF_muon_pt;
+  std::vector<float>* m_OMTF_muon_eta;
+  std::vector<float>* m_OMTF_muon_phi;
+  std::vector<int>*   m_OMTF_muon_c;
+
+  std::vector<int>*   m_BMTF_muon_n;
+  std::vector<float>* m_BMTF_muon_pt;
+  std::vector<float>* m_BMTF_muon_eta;
+  std::vector<float>* m_BMTF_muon_phi;
+  std::vector<int>*   m_BMTF_muon_c;
+
+  std::vector<float>* m_matchmuon_pt;
+  std::vector<float>* m_matchmuon_eta;
+  std::vector<float>* m_matchmuon_phi;
+  std::vector<int>*   m_matchmuon_charge;
+  std::vector<int>*   m_matchmuon_type;
+  std::vector<int>*   m_matchmuon_quality;
+
+  std::vector<float>* m_avgSimHit_phi;
+  std::vector<float>* m_avgSimHit_eta;
+  std::vector<int>*   m_avgSimHit_station;
+
+  //KBMTF variables
+  std::vector<int>*   m_KBMTF_muon_n;
+  std::vector<float>* m_KBMTF_muon_pt;
+  std::vector<float>* m_KBMTF_muon_eta;
+  std::vector<int>*   m_KBMTF_muon_phi;
+  std::vector<int>*   m_KBMTF_muon_phiB;
+  std::vector<int>*   m_KBMTF_muon_sector;
+  std::vector<int>*   m_KBMTF_muon_positionAngle;
+  std::vector<int>*   m_KBMTF_muon_phiAtVertex;
+  std::vector<float>* m_KBMTF_muon_d0;
+  std::vector<int>*   m_KBMTF_muon_c;
 };
 
 
@@ -272,13 +407,14 @@ private:
 //////////////
 // CONSTRUCTOR
 L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) :
-  config(iConfig)
+config(iConfig)
 {
 
   MyProcess        = iConfig.getParameter< int >("MyProcess");
   DebugMode        = iConfig.getParameter< bool >("DebugMode");
   SaveAllTracks    = iConfig.getParameter< bool >("SaveAllTracks");
   SaveStubs        = iConfig.getParameter< bool >("SaveStubs");
+  SaveMuons	   = iConfig.getParameter< bool >("SaveMuons");
   L1Tk_nPar        = iConfig.getParameter< int >("L1Tk_nPar");
   TP_minNStub      = iConfig.getParameter< int >("TP_minNStub");
   TP_minNStubLayer = iConfig.getParameter< int >("TP_minNStubLayer");
@@ -308,6 +444,132 @@ L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) :
   TrackingVertexToken_   = consumes< std::vector< TrackingVertex > >(TrackingVertexInputTag);
   GenJetToken_           = consumes< std::vector< reco::GenJet > >(GenJetInputTag);
 
+  //Svens muon consumes
+  m_emtfToken = consumes<l1t::RegionalMuonCandBxCollection>(edm::InputTag("simEmtfDigis","EMTF"));
+  m_bmtfToken = consumes<l1t::RegionalMuonCandBxCollection>(edm::InputTag("simBmtfDigis","BMTF"));
+  m_omtfToken = consumes<l1t::RegionalMuonCandBxCollection>(edm::InputTag("simOmtfDigis","OMTF"));
+
+  //KBMTF consumes
+  m_kbmtfToken = consumes<L1MuKBMTrackBxCollection>(edm::InputTag("simKBmtfDigis",""));
+
+  // simtrack matching
+  simTrackCfg = (iConfig.getParameterSet("simTrackMatching"));
+
+  const auto& displacedGenMu = simTrackCfg.getParameterSet("displacedGenMu");
+  genParticleInput_ = consumes<reco::GenParticleCollection>(displacedGenMu.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& simVertex = simTrackCfg.getParameterSet("simVertex");
+  simVertexInput_ = consumes<edm::SimVertexContainer>(simVertex.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& simTrack = simTrackCfg.getParameterSet("simTrack");
+  simTrackInput_ = consumes<edm::SimTrackContainer>(simTrack.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& gemSimHit_ = simTrackCfg.getParameterSet("gemSimHit");
+  gemSimHitInput_ = consumes<edm::PSimHitContainer>(gemSimHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscSimHit_= simTrackCfg.getParameterSet("cscSimHit");
+  cscSimHitInput_ = consumes<edm::PSimHitContainer>(cscSimHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& me0SimHit_ = simTrackCfg.getParameterSet("me0SimHit");
+  me0SimHitInput_ = consumes<edm::PSimHitContainer>(me0SimHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& rpcSimHit_ = simTrackCfg.getParameterSet("rpcSimHit");
+  rpcSimHitInput_ = consumes<edm::PSimHitContainer>(rpcSimHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& dtSimHit_ = simTrackCfg.getParameterSet("dtSimHit");
+  dtSimHitInput_ = consumes<edm::PSimHitContainer>(dtSimHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& gemDigi_= simTrackCfg.getParameterSet("gemStripDigi");
+  gemDigiInput_ = consumes<GEMDigiCollection>(gemDigi_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& gemPad_= simTrackCfg.getParameterSet("gemPadDigi");
+  gemPadDigiInput_ = consumes<GEMPadDigiCollection>(gemPad_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& gemCoPad_= simTrackCfg.getParameterSet("gemCoPadDigi");
+  gemCoPadDigiInput_ = consumes<GEMCoPadDigiCollection>(gemCoPad_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& gemRecHit_= simTrackCfg.getParameterSet("gemRecHit");
+  gemRecHitInput_ = consumes<GEMRecHitCollection>(gemRecHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& me0Digi_= simTrackCfg.getParameterSet("me0DigiPreReco");
+  me0DigiInput_ = consumes<ME0DigiPreRecoCollection>(me0Digi_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& me0RecHit_ = simTrackCfg.getParameterSet("me0RecHit");
+  me0RecHitInput_ = consumes<ME0RecHitCollection>(me0RecHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& me0Segment_ = simTrackCfg.getParameterSet("me0Segment");
+  me0SegmentInput_ = consumes<ME0SegmentCollection>(me0Segment_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscComparatorDigi = simTrackCfg.getParameterSet("cscStripDigi");
+  cscComparatorDigiInput_ = consumes<CSCComparatorDigiCollection>(cscComparatorDigi.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscWireDigi = simTrackCfg.getParameterSet("cscWireDigi");
+  cscWireDigiInput_ = consumes<CSCWireDigiCollection>(cscWireDigi.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscCLCT = simTrackCfg.getParameterSet("cscCLCT");
+  clctInputs_ = consumes<CSCCLCTDigiCollection>(cscCLCT.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscALCT = simTrackCfg.getParameterSet("cscALCT");
+  alctInputs_ = consumes<CSCALCTDigiCollection>(cscALCT.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscLCT = simTrackCfg.getParameterSet("cscLCT");
+  lctInputs_ = consumes<CSCCorrelatedLCTDigiCollection>(cscLCT.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscMPLCT = simTrackCfg.getParameterSet("cscMPLCT");
+  mplctInputs_ = consumes<CSCCorrelatedLCTDigiCollection>(cscMPLCT.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscRecHit2D = simTrackCfg.getParameterSet("cscRecHit");
+  cscRecHit2DInput_ = consumes<CSCRecHit2DCollection>(cscRecHit2D.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& cscSegment2D = simTrackCfg.getParameterSet("cscSegment");
+  cscSegmentInput_ = consumes<CSCSegmentCollection>(cscSegment2D.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& dtDigi_= simTrackCfg.getParameterSet("dtDigi");
+  dtDigiInput_ = consumes<DTDigiCollection>(dtDigi_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& dtStub_= simTrackCfg.getParameterSet("dtLocalTrigger");
+  dtStubInput_ = consumes<DTLocalTriggerCollection>(dtStub_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& dtRecHit1DPair = simTrackCfg.getParameterSet("dtRecHit");
+  dtRecHit1DPairInput_ = consumes<DTRecHitCollection>(dtRecHit1DPair.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& dtSegment2D = simTrackCfg.getParameterSet("dtRecSegment2D");
+  dtRecSegment2DInput_ = consumes<DTRecSegment2DCollection>(dtSegment2D.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& dtSegment4D = simTrackCfg.getParameterSet("dtRecSegment4D");
+  dtRecSegment4DInput_ = consumes<DTRecSegment4DCollection>(dtSegment4D.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& rpcDigi_= simTrackCfg.getParameterSet("rpcStripDigi");
+  rpcDigiInput_ = consumes<RPCDigiCollection>(rpcDigi_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& rpcRecHit_= simTrackCfg.getParameterSet("rpcRecHit");
+  rpcRecHitInput_ = consumes<RPCRecHitCollection>(rpcRecHit_.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& emtfTrack = simTrackCfg.getParameterSet("upgradeEmtfTrack");
+  emtfTrackInputLabel_ = consumes<l1t::EMTFTrackCollection>(emtfTrack.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& upgradeemtfCand = simTrackCfg.getParameterSet("upgradeEmtfCand");
+  regMuonCandInputLabel_ = consumes< BXVector<l1t::RegionalMuonCand> >(upgradeemtfCand.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& upgradegmt = simTrackCfg.getParameterSet("upgradeGMT");
+  gmtInputLabel_ = consumes< BXVector<l1t::Muon> >(upgradegmt.getParameter<edm::InputTag>("inputTag"));
+
+  //const auto& l1Track = simTrackCfg.getParameterSet("l1track");
+  //trackInputLabel_ = consumes<L1TTTrackCollectionType>(l1Track.getParameter<edm::InputTag>("inputTag"));
+  //verboseL1Track_ = l1Track.getParameter<int>("verbose");
+
+  //const auto& l1TrackMuon = simTrackCfg.getParameterSet("l1tkmuon");
+  //trackMuonInputLabel_ = consumes<l1t::L1TkMuonParticleCollection>(l1TrackMuon.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& recoTrackExtra = simTrackCfg.getParameterSet("recoTrackExtra");
+  recoTrackExtraInputLabel_ = consumes<reco::TrackExtraCollection>(recoTrackExtra.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& recoTrack = simTrackCfg.getParameterSet("recoTrack");
+  recoTrackInputLabel_ = consumes<reco::TrackCollection>(recoTrack.getParameter<edm::InputTag>("inputTag"));
+
+  const auto& recoChargedCandidate = simTrackCfg.getParameterSet("recoChargedCandidate");
+  recoChargedCandidateInputLabel_ = consumes<reco::RecoChargedCandidateCollection>(recoChargedCandidate.getParameter<edm::InputTag>("inputTag"));
+
 }
 
 /////////////
@@ -322,6 +584,7 @@ void L1TrackNtupleMaker::endJob()
 {
   // things to be done at the exit of the event Loop
   cerr << "L1TrackNtupleMaker::endJob" << endl;
+
 }
 
 ////////////
@@ -335,8 +598,6 @@ void L1TrackNtupleMaker::beginJob()
   //-----------------------------------------------------------------------------------------------
   // book histograms / make ntuple
   edm::Service<TFileService> fs;
-  available_ = fs.isAvailable();
-  if (not available_) return; // No ROOT file open.
 
   SaveTracklet = true;
 
@@ -344,6 +605,7 @@ void L1TrackNtupleMaker::beginJob()
   m_trk_pt    = new std::vector<float>;
   m_trk_eta   = new std::vector<float>;
   m_trk_phi   = new std::vector<float>;
+  m_trk_charge= new std::vector<int>;
   m_trk_z0    = new std::vector<float>;
   m_trk_d0    = new std::vector<float>;
   m_trk_chi2  = new std::vector<float>;
@@ -393,6 +655,7 @@ void L1TrackNtupleMaker::beginJob()
   m_matchtrk_chi2  = new std::vector<float>;
   m_matchtrk_bendchi2  = new std::vector<float>;
   m_matchtrk_nstub = new std::vector<int>;
+  m_matchtrk_charge = new std::vector<bool>;
   m_matchtrk_dhits = new std::vector<int>;
   m_matchtrk_lhits = new std::vector<int>;
   m_matchtrk_seed  = new std::vector<int>;
@@ -412,6 +675,50 @@ void L1TrackNtupleMaker::beginJob()
   m_loosematchtrk_injet = new std::vector<int>;
   m_loosematchtrk_injet_highpt = new std::vector<int>;
   m_loosematchtrk_injet_vhighpt = new std::vector<int>;
+
+  //muon additional info block
+  m_matchmuon_pt     = new std::vector<float>;
+  m_matchmuon_eta    = new std::vector<float>;
+  m_matchmuon_phi    = new std::vector<float>;
+  m_matchmuon_charge = new std::vector<int>;
+  m_matchmuon_type   = new std::vector<int>;
+  m_matchmuon_quality= new std::vector<int>;
+
+  m_avgSimHit_phi= new std::vector<float>;
+  m_avgSimHit_eta= new std::vector<float>;
+  m_avgSimHit_station=new std::vector<int>;
+
+  m_EMTF_muon_n = new std::vector<int>;
+  m_EMTF_muon_pt = new std::vector<float>;
+  m_EMTF_muon_eta = new std::vector<float>;
+  m_EMTF_muon_phi = new std::vector<float>;
+  m_EMTF_muon_c = new std::vector<int>;
+
+  m_OMTF_muon_n = new std::vector<int>;
+  m_OMTF_muon_pt = new std::vector<float>;
+  m_OMTF_muon_eta = new std::vector<float>;
+  m_OMTF_muon_phi = new std::vector<float>;
+  m_OMTF_muon_c = new std::vector<int>;
+
+  m_BMTF_muon_n = new std::vector<int>;
+  m_BMTF_muon_pt = new std::vector<float>;
+  m_BMTF_muon_eta = new std::vector<float>;
+  m_BMTF_muon_phi = new std::vector<float>;
+  m_BMTF_muon_c = new std::vector<int>;
+
+  //kbmtf subblock
+  m_KBMTF_muon_n = new std::vector<int>;
+  m_KBMTF_muon_pt= new std::vector<float>;
+  m_KBMTF_muon_phi=new std::vector<int>;
+  m_KBMTF_muon_phiB=new std::vector<int>;
+  m_KBMTF_muon_sector=new std::vector<int>;
+  m_KBMTF_muon_phiAtVertex=new std::vector<int>;
+  m_KBMTF_muon_positionAngle=new std::vector<int>;
+  m_KBMTF_muon_eta=new std::vector<float>;
+  m_KBMTF_muon_d0= new std::vector<float>;
+  m_KBMTF_muon_c = new std::vector<int>;
+
+  //muon block end
 
   m_allstub_x = new std::vector<float>;
   m_allstub_y = new std::vector<float>;
@@ -448,6 +755,7 @@ void L1TrackNtupleMaker::beginJob()
     eventTree->Branch("trk_pt",    &m_trk_pt);
     eventTree->Branch("trk_eta",   &m_trk_eta);
     eventTree->Branch("trk_phi",   &m_trk_phi);
+    eventTree->Branch("trk_charge",   &m_trk_charge);
     eventTree->Branch("trk_d0",    &m_trk_d0);
     eventTree->Branch("trk_z0",    &m_trk_z0);
     eventTree->Branch("trk_chi2",  &m_trk_chi2);
@@ -497,6 +805,7 @@ void L1TrackNtupleMaker::beginJob()
   eventTree->Branch("matchtrk_pt",    &m_matchtrk_pt);
   eventTree->Branch("matchtrk_eta",   &m_matchtrk_eta);
   eventTree->Branch("matchtrk_phi",   &m_matchtrk_phi);
+  eventTree->Branch("matchtrk_charge",&m_matchtrk_charge);
   eventTree->Branch("matchtrk_z0",    &m_matchtrk_z0);
   eventTree->Branch("matchtrk_d0",    &m_matchtrk_d0);
   eventTree->Branch("matchtrk_chi2",  &m_matchtrk_chi2);
@@ -524,6 +833,48 @@ void L1TrackNtupleMaker::beginJob()
     eventTree->Branch("loosematchtrk_injet",         &m_loosematchtrk_injet);
     eventTree->Branch("loosematchtrk_injet_highpt",  &m_loosematchtrk_injet_highpt);
     eventTree->Branch("loosematchtrk_injet_vhighpt", &m_loosematchtrk_injet_vhighpt);
+  }
+
+  if (SaveMuons){
+    eventTree->Branch("matchmuon_pt", &m_matchmuon_pt);
+    eventTree->Branch("matchmuon_eta", &m_matchmuon_eta);
+    eventTree->Branch("matchmuon_phi", &m_matchmuon_phi);
+    eventTree->Branch("matchmuon_charge",&m_matchmuon_charge);
+    eventTree->Branch("matchmuon_type",&m_matchmuon_type);
+    eventTree->Branch("matchmuon_quality",&m_matchmuon_quality);
+
+    eventTree->Branch("avgSimHit_phi",&m_avgSimHit_phi);
+    eventTree->Branch("avgSimHit_eta",&m_avgSimHit_eta);
+    eventTree->Branch("avgSimHit_station",&m_avgSimHit_station);
+
+    eventTree->Branch("EMTF_muon_n",	 &m_EMTF_muon_n);
+    eventTree->Branch("EMTF_muon_pt",  	 &m_EMTF_muon_pt);
+    eventTree->Branch("EMTF_muon_eta", 	 &m_EMTF_muon_eta);
+    eventTree->Branch("EMTF_muon_phi", 	 &m_EMTF_muon_phi);
+    eventTree->Branch("EMTF_muon_c", 	 &m_EMTF_muon_c);
+
+    eventTree->Branch("OMTF_muon_n",	 &m_OMTF_muon_n);
+    eventTree->Branch("OMTF_muon_pt", 	 &m_OMTF_muon_pt);
+    eventTree->Branch("OMTF_muon_eta", 	 &m_OMTF_muon_eta);
+    eventTree->Branch("OMTF_muon_phi", 	 &m_OMTF_muon_phi);
+    eventTree->Branch("OMTF_muon_c", 	 &m_OMTF_muon_c);
+
+    eventTree->Branch("BMTF_muon_n",	 &m_BMTF_muon_n);
+    eventTree->Branch("BMTF_muon_pt", 	 &m_BMTF_muon_pt);
+    eventTree->Branch("BMTF_muon_eta", 	 &m_BMTF_muon_eta);
+    eventTree->Branch("BMTF_muon_phi", 	 &m_BMTF_muon_phi);
+    eventTree->Branch("BMTF_muon_c", 	 &m_BMTF_muon_c);
+
+    eventTree->Branch("KBMTF_muon_n",    &m_KBMTF_muon_n);
+    eventTree->Branch("KBMTF_muon_pt",   &m_KBMTF_muon_pt);
+    eventTree->Branch("KBMTF_muon_phi",  &m_KBMTF_muon_phi);
+    eventTree->Branch("KBMTF_muon_phiB",  &m_KBMTF_muon_phiB);
+    eventTree->Branch("KBMTF_muon_sector", &m_KBMTF_muon_sector);
+    eventTree->Branch("KBMTF_muon_phiAtVertex",  &m_KBMTF_muon_phiAtVertex);
+    eventTree->Branch("KBMTF_muon_positionAngle",  &m_KBMTF_muon_positionAngle);
+    eventTree->Branch("KBMTF_muon_eta",  &m_KBMTF_muon_eta);
+    eventTree->Branch("KBMTF_muon_d0",   &m_KBMTF_muon_d0);
+    eventTree->Branch("KBMTF_muon_c",    &m_KBMTF_muon_c);
   }
 
   if (SaveStubs) {
@@ -558,7 +909,7 @@ void L1TrackNtupleMaker::beginJob()
     eventTree->Branch("jet_loosematchtrk_sumpt", &m_jet_loosematchtrk_sumpt);
   }
 
-
+  // cout << endl<<"****** end begin job" <<endl;
 }
 
 
@@ -566,8 +917,7 @@ void L1TrackNtupleMaker::beginJob()
 // ANALYZE
 void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if (not available_) return; // No ROOT file open.
-
+  // cout << endl<<"****** started analyze" <<endl;
   if (!(MyProcess==13 || MyProcess==11 || MyProcess==211 || MyProcess==6 || MyProcess==15 || MyProcess==1)) {
     cout << "The specified MyProcess is invalid! Exiting..." << endl;
     return;
@@ -583,6 +933,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_pt->clear();
     m_trk_eta->clear();
     m_trk_phi->clear();
+    m_trk_charge->clear();
     m_trk_d0->clear();
     m_trk_z0->clear();
     m_trk_chi2->clear();
@@ -628,6 +979,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_matchtrk_pt->clear();
   m_matchtrk_eta->clear();
   m_matchtrk_phi->clear();
+  m_matchtrk_charge->clear();
   m_matchtrk_z0->clear();
   m_matchtrk_d0->clear();
   m_matchtrk_chi2->clear();
@@ -683,6 +1035,49 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_jet_matchtrk_sumpt->clear();
   m_jet_loosematchtrk_sumpt->clear();
 
+  //extra sven muon stuff
+  if (SaveMuons) {
+    m_matchmuon_pt->clear();
+    m_matchmuon_eta->clear();
+    m_matchmuon_phi->clear();
+    m_matchmuon_charge->clear();
+    m_matchmuon_type->clear();
+    m_matchmuon_quality->clear();
+
+    m_avgSimHit_phi->clear();
+    m_avgSimHit_eta->clear();
+    m_avgSimHit_station->clear();
+
+    m_EMTF_muon_n->clear();
+    m_EMTF_muon_pt->clear();
+    m_EMTF_muon_eta->clear();
+    m_EMTF_muon_phi->clear();
+    m_EMTF_muon_c->clear();
+
+    m_OMTF_muon_n->clear();
+    m_OMTF_muon_pt->clear();
+    m_OMTF_muon_eta->clear();
+    m_OMTF_muon_phi->clear();
+    m_OMTF_muon_c->clear();
+
+    m_BMTF_muon_n->clear();
+    m_BMTF_muon_pt->clear();
+    m_BMTF_muon_eta->clear();
+    m_BMTF_muon_phi->clear();
+    m_BMTF_muon_c->clear();
+
+    m_KBMTF_muon_n->clear();
+    m_KBMTF_muon_pt->clear();
+    m_KBMTF_muon_eta->clear();
+    m_KBMTF_muon_phi->clear();
+    m_KBMTF_muon_phiB->clear();
+    m_KBMTF_muon_sector->clear();
+    m_KBMTF_muon_phiAtVertex->clear();
+    m_KBMTF_muon_positionAngle->clear();
+    m_KBMTF_muon_d0->clear();
+    m_KBMTF_muon_c->clear();
+  }
+  // cout << endl<<"****** finished initialize" <<endl;
 
 
   // -----------------------------------------------------------------------------------------------
@@ -727,7 +1122,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   const TrackerTopology* const tTopo = tTopoHandle.product();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
 
-
+  // cout << endl<<"****** retrived all containers" <<endl;
   // ----------------------------------------------------------------------------------------------
   // loop over L1 stubs
   // ----------------------------------------------------------------------------------------------
@@ -751,88 +1146,88 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       // loop over stubs
       for ( auto stubIter = stubs.begin();stubIter != stubs.end();++stubIter ) {
-	       edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_  > >, TTStub< Ref_Phase2TrackerDigi_  > >
-	       tempStubPtr = edmNew::makeRefTo( TTStubHandle, stubIter );
+        edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_  > >, TTStub< Ref_Phase2TrackerDigi_  > >
+        tempStubPtr = edmNew::makeRefTo( TTStubHandle, stubIter );
 
-         int isBarrel = 0;
-         int layer=-999999;
-         if ( detid.subdetId()==StripSubdetector::TOB ) {
-           isBarrel = 1;
-           layer  = static_cast<int>(tTopo->layer(detid));
-         }
-         else if ( detid.subdetId()==StripSubdetector::TID ) {
-           isBarrel = 0;
-           layer  = static_cast<int>(tTopo->layer(detid));
-         }
-         else {
-           cout << "WARNING -- neither TOB or TID stub, shouldn't happen..." << endl;
-           layer = -1;
-         }
+        int isBarrel = 0;
+        int layer=-999999;
+        if ( detid.subdetId()==StripSubdetector::TOB ) {
+          isBarrel = 1;
+          layer  = static_cast<int>(tTopo->layer(detid));
+        }
+        else if ( detid.subdetId()==StripSubdetector::TID ) {
+          isBarrel = 0;
+          layer  = static_cast<int>(tTopo->layer(detid));
+        }
+        else {
+          cout << "WARNING -- neither TOB or TID stub, shouldn't happen..." << endl;
+          layer = -1;
+        }
 
-         int isPSmodule=0;
-         if (topol->nrows() == 960) isPSmodule=1;
+        int isPSmodule=0;
+        if (topol->nrows() == 960) isPSmodule=1;
 
-         MeasurementPoint coords = tempStubPtr->getClusterRef(0)->findAverageLocalCoordinatesCentered();
-         LocalPoint clustlp = topol->localPosition(coords);
-         GlobalPoint posStub  =  theGeomDet->surface().toGlobal(clustlp);
+        MeasurementPoint coords = tempStubPtr->getClusterRef(0)->findAverageLocalCoordinatesCentered();
+        LocalPoint clustlp = topol->localPosition(coords);
+        GlobalPoint posStub  =  theGeomDet->surface().toGlobal(clustlp);
 
-         double tmp_stub_x=posStub.x();
-         double tmp_stub_y=posStub.y();
-         double tmp_stub_z=posStub.z();
+        double tmp_stub_x=posStub.x();
+        double tmp_stub_y=posStub.y();
+        double tmp_stub_z=posStub.z();
 
-         float trigDisplace = tempStubPtr->getTriggerDisplacement();
-         float trigOffset = tempStubPtr->getTriggerOffset();
-         float trigPos = tempStubPtr->getTriggerPosition();
-         float trigBend = tempStubPtr->getTriggerBend();
+        float trigDisplace = tempStubPtr->getTriggerDisplacement();
+        float trigOffset = tempStubPtr->getTriggerOffset();
+        float trigPos = tempStubPtr->getTriggerPosition();
+        float trigBend = tempStubPtr->getTriggerBend();
 
-         m_allstub_x->push_back(tmp_stub_x);
-         m_allstub_y->push_back(tmp_stub_y);
-         m_allstub_z->push_back(tmp_stub_z);
+        m_allstub_x->push_back(tmp_stub_x);
+        m_allstub_y->push_back(tmp_stub_y);
+        m_allstub_z->push_back(tmp_stub_z);
 
-         m_allstub_isBarrel->push_back(isBarrel);
-         m_allstub_layer->push_back(layer);
-         m_allstub_isPSmodule->push_back(isPSmodule);
+        m_allstub_isBarrel->push_back(isBarrel);
+        m_allstub_layer->push_back(layer);
+        m_allstub_isPSmodule->push_back(isPSmodule);
 
-         m_allstub_trigDisplace->push_back(trigDisplace);
-         m_allstub_trigOffset->push_back(trigOffset);
-         m_allstub_trigPos->push_back(trigPos);
-         m_allstub_trigBend->push_back(trigBend);
+        m_allstub_trigDisplace->push_back(trigDisplace);
+        m_allstub_trigOffset->push_back(trigOffset);
+        m_allstub_trigPos->push_back(trigPos);
+        m_allstub_trigBend->push_back(trigBend);
 
-         // matched to tracking particle?
-         edm::Ptr< TrackingParticle > my_tp = MCTruthTTStubHandle->findTrackingParticlePtr(tempStubPtr);
+        // matched to tracking particle?
+        edm::Ptr< TrackingParticle > my_tp = MCTruthTTStubHandle->findTrackingParticlePtr(tempStubPtr);
 
-         int myTP_pdgid = -999;
-         float myTP_pt  = -999;
-         float myTP_eta = -999;
-         float myTP_phi = -999;
+        int myTP_pdgid = -999;
+        float myTP_pt  = -999;
+        float myTP_eta = -999;
+        float myTP_phi = -999;
 
-        	if (my_tp.isNull() == false) {
-        	  int tmp_eventid = my_tp->eventId().event();
+        if (my_tp.isNull() == false) {
+          int tmp_eventid = my_tp->eventId().event();
 
-        	  if (tmp_eventid > 0) continue; // this means stub from pileup track
+          if (tmp_eventid > 0) continue; // this means stub from pileup track
 
-        	  myTP_pdgid = my_tp->pdgId();
-        	  myTP_pt = my_tp->p4().pt();
-        	  myTP_eta = my_tp->p4().eta();
-        	  myTP_phi = my_tp->p4().phi();
-        	}
+          myTP_pdgid = my_tp->pdgId();
+          myTP_pt = my_tp->p4().pt();
+          myTP_eta = my_tp->p4().eta();
+          myTP_phi = my_tp->p4().phi();
+        }
 
-	m_allstub_matchTP_pdgid->push_back(myTP_pdgid);
-	m_allstub_matchTP_pt->push_back(myTP_pt);
-	m_allstub_matchTP_eta->push_back(myTP_eta);
-	m_allstub_matchTP_phi->push_back(myTP_phi);
+        m_allstub_matchTP_pdgid->push_back(myTP_pdgid);
+        m_allstub_matchTP_pt->push_back(myTP_pt);
+        m_allstub_matchTP_eta->push_back(myTP_eta);
+        m_allstub_matchTP_phi->push_back(myTP_phi);
 
-	int tmp_stub_genuine = 0;
-	if (MCTruthTTStubHandle->isGenuine(tempStubPtr)) tmp_stub_genuine = 1;
+        int tmp_stub_genuine = 0;
+        if (MCTruthTTStubHandle->isGenuine(tempStubPtr)) tmp_stub_genuine = 1;
 
-	m_allstub_genuine->push_back(tmp_stub_genuine);
+        m_allstub_genuine->push_back(tmp_stub_genuine);
 
       }
 
     }
 
   }
-
+  // cout << endl<<"****** looped over L1 stubs" <<endl;
 
   // ----------------------------------------------------------------------------------------------
   // tracking in jets
@@ -856,24 +1251,24 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       std::vector<reco::GenJet>::const_iterator iterGenJet;
       for ( iterGenJet = GenJetHandle->begin(); iterGenJet != GenJetHandle->end(); ++iterGenJet ) {
 
-	reco::GenJet myJet = reco::GenJet(*iterGenJet);
+        reco::GenJet myJet = reco::GenJet(*iterGenJet);
 
-	if (myJet.pt() < 30.0) continue;
-	if (fabs(myJet.eta()) > 2.5) continue;
+        if (myJet.pt() < 30.0) continue;
+        if (fabs(myJet.eta()) > 2.5) continue;
 
-	if (DebugMode) cout << "genjet pt = " << myJet.pt() << ", eta = " << myJet.eta() << endl;
+        if (DebugMode) cout << "genjet pt = " << myJet.pt() << ", eta = " << myJet.eta() << endl;
 
-	bool ishighpt = false;
-	bool isveryhighpt = false;
-	if (myJet.pt() > 100.0)	ishighpt = true;
-	if (myJet.pt() > 200.0)	isveryhighpt = true;
+        bool ishighpt = false;
+        bool isveryhighpt = false;
+        if (myJet.pt() > 100.0)	ishighpt = true;
+        if (myJet.pt() > 200.0)	isveryhighpt = true;
 
-	math::XYZTLorentzVector jetP4 = myJet.p4();
-	v_jets.push_back(jetP4);
-	if (ishighpt) v_jets_highpt.push_back(1);
-	else v_jets_highpt.push_back(0);
-	if (isveryhighpt) v_jets_vhighpt.push_back(1);
-	else v_jets_vhighpt.push_back(0);
+        math::XYZTLorentzVector jetP4 = myJet.p4();
+        v_jets.push_back(jetP4);
+        if (ishighpt) v_jets_highpt.push_back(1);
+        else v_jets_highpt.push_back(0);
+        if (isveryhighpt) v_jets_vhighpt.push_back(1);
+        else v_jets_vhighpt.push_back(0);
 
       }// end loop over genjets
     }// end isValid
@@ -886,7 +1281,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   float jets_loosematchtrk_sumpt[NJETS] = {0}; //sum pt of tracks matched to TP with dR<0.4 of jet
   float jets_trk_sumpt[NJETS] = {0};      //sum pt of all tracks with dR<0.4 of jet
 
-
+  // cout << endl<<"****** done TrackingInJets" <<endl;
 
   // ----------------------------------------------------------------------------------------------
   // loop over L1 tracks
@@ -909,13 +1304,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_pt   = iterL1Track->getMomentum(L1Tk_nPar).perp();
       float tmp_trk_eta  = iterL1Track->getMomentum(L1Tk_nPar).eta();
       float tmp_trk_phi  = iterL1Track->getMomentum(L1Tk_nPar).phi();
+      int   tmp_trk_charge=signbit(iterL1Track->getRInv(L1Tk_nPar));
       float tmp_trk_z0   = iterL1Track->getPOCA(L1Tk_nPar).z(); //cm
 
       float tmp_trk_d0 = -999;
       if (L1Tk_nPar == 5) {
-	float tmp_trk_x0   = iterL1Track->getPOCA(L1Tk_nPar).x();
-	float tmp_trk_y0   = iterL1Track->getPOCA(L1Tk_nPar).y();
-	tmp_trk_d0 = -tmp_trk_x0*sin(tmp_trk_phi) + tmp_trk_y0*cos(tmp_trk_phi);
+        float tmp_trk_x0   = iterL1Track->getPOCA(L1Tk_nPar).x();
+        float tmp_trk_y0   = iterL1Track->getPOCA(L1Tk_nPar).y();
+        tmp_trk_d0 = -tmp_trk_x0*sin(tmp_trk_phi) + tmp_trk_y0*cos(tmp_trk_phi);
       }
 
       float tmp_trk_chi2 = iterL1Track->getChi2(L1Tk_nPar);
@@ -927,19 +1323,19 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       int tmp_trk_seed = 0;
       if (SaveTracklet) tmp_trk_seed = (int) iterL1Track->getWedge();
 
-      /*
-      int tmp_trk_nPSstub = 0;
-      if (SaveTracklet) {
-	for (int is=0; is<tmp_trk_nstub; is++) {
 
-	  DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
-	  DetId stackDetid = tTopo->stack(detIdStub);
+      //     int tmp_trk_nPSstub = 0;
+      //     if (SaveTracklet) {
+      //     for (int is=0; is<tmp_trk_nstub; is++) {
+      //
+      //     DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
+      //     DetId stackDetid = tTopo->stack(detIdStub);
+      //
+      //     bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
+      //     if (isPS) tmp_trk_nPSstub++;
+      //   }
+      // }
 
-	  bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
-	  if (isPS) tmp_trk_nPSstub++;
-	}
-      }
-      */
 
       // ----------------------------------------------------------------------------------------------
       // loop over stubs on tracks
@@ -949,55 +1345,55 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       int tmp_trk_lhits=0;
 
       if (1) {
-	// loop over stubs
-	for (int is=0; is<tmp_trk_nstub; is++) {
+        // loop over stubs
+        for (int is=0; is<tmp_trk_nstub; is++) {
 
-	  //detID of stub
-	  DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
+          //detID of stub
+          DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
 
-	  MeasurementPoint coords = stubRefs.at(is)->getClusterRef(0)->findAverageLocalCoordinatesCentered();
-	  const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
-	  Global3DPoint posStub = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(coords) );
+          MeasurementPoint coords = stubRefs.at(is)->getClusterRef(0)->findAverageLocalCoordinatesCentered();
+          const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
+          Global3DPoint posStub = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(coords) );
 
-	  double x=posStub.x();
-	  double y=posStub.y();
-	  double z=posStub.z();
+          double x=posStub.x();
+          double y=posStub.y();
+          double z=posStub.z();
 
-	  //int isBarrel=-1;
-	  int layer=-999999;
-	  if ( detIdStub.subdetId()==StripSubdetector::TOB ) {
-	    //isBarrel=1;
-	    layer  = static_cast<int>(tTopo->layer(detIdStub));
-	    if (DebugMode) cout << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z << endl;
-      tmp_trk_lhits+=pow(10,layer-1);
-	  }
-	  else if ( detIdStub.subdetId()==StripSubdetector::TID ) {
-	    //isBarrel=0;
-	    layer  = static_cast<int>(tTopo->layer(detIdStub));
-	    if (DebugMode) cout << "   stub in disk " << layer << " at position x y z = " << x << " " << y << " " << z << endl;
-      tmp_trk_dhits+=pow(10,layer-1);
-	  }
+          //int isBarrel=-1;
+          int layer=-999999;
+          if ( detIdStub.subdetId()==StripSubdetector::TOB ) {
+            //isBarrel=1;
+            layer  = static_cast<int>(tTopo->layer(detIdStub));
+            if (DebugMode) cout << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z << endl;
+            tmp_trk_lhits+=pow(10,layer-1);
+          }
+          else if ( detIdStub.subdetId()==StripSubdetector::TID ) {
+            //isBarrel=0;
+            layer  = static_cast<int>(tTopo->layer(detIdStub));
+            if (DebugMode) cout << "   stub in disk " << layer << " at position x y z = " << x << " " << y << " " << z << endl;
+            tmp_trk_dhits+=pow(10,layer-1);
+          }
 
 
-	  // DetId stackDetid = tTopo->stack(detIdStub);
-	  // bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
-    //
-	  // float pitch = 0.089;
-	  // float sigma_bend = 0.45;
-    //
-	  // if (isPS) pitch = 0.099;
-	  // double tmp_stub_r = posStub.perp();
-    //
-	  // float signedPt = 0.3*3.811202/100.0/(iterL1Track->getRInv());
-	  // float trackBend = -(1.8*0.57*tmp_stub_r/100)/(pitch*signedPt);
-    //
-	  // float stubBend = stubRefs.at(is)->getTriggerBend();
-	  // if ( !isBarrel && z<0 ) stubBend=-stubBend;
-	  // float tmp_bend_diff = stubBend - trackBend;
-	  // float bend_chi2 = (tmp_bend_diff)*(tmp_bend_diff)/(sigma_bend*sigma_bend);
-	  // tmp_trk_bend_chi2 += bend_chi2;
+          // DetId stackDetid = tTopo->stack(detIdStub);
+          // bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
+          //
+          // float pitch = 0.089;
+          // float sigma_bend = 0.45;
+          //
+          // if (isPS) pitch = 0.099;
+          // double tmp_stub_r = posStub.perp();
+          //
+          // float signedPt = 0.3*3.811202/100.0/(iterL1Track->getRInv());
+          // float trackBend = -(1.8*0.57*tmp_stub_r/100)/(pitch*signedPt);
+          //
+          // float stubBend = stubRefs.at(is)->getTriggerBend();
+          // if ( !isBarrel && z<0 ) stubBend=-stubBend;
+          // float tmp_bend_diff = stubBend - trackBend;
+          // float bend_chi2 = (tmp_bend_diff)*(tmp_bend_diff)/(sigma_bend*sigma_bend);
+          // tmp_trk_bend_chi2 += bend_chi2;
 
-	}//end loop over stubs
+        }//end loop over stubs
       }
 
       // ----------------------------------------------------------------------------------------------
@@ -1013,16 +1409,17 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (MCTruthTTTrackHandle->isCombinatoric(l1track_ptr)) tmp_trk_combinatoric = 1;
 
       if (DebugMode) {
-	cout << "L1 track, pt: " << tmp_trk_pt << " eta: " << tmp_trk_eta << " phi: " << tmp_trk_phi
-	     << " z0: " << tmp_trk_z0 << " chi2: " << tmp_trk_chi2 << " nstub: " << tmp_trk_nstub;
-	if (tmp_trk_genuine) cout << " (is genuine)" << endl;
-	if (tmp_trk_unknown) cout << " (is unknown)" << endl;
-	if (tmp_trk_combinatoric) cout << " (is combinatoric)" << endl;
+        cout << "L1 track, pt: " << tmp_trk_pt << " eta: " << tmp_trk_eta << " phi: " << tmp_trk_phi
+        << " z0: " << tmp_trk_z0 << " chi2: " << tmp_trk_chi2 << " nstub: " << tmp_trk_nstub;
+        if (tmp_trk_genuine) cout << " (is genuine)" << endl;
+        if (tmp_trk_unknown) cout << " (is unknown)" << endl;
+        if (tmp_trk_combinatoric) cout << " (is combinatoric)" << endl;
       }
 
       m_trk_pt ->push_back(tmp_trk_pt);
       m_trk_eta->push_back(tmp_trk_eta);
       m_trk_phi->push_back(tmp_trk_phi);
+      m_trk_charge->push_back(tmp_trk_charge);
       m_trk_z0 ->push_back(tmp_trk_z0);
       if (L1Tk_nPar==5) m_trk_d0->push_back(tmp_trk_d0);
       else m_trk_d0->push_back(999.);
@@ -1037,6 +1434,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_unknown->push_back(tmp_trk_unknown);
       m_trk_combinatoric->push_back(tmp_trk_combinatoric);
 
+      // cout << endl<<"****** finished loop over tracks" <<endl;
 
       // ----------------------------------------------------------------------------------------------
       // for studying the fake rate
@@ -1055,26 +1453,26 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       if (my_tp.isNull()) myFake = 0;
       else {
-	int tmp_eventid = my_tp->eventId().event();
+        int tmp_eventid = my_tp->eventId().event();
 
-	if (tmp_eventid > 0) myFake = 2;
-	else myFake = 1;
+        if (tmp_eventid > 0) myFake = 2;
+        else myFake = 1;
 
-	myTP_pdgid = my_tp->pdgId();
-	myTP_pt = my_tp->p4().pt();
-	myTP_eta = my_tp->p4().eta();
-	myTP_phi = my_tp->p4().phi();
-	myTP_z0 = my_tp->vertex().z();
+        myTP_pdgid = my_tp->pdgId();
+        myTP_pt = my_tp->p4().pt();
+        myTP_eta = my_tp->p4().eta();
+        myTP_phi = my_tp->p4().phi();
+        myTP_z0 = my_tp->vertex().z();
 
-	float myTP_x0 = my_tp->vertex().x();
-	float myTP_y0 = my_tp->vertex().y();
-	myTP_dxy = sqrt(myTP_x0*myTP_x0 + myTP_y0*myTP_y0);
+        float myTP_x0 = my_tp->vertex().x();
+        float myTP_y0 = my_tp->vertex().y();
+        myTP_dxy = sqrt(myTP_x0*myTP_x0 + myTP_y0*myTP_y0);
 
-	if (DebugMode) {
-	  cout << "TP matched to track has pt = " << my_tp->p4().pt() << " eta = " << my_tp->momentum().eta()
-	       << " phi = " << my_tp->momentum().phi() << " z0 = " << my_tp->vertex().z()
-	       << " pdgid = " <<  my_tp->pdgId() << " dxy = " << myTP_dxy << endl;
-	}
+        if (DebugMode) {
+          cout << "TP matched to track has pt = " << my_tp->p4().pt() << " eta = " << my_tp->momentum().eta()
+          << " phi = " << my_tp->momentum().phi() << " z0 = " << my_tp->vertex().z()
+          << " pdgid = " <<  my_tp->pdgId() << " dxy = " << myTP_dxy << endl;
+        }
       }
 
       m_trk_fake->push_back(myFake);
@@ -1086,6 +1484,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_matchtp_z0->push_back(myTP_z0);
       m_trk_matchtp_dxy->push_back(myTP_dxy);
 
+      // cout << endl<<"****** finished fake rate" <<endl;
 
       // ----------------------------------------------------------------------------------------------
       // for tracking in jets
@@ -1093,29 +1492,29 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       if (TrackingInJets) {
 
-	if (DebugMode) cout << "doing tracking in jets now" << endl;
+        if (DebugMode) cout << "doing tracking in jets now" << endl;
 
-	int InJet = 0;
-	int InJetHighpt = 0;
-	int InJetVeryHighpt = 0;
+        int InJet = 0;
+        int InJetHighpt = 0;
+        int InJetVeryHighpt = 0;
 
-	for (int ij=0; ij<(int)v_jets.size(); ij++) {
-	  float deta = tmp_trk_eta - (v_jets.at(ij)).eta();
-	  float dphi = tmp_trk_phi - (v_jets.at(ij)).phi();
-	  while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
-	  float dR = sqrt(deta*deta + dphi*dphi);
+        for (int ij=0; ij<(int)v_jets.size(); ij++) {
+          float deta = tmp_trk_eta - (v_jets.at(ij)).eta();
+          float dphi = tmp_trk_phi - (v_jets.at(ij)).phi();
+          while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
+          float dR = sqrt(deta*deta + dphi*dphi);
 
-	  if (dR < 0.4) {
-	    InJet = 1;
-	    if (v_jets_highpt.at(ij) == 1) InJetHighpt = 1;
-	    if (v_jets_vhighpt.at(ij) == 1) InJetVeryHighpt = 1;
-	    if (ij<NJETS) jets_trk_sumpt[ij] += tmp_trk_pt;
-	  }
-	}
+          if (dR < 0.4) {
+            InJet = 1;
+            if (v_jets_highpt.at(ij) == 1) InJetHighpt = 1;
+            if (v_jets_vhighpt.at(ij) == 1) InJetVeryHighpt = 1;
+            if (ij<NJETS) jets_trk_sumpt[ij] += tmp_trk_pt;
+          }
+        }
 
-	m_trk_injet->push_back(InJet);
-	m_trk_injet_highpt->push_back(InJetHighpt);
-	m_trk_injet_vhighpt->push_back(InJetVeryHighpt);
+        m_trk_injet->push_back(InJet);
+        m_trk_injet_highpt->push_back(InJetHighpt);
+        m_trk_injet_vhighpt->push_back(InJetVeryHighpt);
 
       }//end tracking in jets
 
@@ -1128,6 +1527,10 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   // ----------------------------------------------------------------------------------------------
   // loop over tracking particles
   // ----------------------------------------------------------------------------------------------
+
+  edm::Handle<edm::SimVertexContainer> sim_vertices;
+  iEvent.getByToken(simVertexInput_, sim_vertices);
+  const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
 
   if (DebugMode) cout << endl << "Loop over tracking particles!" << endl;
 
@@ -1149,7 +1552,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_tp_vy  = iterTP->vy();
     int tmp_tp_pdgid = iterTP->pdgId();
     float tmp_tp_z0_prod = tmp_tp_vz;
-    float tmp_tp_d0_prod = tmp_tp_vx*sin(tmp_tp_phi) - tmp_tp_vy*cos(tmp_tp_phi);
+    float tmp_tp_d0_prod = -tmp_tp_vx*sin(tmp_tp_phi) + tmp_tp_vy*cos(tmp_tp_phi);
 
     if (MyProcess==13 && abs(tmp_tp_pdgid) != 13) continue;
     if (MyProcess==11 && abs(tmp_tp_pdgid) != 11) continue;
@@ -1197,21 +1600,22 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (MyProcess==6 && (dxy > 1.0)) continue;
 
     if (DebugMode) cout << "Tracking particle, pt: " << tmp_tp_pt << " eta: " << tmp_tp_eta << " phi: " << tmp_tp_phi
-			<< " z0: " << tmp_tp_z0 << " d0: " << tmp_tp_d0
-			<< " z_prod: " << tmp_tp_z0_prod << " d_prod: " << tmp_tp_d0_prod
-			<< " pdgid: " << tmp_tp_pdgid << " eventID: " << iterTP->eventId().event()
-			<< " ttclusters " << MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).size()
-			<< " ttstubs " << MCTruthTTStubHandle->findTTStubRefs(tp_ptr).size()
-			<< " tttracks " << MCTruthTTTrackHandle->findTTTrackPtrs(tp_ptr).size() << endl;
+    << " z0: " << tmp_tp_z0 << " d0: " << tmp_tp_d0
+    << " z_prod: " << tmp_tp_z0_prod << " d_prod: " << tmp_tp_d0_prod
+    << " pdgid: " << tmp_tp_pdgid << " eventID: " << iterTP->eventId().event()
+    << " ttclusters " << MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).size()
+    << " ttstubs " << MCTruthTTStubHandle->findTTStubRefs(tp_ptr).size()
+    << " tttracks " << MCTruthTTTrackHandle->findTTTrackPtrs(tp_ptr).size() << endl;
 
 
     // ----------------------------------------------------------------------------------------------
     // only consider TPs associated with >= 1 cluster, or >= X stubs, or have stubs in >= X layers (configurable options)
 
-    if (MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).size() < 1) {
-      if (DebugMode) cout << "No matching TTClusters for TP, continuing..." << endl;
-      continue;
-    }
+    //deactivated to study displaced muons
+    //   if (MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).size() < 1) {
+    //   if (DebugMode) cout << "No matching TTClusters for TP, continuing..." << endl;
+    //   continue;
+    // }
 
 
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theStubRefs = MCTruthTTStubHandle->findTTStubRefs(tp_ptr);
@@ -1226,19 +1630,19 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       int layer = -1;
       if ( detid.subdetId()==StripSubdetector::TOB ) {
-	layer = static_cast<int>(tTopo->layer(detid)) - 1; //fill in array as entries 0-5
+        layer = static_cast<int>(tTopo->layer(detid)) - 1; //fill in array as entries 0-5
       }
       else if ( detid.subdetId()==StripSubdetector::TID ) {
-	layer = static_cast<int>(tTopo->layer(detid)) + 5; //fill in array as entries 6-10
+        layer = static_cast<int>(tTopo->layer(detid)) + 5; //fill in array as entries 6-10
       }
 
       //bool isPS = (theTrackerGeom->getDetectorType(detid)==TrackerGeometry::ModuleType::Ph2PSP);
 
       //treat genuine stubs separately (==2 is genuine, ==1 is not)
       if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is)).isNull() && hasStubInLayer[layer]<2)
-	hasStubInLayer[layer] = 1;
+      hasStubInLayer[layer] = 1;
       else
-	hasStubInLayer[layer] = 2;
+      hasStubInLayer[layer] = 2;
     }
 
     int nStubLayerTP = 0;
@@ -1249,25 +1653,147 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
 
     if (DebugMode) cout << "TP is associated with " << nStubTP << " stubs, and has stubs in " << nStubLayerTP
-			<< " different layers/disks, and has GENUINE stubs in " << nStubLayerTP_g << " layers " << endl;
+    << " different layers/disks, and has GENUINE stubs in " << nStubLayerTP_g << " layers " << endl;
 
 
 
     if (TP_minNStub > 0) {
       if (DebugMode) cout << "Only consider TPs with >= " << TP_minNStub << " stubs" << endl;
       if (nStubTP < TP_minNStub) {
-	if (DebugMode) cout << "TP fails minimum nbr stubs requirement! Continuing..." << endl;
-	continue;
+        if (DebugMode) cout << "TP fails minimum nbr stubs requirement! Continuing..." << endl;
+        continue;
       }
     }
     if (TP_minNStubLayer > 0) {
       if (DebugMode) cout << "Only consider TPs with stubs in >= " << TP_minNStubLayer << " layers/disks" << endl;
       if (nStubLayerTP < TP_minNStubLayer) {
-	if (DebugMode) cout << "TP fails stubs in minimum nbr of layers/disks requirement! Continuing..." << endl;
-	continue;
+        if (DebugMode) cout << "TP fails stubs in minimum nbr of layers/disks requirement! Continuing..." << endl;
+        continue;
       }
     }
 
+    // ----------------------------------------------------------------------------------------------
+    // look for L1 regional muon candidates matched to the tracking particle
+
+    // get the associated simtrack
+    // cout << endl<<"****** checkpoint 0" <<endl;
+    const SimTrack& t(tp_ptr->g4Tracks()[0]);
+    // cout << endl<<"****** checkpoint 0-b" <<endl;
+    if(abs(t.type())==13){
+      // cout << endl<<"****** checkpoint 0-c" <<endl;
+      //run arcane muon simulation truth matching
+      const SimVertex v = (t.vertIndex() < int(sim_vert.size())) ? sim_vert[t.vertIndex()] : SimVertex();
+      SimTrackMatchManager match(t, v, simTrackCfg, iEvent, iSetup,
+      genParticleInput_,
+      simVertexInput_,
+      simTrackInput_,
+      gemSimHitInput_,
+      cscSimHitInput_,
+      rpcSimHitInput_,
+      me0SimHitInput_,
+      dtSimHitInput_,
+      gemDigiInput_,
+      gemPadDigiInput_,
+      gemCoPadDigiInput_,
+      gemRecHitInput_,
+      me0DigiInput_,
+      me0RecHitInput_,
+      me0SegmentInput_,
+      cscComparatorDigiInput_,
+      cscWireDigiInput_,
+      clctInputs_,
+      alctInputs_,
+      lctInputs_,
+      mplctInputs_,
+      cscRecHit2DInput_,
+      cscSegmentInput_,
+      dtDigiInput_,
+      dtStubInput_,
+      dtRecHit1DPairInput_,
+      dtRecSegment2DInput_,
+      dtRecSegment4DInput_,
+      rpcDigiInput_,
+      rpcRecHitInput_,
+      emtfTrackInputLabel_,
+      regMuonCandInputLabel_,
+      gmtInputLabel_,
+      //trackInputLabel_,
+      //trackMuonInputLabel_,
+      recoTrackExtraInputLabel_,
+      recoTrackInputLabel_,
+      recoChargedCandidateInputLabel_);
+      // cout << endl<<"****** checkpoint 1" <<endl;
+
+      //added average simhit information at station 2
+      GlobalPoint avgHit1 = match.simhits().simHitsMeanPositionStation(1);
+      GlobalPoint avgHit2 = match.simhits().simHitsMeanPositionStation(2);
+      GlobalPoint avgHit3 = match.simhits().simHitsMeanPositionStation(3);
+      GlobalPoint avgHit4 = match.simhits().simHitsMeanPositionStation(4);
+      if(avgHit2.x() || avgHit2.y() || avgHit2.z()){
+        m_avgSimHit_phi->push_back(avgHit2.phi());
+        m_avgSimHit_eta->push_back(avgHit2.eta());
+        m_avgSimHit_station->push_back(2);
+      }
+      else if(avgHit3.x() || avgHit3.y() || avgHit3.z()){
+        m_avgSimHit_phi->push_back(avgHit3.phi());
+        m_avgSimHit_eta->push_back(avgHit3.eta());
+        m_avgSimHit_station->push_back(3);
+      }
+      else if(avgHit1.x() || avgHit1.y() || avgHit1.z()){
+        m_avgSimHit_phi->push_back(avgHit1.phi());
+        m_avgSimHit_eta->push_back(avgHit1.eta());
+        m_avgSimHit_station->push_back(1);
+      }
+      else if(avgHit4.x() || avgHit4.y() || avgHit4.z()){
+        m_avgSimHit_phi->push_back(avgHit4.phi());
+        m_avgSimHit_eta->push_back(avgHit4.eta());
+        m_avgSimHit_station->push_back(4);
+      }
+      else{
+        m_avgSimHit_phi->push_back(-999.);
+        m_avgSimHit_eta->push_back(-999.);
+        m_avgSimHit_station->push_back(-1);
+      }
+      // cout << endl<<"****** checkpoint 2" <<endl;
+      //access best match
+      TFCand *muonCandidate = match.l1Muons().bestGMTCand();
+      //std::cout<<"found muon, try to get match"<<std::endl;
+      //if best regional match exists, dump info
+      if(muonCandidate){
+        //std::cout<<"found match, extract information"<<std::endl;
+        m_matchmuon_pt->push_back(muonCandidate->pt());
+        m_matchmuon_eta->push_back(muonCandidate->eta());
+        m_matchmuon_phi->push_back(muonCandidate->phi());
+        m_matchmuon_charge->push_back(muonCandidate->charge());
+        m_matchmuon_quality->push_back(muonCandidate->quality());
+        int type=-1;
+        if(muonCandidate->tracktype()==l1t::tftype::bmtf) type=2;
+        else if(muonCandidate->tracktype()==l1t::tftype::omtf_pos || muonCandidate->tracktype()==l1t::tftype::omtf_neg) type=1;
+        else if(muonCandidate->tracktype()==l1t::tftype::emtf_pos || muonCandidate->tracktype()==l1t::tftype::emtf_neg) type=0;
+        m_matchmuon_type->push_back(type);
+      }
+      else{
+        m_matchmuon_pt->push_back(-999.);
+        m_matchmuon_eta->push_back(-999.);
+        m_matchmuon_phi->push_back(-999.);
+        m_matchmuon_charge->push_back(-999);
+        m_matchmuon_type->push_back(-999);
+        m_matchmuon_quality->push_back(-999);
+      }
+      // cout << endl<<"****** checkpoint 3" <<endl;
+    }
+    else{
+      m_matchmuon_pt->push_back(-999.);
+      m_matchmuon_eta->push_back(-999.);
+      m_matchmuon_phi->push_back(-999.);
+      m_matchmuon_charge->push_back(-999);
+      m_matchmuon_type->push_back(-999);
+      m_matchmuon_quality->push_back(-999);
+      m_avgSimHit_phi->push_back(-999.);
+      m_avgSimHit_eta->push_back(-999.);
+      m_avgSimHit_station->push_back(-1);
+    }
+    // cout << endl<<"****** checkpoint 4" <<endl;
 
     // ----------------------------------------------------------------------------------------------
     // look for L1 tracks matched to the tracking particle
@@ -1292,86 +1818,86 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       for (int it=0; it<(int)matchedTracks.size(); it++) {
 
-	bool tmp_trk_genuine = false;
-	bool tmp_trk_loosegenuine = false;
-	if (MCTruthTTTrackHandle->isGenuine(matchedTracks.at(it))) tmp_trk_genuine = true;
-	if (MCTruthTTTrackHandle->isLooselyGenuine(matchedTracks.at(it))) tmp_trk_loosegenuine = true;
-	if (!tmp_trk_loosegenuine) continue;
+        bool tmp_trk_genuine = false;
+        bool tmp_trk_loosegenuine = false;
+        if (MCTruthTTTrackHandle->isGenuine(matchedTracks.at(it))) tmp_trk_genuine = true;
+        if (MCTruthTTTrackHandle->isLooselyGenuine(matchedTracks.at(it))) tmp_trk_loosegenuine = true;
+        if (!tmp_trk_loosegenuine) continue;
 
 
-	if (DebugMode) {
-	  if (MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it)).isNull()) {
-	    cout << "track matched to TP is NOT uniquely matched to a TP" << endl;
-	  }
-	  else {
-	    edm::Ptr< TrackingParticle > my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it));
-	    cout << "TP matched to track matched to TP ... tp pt = " << my_tp->p4().pt() << " eta = " << my_tp->momentum().eta()
-		 << " phi = " << my_tp->momentum().phi() << " z0 = " << my_tp->vertex().z() << endl;
-	  }
-	  cout << "   ... matched L1 track has pt = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).perp()
-	       << " eta = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).eta()
-	       << " phi = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).phi()
-	       << " chi2 = " << matchedTracks.at(it)->getChi2(L1Tk_nPar)
-	       << " consistency = " << matchedTracks.at(it)->getStubPtConsistency(L1Tk_nPar)
-	       << " z0 = " << matchedTracks.at(it)->getPOCA(L1Tk_nPar).z()
-	       << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
-	  if (tmp_trk_genuine) cout << " (genuine!) " << endl;
-	  if (tmp_trk_loosegenuine) cout << " (loose genuine!) " << endl;
-	}
+        if (DebugMode) {
+          if (MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it)).isNull()) {
+            cout << "track matched to TP is NOT uniquely matched to a TP" << endl;
+          }
+          else {
+            edm::Ptr< TrackingParticle > my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it));
+            cout << "TP matched to track matched to TP ... tp pt = " << my_tp->p4().pt() << " eta = " << my_tp->momentum().eta()
+            << " phi = " << my_tp->momentum().phi() << " z0 = " << my_tp->vertex().z() << endl;
+          }
+          cout << "   ... matched L1 track has pt = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).perp()
+          << " eta = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).eta()
+          << " phi = " << matchedTracks.at(it)->getMomentum(L1Tk_nPar).phi()
+          << " chi2 = " << matchedTracks.at(it)->getChi2(L1Tk_nPar)
+          << " consistency = " << matchedTracks.at(it)->getStubPtConsistency(L1Tk_nPar)
+          << " z0 = " << matchedTracks.at(it)->getPOCA(L1Tk_nPar).z()
+          << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
+          if (tmp_trk_genuine) cout << " (genuine!) " << endl;
+          if (tmp_trk_loosegenuine) cout << " (loose genuine!) " << endl;
+        }
 
 
-	// ----------------------------------------------------------------------------------------------
-	// further require L1 track to be (loosely) genuine, that there is only one TP matched to the track
-	// + have >= L1Tk_minNStub stubs for it to be a valid match (only relevant is your track collection
-	// e.g. stores 3-stub tracks but at plot level you require >= 4 stubs (--> tracklet case)
+        // ----------------------------------------------------------------------------------------------
+        // further require L1 track to be (loosely) genuine, that there is only one TP matched to the track
+        // + have >= L1Tk_minNStub stubs for it to be a valid match (only relevant is your track collection
+        // e.g. stores 3-stub tracks but at plot level you require >= 4 stubs (--> tracklet case)
 
-	std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubRefs = matchedTracks.at(it)->getStubRefs();
-	int tmp_trk_nstub = stubRefs.size();
+        std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > stubRefs = matchedTracks.at(it)->getStubRefs();
+        int tmp_trk_nstub = stubRefs.size();
 
-	if (tmp_trk_nstub < L1Tk_minNStub) continue;
+        if (tmp_trk_nstub < L1Tk_minNStub) continue;
 
-	/*
-	// PS stubs
-	int tmp_trk_nPSstub = 0;
-	if (SaveTracklet) {
-	  for (int is=0; is<tmp_trk_nstub; is++) {
-	    DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
-	    DetId stackDetid = tTopo->stack(detIdStub);
-	    bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
-	    if (isPS) tmp_trk_nPSstub++;
-	  }
-	}
-	*/
 
-	float dmatch_pt  = 999;
-	float dmatch_eta = 999;
-	float dmatch_phi = 999;
-	int match_id = 999;
+        // PS stubs
+        // int tmp_trk_nPSstub = 0;
+        // if (SaveTracklet) {
+        //   for (int is=0; is<tmp_trk_nstub; is++) {
+        //     DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
+        //     DetId stackDetid = tTopo->stack(detIdStub);
+        //     bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
+        //     if (isPS) tmp_trk_nPSstub++;
+        //   }
+        // }
 
-	edm::Ptr< TrackingParticle > my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it));
-	dmatch_pt  = fabs(my_tp->p4().pt() - tmp_tp_pt);
-	dmatch_eta = fabs(my_tp->p4().eta() - tmp_tp_eta);
-	dmatch_phi = fabs(my_tp->p4().phi() - tmp_tp_phi);
-	match_id = my_tp->pdgId();
 
-	float tmp_trk_chi2dof = (matchedTracks.at(it)->getChi2(L1Tk_nPar)) / (2*tmp_trk_nstub - L1Tk_nPar);
+        float dmatch_pt  = 999;
+        float dmatch_eta = 999;
+        float dmatch_phi = 999;
+        int match_id = 999;
 
-	// ensure that track is uniquely matched to the TP we are looking at!
-	if (dmatch_pt<0.1 && dmatch_eta<0.1 && dmatch_phi<0.1 && tmp_tp_pdgid==match_id) {
-	  nLooseMatch++;
-	  if (i_loosetrack < 0 || tmp_trk_chi2dof < i_loosechi2dof) {
-	    i_loosetrack = it;
-	    i_loosechi2dof = tmp_trk_chi2dof;
-	  }
+        edm::Ptr< TrackingParticle > my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it));
+        dmatch_pt  = fabs(my_tp->p4().pt() - tmp_tp_pt);
+        dmatch_eta = fabs(my_tp->p4().eta() - tmp_tp_eta);
+        dmatch_phi = fabs(my_tp->p4().phi() - tmp_tp_phi);
+        match_id = my_tp->pdgId();
 
-	  if (tmp_trk_genuine) {
-	    nMatch++;
-	    if (i_track < 0 || tmp_trk_chi2dof < i_chi2dof) {
-	      i_track = it;
-	      i_chi2dof = tmp_trk_chi2dof;
-	    }
-	  }
-	}
+        float tmp_trk_chi2dof = (matchedTracks.at(it)->getChi2(L1Tk_nPar)) / (2*tmp_trk_nstub - L1Tk_nPar);
+
+        // ensure that track is uniquely matched to the TP we are looking at!
+        if (dmatch_pt<0.1 && dmatch_eta<0.1 && dmatch_phi<0.1 && tmp_tp_pdgid==match_id) {
+          nLooseMatch++;
+          if (i_loosetrack < 0 || tmp_trk_chi2dof < i_loosechi2dof) {
+            i_loosetrack = it;
+            i_loosechi2dof = tmp_trk_chi2dof;
+          }
+
+          if (tmp_trk_genuine) {
+            nMatch++;
+            if (i_track < 0 || tmp_trk_chi2dof < i_chi2dof) {
+              i_track = it;
+              i_chi2dof = tmp_trk_chi2dof;
+            }
+          }
+        }
 
 
       }// end loop over matched L1 tracks
@@ -1383,6 +1909,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_matchtrk_pt   = -999;
     float tmp_matchtrk_eta  = -999;
     float tmp_matchtrk_phi  = -999;
+    bool tmp_matchtrk_charge= 0;
     float tmp_matchtrk_z0   = -999;
     float tmp_matchtrk_d0   = -999;
     float tmp_matchtrk_chi2 = -999;
@@ -1410,12 +1937,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_matchtrk_pt   = matchedTracks.at(i_track)->getMomentum(L1Tk_nPar).perp();
       tmp_matchtrk_eta  = matchedTracks.at(i_track)->getMomentum(L1Tk_nPar).eta();
       tmp_matchtrk_phi  = matchedTracks.at(i_track)->getMomentum(L1Tk_nPar).phi();
+      tmp_matchtrk_charge=signbit(matchedTracks.at(i_track)->getRInv(L1Tk_nPar));
       tmp_matchtrk_z0   = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).z();
 
       if (L1Tk_nPar == 5) {
-	float tmp_matchtrk_x0 = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).x();
-	float tmp_matchtrk_y0 = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).y();
-	tmp_matchtrk_d0 = -tmp_matchtrk_x0*sin(tmp_matchtrk_phi) + tmp_matchtrk_y0*cos(tmp_matchtrk_phi);
+        float tmp_matchtrk_x0 = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).x();
+        float tmp_matchtrk_y0 = matchedTracks.at(i_track)->getPOCA(L1Tk_nPar).y();
+        tmp_matchtrk_d0 = -tmp_matchtrk_x0*sin(tmp_matchtrk_phi) + tmp_matchtrk_y0*cos(tmp_matchtrk_phi);
       }
 
       tmp_matchtrk_chi2 = matchedTracks.at(i_track)->getChi2(L1Tk_nPar);
@@ -1439,45 +1967,45 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       for (int is=0; is<tmp_nstub; is++) {
 
-	DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
+        DetId detIdStub = theTrackerGeom->idToDet( (stubRefs.at(is)->getClusterRef(0))->getDetId() )->geographicalId();
 
-	MeasurementPoint coords = stubRefs.at(is)->getClusterRef(0)->findAverageLocalCoordinatesCentered();
-	const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
-	Global3DPoint posStub = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(coords) );
+        MeasurementPoint coords = stubRefs.at(is)->getClusterRef(0)->findAverageLocalCoordinatesCentered();
+        const GeomDet* theGeomDet = theTrackerGeom->idToDet(detIdStub);
+        Global3DPoint posStub = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(coords) );
 
-	double x=posStub.x();
-	double y=posStub.y();
-	double z=posStub.z();
+        double x=posStub.x();
+        double y=posStub.y();
+        double z=posStub.z();
 
-	//int isBarrel = 0;
-	int layer=-999999;
-	if ( detIdStub.subdetId()==StripSubdetector::TOB ) {
-	  //isBarrel = 1;
-	  layer  = static_cast<int>(tTopo->layer(detIdStub));
-    tmp_matchtrk_lhits+=pow(10,layer-1);
-	}
-	else if ( detIdStub.subdetId()==StripSubdetector::TID ) {
-	  //isBarrel = 0;
-	  layer  = static_cast<int>(tTopo->layer(detIdStub));
-    tmp_matchtrk_dhits+=pow(10,layer-1);
-	}
+        //int isBarrel = 0;
+        int layer=-999999;
+        if ( detIdStub.subdetId()==StripSubdetector::TOB ) {
+          //isBarrel = 1;
+          layer  = static_cast<int>(tTopo->layer(detIdStub));
+          tmp_matchtrk_lhits+=pow(10,layer-1);
+        }
+        else if ( detIdStub.subdetId()==StripSubdetector::TID ) {
+          //isBarrel = 0;
+          layer  = static_cast<int>(tTopo->layer(detIdStub));
+          tmp_matchtrk_dhits+=pow(10,layer-1);
+        }
 
-	// DetId stackDetid = tTopo->stack(detIdStub);
-	// bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
-  //
-	// float pitch = 0.089;
-	// float sigma_bend = 0.45;
-	// if (isPS) pitch = 0.099;
-	// double tmp_stub_r = posStub.perp();
-  //
-	// float signedPt = 0.3*3.811202/100.0/(matchedTracks.at(i_track)->getRInv());
-	// float trackBend = -(1.8*0.57*tmp_stub_r/100)/(pitch*signedPt);
-  //
-	// float stubBend = stubRefs.at(is)->getTriggerBend();
-	// if ( !isBarrel && z>0 ) stubBend=-stubBend;
-	// float tmp_bend_diff = stubBend - trackBend;
-	// float bend_chi2 = (tmp_bend_diff)*(tmp_bend_diff)/(sigma_bend*sigma_bend);
-	// tmp_matchtrk_bend_chi2 += bend_chi2;
+        // DetId stackDetid = tTopo->stack(detIdStub);
+        // bool isPS = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
+        //
+        // float pitch = 0.089;
+        // float sigma_bend = 0.45;
+        // if (isPS) pitch = 0.099;
+        // double tmp_stub_r = posStub.perp();
+        //
+        // float signedPt = 0.3*3.811202/100.0/(matchedTracks.at(i_track)->getRInv());
+        // float trackBend = -(1.8*0.57*tmp_stub_r/100)/(pitch*signedPt);
+        //
+        // float stubBend = stubRefs.at(is)->getTriggerBend();
+        // if ( !isBarrel && z>0 ) stubBend=-stubBend;
+        // float tmp_bend_diff = stubBend - trackBend;
+        // float bend_chi2 = (tmp_bend_diff)*(tmp_bend_diff)/(sigma_bend*sigma_bend);
+        // tmp_matchtrk_bend_chi2 += bend_chi2;
       }
 
       // ------------------------------------------------------------------------------------------
@@ -1492,9 +2020,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_loosematchtrk_z0   = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).z();
 
       if (L1Tk_nPar == 5) {
-	float tmp_loosematchtrk_x0 = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).x();
-	float tmp_loosematchtrk_y0 = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).y();
-	tmp_loosematchtrk_d0 = -tmp_loosematchtrk_x0*sin(tmp_loosematchtrk_phi) + tmp_loosematchtrk_y0*cos(tmp_loosematchtrk_phi);
+        float tmp_loosematchtrk_x0 = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).x();
+        float tmp_loosematchtrk_y0 = matchedTracks.at(i_loosetrack)->getPOCA(L1Tk_nPar).y();
+        tmp_loosematchtrk_d0 = -tmp_loosematchtrk_x0*sin(tmp_loosematchtrk_phi) + tmp_loosematchtrk_y0*cos(tmp_loosematchtrk_phi);
       }
 
       tmp_loosematchtrk_chi2 = matchedTracks.at(i_loosetrack)->getChi2(L1Tk_nPar);
@@ -1522,6 +2050,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_matchtrk_pt ->push_back(tmp_matchtrk_pt);
     m_matchtrk_eta->push_back(tmp_matchtrk_eta);
     m_matchtrk_phi->push_back(tmp_matchtrk_phi);
+    m_matchtrk_charge->push_back(tmp_matchtrk_charge);
     m_matchtrk_z0 ->push_back(tmp_matchtrk_z0);
     m_matchtrk_d0 ->push_back(tmp_matchtrk_d0);
     m_matchtrk_chi2 ->push_back(tmp_matchtrk_chi2);
@@ -1545,7 +2074,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     // ----------------------------------------------------------------------------------------------
     // for tracking in jets
     // ----------------------------------------------------------------------------------------------
-
+    // cout << endl<<"****** got before tracking in jet" <<endl;
     if (TrackingInJets) {
 
       if (DebugMode) cout << "check if TP/matched track is within jet" << endl;
@@ -1561,42 +2090,42 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       int loosematchtrk_InJetVeryHighpt = 0;
 
       for (int ij=0; ij<(int)v_jets.size(); ij++) {
-	float deta = tmp_tp_eta - (v_jets.at(ij)).eta();
-	float dphi = tmp_tp_phi - (v_jets.at(ij)).phi();
-	while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
-	float dR = sqrt(deta*deta + dphi*dphi);
-	if (dR < 0.4) {
-	  tp_InJet = 1;
-	  if (v_jets_highpt.at(ij) == 1) tp_InJetHighpt = 1;
-	  if (v_jets_vhighpt.at(ij) == 1) tp_InJetVeryHighpt = 1;
-	  if (ij<NJETS) jets_tp_sumpt[ij] += tmp_tp_pt;
-	}
+        float deta = tmp_tp_eta - (v_jets.at(ij)).eta();
+        float dphi = tmp_tp_phi - (v_jets.at(ij)).phi();
+        while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
+        float dR = sqrt(deta*deta + dphi*dphi);
+        if (dR < 0.4) {
+          tp_InJet = 1;
+          if (v_jets_highpt.at(ij) == 1) tp_InJetHighpt = 1;
+          if (v_jets_vhighpt.at(ij) == 1) tp_InJetVeryHighpt = 1;
+          if (ij<NJETS) jets_tp_sumpt[ij] += tmp_tp_pt;
+        }
 
-	if (nMatch > 0) {
-	  deta = tmp_matchtrk_eta - (v_jets.at(ij)).eta();
-	  dphi = tmp_matchtrk_phi - (v_jets.at(ij)).phi();
-	  while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
-	  dR = sqrt(deta*deta + dphi*dphi);
-	  if (dR < 0.4) {
-	    matchtrk_InJet = 1;
-	    if (v_jets_highpt.at(ij) == 1) matchtrk_InJetHighpt = 1;
-	    if (v_jets_vhighpt.at(ij) == 1) matchtrk_InJetVeryHighpt = 1;
-	    if (ij<NJETS) jets_matchtrk_sumpt[ij] += tmp_matchtrk_pt;
-	  }
-	}
+        if (nMatch > 0) {
+          deta = tmp_matchtrk_eta - (v_jets.at(ij)).eta();
+          dphi = tmp_matchtrk_phi - (v_jets.at(ij)).phi();
+          while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
+          dR = sqrt(deta*deta + dphi*dphi);
+          if (dR < 0.4) {
+            matchtrk_InJet = 1;
+            if (v_jets_highpt.at(ij) == 1) matchtrk_InJetHighpt = 1;
+            if (v_jets_vhighpt.at(ij) == 1) matchtrk_InJetVeryHighpt = 1;
+            if (ij<NJETS) jets_matchtrk_sumpt[ij] += tmp_matchtrk_pt;
+          }
+        }
 
-	if (nLooseMatch > 0) {
-	  deta = tmp_loosematchtrk_eta - (v_jets.at(ij)).eta();
-	  dphi = tmp_loosematchtrk_phi - (v_jets.at(ij)).phi();
-	  while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
-	  dR = sqrt(deta*deta + dphi*dphi);
-	  if (dR < 0.4) {
-	    loosematchtrk_InJet = 1;
-	    if (v_jets_highpt.at(ij) == 1) loosematchtrk_InJetHighpt = 1;
-	    if (v_jets_vhighpt.at(ij) == 1) loosematchtrk_InJetVeryHighpt = 1;
-	    if (ij<NJETS) jets_loosematchtrk_sumpt[ij] += tmp_loosematchtrk_pt;
-	  }
-	}
+        if (nLooseMatch > 0) {
+          deta = tmp_loosematchtrk_eta - (v_jets.at(ij)).eta();
+          dphi = tmp_loosematchtrk_phi - (v_jets.at(ij)).phi();
+          while (dphi > 3.14159) dphi = fabs(2*3.14159 - dphi);
+          dR = sqrt(deta*deta + dphi*dphi);
+          if (dR < 0.4) {
+            loosematchtrk_InJet = 1;
+            if (v_jets_highpt.at(ij) == 1) loosematchtrk_InJetHighpt = 1;
+            if (v_jets_vhighpt.at(ij) == 1) loosematchtrk_InJetVeryHighpt = 1;
+            if (ij<NJETS) jets_loosematchtrk_sumpt[ij] += tmp_loosematchtrk_pt;
+          }
+        }
       }
 
       m_tp_injet->push_back(tp_InJet);
@@ -1617,17 +2146,93 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (TrackingInJets) {
     for (int ij=0; ij<(int)v_jets.size(); ij++) {
       if (ij<NJETS) {
-	m_jet_eta->push_back((v_jets.at(ij)).eta());
-	m_jet_phi->push_back((v_jets.at(ij)).phi());
-	m_jet_pt->push_back((v_jets.at(ij)).pt());
-	m_jet_tp_sumpt->push_back(jets_tp_sumpt[ij]);
-	m_jet_trk_sumpt->push_back(jets_trk_sumpt[ij]);
-	m_jet_matchtrk_sumpt->push_back(jets_matchtrk_sumpt[ij]);
-	m_jet_loosematchtrk_sumpt->push_back(jets_loosematchtrk_sumpt[ij]);
+        m_jet_eta->push_back((v_jets.at(ij)).eta());
+        m_jet_phi->push_back((v_jets.at(ij)).phi());
+        m_jet_pt->push_back((v_jets.at(ij)).pt());
+        m_jet_tp_sumpt->push_back(jets_tp_sumpt[ij]);
+        m_jet_trk_sumpt->push_back(jets_trk_sumpt[ij]);
+        m_jet_matchtrk_sumpt->push_back(jets_matchtrk_sumpt[ij]);
+        m_jet_loosematchtrk_sumpt->push_back(jets_loosematchtrk_sumpt[ij]);
       }
     }
   }
+  // cout << endl<<"****** got before sven" <<endl;
+  // -----------------------------------------------
+  // finally svens muon stuff
+  // -----------------------------------------------
 
+  if (SaveMuons){
+    Handle< BXVector<l1t::RegionalMuonCand> > emtfs;
+    Handle< BXVector<l1t::RegionalMuonCand> > omtfs;
+    Handle< BXVector<l1t::RegionalMuonCand> > bmtfs;
+
+    iEvent.getByToken(m_emtfToken,emtfs);
+    iEvent.getByToken(m_omtfToken,omtfs);
+    iEvent.getByToken(m_bmtfToken,bmtfs);
+
+    int nEMTF=0;
+    for (auto it = emtfs->begin(0); it != emtfs->end(0); it++){
+      m_EMTF_muon_eta->push_back(it->hwEta()*0.010875);
+      int globPhi=l1t::MicroGMTConfiguration::calcGlobalPhi(it->hwPhi(), it->trackFinderType(), it->processor());
+      m_EMTF_muon_phi->push_back(globPhi*2*M_PI/576.);
+      m_EMTF_muon_pt->push_back(it->hwPt()*0.5);
+      if(!it->hwSignValid()) m_EMTF_muon_c->push_back(0);
+      else{
+        if(it->hwSign())   m_EMTF_muon_c->push_back(-1);
+        else 		   m_EMTF_muon_c->push_back(1);
+      }
+      ++nEMTF;
+    }
+    m_EMTF_muon_n->push_back(nEMTF);
+
+    int nOMTF=0;
+    for (auto it = omtfs->begin(0); it != omtfs->end(0); it++){
+      m_OMTF_muon_eta->push_back(it->hwEta()*0.010875);
+      m_OMTF_muon_phi->push_back(l1t::MicroGMTConfiguration::calcGlobalPhi(it->hwPhi(), it->trackFinderType(), it->processor())*2*M_PI/576.);
+      m_OMTF_muon_pt->push_back(it->hwPt()*0.5);
+      if(!it->hwSignValid()) m_OMTF_muon_c->push_back(0);
+      else{
+        if(it->hwSign())   m_OMTF_muon_c->push_back(-1);
+        else 		   m_OMTF_muon_c->push_back(1);
+      }
+      ++nOMTF;
+    }
+    m_OMTF_muon_n->push_back(nOMTF);
+
+    int nBMTF=0;
+    for (auto it = bmtfs->begin(0); it != bmtfs->end(0); it++){
+      m_BMTF_muon_eta->push_back(it->hwEta()*0.010875);
+      m_BMTF_muon_phi->push_back(l1t::MicroGMTConfiguration::calcGlobalPhi(it->hwPhi(), it->trackFinderType(), it->processor())*2*M_PI/576.);
+      m_BMTF_muon_pt->push_back(it->hwPt()*0.5);
+      if(!it->hwSignValid()) m_BMTF_muon_c->push_back(0);
+      else{
+        if(it->hwSign())   m_BMTF_muon_c->push_back(-1);
+        else 		   m_BMTF_muon_c->push_back(1);
+      }
+      ++nBMTF;
+    }
+    m_BMTF_muon_n->push_back(nBMTF);
+
+    // KBMTF collections
+    Handle<BXVector<L1MuKBMTrack> > kbmtfs;
+
+    iEvent.getByToken(m_kbmtfToken,kbmtfs);
+
+    int nKBMTF=0;
+    for(auto it=kbmtfs->begin(0); it!=kbmtfs->end(0); it++){
+      m_KBMTF_muon_eta->push_back(it->hasFineEta()?it->fineEta():it->coarseEta());
+      m_KBMTF_muon_phi->push_back(it->phiAtMuon());
+      m_KBMTF_muon_phiB->push_back(it->phiBAtMuon());
+      m_KBMTF_muon_sector->push_back(it->sector());
+      m_KBMTF_muon_phiAtVertex->push_back(it->phiAtVertex());
+      m_KBMTF_muon_positionAngle->push_back(it->positionAngle());
+      m_KBMTF_muon_d0->push_back(it->dxy());
+      m_KBMTF_muon_pt->push_back(it->ptUnconstrained());
+      m_KBMTF_muon_c->push_back(signbit(it->curvature()));
+      ++nKBMTF;
+    }
+    m_KBMTF_muon_n->push_back(nKBMTF);
+  }
 
   eventTree->Fill();
 
