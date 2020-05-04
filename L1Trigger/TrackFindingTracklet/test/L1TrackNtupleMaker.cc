@@ -397,9 +397,24 @@ private:
   std::vector<int>*   m_KBMTF_muon_c;
 
   // Sifu variables
+  // CSCRecHit Variables
   std::vector<float>* m_cscRecHit_phi;
   std::vector<float>* m_cscRecHit_eta;
   std::vector<bool>* m_cscRecHit_matched;
+  // CSCStubs Variables
+  std::vector<float>* m_cscStubsLCT_phi;
+  std::vector<float>* m_cscStubsLCT_eta;
+  std::vector<bool>* m_cscStubsLCT_matched;
+  std::vector<float>* m_cscStubsMPLCT_phi;
+  std::vector<float>* m_cscStubsMPLCT_eta;
+  std::vector<bool>* m_cscStubsMPLCT_matched;
+  // GEMRechHit Variables
+  std::vector<float>* m_gemRecHit_phi;
+  std::vector<float>* m_gemRecHit_eta;
+  std::vector<float>* m_gemRecHit_xx_err;
+  std::vector<float>* m_gemRecHit_xy_err;
+  std::vector<float>* m_gemRecHit_yy_err;
+
 
 };
 
@@ -727,10 +742,24 @@ void L1TrackNtupleMaker::beginJob()
   //muon block end
 
   //Sifu block
-
+  // cscRecHit variables
   m_cscRecHit_phi = new std::vector<float>;
   m_cscRecHit_eta = new std::vector<float>;
   m_cscRecHit_matched = new std::vector<bool>;
+  // cscStubs Variables
+  m_cscStubsLCT_phi = new std::vector<float>;
+  m_cscStubsLCT_eta = new std::vector<float>;
+  m_cscStubsLCT_matched = new std::vector<bool>;
+  m_cscStubsMPLCT_phi = new std::vector<float>;
+  m_cscStubsMPLCT_eta = new std::vector<float>;
+  m_cscStubsMPLCT_matched = new std::vector<bool>;
+
+  // GemRecHit Variables
+  m_gemRecHit_phi = new std::vector<float>;
+  m_gemRecHit_eta = new std::vector<float>;
+  m_gemRecHit_xx_err = new std::vector<float>;
+  m_gemRecHit_xy_err = new std::vector<float>;
+  m_gemRecHit_yy_err = new std::vector<float>;
 
   //End of Sifu block
 
@@ -924,9 +953,23 @@ void L1TrackNtupleMaker::beginJob()
   }
 
   if (true) { // placeholder for settings of Sifu block
+    // cscRecHit
     eventTree->Branch("cscRecHit_phi", &m_cscRecHit_phi);
     eventTree->Branch("cscRecHit_eta", &m_cscRecHit_eta);
     eventTree->Branch("cscRecHit_matched", &m_cscRecHit_matched);
+    // cscStubs
+    eventTree->Branch("cscStubsLCT_phi", &m_cscStubsLCT_phi);
+    eventTree->Branch("cscStubsLCT_eta", &m_cscStubsLCT_eta);
+    eventTree->Branch("cscStubsLCT_matched", &m_cscStubsLCT_matched);
+    eventTree->Branch("cscStubsMPLCT_phi", &m_cscStubsMPLCT_phi);
+    eventTree->Branch("cscStubsMPLCT_eta", &m_cscStubsMPLCT_eta);
+    eventTree->Branch("cscStubsMPLCT_matched", &m_cscStubsMPLCT_matched);
+    // GemRecHit
+    eventTree->Branch("gemRecHit_phi", &m_gemRecHit_phi);
+    eventTree->Branch("gemRecHit_eta", &m_gemRecHit_eta);
+    eventTree->Branch("gemRecHit_xx_err", &m_gemRecHit_xx_err);
+    eventTree->Branch("gemRecHit_xy_err", &m_gemRecHit_xy_err);
+    eventTree->Branch("gemRecHit_yy_err", &m_gemRecHit_yy_err);
   }
 
   // cout << endl<<"****** end begin job" <<endl;
@@ -1099,9 +1142,23 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   if (true) { //placeholder for settings of Sifu block
+    // cscRecHit
     m_cscRecHit_phi->clear();
     m_cscRecHit_eta->clear();
     m_cscRecHit_matched->clear();
+    // cscStubs
+    m_cscStubsLCT_phi->clear();
+    m_cscStubsLCT_eta->clear();
+    m_cscStubsLCT_matched->clear();
+    m_cscStubsMPLCT_phi->clear();
+    m_cscStubsMPLCT_eta->clear();
+    m_cscStubsMPLCT_matched->clear();
+    // GemRecHit
+    m_gemRecHit_phi->clear();
+    m_gemRecHit_eta->clear();
+    m_gemRecHit_xx_err->clear();
+    m_gemRecHit_xy_err->clear();
+    m_gemRecHit_yy_err->clear();
   }
   // cout << endl<<"****** finished initialize" <<endl;
 
@@ -1809,19 +1866,56 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       // cout << endl<<"****** checkpoint 3" <<endl;
 
       // Sifu Blocks
-      // match.cscRecHits().bestCSCSegment(0);
-      auto RHM = match.cscRecHits();
+
+      // CSCRecHitMatcher
       // CSCRecHitMatcher csc_rechits = match.cscRecHits(); // It is not copyable, so this line would not be functioning
-      // unsigned nCSCSegments = match.cscRecHits().nCSCSegments();
-      // cout << "******" <<endl;
-      // cout << "****** iterator = " << nCSCSegments <<endl;
-      // for (unsigned iseg = 0; iseg < nCSCSegments; ++iseg) {
+      // unsigned nCSCRecHitsSegments = match.cscRecHits().nCSCSegments();
+      // for (unsigned iseg = 0; iseg < nCSCRecHitsSegments; ++iseg) {
       //   const CSCSegment cscseg = match.cscRecHits().bestCSCSegment(0);
       //   GlobalPoint CSC = match.cscRecHits().globalPoint(cscseg);
       //   m_cscRecHit_phi->push_back(CSC.phi());
       //   m_cscRecHit_eta->push_back(CSC.eta());
       //   m_cscRecHit_matched->push_back(match.cscRecHits().isCSCSegmentMatched(cscseg));
       // }
+
+      //CSCStubMatcher
+      std::vector<GlobalPoint> CSCStubs_;
+      for (int detid_ : match.cscStubs().chamberIdsAllLCT()) {
+        for (auto digi_ : match.cscStubs().allCscLCTsInChamber(detid_) ){
+          match.cscStubs().positionsOfComparatorInLCT(detid_, digi_, CSCStubs_);
+          for (auto gp : CSCStubs_) {
+            m_cscStubsLCT_phi->push_back(gp.phi());
+            m_cscStubsLCT_eta->push_back(gp.eta());
+            m_cscStubsLCT_matched->push_back(match.cscStubs().wasStubMatchedInChamber(detid_, digi_));
+          }
+        }
+      }
+      for (int detid_ : match.cscStubs().chamberIdsAllMPLCT()) {
+        for (auto digi_ : match.cscStubs().allCscMPLCTsInChamber(detid_) ){
+          match.cscStubs().positionsOfComparatorInLCT(detid_, digi_, CSCStubs_);
+          for (auto gp : CSCStubs_) {
+            m_cscStubsMPLCT_phi->push_back(gp.phi());
+            m_cscStubsMPLCT_eta->push_back(gp.eta());
+            m_cscStubsMPLCT_matched->push_back(match.cscStubs().wasStubMatchedInChamber(detid_, digi_));
+          }
+        }
+      }
+
+
+      //GEMRecHitMatcher
+      unsigned nGEMRecHits = match.gemRecHits().gemRecHits().size();
+      for (unsigned ihit = 0; ihit < nGEMRecHits; ++ihit) {
+        const GEMRecHit& GemRecHit_ = match.gemRecHits().gemRecHits().at(ihit);
+        LocalPoint GEM = GemRecHit_.localPosition();
+        LocalError GEMErr = GemRecHit_.localPositionError();
+        m_gemRecHit_phi->push_back(GEM.phi());
+        m_gemRecHit_eta->push_back(GEM.eta());
+        m_gemRecHit_xx_err->push_back(GEMErr.xx());
+        m_gemRecHit_xy_err->push_back(GEMErr.xy());
+        m_gemRecHit_yy_err->push_back(GEMErr.yy());
+      }
+
+
 
     }
     else{
