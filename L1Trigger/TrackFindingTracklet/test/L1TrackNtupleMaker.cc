@@ -415,6 +415,12 @@ private:
   std::vector<float>* m_gemRecHit_xy_err;
   std::vector<float>* m_gemRecHit_yy_err;
 
+  // GEMDigi Variables
+  std::vector<float>* m_gemDigi_phi;
+  std::vector<float>* m_gemDigi_eta;
+  std::vector<float>* m_gemDigi_xx_err;
+  std::vector<float>* m_gemDigi_xy_err;
+  std::vector<float>* m_gemDigi_yy_err;
 
 };
 
@@ -761,6 +767,12 @@ void L1TrackNtupleMaker::beginJob()
   m_gemRecHit_xy_err = new std::vector<float>;
   m_gemRecHit_yy_err = new std::vector<float>;
 
+  // GemDigi Variables
+  m_gemDigi_phi = new std::vector<float>;
+  m_gemDigi_eta = new std::vector<float>;
+  m_gemDigi_xx_err = new std::vector<float>;
+  m_gemDigi_xy_err = new std::vector<float>;
+  m_gemDigi_yy_err = new std::vector<float>;
   //End of Sifu block
 
   m_allstub_x = new std::vector<float>;
@@ -970,6 +982,12 @@ void L1TrackNtupleMaker::beginJob()
     eventTree->Branch("gemRecHit_xx_err", &m_gemRecHit_xx_err);
     eventTree->Branch("gemRecHit_xy_err", &m_gemRecHit_xy_err);
     eventTree->Branch("gemRecHit_yy_err", &m_gemRecHit_yy_err);
+    // GemDigi
+    eventTree->Branch("gemDigi_phi", &m_gemDigi_phi);
+    eventTree->Branch("gemDigi_eta", &m_gemDigi_eta);
+    eventTree->Branch("gemDigi_xx_err", &m_gemDigi_xx_err);
+    eventTree->Branch("gemDigi_xy_err", &m_gemDigi_xy_err);
+    eventTree->Branch("gemDigi_yy_err", &m_gemDigi_yy_err);
   }
 
   // cout << endl<<"****** end begin job" <<endl;
@@ -1159,6 +1177,12 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_gemRecHit_xx_err->clear();
     m_gemRecHit_xy_err->clear();
     m_gemRecHit_yy_err->clear();
+    // GemDigi
+    m_gemDigi_phi->clear();
+    m_gemDigi_eta->clear();
+    m_gemDigi_xx_err->clear();
+    m_gemDigi_xy_err->clear();
+    m_gemDigi_yy_err->clear();
   }
   // cout << endl<<"****** finished initialize" <<endl;
 
@@ -1913,6 +1937,17 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         m_gemRecHit_xx_err->push_back(GEMErr.xx());
         m_gemRecHit_xy_err->push_back(GEMErr.xy());
         m_gemRecHit_yy_err->push_back(GEMErr.yy());
+      }
+
+      //GEMDigiMatcher
+      auto& gemDigi = match.gemDigis();
+      const auto& detidsDigi = gemDigi.detIdsDigi();
+      for (const auto& id : detidsDigi) {
+        for (auto gemdigi : gemDigi.gemDigisInDetId(id) ){
+          auto gp = gemDigi.getGlobalPointDigi(id, gemdigi);
+          m_gemDigi_phi->push_back(gp.phi());
+          m_gemDigi_eta->push_back(gp.eta());
+        }
       }
 
 
