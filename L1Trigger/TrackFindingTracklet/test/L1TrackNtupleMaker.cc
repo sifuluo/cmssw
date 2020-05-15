@@ -404,6 +404,7 @@ private:
   // CSCStubs Variables
   std::vector<float>* m_cscStubsLCT_phi;
   std::vector<float>* m_cscStubsLCT_eta;
+  std::vector<float>* m_cscStubsLCT_z;
   std::vector<bool>* m_cscStubsLCT_matched;
   std::vector<float>* m_cscStubsMPLCT_phi;
   std::vector<float>* m_cscStubsMPLCT_eta;
@@ -418,6 +419,7 @@ private:
   // GEMDigi Variables
   std::vector<float>* m_gemDigi_phi;
   std::vector<float>* m_gemDigi_eta;
+  std::vector<float>* m_gemDigi_z;
   std::vector<float>* m_gemDigi_xx_err;
   std::vector<float>* m_gemDigi_xy_err;
   std::vector<float>* m_gemDigi_yy_err;
@@ -755,6 +757,7 @@ void L1TrackNtupleMaker::beginJob()
   // cscStubs Variables
   m_cscStubsLCT_phi = new std::vector<float>;
   m_cscStubsLCT_eta = new std::vector<float>;
+  m_cscStubsLCT_z = new std::vector<float>;
   m_cscStubsLCT_matched = new std::vector<bool>;
   m_cscStubsMPLCT_phi = new std::vector<float>;
   m_cscStubsMPLCT_eta = new std::vector<float>;
@@ -770,6 +773,7 @@ void L1TrackNtupleMaker::beginJob()
   // GemDigi Variables
   m_gemDigi_phi = new std::vector<float>;
   m_gemDigi_eta = new std::vector<float>;
+  m_gemDigi_z = new std::vector<float>;
   m_gemDigi_xx_err = new std::vector<float>;
   m_gemDigi_xy_err = new std::vector<float>;
   m_gemDigi_yy_err = new std::vector<float>;
@@ -972,6 +976,7 @@ void L1TrackNtupleMaker::beginJob()
     // cscStubs
     eventTree->Branch("cscStubsLCT_phi", &m_cscStubsLCT_phi);
     eventTree->Branch("cscStubsLCT_eta", &m_cscStubsLCT_eta);
+    eventTree->Branch("cscStubsLCT_z", &m_cscStubsLCT_z);
     eventTree->Branch("cscStubsLCT_matched", &m_cscStubsLCT_matched);
     eventTree->Branch("cscStubsMPLCT_phi", &m_cscStubsMPLCT_phi);
     eventTree->Branch("cscStubsMPLCT_eta", &m_cscStubsMPLCT_eta);
@@ -985,6 +990,7 @@ void L1TrackNtupleMaker::beginJob()
     // GemDigi
     eventTree->Branch("gemDigi_phi", &m_gemDigi_phi);
     eventTree->Branch("gemDigi_eta", &m_gemDigi_eta);
+    eventTree->Branch("gemDigi_z", &m_gemDigi_z);
     eventTree->Branch("gemDigi_xx_err", &m_gemDigi_xx_err);
     eventTree->Branch("gemDigi_xy_err", &m_gemDigi_xy_err);
     eventTree->Branch("gemDigi_yy_err", &m_gemDigi_yy_err);
@@ -1167,6 +1173,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     // cscStubs
     m_cscStubsLCT_phi->clear();
     m_cscStubsLCT_eta->clear();
+    m_cscStubsLCT_z->clear();
     m_cscStubsLCT_matched->clear();
     m_cscStubsMPLCT_phi->clear();
     m_cscStubsMPLCT_eta->clear();
@@ -1180,6 +1187,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     // GemDigi
     m_gemDigi_phi->clear();
     m_gemDigi_eta->clear();
+    m_gemDigi_z->clear();
     m_gemDigi_xx_err->clear();
     m_gemDigi_xy_err->clear();
     m_gemDigi_yy_err->clear();
@@ -1910,6 +1918,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           for (auto gp : CSCStubs_) {
             m_cscStubsLCT_phi->push_back(gp.phi());
             m_cscStubsLCT_eta->push_back(gp.eta());
+            m_cscStubsLCT_z->push_back(gp.z());
             m_cscStubsLCT_matched->push_back(match.cscStubs().wasStubMatchedInChamber(detid_, digi_));
           }
         }
@@ -1947,6 +1956,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           auto gp = gemDigi.getGlobalPointDigi(id, gemdigi);
           m_gemDigi_phi->push_back(gp.phi());
           m_gemDigi_eta->push_back(gp.eta());
+          m_gemDigi_z->push_back(gp.z());
         }
       }
 
