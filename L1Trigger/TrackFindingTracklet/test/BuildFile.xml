@@ -3,6 +3,8 @@
     <flags   EDM_PLUGIN="1"/>
     <flags   SKIP_FILES="fpga.cc"/>
     <use   name="FWCore/Framework"/>
+    <use   name="GEMCode/GEMValidation"/>
+    <use   name="L1Trigger/L1TMuon"/>
     <use   name="FWCore/PluginManager"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="Geometry/Records"/>
