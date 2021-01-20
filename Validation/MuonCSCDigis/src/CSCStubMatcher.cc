@@ -679,7 +679,7 @@ bool CSCStubMatcher::lctInChamber(const CSCDetId& id, const CSCCorrelatedLCTDigi
 GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorrelatedLCTDigi& lct) const {
   CSCDetId cscId(rawId);
   CSCDetId keyId(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
-  float corrHalfStrip;
+  float corrHalfStrip = lct.getFractionalStrip();
   // case ME1/a
   if (cscId.station() == 1 and cscId.ring() == 1 and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
     cscId = CSCDetId(cscId.endcap(), cscId.station(), 4, cscId.chamber());
