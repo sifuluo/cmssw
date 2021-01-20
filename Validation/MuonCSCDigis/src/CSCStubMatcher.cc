@@ -629,14 +629,21 @@ bool CSCStubMatcher::lctInChamber(const CSCDetId& id, const CSCCorrelatedLCTDigi
 
 GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorrelatedLCTDigi& lct) const {
   CSCDetId cscId(rawId);
-  CSCDetId key_id(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
+  CSCDetId keyId(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
+  float corrHalfStrip;
+  // case ME1/a
+  if (cscId.station() == 1 and cscId.ring() == 1 and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
+    cscId = CSCDetId(cscId.endcap(), cscId.station(), 4, cscId.chamber());
+    keyId = CSCDetId(cscId.endcap(), cscId.station(), 4, cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
+    corrHalfStrip = lct.getFractionalStrip() - (2 * CSCConstants::MAX_NUM_STRIPS_ME1B);
+  }
+  // regular cases
   const auto& chamber = cscGeometry_->chamber(cscId);
-  float fractional_strip = lct.getFractionalStrip();
   const auto& layer_geo = chamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
   // LCT::getKeyWG() also starts from 0
   float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
-  const LocalPoint& csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
-  const GlobalPoint& csc_gp = cscGeometry_->idToDet(key_id)->surface().toGlobal(csc_intersect);
+  const LocalPoint& csc_intersect = layer_geo->intersectionOfStripAndWire(corrHalfStrip, wire);
+  const GlobalPoint& csc_gp = cscGeometry_->idToDet(keyId)->surface().toGlobal(csc_intersect);
   return csc_gp;
 }
 
