@@ -682,6 +682,7 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   float corrHalfStrip = lct.getFractionalStrip();
   // case ME1/a
   if (cscId.station() == 1 and cscId.ring() == 1 and lct.getStrip() > CSCConstants::MAX_HALF_STRIP_ME1B) {
+    cout << "ME1/a case applied" <<endl;
     cscId = CSCDetId(cscId.endcap(), cscId.station(), 4, cscId.chamber());
     keyId = CSCDetId(cscId.endcap(), cscId.station(), 4, cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
     corrHalfStrip = lct.getFractionalStrip() - (2 * CSCConstants::MAX_NUM_STRIPS_ME1B);
