@@ -85,6 +85,7 @@ public:
 
   // get the position of an LCT in global coordinates
   GlobalPoint getGlobalPosition(unsigned int rawId, const CSCCorrelatedLCTDigi& lct) const;
+  GlobalPoint getGlobalPosition2(unsigned int rawId, const CSCCorrelatedLCTDigi& lct) const;
 
   std::shared_ptr<CSCDigiMatcher> cscDigiMatcher() { return cscDigiMatcher_; }
   std::shared_ptr<GEMDigiMatcher> gemDigiMatcher() { return gemDigiMatcher_; }

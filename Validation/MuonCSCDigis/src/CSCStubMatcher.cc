@@ -696,6 +696,18 @@ GlobalPoint CSCStubMatcher::getGlobalPosition(unsigned int rawId, const CSCCorre
   return csc_gp;
 }
 
+GlobalPoint CSCStubMatcher::getGlobalPosition2(unsigned int rawId, const CSCCorrelatedLCTDigi& lct) const {
+  CSCDetId cscId(rawId);
+  CSCDetId key_id(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), CSCConstants::KEY_CLCT_LAYER);
+  const auto& chamber = cscGeometry_->chamber(cscId);
+  float fractional_strip = lct.getFractionalStrip();
+  const auto& layer_geo = chamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+  float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
+  const LocalPoint& csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
+  const GlobalPoint& csc_gp = cscGeometry_->idToDet(key_id)->surface().toGlobal(csc_intersect);
+  return csc_gp;
+}
+
 void CSCStubMatcher::clear() {
   chamber_to_clcts_all_.clear();
   chamber_to_alcts_all_.clear();
