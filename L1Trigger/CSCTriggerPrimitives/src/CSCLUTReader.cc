@@ -37,15 +37,20 @@ float CSCLUTReader::lookup(int code) const {
   if (m_initialized) {
     return lookupPacked(code);
   }
-  return 0;
+  else {
+    edm::LogError("CSCLUTReader") << "LUT not initialized. " << fname_;
+    return 0;
+  }
 }
 
 float CSCLUTReader::lookupPacked(const int input) const {
   if (m_initialized) {
     return data((unsigned int)input);
   }
-  edm::LogError("CSCLUTReader") << "If you're not loading a LUT from file you need to implement lookupPacked.";
-  return 0;
+  else {
+    edm::LogError("CSCLUTReader") << "If you're not loading a LUT from file you need to implement lookupPacked.";
+    return 0;
+  }
 }
 
 void CSCLUTReader::initialize() {
