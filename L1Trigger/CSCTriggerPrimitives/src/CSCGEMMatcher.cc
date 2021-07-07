@@ -408,22 +408,31 @@ uint16_t CSCGEMMatcher::mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) con
   uint16_t cosi = std::ceil(std::abs(MinMaxPairDifferences[1] - MinMaxPairDifferences[0]));
 
   //disambiguate cosi cases
+
+  //extremely inconsistent track, deprecate slope
   if (cosi > 3)
-    return 0;  //extremely inconsistent track, deprecate slope
+    return 0;
+  //consistent slope, do not change
   else if (cosi < 2)
-    return clct.getSlope();  //consistent slope, do not change
-  else if (cosi == 2) {      //need to look up in table 2->1
+    return clct.getSlope();
+  //need to look up in table 2->1
+  else if (cosi == 2) {
     if (chamber_ % 2 == 0)
       return gem_csc_slope_cosi_2to1_L1_ME11_even_->lookup(clct.getSlope());
     else
       return gem_csc_slope_cosi_2to1_L1_ME11_odd_->lookup(clct.getSlope());
-  } else if (cosi == 3) {
+  }
+  //need to look up in table 3->1
+  else if (cosi == 3) {
     if (chamber_ % 2 == 0)
-      return gem_csc_slope_cosi_3to1_L1_ME11_even_->lookup(clct.getSlope());  //need to look up in table 3->1
+      return gem_csc_slope_cosi_3to1_L1_ME11_even_->lookup(clct.getSlope());
     else
-      return gem_csc_slope_cosi_3to1_L1_ME11_odd_->lookup(clct.getSlope());  //need to look up in table 3->1
-  } else
-    return 999;  //just to avoid compiler errors an error code
+      return gem_csc_slope_cosi_3to1_L1_ME11_odd_->lookup(clct.getSlope());
+  }
+  //just to avoid compiler errors an error code
+  else {
+    return 999;
+  }
 }
 
 void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
