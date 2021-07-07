@@ -3,7 +3,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CSCLUTReader::CSCLUTReader(const std::string& fname)
-  : fname_(fname), nrBitsAddress_(0), nrBitsData_(0), addressMask_(0), dataMask_(0), data_(), m_codeInWidth(12), m_outWidth(32) {
+    : fname_(fname),
+      nrBitsAddress_(0),
+      nrBitsData_(0),
+      addressMask_(0),
+      dataMask_(0),
+      data_(),
+      m_codeInWidth(12),
+      m_outWidth(32) {
   if (fname != std::string("")) {
     load(fname);
   } else {
@@ -36,8 +43,7 @@ int CSCLUTReader::load(const std::string& inFileName) {
 float CSCLUTReader::lookup(int code) const {
   if (m_initialized) {
     return lookupPacked(code);
-  }
-  else {
+  } else {
     edm::LogError("CSCLUTReader") << "LUT not initialized. " << fname_;
     return 0;
   }
@@ -46,8 +52,7 @@ float CSCLUTReader::lookup(int code) const {
 float CSCLUTReader::lookupPacked(const int input) const {
   if (m_initialized) {
     return data((unsigned int)input);
-  }
-  else {
+  } else {
     edm::LogError("CSCLUTReader") << "If you're not loading a LUT from file you need to implement lookupPacked.";
     return 0;
   }
