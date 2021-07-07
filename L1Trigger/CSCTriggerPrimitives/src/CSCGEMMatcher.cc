@@ -36,7 +36,7 @@ CSCGEMMatcher::CSCGEMMatcher(
     gem_csc_slope_cosi_3to1_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiFiles_[2]);
     gem_csc_slope_cosi_3to1_L1_ME11_odd_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiFiles_[3]);
 
-    gemCscSlopeCorrectionFiles_ = conf.getParameter<std::vector<std::string>>("gemCscSlopeCosiCorrectionFiles");
+    gemCscSlopeCosiCorrectionFiles_ = conf.getParameter<std::vector<std::string>>("gemCscSlopeCosiCorrectionFiles");
 
     gem_csc_slope_cosi_corr_L1_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiCorrectionFiles_[0]);
     gem_csc_slope_cosi_corr_L2_ME11_even_ = std::make_unique<CSCLUTReader>(gemCscSlopeCosiCorrectionFiles_[1]);
