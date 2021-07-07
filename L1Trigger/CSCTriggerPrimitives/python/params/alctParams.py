@@ -25,30 +25,23 @@ alctPhase1 = cms.PSet(
     # preference to collision/accelerator tracks
     alctAccelMode      = cms.uint32(0),
     # L1Accept window width, in 25 ns bins
-     alctL1aWindowWidth = cms.uint32(7),
+    alctL1aWindowWidth = cms.uint32(7),
     verbosity = cms.int32(0),
-
     # Configure early_tbins instead of hardcoding it
     alctEarlyTbins = cms.int32(4),
-
     # Use narrow pattern mask for ring 1 chambers
     alctNarrowMaskForR1 = cms.bool(False),
-
     # duration of signal pulse, in 25 ns bins
-   alctHitPersist  = cms.uint32(6),
-
+    alctHitPersist  = cms.uint32(6),
     # configure, not hardcode, up to how many BXs in the past
     # ghost cancellation in neighboring WGs may happen
     alctGhostCancellationBxDepth = cms.int32(4),
-
     # whether to compare the quality of stubs in neighboring WGs in the past
     # to the quality of a stub in current WG
     # when doing ghost cancellation
     alctGhostCancellationSideQuality = cms.bool(False),
-
     # how soon after pretrigger and alctDriftDelay can next pretrigger happen?
     alctPretrigDeadtime = cms.uint32(4),
-
     # whether to store the "corrected" ALCT stub time
     # (currently it is median time of particular hits in a pattern) into the CSCCLCTDigi bx,
     # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:

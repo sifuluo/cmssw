@@ -20,13 +20,8 @@ clctPhase1 = cms.PSet(
     clctPidThreshPretrig  = cms.uint32(2),
     # region of busy key strips
     clctMinSeparation     = cms.uint32(10),
-
-    # Turns on algorithms of localized dead-time zones:
-    useDeadTimeZoning = cms.bool(False),
-
     # Debug
     verbosity = cms.int32(0),
-
     # BX to start CLCT finding (poor man's dead-time shortening):
     clctStartBxShift  = cms.int32(0),
 )
@@ -35,13 +30,10 @@ clctPhase1 = cms.PSet(
 clctPhase2 = clctPhase1.clone(
     # decrease possible minimal #HS distance between two CLCTs in a BX from 10 to 5:
     clctMinSeparation     = 5,
-
     # Turns on algorithms of localized dead-time zones:
-    useDeadTimeZoning = True,
-
+    useDeadTimeZoning = cms.bool(True),
     # Width (in #HS) of a fixed dead zone around a key HS:
     clctStateMachineZone = cms.uint32(4),
-
     # Pretrigger HS +- clctPretriggerTriggerZone sets the trigger matching zone
     # which defines how far from pretrigger HS the TMB may look for a trigger HS
     # (it becomes important to do so with localized dead-time zoning):
@@ -49,6 +41,9 @@ clctPhase2 = clctPhase1.clone(
     clctPretriggerTriggerZone = cms.uint32(224),
 )
 
+# in the GEM-CSC trigger, we can lower the CLCT threshold from 4 to 3,
+# provided there is at least one matching GEM cluster. This cluster matching
+# is done in the CSCGEMMatcher
 clctPhase2GEM = clctPhase2.clone(
     clctNplanesHitPattern = 3
 )
