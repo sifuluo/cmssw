@@ -470,5 +470,5 @@ int CSCGEMMatcher::CSCGEMSlopeCorrector(bool isL1orCoincidence, int cscSlope) co
         SlopeShift = gem_csc_slope_corr_L2_ME11_odd_->lookup(std::abs(cscSlope));
     }
   }
-  return round(SlopeShift * SlopeSign * endcap_);
+  return std::round(SlopeShift * SlopeSign * endcap_);
 }
