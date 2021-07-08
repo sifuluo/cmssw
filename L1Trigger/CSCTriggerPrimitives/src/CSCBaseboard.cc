@@ -12,12 +12,13 @@ CSCBaseboard::CSCBaseboard(unsigned endcap,
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
 
   theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector, theStation, theTrigChamber);
-  isME11_ = (theStation == 1 && theRing == 1);
-  isME21_ = (theStation == 2 && theRing == 1);
-  isME31_ = (theStation == 3 && theRing == 1);
-  isME41_ = (theStation == 4 && theRing == 1);
 
   cscId_ = CSCDetId(theEndcap, theStation, theRing, theChamber, 0);
+
+  isME11_ = cscId_.isME1b();
+  isME21_ = cscId_.isME21();
+  isME31_ = cscId_.isME31();
+  isME41_ = cscId_.isME41();
 
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
 

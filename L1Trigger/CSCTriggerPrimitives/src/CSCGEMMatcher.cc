@@ -17,6 +17,8 @@ CSCGEMMatcher::CSCGEMMatcher(
   maxDeltaBXALCTGEM_ = tmbParams.getParameter<unsigned>("maxDeltaBXALCTGEM");
   maxDeltaBXCLCTGEM_ = tmbParams.getParameter<unsigned>("maxDeltaBXCLCTGEM");
 
+  matchWithHS_ = tmbParams.getParameter<bool>("matchWithHS");
+
   maxDeltaHsEven_ = tmbParams.getParameter<unsigned>("maxDeltaHsEven");
   maxDeltaHsOdd_ = tmbParams.getParameter<unsigned>("maxDeltaHsOdd");
 
@@ -192,8 +194,12 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
 
   // select clusters matched in wiregroup
   for (const auto& cl : clusters) {
-    if (cl.min_wg() <= alct.getKeyWG() and alct.getKeyWG() <= cl.max_wg())
+    // for now add 10 wiregroups to make sure the matching can be done
+    // this should be quite generous
+    unsigned deltaWG(station_ == 1 ? 10 : 20);
+    if (cl.min_wg() <= alct.getKeyWG() and alct.getKeyWG() <= cl.max_wg() + deltaWG) {
       output.push_back(cl);
+    }
   }
 }
 
@@ -205,9 +211,10 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCCLCTDigi& clct,
 
   // select clusters matched by 1/2-strip or 1/8-strip
   for (const auto& cl : clusters) {
-    const bool isMatched(clct.isRun3() ? matchedClusterLocES(clct, cl) : matchedClusterLocHS(clct, cl));
-    if (isMatched)
+    const bool isMatched(matchWithHS_ ? matchedClusterLocHS(clct, cl) : matchedClusterLocES(clct, cl));
+    if (isMatched) {
       output.push_back(cl);
+    }
   }
 }
 
@@ -241,7 +248,7 @@ bool CSCGEMMatcher::matchedClusterLocHS(const CSCCLCTDigi& clct, const GEMIntern
   // This corresponds to 0.031 and 0.018 fractions of the chamber
   // or 5 and 3 half-strips
 
-  return halfStripDiff < halfStripCut;
+  return halfStripDiff <= halfStripCut;
 }
 
 // match by 1/8-strip

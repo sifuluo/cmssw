@@ -119,3 +119,7 @@ bool GEMInternalCluster::has_cluster(const GEMPadDigiCluster& cluster) const {
 bool GEMInternalCluster::operator==(const GEMInternalCluster& cluster) const {
   return id_ == cluster.id() and cl1_ == cluster.cl1() and cl2_ == cluster.cl2();
 }
+
+std::ostream& operator<<(std::ostream& os, const GEMInternalCluster& cl) {
+  return os << cl.id() << " " << cl.cl1() << " " << cl.cl2();
+}

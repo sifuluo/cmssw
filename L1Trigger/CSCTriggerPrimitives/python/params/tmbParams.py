@@ -58,7 +58,11 @@ tmbPhase2GEM = tmbPhase2.clone(
     # matching to GEM clusters in time
     maxDeltaBXALCTGEM = cms.uint32(1),
     maxDeltaBXCLCTGEM = cms.uint32(2),
-
+    # True: use the half-strip coordinate to match
+    # GEM with CSC TPs
+    # False: use the eighth-strip coordinate + CCLUT slope
+    # to match GEM with CSC TPs
+    matchWithHS = cms.bool(True),
     # efficiency recovery switches
     dropLowQualityALCTsNoGEMs = cms.bool(False),
     dropLowQualityCLCTsNoGEMs = cms.bool(True),
@@ -88,7 +92,7 @@ tmbPhase2GE11 = tmbPhase2GEM.clone(
     maxDeltaHsOdd = cms.uint32(16),
     maxDeltaHsEvenME1a = cms.uint32(5),
     maxDeltaHsOddME1a = cms.uint32(12),
-
+    # efficiency recovery switches
     dropLowQualityALCTsNoGEMs_ME1a = cms.bool(False),
     buildLCTfromALCTandGEM_ME1a = cms.bool(False),
     buildLCTfromCLCTandGEM_ME1a = cms.bool(False),

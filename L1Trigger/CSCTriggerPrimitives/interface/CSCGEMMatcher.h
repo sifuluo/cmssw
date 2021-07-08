@@ -121,6 +121,8 @@ private:
   unsigned maxDeltaBXALCTGEM_;
   unsigned maxDeltaBXCLCTGEM_;
 
+  bool matchWithHS_;
+
   unsigned maxDeltaHsEven_;
   unsigned maxDeltaHsOdd_;
   unsigned maxDeltaHsEvenME1a_;

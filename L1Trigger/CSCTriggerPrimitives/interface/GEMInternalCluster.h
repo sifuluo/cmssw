@@ -207,4 +207,6 @@ private:
   bool isCoincidence_;
 };
 
+std::ostream& operator<<(std::ostream& os, const GEMInternalCluster& cl);
+
 #endif

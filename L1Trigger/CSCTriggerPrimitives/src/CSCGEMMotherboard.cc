@@ -99,10 +99,14 @@ void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
   matchALCTCLCTGEM(bunch_crossing_mask);
 
   // Step 5: CLCT-2GEM matching for BX's that were not previously masked
-  matchCLCT2GEM(bunch_crossing_mask);
+  if (build_lct_from_clct_gem_) {
+    matchCLCT2GEM(bunch_crossing_mask);
+  }
 
   // Step 6: ALCT-2GEM matching for BX's that were not previously masked
-  matchALCT2GEM(bunch_crossing_mask);
+  if (build_lct_from_alct_gem_) {
+    matchALCT2GEM(bunch_crossing_mask);
+  }
 
   // Step 7: Select at most 2 LCTs per BX
   selectLCTs();
