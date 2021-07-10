@@ -330,7 +330,7 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l1_min_wg_ME21" + oddeven + ".txt");
-  ofos << "#<header> v1.0 3 32 </header>\n";
+  ofos << "#<header> v1.0 4 32 </header>\n";
   i = 0;
   for (const auto& p : gemRollL1ToCscWg) {
     ofos << i << " " << p.first << std::endl;
@@ -339,7 +339,7 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l2_min_wg_ME21" + oddeven + ".txt");
-  ofos << "#<header> v1.0 3 32 </header>\n";
+  ofos << "#<header> v1.0 4 32 </header>\n";
   i = 0;
   for (const auto& p : gemRollL2ToCscWg) {
     ofos << i << " " << p.first << std::endl;
@@ -347,8 +347,8 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
   }
   ofos.close();
 
-  ofos << "#<header> v1.0 3 32 </header>\n";
   ofos.open("GEMCSCLUT_roll_l1_max_wg_ME21" + oddeven + ".txt");
+  ofos << "#<header> v1.0 4 32 </header>\n";
   i = 0;
   for (const auto& p : gemRollL1ToCscWg) {
     ofos << i << " " << p.second << std::endl;
@@ -357,7 +357,7 @@ void GEMCSCLUTAnalyzer::generateLUTsME21(const CSCDetId& csc_id) const {
   ofos.close();
 
   ofos.open("GEMCSCLUT_roll_l2_max_wg_ME21" + oddeven + ".txt");
-  ofos << "#<header> v1.0 3 32 </header>\n";
+  ofos << "#<header> v1.0 4 32 </header>\n";
   i = 0;
   for (const auto& p : gemRollL2ToCscWg) {
     ofos << i << " " << p.second << std::endl;
