@@ -36,6 +36,8 @@ public:
   /** Returns vector of CoPads in the read-out time window, if any. */
   std::vector<GEMCoPadDigi> readoutCoPads() const;
 
+  bool hasGE21Geometry16Partitions() const { return hasGE21Geometry16Partitions_; }
+
 private:
   // put coincidence clusters in GEMInternalCluster vector
   void addCoincidenceClusters(const GEMPadDigiClusterCollection*);
@@ -58,6 +60,8 @@ private:
   unsigned int maxDeltaPad_;
   unsigned int maxDeltaBX_;
   unsigned int maxDeltaRoll_;
+
+  bool hasGE21Geometry16Partitions_;
 
   // output collection
   std::vector<GEMInternalCluster> clusters_;

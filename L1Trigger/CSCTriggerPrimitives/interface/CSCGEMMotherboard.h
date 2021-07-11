@@ -154,6 +154,10 @@ private:
 
   bool drop_used_gems_;
   bool match_earliest_gem_only_;
+
+  // The GE2/1 geometry should have 16 eta partitions
+  // The 8-eta partition case (older prototype versions) is not supported
+  bool hasGE21Geometry16Partitions_;
 };
 
 #endif

@@ -45,6 +45,9 @@ GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned 
   }
 
   if (station_ == 2) {
+    // by default set to true
+    hasGE21Geometry16Partitions_ = true;
+
     const edm::ParameterSet copad(conf.getParameter<edm::ParameterSet>("copadParamGE21"));
     maxDeltaPad_ = copad.getParameter<unsigned int>("maxDeltaPad");
     maxDeltaRoll_ = copad.getParameter<unsigned int>("maxDeltaRoll");
@@ -124,8 +127,6 @@ void GEMClusterProcessor::addCoincidenceClusters(const GEMPadDigiClusterCollecti
     if (id.isME0())
       continue;
 
-    std::cout << "analyzing cluster " << id << std::endl;
-
     // same chamber (no restriction on the roll number)
     if (id.region() != region_ or id.station() != station_ or id.chamber() != chamber_)
       continue;
@@ -148,8 +149,10 @@ void GEMClusterProcessor::addCoincidenceClusters(const GEMPadDigiClusterCollecti
       const auto& pads_range = (*det_range).second;
       for (auto p = pads_range.first; p != pads_range.second; ++p) {
         // ignore 8-partition GE2/1 pads
-        if (id.isGE21() and p->nPartitions() == GEMPadDigi::GE21)
+        if (id.isGE21() and p->nPartitions() == GEMPadDigiCluster::GE21) {
+          hasGE21Geometry16Partitions_ = false;
           continue;
+        }
 
         // only consider valid pads
         if (!p->isValid())
@@ -211,8 +214,10 @@ void GEMClusterProcessor::addSingleClusters(const GEMPadDigiClusterCollection* i
         continue;
 
       // ignore 8-partition GE2/1 pads
-      if (id.isGE21() and p->nPartitions() == GEMPadDigiCluster::GE21)
+      if (id.isGE21() and p->nPartitions() == GEMPadDigiCluster::GE21) {
+        hasGE21Geometry16Partitions_ = false;
         continue;
+      }
 
       // ignore clusters already contained in a coincidence cluster
       if (std::find_if(std::begin(coincidences), std::end(coincidences), [p](const GEMInternalCluster& q) {

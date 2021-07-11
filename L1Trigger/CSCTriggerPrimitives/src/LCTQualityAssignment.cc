@@ -125,6 +125,38 @@ unsigned LCTQualityAssignment::findQualityRun3(const CSCALCTDigi& aLCT, const CS
   return static_cast<unsigned>(qual);
 }
 
+unsigned LCTQualityAssignment::findQualityGEMv1(const CSCCLCTDigi& cLCT, const GEMInternalCluster& cl) const {
+  LCT_QualityRun2 qual = LCT_QualityRun2::INVALID;
+
+  if (!cl.isCoincidence() or !cLCT.isValid())
+    return static_cast<unsigned>(qual);
+
+  const int pattern(cLCT.getPattern());
+
+  // High quality muons are determined by their CLCT pattern
+  if (pattern == 2 || pattern == 3)
+    qual = LCT_QualityRun2::HQ_PATTERN_2_3;
+
+  else if (pattern == 4 || pattern == 5)
+    qual = LCT_QualityRun2::HQ_PATTERN_4_5;
+
+  else if (pattern == 6 || pattern == 7)
+    qual = LCT_QualityRun2::HQ_PATTERN_6_7;
+
+  else if (pattern == 8 || pattern == 9)
+    qual = LCT_QualityRun2::HQ_PATTERN_8_9;
+
+  else if (pattern == 10)
+    qual = LCT_QualityRun2::HQ_PATTERN_10;
+
+  else {
+    edm::LogWarning("CSCGEMMotherboard") << "findQualityGEMv1: Unexpected CLCT pattern id = " << pattern;
+    qual = LCT_QualityRun2::INVALID;
+  }
+
+  return static_cast<unsigned>(qual);
+}
+
 unsigned LCTQualityAssignment::findQualityGEMv1(const CSCALCTDigi& aLCT,
                                                 const CSCCLCTDigi& cLCT,
                                                 const GEMInternalCluster& cl) const {

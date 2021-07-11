@@ -349,7 +349,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
                                    const CSCCLCTDigi& sCLCT,
                                    CSCCorrelatedLCTDigi& bLCT,
                                    CSCCorrelatedLCTDigi& sLCT,
-                                   int type) {
+                                   int type) const {
   CSCALCTDigi bestALCT = bALCT;
   CSCALCTDigi secondALCT = sALCT;
   CSCCLCTDigi bestCLCT = bCLCT;

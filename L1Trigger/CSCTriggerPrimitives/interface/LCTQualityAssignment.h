@@ -70,6 +70,7 @@ public:
   unsigned findQualityRun3(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
   // quality for LCTs in Run-3 with GEMs (old-style to be compatible with EMTF Run-2)
+  unsigned findQualityGEMv1(const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
   unsigned findQualityGEMv1(const CSCALCTDigi&, const CSCCLCTDigi&, const GEMInternalCluster& cl) const;
 
   // quality for LCTs in Run-3 with GEMs
