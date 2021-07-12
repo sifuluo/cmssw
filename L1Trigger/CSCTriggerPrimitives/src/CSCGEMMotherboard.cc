@@ -162,7 +162,7 @@ void CSCGEMMotherboard::matchALCTCLCTGEM(bool bunch_crossing_mask[CSCConstants::
 
 void CSCGEMMotherboard::matchCLCT2GEM(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // no matching is done for GE2/1 geometries with 8 eta partitions
-  if (!hasGE21Geometry16Partitions_)
+  if (isME21_ and !hasGE21Geometry16Partitions_)
     return;
 
   // array to mask CLCTs
@@ -221,7 +221,7 @@ void CSCGEMMotherboard::matchCLCT2GEM(bool bunch_crossing_mask[CSCConstants::MAX
 
 void CSCGEMMotherboard::matchALCT2GEM(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
   // no matching is done for GE2/1 geometries with 8 eta partitions
-  if (!hasGE21Geometry16Partitions_)
+  if (isME21_ and !hasGE21Geometry16Partitions_)
     return;
 
   // clear the array to mask GEMs  this window is quite wide.
@@ -342,7 +342,7 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
                                          const GEMInternalClusters& clusters,
                                          CSCCorrelatedLCTDigi& lct1,
                                          CSCCorrelatedLCTDigi& lct2) const {
-  if (!hasGE21Geometry16Partitions_) {
+  if (isME21_ and !hasGE21Geometry16Partitions_) {
     // This is an 8-eta partition GE2/1 geometry for which the GE2/1-ME2/1 integrated
     // local trigger is not configured. Matching only ALCTs with CLCTs in ME2/1.
     CSCMotherboard::correlateLCTs(bALCT, sALCT, bCLCT, sCLCT, lct1, lct2, CSCCorrelatedLCTDigi::ALCTCLCT);
