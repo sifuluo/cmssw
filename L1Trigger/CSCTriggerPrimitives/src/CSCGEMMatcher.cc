@@ -136,7 +136,7 @@ unsigned CSCGEMMatcher::calculateGEMCSCBending(const CSCCLCTDigi& clct, const GE
 void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
                                        const GEMInternalClusters& clusters,
                                        GEMInternalClusters& output) const {
-  if (!alct.isValid())
+  if (!alct.isValid() or clusters.empty())
     return;
 
   // select clusters matched in time
@@ -151,7 +151,7 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersBX(const CSCCLCTDigi& clct,
                                        const GEMInternalClusters& clusters,
                                        GEMInternalClusters& output) const {
-  if (!clct.isValid())
+  if (!clct.isValid() or clusters.empty())
     return;
 
   // select clusters matched in time
@@ -168,7 +168,7 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
                                        const GEMInternalClusters& clusters,
                                        GEMInternalClusters& output) const {
   // both need to be valid
-  if (!alct.isValid() or !clct.isValid())
+  if (!alct.isValid() or !clct.isValid() or clusters.empty())
     return;
 
   // get the single matches
@@ -189,7 +189,7 @@ void CSCGEMMatcher::matchingClustersBX(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
                                         const GEMInternalClusters& clusters,
                                         GEMInternalClusters& output) const {
-  if (!alct.isValid())
+  if (!alct.isValid() or clusters.empty())
     return;
 
   // select clusters matched in wiregroup
@@ -206,7 +206,7 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersLoc(const CSCCLCTDigi& clct,
                                         const GEMInternalClusters& clusters,
                                         GEMInternalClusters& output) const {
-  if (!clct.isValid())
+  if (!clct.isValid() or clusters.empty())
     return;
 
   // select clusters matched by 1/2-strip or 1/8-strip
@@ -303,7 +303,7 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
                                         const GEMInternalClusters& clusters,
                                         GEMInternalClusters& output) const {
   // both need to be valid
-  if (!alct.isValid() or !clct.isValid())
+  if (!alct.isValid() or !clct.isValid() or clusters.empty())
     return;
 
   // get the single matches
@@ -324,6 +324,9 @@ void CSCGEMMatcher::matchingClustersLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
                                           const GEMInternalClusters& clusters,
                                           GEMInternalClusters& output) const {
+  if (!alct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBX;
   matchingClustersBX(alct, clusters, clustersBX);
@@ -335,6 +338,9 @@ void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::matchingClustersBXLoc(const CSCCLCTDigi& clct,
                                           const GEMInternalClusters& clusters,
                                           GEMInternalClusters& output) const {
+  if (!clct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBX;
   matchingClustersBX(clct, clusters, clustersBX);
@@ -347,6 +353,10 @@ void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
                                           const CSCCLCTDigi& clct,
                                           const GEMInternalClusters& clusters,
                                           GEMInternalClusters& selected) const {
+  // both need to be valid
+  if (!alct.isValid() or !clct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBX;
   matchingClustersBX(alct, clct, clusters, clustersBX);
@@ -358,6 +368,9 @@ void CSCGEMMatcher::matchingClustersBXLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
                                      const GEMInternalClusters& clusters,
                                      GEMInternalCluster& best) const {
+  if (!alct.isValid() or clusters.empty())
+    return;
+
   GEMInternalClusters clustersBXLoc;
   matchingClustersBXLoc(alct, clusters, clustersBXLoc);
 
@@ -369,9 +382,25 @@ void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
 void CSCGEMMatcher::bestClusterBXLoc(const CSCCLCTDigi& clct,
                                      const GEMInternalClusters& clusters,
                                      GEMInternalCluster& best) const {
+  if (!clct.isValid() or clusters.empty())
+    return;
+
   // match by BX
   GEMInternalClusters clustersBXLoc;
   matchingClustersBXLoc(clct, clusters, clustersBXLoc);
+
+  // FIXME - for now: pick the first matching one
+  if (!clustersBXLoc.empty())
+    best = clustersBXLoc[0];
+}
+
+void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
+                                     const CSCCLCTDigi& clct,
+                                     const GEMInternalClusters& clusters,
+                                     GEMInternalCluster& best) const {
+  // match by BX
+  GEMInternalClusters clustersBXLoc;
+  matchingClustersBXLoc(alct, clct, clusters, clustersBXLoc);
 
   // FIXME - for now: pick the first matching one
   if (!clustersBXLoc.empty())
@@ -440,19 +469,6 @@ uint16_t CSCGEMMatcher::mitigatedSlopeByConsistency(const CSCCLCTDigi& clct) con
   else {
     return 999;
   }
-}
-
-void CSCGEMMatcher::bestClusterBXLoc(const CSCALCTDigi& alct,
-                                     const CSCCLCTDigi& clct,
-                                     const GEMInternalClusters& clusters,
-                                     GEMInternalCluster& best) const {
-  // match by BX
-  GEMInternalClusters clustersBXLoc;
-  matchingClustersBXLoc(alct, clct, clusters, clustersBXLoc);
-
-  // FIXME - for now: pick the first matching one
-  if (!clustersBXLoc.empty())
-    best = clustersBXLoc[0];
 }
 
 int CSCGEMMatcher::CSCGEMSlopeCorrector(bool isL1orCoincidence, int cscSlope) const {
