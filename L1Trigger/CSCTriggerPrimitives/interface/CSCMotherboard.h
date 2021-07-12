@@ -191,7 +191,7 @@ protected:
      constructor of correlated LCTs. The LCT data members are filled with
      information from the ALCT-CLCT combination.
   */
-  CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb) const;
+  void constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
 
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;

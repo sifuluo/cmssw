@@ -299,8 +299,8 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
   dropLowQualityALCTNoClusters(secondALCT, secondCluster);
 
   // construct all LCTs with valid ALCTs and coincidence clusters
-  lct1 = constructLCTsGEM(bestALCT, bestCluster);
-  lct2 = constructLCTsGEM(secondALCT, secondCluster);
+  constructLCTsGEM(bestALCT, bestCluster, lct1);
+  constructLCTsGEM(secondALCT, secondCluster, lct2);
 }
 
 void CSCGEMMotherboard::correlateLCTsGEM(const CSCCLCTDigi& bCLCT,
@@ -331,8 +331,8 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCCLCTDigi& bCLCT,
   dropLowQualityCLCTNoClusters(secondCLCT, secondCluster);
 
   // construct all LCTs with valid CLCTs and coincidence clusters
-  lct1 = constructLCTsGEM(bestCLCT, bestCluster);
-  lct2 = constructLCTsGEM(secondCLCT, secondCluster);
+  constructLCTsGEM(bestCLCT, bestCluster, lct1);
+  constructLCTsGEM(secondCLCT, secondCluster, lct2);
 }
 
 void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
@@ -404,12 +404,20 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
 
     // construct all LCTs with valid ALCT, valid CLCTs and coincidence clusters
     CSCCorrelatedLCTDigi lctbb, lctbs, lctsb, lctss;
-    lctbb = constructLCTsGEM(bestALCT, bestCLCT, bbCluster);
-    lctbs = constructLCTsGEM(bestALCT, secondCLCT, bsCluster);
-    lctsb = constructLCTsGEM(secondALCT, bestCLCT, sbCluster);
-    lctss = constructLCTsGEM(secondALCT, secondCLCT, ssCluster);
+    // always construct the best LCT
+    constructLCTsGEM(bestALCT, bestCLCT, bbCluster, lctbb);
+    // optionally, construct other LCTs
+    if (secondCLCT != bestCLCT) {
+      constructLCTsGEM(bestALCT, secondCLCT, bsCluster, lctbs);
+    }
+    if (secondALCT != bestALCT) {
+      constructLCTsGEM(secondALCT, bestCLCT, sbCluster, lctsb);
+    }
+    if ((secondALCT != bestALCT) and (secondCLCT != bestCLCT)) {
+      constructLCTsGEM(secondALCT, secondCLCT, ssCluster, lctss);
+    }
 
-    // add the valid ones
+    // add the valid LCTs
     if (lctbb.isValid())
       lcts.push_back(lctbb);
     if (lct2.isValid())
@@ -419,10 +427,9 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
     if (lctss.isValid())
       lcts.push_back(lctss);
 
-    // no lcts
-    if (lcts.empty()) {
+    // no LCTs
+    if (lcts.empty())
       return;
-    }
 
     // sort by bending angle
     sortLCTsByBending(lcts);
@@ -442,10 +449,10 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
   }
 }
 
-CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
-                                                         const CSCCLCTDigi& clct,
-                                                         const GEMInternalCluster& gem) const {
-  CSCCorrelatedLCTDigi thisLCT;
+void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
+                                         const CSCCLCTDigi& clct,
+                                         const GEMInternalCluster& gem,
+                                         CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   if (gem.isCoincidence()) {
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
@@ -479,12 +486,10 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
     thisLCT.setEighthStripBit(clct.getEighthStripBit());
     thisLCT.setRun3Pattern(clct.getRun3Pattern());
   }
-  return thisLCT;
 }
 
 /* Construct LCT from CSC and GEM information. Option CLCT-2GEM */
-CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInternalCluster& gem) const {
-  CSCCorrelatedLCTDigi thisLCT;
+void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   thisLCT.setQuality(qualityAssignment_->findQualityGEMv1(clct, gem));
@@ -513,12 +518,10 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct
     thisLCT.setEighthStripBit(clct.getEighthStripBit());
     thisLCT.setRun3Pattern(clct.getRun3Pattern());
   }
-  return thisLCT;
 }
 
 /* Construct LCT from CSC and GEM information. Option ALCT-2GEM */
-CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct, const GEMInternalCluster& gem) const {
-  CSCCorrelatedLCTDigi thisLCT;
+void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   thisLCT.setALCT(getBXShiftedALCT(alct));
@@ -546,7 +549,6 @@ CSCCorrelatedLCTDigi CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct
   } else {
     thisLCT.setQuality(static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun2::HQ_PATTERN_10));
   }
-  return thisLCT;
 }
 
 void CSCGEMMotherboard::dropLowQualityALCTNoClusters(CSCALCTDigi& alct, const GEMInternalCluster& cluster) const {
