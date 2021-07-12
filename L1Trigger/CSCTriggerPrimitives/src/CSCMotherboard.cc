@@ -356,19 +356,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   CSCCLCTDigi secondCLCT = sCLCT;
 
   // check which ALCTs and CLCTs are valid
-  const bool anodeBestValid = bestALCT.isValid();
-  const bool anodeSecondValid = secondALCT.isValid();
-  const bool cathodeBestValid = bestCLCT.isValid();
-  const bool cathodeSecondValid = secondCLCT.isValid();
-
-  if (anodeBestValid && !anodeSecondValid)
-    secondALCT = bestALCT;
-  if (!anodeBestValid && anodeSecondValid)
-    bestALCT = secondALCT;
-  if (cathodeBestValid && !cathodeSecondValid)
-    secondCLCT = bestCLCT;
-  if (!cathodeBestValid && cathodeSecondValid)
-    bestCLCT = secondCLCT;
+  copyValidToInValid(bestALCT, secondALCT, bestCLCT, secondCLCT);
 
   // ALCT-only LCTs
   const bool bestCase1(alct_trig_enable and bestALCT.isValid());
@@ -412,6 +400,28 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
       constructLCTs(secondALCT, secondCLCT, type, 2, sLCT);
     }
   }
+}
+
+void CSCMotherboard::copyValidToInValid(CSCALCTDigi& bestALCT,
+                                        CSCALCTDigi& secondALCT,
+                                        CSCCLCTDigi& bestCLCT,
+                                        CSCCLCTDigi& secondCLCT) const {
+
+  // check which ALCTs and CLCTs are valid
+  const bool anodeBestValid = bestALCT.isValid();
+  const bool anodeSecondValid = secondALCT.isValid();
+  const bool cathodeBestValid = bestCLCT.isValid();
+  const bool cathodeSecondValid = secondCLCT.isValid();
+
+  // copy the valid ALCT/CLCT information to the valid ALCT/CLCT
+  if (anodeBestValid && !anodeSecondValid)
+    secondALCT = bestALCT;
+  if (!anodeBestValid && anodeSecondValid)
+    bestALCT = secondALCT;
+  if (cathodeBestValid && !cathodeSecondValid)
+    secondCLCT = bestCLCT;
+  if (!cathodeBestValid && cathodeSecondValid)
+    bestCLCT = secondCLCT;
 }
 
 // This method calculates all the TMB words and then passes them to the

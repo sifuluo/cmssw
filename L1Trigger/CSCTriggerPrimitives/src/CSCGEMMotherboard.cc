@@ -366,19 +366,7 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
     }
 
     // check which ALCTs and CLCTs are valid
-    const bool anodeBestValid = bestALCT.isValid();
-    const bool anodeSecondValid = secondALCT.isValid();
-    const bool cathodeBestValid = bestCLCT.isValid();
-    const bool cathodeSecondValid = secondCLCT.isValid();
-
-    if (anodeBestValid && !anodeSecondValid)
-      secondALCT = bestALCT;
-    if (!anodeBestValid && anodeSecondValid)
-      bestALCT = secondALCT;
-    if (cathodeBestValid && !cathodeSecondValid)
-      secondCLCT = bestCLCT;
-    if (!cathodeBestValid && cathodeSecondValid)
-      bestCLCT = secondCLCT;
+    copyValidToInValid(bestALCT, secondALCT, bestCLCT, secondCLCT);
 
     // before matching ALCT-CLCT pairs with clusters, we check if we need
     // to drop particular low quality ALCTs or CLCTs without matching clusters
@@ -395,25 +383,25 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
     dropLowQualityCLCTNoClusters(bestCLCT, bestCLCTCluster);
     dropLowQualityCLCTNoClusters(secondCLCT, secondCLCTCluster);
 
-    // We can now check possible triplets
+    // We can now check possible triplets and construct all LCTs with
+    // valid ALCT, valid CLCTs and coincidence clusters
     GEMInternalCluster bbCluster, bsCluster, sbCluster, ssCluster;
-    cscGEMMatcher_->bestClusterBXLoc(bestALCT, bestCLCT, clusters, bbCluster);
-    cscGEMMatcher_->bestClusterBXLoc(bestALCT, secondCLCT, clusters, bsCluster);
-    cscGEMMatcher_->bestClusterBXLoc(secondALCT, bestCLCT, clusters, sbCluster);
-    cscGEMMatcher_->bestClusterBXLoc(secondALCT, secondCLCT, clusters, ssCluster);
-
-    // construct all LCTs with valid ALCT, valid CLCTs and coincidence clusters
     CSCCorrelatedLCTDigi lctbb, lctbs, lctsb, lctss;
-    // always construct the best LCT
-    constructLCTsGEM(bestALCT, bestCLCT, bbCluster, lctbb);
-    // optionally, construct other LCTs
-    if (secondCLCT != bestCLCT) {
+
+    if (bestALCT.isValid() and bestCLCT.isValid()) {
+      cscGEMMatcher_->bestClusterBXLoc(bestALCT, bestCLCT, clusters, bbCluster);
+      constructLCTsGEM(bestALCT, bestCLCT, bbCluster, lctbb);
+    }
+    if (bestALCT.isValid() and secondCLCT.isValid() and secondCLCT != bestCLCT) {
+      cscGEMMatcher_->bestClusterBXLoc(bestALCT, secondCLCT, clusters, bsCluster);
       constructLCTsGEM(bestALCT, secondCLCT, bsCluster, lctbs);
     }
-    if (secondALCT != bestALCT) {
+    if (bestCLCT.isValid() and secondALCT.isValid() and secondALCT != bestALCT) {
+      cscGEMMatcher_->bestClusterBXLoc(secondALCT, bestCLCT, clusters, sbCluster);
       constructLCTsGEM(secondALCT, bestCLCT, sbCluster, lctsb);
     }
-    if ((secondALCT != bestALCT) and (secondCLCT != bestCLCT)) {
+    if (secondALCT.isValid() and secondCLCT.isValid() and (secondALCT != bestALCT) and (secondCLCT != bestCLCT)) {
+      cscGEMMatcher_->bestClusterBXLoc(secondALCT, secondCLCT, clusters, ssCluster);
       constructLCTsGEM(secondALCT, secondCLCT, ssCluster, lctss);
     }
 
@@ -464,7 +452,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
   thisLCT.setCLCT(getBXShiftedCLCT(clct));
   thisLCT.setGEM1(gem.mid1());
   thisLCT.setGEM2(gem.mid2());
-  thisLCT.setPattern(clct.getPattern());
+  thisLCT.setPattern(encodePattern(clct.getPattern()));
   thisLCT.setMPCLink(0);
   thisLCT.setBX0(0);
   thisLCT.setSyncErr(0);
@@ -496,7 +484,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInter
   thisLCT.setCLCT(getBXShiftedCLCT(clct));
   thisLCT.setGEM1(gem.mid1());
   thisLCT.setGEM2(gem.mid2());
-  thisLCT.setPattern(clct.getPattern());
+  thisLCT.setPattern(encodePattern(clct.getPattern()));
   thisLCT.setMPCLink(0);
   thisLCT.setBX0(0);
   thisLCT.setSyncErr(0);

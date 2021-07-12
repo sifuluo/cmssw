@@ -193,6 +193,12 @@ protected:
   */
   void constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
 
+  /*
+    This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT
+    if present, so that we always construct the maximum number of valid LCts
+   */
+  void copyValidToInValid(CSCALCTDigi&, CSCALCTDigi&, CSCCLCTDigi&, CSCCLCTDigi&) const;
+
   // CLCT pattern number: encodes the pattern number itself
   unsigned int encodePattern(const int clctPattern) const;
 
