@@ -88,21 +88,21 @@ tmbPhase2GEM = tmbPhase2.clone(
 # to be used by ME11 chambers with GEM-CSC ILT
 tmbPhase2GE11 = tmbPhase2GEM.clone(
     # matching to GEM clusters with half-strips
-    maxDeltaHsEven = cms.uint32(7),
-    maxDeltaHsOdd = cms.uint32(16),
-    maxDeltaHsEvenME1a = cms.uint32(5),
-    maxDeltaHsOddME1a = cms.uint32(12),
+    maxDeltaHsEven = cms.uint32(7*2),
+    maxDeltaHsOdd = cms.uint32(16*2),
+    maxDeltaHsEvenME1a = cms.uint32(5*2),
+    maxDeltaHsOddME1a = cms.uint32(12*2),
     # efficiency recovery switches
-    dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
-    buildLCTfromALCTandGEM_ME1a = cms.bool(False),
-    buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
+    dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(True),
+    buildLCTfromALCTandGEM_ME1a = cms.bool(True),
+    buildLCTfromCLCTandGEM_ME1a = cms.bool(True),
 )
 
 # to be used by ME21 chambers with GEM-CSC ILT
 tmbPhase2GE21 = tmbPhase2GEM.clone(
     # matching to GEM clusters with half-strips
-    maxDeltaHsEven = cms.uint32(3),
-    maxDeltaHsOdd = cms.uint32(5),
+    maxDeltaHsEven = cms.uint32(7*2),
+    maxDeltaHsOdd = cms.uint32(16*2),
 
     dropLowQualityALCTsNoGEMs = True,
 )
