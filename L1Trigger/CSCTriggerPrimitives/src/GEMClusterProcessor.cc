@@ -167,20 +167,20 @@ void GEMClusterProcessor::addCoincidenceClusters(const GEMPadDigiClusterCollecti
           if ((unsigned)std::abs(p->bx() - co_p->bx()) > maxDeltaBX_)
             continue;
 
-          // check the match in pad
-          int cl1f = p->pads().front();
-          int cl1b = p->pads().back();
-          int cl2f = co_p->pads().front();
-          int cl2b = co_p->pads().back();
+          // get the corrected minimum and maximum of cluster 1
+          Int cl1_min = p->pads().front() - maxDeltaPad_;
+          int cl1_max = p->pads().back() + maxDeltaPad_;
 
-          unsigned deltaFF = std::abs(cl1f - cl2f);
-          unsigned deltaFB = std::abs(cl1f - cl2b);
-          unsigned deltaBF = std::abs(cl1b - cl2f);
-          unsigned deltaBB = std::abs(cl1b - cl2b);
+          // get the minimum and maximum of cluster 2
+          int cl2_min = co_p->pads().front();
+          int cl2_max = co_p->pads().back();
 
-          std::vector<unsigned> v{deltaFF, deltaFB, deltaBF, deltaBB};
+          // match condition
+          const bool condition1(cl1_min <= cl2_min and cl1_max >= cl2_min);
+          const bool condition2(cl1_min <= cl2_max and cl1_max >= cl2_max);
+          const bool match(condition1 or condition2);
 
-          if (*std::min_element(v.begin(), v.end()) > maxDeltaPad_)
+          if (!match)
             continue;
 
           // make a new coincidence
