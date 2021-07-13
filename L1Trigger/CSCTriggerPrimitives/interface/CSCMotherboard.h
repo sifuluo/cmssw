@@ -191,7 +191,8 @@ protected:
      constructor of correlated LCTs. The LCT data members are filled with
      information from the ALCT-CLCT combination.
   */
-  void constructLCTs(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
+  void constructLCTs(
+      const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& lct) const;
 
   /*
     This function copies valid ALCT/CLCT information to invalid the ALCT/CLCT

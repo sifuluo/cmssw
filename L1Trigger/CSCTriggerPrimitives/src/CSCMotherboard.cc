@@ -406,7 +406,6 @@ void CSCMotherboard::copyValidToInValid(CSCALCTDigi& bestALCT,
                                         CSCALCTDigi& secondALCT,
                                         CSCCLCTDigi& bestCLCT,
                                         CSCCLCTDigi& secondCLCT) const {
-
   // check which ALCTs and CLCTs are valid
   const bool anodeBestValid = bestALCT.isValid();
   const bool anodeSecondValid = secondALCT.isValid();
@@ -426,11 +425,8 @@ void CSCMotherboard::copyValidToInValid(CSCALCTDigi& bestALCT,
 
 // This method calculates all the TMB words and then passes them to the
 // constructor of correlated LCTs.
-void CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
-                                   const CSCCLCTDigi& cLCT,
-                                   int type,
-                                   int trknmb, CSCCorrelatedLCTDigi& thisLCT) const {
-
+void CSCMotherboard::constructLCTs(
+    const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, int type, int trknmb, CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   thisLCT.setType(type);
   // make sure to shift the ALCT BX from 8 to 3 and the CLCT BX from 8 to 7!

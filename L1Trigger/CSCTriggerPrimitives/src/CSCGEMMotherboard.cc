@@ -409,7 +409,8 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& bALCT,
     if (bestCLCT.isValid() and secondALCT.isValid() and sbCluster.isValid() and (secondALCT != bestALCT)) {
       constructLCTsGEM(secondALCT, bestCLCT, sbCluster, lctsb);
     }
-    if (secondALCT.isValid() and secondCLCT.isValid() and ssCluster.isValid() and (secondALCT != bestALCT) and (secondCLCT != bestCLCT)) {
+    if (secondALCT.isValid() and secondCLCT.isValid() and ssCluster.isValid() and (secondALCT != bestALCT) and
+        (secondCLCT != bestCLCT)) {
       constructLCTsGEM(secondALCT, secondCLCT, ssCluster, lctss);
     }
 
@@ -485,7 +486,9 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
 }
 
 /* Construct LCT from CSC and GEM information. Option CLCT-2GEM */
-void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& thisLCT) const {
+void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
+                                         const GEMInternalCluster& gem,
+                                         CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   thisLCT.setQuality(qualityAssignment_->findQualityGEMv1(clct, gem));
@@ -517,7 +520,9 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInter
 }
 
 /* Construct LCT from CSC and GEM information. Option ALCT-2GEM */
-void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& thisLCT) const {
+void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
+                                         const GEMInternalCluster& gem,
+                                         CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   thisLCT.setALCT(getBXShiftedALCT(alct));

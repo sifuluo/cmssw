@@ -95,7 +95,8 @@ private:
   /* Construct LCT from CSC and GEM information. Options are ALCT-CLCT-GEM, ALCT-CLCT-2GEM */
   void constructLCTsGEM(const CSCALCTDigi& alct,
                         const CSCCLCTDigi& clct,
-                        const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& lct) const;
+                        const GEMInternalCluster& gem,
+                        CSCCorrelatedLCTDigi& lct) const;
 
   /* Construct LCT from CSC and GEM information. Options are CLCT-2GEM */
   void constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& lct) const;
