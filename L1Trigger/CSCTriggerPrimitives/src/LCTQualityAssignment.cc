@@ -108,12 +108,12 @@ unsigned LCTQualityAssignment::findQualityRun3(const CSCALCTDigi& aLCT, const CS
   }
   // use number of layers on each as indicator
   else {
-    const bool a4 = (aLCT.getQuality() >= 1);
-    const bool a5 = (aLCT.getQuality() >= 2);
+    const bool a4 = (aLCT.getQuality() == 1);
+    const bool a5 = (aLCT.getQuality() == 2);
     const bool a6 = (aLCT.getQuality() == 3);
 
-    const bool c4 = (cLCT.getQuality() >= 4);
-    const bool c5 = (cLCT.getQuality() >= 5);
+    const bool c4 = (cLCT.getQuality() == 4);
+    const bool c5 = (cLCT.getQuality() == 5);
     const bool c6 = (cLCT.getQuality() == 6);
     if (a6 or c6)
       qual = LCT_QualityRun3::HighQ;
