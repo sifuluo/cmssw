@@ -14,7 +14,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
       build_lct_from_clct_gem_(tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM")) {
   // case for ME1/1
   if (isME11_) {
-    drop_low_quality_clct_no_gems_me1a_ = tmbParams_.getParameter<bool>("dropLowQualityALCTsNoGEMs_ME1a");
+    drop_low_quality_clct_no_gems_me1a_ = tmbParams_.getParameter<bool>("dropLowQualityCLCTsNoGEMs_ME1a");
     build_lct_from_clct_gem_me1a_ = tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM_ME1a");
   }
 

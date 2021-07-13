@@ -93,7 +93,7 @@ tmbPhase2GE11 = tmbPhase2GEM.clone(
     maxDeltaHsEvenME1a = cms.uint32(5),
     maxDeltaHsOddME1a = cms.uint32(12),
     # efficiency recovery switches
-    dropLowQualityALCTsNoGEMs_ME1a = cms.bool(False),
+    dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
     buildLCTfromALCTandGEM_ME1a = cms.bool(False),
     buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
 )
