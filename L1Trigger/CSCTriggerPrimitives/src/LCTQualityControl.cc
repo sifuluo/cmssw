@@ -218,6 +218,31 @@ void LCTQualityControl::checkValid(const CSCCorrelatedLCTDigi& lct, unsigned sta
     }
   }
 
+  // GEM-CSC types must have at least one valid GEM hit
+  if ((lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCTGEM or lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT2GEM or
+       lct.getType() == CSCCorrelatedLCTDigi::ALCT2GEM or lct.getType() == CSCCorrelatedLCTDigi::CLCT2GEM) and
+      !lct.getGEM1().isValid() and !lct.getGEM2().isValid()) {
+    edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with valid GEM-CSC type (SIM) has no valid GEM hits: "
+                                       << lct.getType();
+    errors++;
+  }
+
+  // LCT type does not agree with the LCT quality when CCLUT is on
+  if (runCCLUT_) {
+    const bool case1(lct.getType() == CSCCorrelatedLCTDigi::ALCT2GEM and lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_2GEM));
+    const bool case2(lct.getType() == CSCCorrelatedLCTDigi::CLCT2GEM and lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::CLCT_2GEM));
+    const bool case3(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCTGEM and lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_1GEM_CSCBend));
+    const bool case4(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCTGEM and lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_1GEM_GEMCSCBend));
+    const bool case5(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT2GEM and lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_2GEM_CSCBend));
+    const bool case6(lct.getType() == CSCCorrelatedLCTDigi::ALCTCLCT2GEM and lct.getQuality() == static_cast<unsigned>(LCTQualityAssignment::LCT_QualityRun3GEM::ALCT_CLCT_2GEM_GEMCSCBend));
+
+    if (!(case1 or case2 or case3 or case4 or case5 or case6)) {
+      edm::LogError("LCTQualityControl") << "CSCCorrelatedLCTDigi with valid GEM-CSC type (SIM) has no matching Run-3 quality: "
+                                         << lct.getType() << " " << lct.getQuality();
+      errors++;
+    }
+  }
+
   reportErrors(lct, errors);
 }
 
